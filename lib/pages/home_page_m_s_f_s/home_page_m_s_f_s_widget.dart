@@ -43384,7 +43384,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                   height: double.infinity,
                                                   onRunwaySelected: (lat, lon,
                                                       heading) async {
-                                                    _model.elevationDataMSFS =
+                                                    _model.elevationDataMSFSrwy =
                                                         await GetElevationCall
                                                             .call(
                                                       lat:
@@ -43393,8 +43393,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           FFAppState().radarLon,
                                                     );
 
-                                                    if ((_model
-                                                            .elevationDataMSFS
+                                                    if (!(_model
+                                                            .elevationDataMSFSrwy
                                                             ?.succeeded ??
                                                         true)) {
                                                       ScaffoldMessenger.of(
@@ -43402,18 +43402,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           .showSnackBar(
                                                         SnackBar(
                                                           content: Text(
-                                                            valueOrDefault<
-                                                                String>(
-                                                              (getJsonField(
-                                                                        (_model.elevationDataMSFS?.jsonBody ??
-                                                                            ''),
-                                                                        r'''$.results[0].elevation''',
-                                                                      ) *
-                                                                      3.28084)
-                                                                  .toStringAsFixed(
-                                                                      1),
-                                                              '!',
-                                                            ),
+                                                            'Error to get Airport Elevation!',
                                                             style: TextStyle(
                                                               color: FlutterFlowTheme
                                                                       .of(context)
@@ -43424,9 +43413,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               milliseconds:
                                                                   4000),
                                                           backgroundColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .secondary,
+                                                              Color(0xFFDA2B2B),
                                                         ),
                                                       );
                                                     }
@@ -43434,7 +43421,57 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                     safeSetState(() {});
                                                   },
                                                   onGateSelected: (lat, lon,
-                                                      heading) async {},
+                                                      heading) async {
+                                                    _model.elevationDataMSFSgate =
+                                                        await GetElevationCall
+                                                            .call(
+                                                      lat: FFAppState().gateLat,
+                                                      lon: FFAppState().gateLon,
+                                                    );
+
+                                                    if (!(_model
+                                                            .elevationDataMSFSgate
+                                                            ?.succeeded ??
+                                                        true)) {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            'Error to get Airport Elevation!',
+                                                            style: TextStyle(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                            ),
+                                                          ),
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  4000),
+                                                          backgroundColor:
+                                                              Color(0xFFDA2B2B),
+                                                        ),
+                                                      );
+                                                    }
+                                                    await actions
+                                                        .patternTeleporter(
+                                                      FFAppState().ipPC,
+                                                      FFAppState().gateLat,
+                                                      FFAppState().gateLon,
+                                                      FFAppState().gateHdg,
+                                                      getJsonField(
+                                                            (_model.elevationDataMSFSgate
+                                                                    ?.jsonBody ??
+                                                                ''),
+                                                            r'''$.results[0].elevation''',
+                                                          ) *
+                                                          3.28084,
+                                                      'gate',
+                                                      0.0,
+                                                    );
+
+                                                    safeSetState(() {});
+                                                  },
                                                   onSpeedSet: (speed) async {
                                                     FFAppState()
                                                             .PositionSpeedMSFS =
@@ -43465,7 +43502,30 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       'landing',
                                                     );
                                                   },
-                                                  onPlane15nmTap: () async {},
+                                                  onPlane15nmTap: () async {
+                                                    await actions
+                                                        .patternTeleporter(
+                                                      FFAppState().ipPC,
+                                                      FFAppState().radarLat,
+                                                      FFAppState().radarLon,
+                                                      FFAppState().radarHdgRaw,
+                                                      ((double? elevation) {
+                                                        return elevation != null
+                                                            ? (elevation +
+                                                                    3000.0)
+                                                                .roundToDouble()
+                                                            : null;
+                                                      }(getJsonField(
+                                                        (_model.elevationDataMSFSrwy
+                                                                ?.jsonBody ??
+                                                            ''),
+                                                        r'''$.results[0].elevation''',
+                                                      )))!,
+                                                      '15nm',
+                                                      FFAppState()
+                                                          .PositionSpeedMSFS,
+                                                    );
+                                                  },
                                                   onPlane10nmTap: () async {
                                                     await actions
                                                         .patternTeleporter(
@@ -43480,7 +43540,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                 .roundToDouble()
                                                             : null;
                                                       }(getJsonField(
-                                                        (_model.elevationDataMSFS
+                                                        (_model.elevationDataMSFSrwy
                                                                 ?.jsonBody ??
                                                             ''),
                                                         r'''$.results[0].elevation''',
@@ -43490,7 +43550,30 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           .PositionSpeedMSFS,
                                                     );
                                                   },
-                                                  onPlane7nmTap: () async {},
+                                                  onPlane7nmTap: () async {
+                                                    await actions
+                                                        .patternTeleporter(
+                                                      FFAppState().ipPC,
+                                                      FFAppState().radarLat,
+                                                      FFAppState().radarLon,
+                                                      FFAppState().radarHdgRaw,
+                                                      ((double? elevation) {
+                                                        return elevation != null
+                                                            ? (elevation +
+                                                                    2300.0)
+                                                                .roundToDouble()
+                                                            : null;
+                                                      }(getJsonField(
+                                                        (_model.elevationDataMSFSrwy
+                                                                ?.jsonBody ??
+                                                            ''),
+                                                        r'''$.results[0].elevation''',
+                                                      )))!,
+                                                      '7nm',
+                                                      FFAppState()
+                                                          .PositionSpeedMSFS,
+                                                    );
+                                                  },
                                                   onPlane4nmTap: () async {
                                                     await actions
                                                         .patternTeleporter(
@@ -43499,15 +43582,14 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState().radarLon,
                                                       FFAppState().radarHdgRaw,
                                                       getJsonField(
-                                                            (_model.elevationDataMSFS
+                                                            (_model.elevationDataMSFSrwy
                                                                     ?.jsonBody ??
                                                                 ''),
                                                             r'''$.results[0].elevation''',
                                                           ) *
                                                           3.28084,
                                                       'takeoff',
-                                                      FFAppState()
-                                                          .PositionSpeedMSFS,
+                                                      0.0,
                                                     );
                                                   },
                                                   onPlaneHoldLeftTap: () async {
@@ -43531,7 +43613,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                 .roundToDouble()
                                                             : null;
                                                       }(getJsonField(
-                                                        (_model.elevationDataMSFS
+                                                        (_model.elevationDataMSFSrwy
                                                                 ?.jsonBody ??
                                                             ''),
                                                         r'''$.results[0].elevation''',
@@ -43563,7 +43645,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                 .roundToDouble()
                                                             : null;
                                                       }(getJsonField(
-                                                        (_model.elevationDataMSFS
+                                                        (_model.elevationDataMSFSrwy
                                                                 ?.jsonBody ??
                                                             ''),
                                                         r'''$.results[0].elevation''',
@@ -43596,7 +43678,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                   .roundToDouble()
                                                               : null;
                                                         }(getJsonField(
-                                                          (_model.elevationDataMSFS
+                                                          (_model.elevationDataMSFSrwy
                                                                   ?.jsonBody ??
                                                               ''),
                                                           r'''$.results[0].elevation''',
@@ -43631,7 +43713,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                   .roundToDouble()
                                                               : null;
                                                         }(getJsonField(
-                                                          (_model.elevationDataMSFS
+                                                          (_model.elevationDataMSFSrwy
                                                                   ?.jsonBody ??
                                                               ''),
                                                           r'''$.results[0].elevation''',
@@ -43643,7 +43725,30 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           .PositionSpeedMSFS,
                                                     );
                                                   },
-                                                  onPlaneCruiseTap: () async {},
+                                                  onPlaneCruiseTap: () async {
+                                                    await actions
+                                                        .patternTeleporter(
+                                                      FFAppState().ipPC,
+                                                      FFAppState().radarLat,
+                                                      FFAppState().radarLon,
+                                                      FFAppState().radarHdgRaw,
+                                                      ((double? elevation) {
+                                                        return elevation != null
+                                                            ? (elevation +
+                                                                    10000.0)
+                                                                .roundToDouble()
+                                                            : null;
+                                                      }(getJsonField(
+                                                        (_model.elevationDataMSFSrwy
+                                                                ?.jsonBody ??
+                                                            ''),
+                                                        r'''$.results[0].elevation''',
+                                                      )))!,
+                                                      'cruise',
+                                                      FFAppState()
+                                                          .PositionSpeedMSFS,
+                                                    );
+                                                  },
                                                 ),
                                               ),
                                             ),

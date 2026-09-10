@@ -208,7 +208,9 @@ class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
   // State field(s) for MouseRegion widget.
   bool mouseRegionHovered8 = false;
   // Stores action output result for [Backend Call - API (GetElevation)] action in EliteAviationEFB widget.
-  ApiCallResponse? elevationDataMSFS;
+  ApiCallResponse? elevationDataMSFSrwy;
+  // Stores action output result for [Backend Call - API (GetElevation)] action in EliteAviationEFB widget.
+  ApiCallResponse? elevationDataMSFSgate;
 
   @override
   void initState(BuildContext context) {}

@@ -193,7 +193,6 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
         });
 
         if (parsedRunways.isNotEmpty) {
-          // 🔴 التعديل السحري هنا: لو إنت على شاشة الجيت، هنختار أول مدرج بصمت من غير ما نبعت الأكشن يشتغل
           _selectRunway(parsedRunways[0], triggerCallback: _selectedMode == 0);
         }
       } else {
@@ -214,19 +213,50 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
       _selectedGateIndex = -1;
     });
 
-    final String query = '''
-      [out:json][timeout:25];
-      area["icao"="$icao"]->.a;
-      nwr["aeroway"="parking_position"](area.a)->.gates;
-      way["aeroway"~"taxiway|taxilane"](area.a)->.taxiways;
-      .gates out center;
-      .taxiways out geom;
-    ''';
-
     try {
+      // 1. جلب بيانات المطار الأوفلاين عشان ناخد الإحداثيات
+      final dynamic airportData = await getOfflineAirportData(icao);
+
+      if (airportData == null ||
+          airportData['runways'] == null ||
+          (airportData['runways'] as List).isEmpty) {
+        if (mounted)
+          setState(() {
+            _gateErrorMessage = 'AIRPORT COORDS NOT FOUND';
+            _isLoadingGates = false;
+          });
+        return;
+      }
+
+      // 2. حساب المركز الهندسي للمطار (متوسط إحداثيات كل المدارج)
+      double sumLat = 0.0;
+      double sumLon = 0.0;
+      List<dynamic> rwys = airportData['runways'];
+      int count = rwys.length;
+
+      for (var rwy in rwys) {
+        sumLat += double.tryParse(rwy['lat'].toString()) ?? 0.0;
+        sumLon += double.tryParse(rwy['lon'].toString()) ?? 0.0;
+      }
+
+      final double centerLat = sumLat / count;
+      final double centerLon = sumLon / count;
+
+      // 3. استعلام قوي يعتمد على الإحداثيات بنطاق 6500 متر
+      final String query = '''
+        [out:json][timeout:25];
+        (
+          node["aeroway"~"gate|parking_position"](around:6500,$centerLat,$centerLon);
+          way["aeroway"~"taxiway|taxilane"](around:6500,$centerLat,$centerLon);
+        );
+        out center geom;
+      ''';
+
+      final String encodedQuery = Uri.encodeComponent(query);
+
       final response = await http.get(
         Uri.parse(
-            'https://overpass.openstreetmap.fr/api/interpreter?data=[out:json];node(around:3500,30.111,31.406)["aeroway"~"gate|parking_position"];out body;'),
+            'https://overpass.openstreetmap.fr/api/interpreter?data=$encodedQuery'),
         headers: {'User-Agent': 'SimulatorStationApp/1'},
       ).timeout(const Duration(seconds: 25));
 
@@ -385,12 +415,10 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
     }
   }
 
-  // 🔴 تم إضافة triggerCallback للتحكم في تشغيل الأكشن من عدمه
   void _selectRunway(Map<String, dynamic> runway,
       {bool triggerCallback = true}) {
     setState(() => _selectedRunway = runway);
 
-    // تحديث متغيرات المدرج في App State
     FFAppState().update(() {
       FFAppState().radarRwyName = runway['name'];
       FFAppState().radarLat = runway['lat'];
@@ -666,8 +694,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 final isSel = _selectedRunway != null &&
                     _selectedRunway!['name'] == rw['name'];
                 return GestureDetector(
-                  onTap: () => _selectRunway(
-                      rw), // هنا بيشغل الكول باك طبيعي لأنه استدعاء يدوي
+                  onTap: () => _selectRunway(rw),
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -829,7 +856,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 xPct: 0.26,
                 yPct: 0.50,
                 text1: '10nm OUT',
-                text2: '3,000ft',
+                text2: '2,500ft',
                 angle: math.pi / 2,
                 txtDy: 60,
                 onTap: widget.onPlane10nmTap),
@@ -847,7 +874,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 xPct: 0.51,
                 yPct: 0.50,
                 text1: 'Takeoff',
-                text2: '1,300ft',
+                text2: 'ON RWY',
                 angle: math.pi / 2,
                 txtDy: 60,
                 onTap: widget.onPlane4nmTap),
@@ -865,7 +892,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 xPct: 0.45,
                 yPct: 0.30,
                 text1: 'Left base',
-                text2: '3,000ft',
+                text2: '7000ft',
                 angle: math.pi,
                 txtDy: -40,
                 onTap: widget.onPlaneHoldLeftTap),
@@ -873,8 +900,8 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 constraints: constraints,
                 xPct: 0.84,
                 yPct: 0.30,
-                text1: 'Left Downwind 45L',
-                text2: '3,000ft',
+                text1: 'Left Downwind',
+                text2: '1000ft',
                 angle: -math.pi / 2,
                 txtDy: -40,
                 onTap: widget.onPlaneLeftDownwindTap),
@@ -883,7 +910,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 xPct: 0.45,
                 yPct: 0.70,
                 text1: 'Right base',
-                text2: '3,000ft',
+                text2: '7000ft',
                 angle: 0,
                 txtDy: 40,
                 onTap: widget.onPlaneHoldRightTap),
@@ -891,8 +918,8 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 constraints: constraints,
                 xPct: 0.84,
                 yPct: 0.70,
-                text1: 'Right Downwind 45L',
-                text2: '3,000ft',
+                text1: 'Right Downwind',
+                text2: '1,000ft',
                 angle: -math.pi / 2,
                 txtDy: 40,
                 onTap: widget.onPlaneRightDownwindTap),
@@ -969,7 +996,6 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
             onTap: () {
               setState(() => _selectedGateIndex = index);
 
-              // 🔴 تحديث App State الخاصة بالبوابات (Gates) بشكل منفصل
               FFAppState().update(() {
                 FFAppState().gateName = gate['name'];
                 FFAppState().gateLat = gate['lat'];
