@@ -224,10 +224,10 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
     ''';
 
     try {
-      final response = await http.post(
-        Uri.parse('https://overpass-api.de/api/interpreter'),
-        headers: {'User-Agent': 'FlutterFlow_Sim_App_v1.0'},
-        body: {'data': query},
+      final response = await http.get(
+        Uri.parse(
+            'https://overpass.openstreetmap.fr/api/interpreter?data=[out:json];node(around:3500,30.111,31.406)["aeroway"~"gate|parking_position"];out body;'),
+        headers: {'User-Agent': 'SimulatorStationApp/1'},
       ).timeout(const Duration(seconds: 25));
 
       if (response.statusCode != 200) {

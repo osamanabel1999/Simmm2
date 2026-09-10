@@ -22062,7 +22062,14 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                           ],
                                         ),
                                       ),
-                                    if (FFAppState().TabNumber == 1)
+                                    if ((FFAppState().TabNumber == 1) &&
+                                        responsiveVisibility(
+                                          context: context,
+                                          phone: false,
+                                          tablet: false,
+                                          tabletLandscape: false,
+                                          desktop: false,
+                                        ))
                                       Expanded(
                                         child: Column(
                                           mainAxisSize: MainAxisSize.max,
