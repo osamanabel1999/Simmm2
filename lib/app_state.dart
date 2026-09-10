@@ -401,6 +401,30 @@ class FFAppState extends ChangeNotifier {
   set PositionSpeedMSFS(double value) {
     _PositionSpeedMSFS = value;
   }
+
+  String _chartGateName = '';
+  String get chartGateName => _chartGateName;
+  set chartGateName(String value) {
+    _chartGateName = value;
+  }
+
+  double _chartGateLat = 0.0;
+  double get chartGateLat => _chartGateLat;
+  set chartGateLat(double value) {
+    _chartGateLat = value;
+  }
+
+  double _chartGateLon = 0.0;
+  double get chartGateLon => _chartGateLon;
+  set chartGateLon(double value) {
+    _chartGateLon = value;
+  }
+
+  double _chartGateHdg = 0.0;
+  double get chartGateHdg => _chartGateHdg;
+  set chartGateHdg(double value) {
+    _chartGateHdg = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

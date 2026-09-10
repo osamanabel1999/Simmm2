@@ -43472,6 +43472,58 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
 
                                                     safeSetState(() {});
                                                   },
+                                                  onChartGateSelected: (name,
+                                                      lat, lon, heading) async {
+                                                    _model.elevationDataMSFSchartGate =
+                                                        await GetElevationCall
+                                                            .call(
+                                                      lat: FFAppState().gateLat,
+                                                      lon: FFAppState().gateLon,
+                                                    );
+
+                                                    if (!(_model
+                                                            .elevationDataMSFSchartGate
+                                                            ?.succeeded ??
+                                                        true)) {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            'Error to get Airport Elevation!',
+                                                            style: TextStyle(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                            ),
+                                                          ),
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  4000),
+                                                          backgroundColor:
+                                                              Color(0xFFDA2B2B),
+                                                        ),
+                                                      );
+                                                    }
+                                                    await actions
+                                                        .patternTeleporter(
+                                                      FFAppState().ipPC,
+                                                      FFAppState().chartGateLat,
+                                                      FFAppState().chartGateLon,
+                                                      FFAppState().chartGateHdg,
+                                                      getJsonField(
+                                                            (_model.elevationDataMSFSchartGate
+                                                                    ?.jsonBody ??
+                                                                ''),
+                                                            r'''$.results[0].elevation''',
+                                                          ) *
+                                                          3.28084,
+                                                      'gate',
+                                                      0.0,
+                                                    );
+
+                                                    safeSetState(() {});
+                                                  },
                                                   onSpeedSet: (speed) async {
                                                     FFAppState()
                                                             .PositionSpeedMSFS =
@@ -43481,6 +43533,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                   onRunwayActionTap:
                                                       () async {},
                                                   onGateActionTap: () async {},
+                                                  onChartActionTap: () async {},
                                                   onMapTeleportTap: () async {
                                                     FFAppState().TabNumber = 5;
                                                     safeSetState(() {});
@@ -43598,11 +43651,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState().ipPC,
                                                       FFAppState().radarLat,
                                                       FFAppState().radarLon,
-                                                      ((getJsonField(
-                                                                    _model
-                                                                        .selectedRunway,
-                                                                    r'''$.bearing''',
-                                                                  ) +
+                                                      ((FFAppState().radarHdgRaw +
                                                                   180) %
                                                               360)
                                                           .toDouble(),
@@ -43630,11 +43679,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState().ipPC,
                                                       FFAppState().radarLat,
                                                       FFAppState().radarLon,
-                                                      ((getJsonField(
-                                                                    _model
-                                                                        .selectedRunway,
-                                                                    r'''$.bearing''',
-                                                                  ) +
+                                                      ((FFAppState().radarHdgRaw +
                                                                   180) %
                                                               360)
                                                           .toDouble(),
