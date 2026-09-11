@@ -134,7 +134,7 @@ export '/custom_code/actions/get_subscription_details_from_list.dart'
     show getSubscriptionDetailsFromList;
 export '/custom_code/actions/restore_all_subscriptions.dart'
     show restoreAllSubscriptions;
-export '/custom_code/actions/get_offline_navaid_data.dart'
-    show getOfflineNavaidData;
 export '/custom_code/actions/get_offline_airport_data.dart'
     show getOfflineAirportData;
+export '/custom_code/actions/get_offline_navaid_data.dart'
+    show getOfflineNavaidData;

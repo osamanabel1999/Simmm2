@@ -425,6 +425,30 @@ class FFAppState extends ChangeNotifier {
   set chartGateHdg(double value) {
     _chartGateHdg = value;
   }
+
+  double _efbNavaidTeleportLat = 0.0;
+  double get efbNavaidTeleportLat => _efbNavaidTeleportLat;
+  set efbNavaidTeleportLat(double value) {
+    _efbNavaidTeleportLat = value;
+  }
+
+  double _efbNavaidTeleportLon = 0.0;
+  double get efbNavaidTeleportLon => _efbNavaidTeleportLon;
+  set efbNavaidTeleportLon(double value) {
+    _efbNavaidTeleportLon = value;
+  }
+
+  double _efbNavaidTeleportRadialHdg = 0.0;
+  double get efbNavaidTeleportRadialHdg => _efbNavaidTeleportRadialHdg;
+  set efbNavaidTeleportRadialHdg(double value) {
+    _efbNavaidTeleportRadialHdg = value;
+  }
+
+  double _efbNavaidTeleportAltitude = 0.0;
+  double get efbNavaidTeleportAltitude => _efbNavaidTeleportAltitude;
+  set efbNavaidTeleportAltitude(double value) {
+    _efbNavaidTeleportAltitude = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {
