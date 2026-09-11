@@ -449,6 +449,12 @@ class FFAppState extends ChangeNotifier {
   set efbNavaidTeleportAltitude(double value) {
     _efbNavaidTeleportAltitude = value;
   }
+
+  double _efbNavaidTeleportSpeed = 0.0;
+  double get efbNavaidTeleportSpeed => _efbNavaidTeleportSpeed;
+  set efbNavaidTeleportSpeed(double value) {
+    _efbNavaidTeleportSpeed = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

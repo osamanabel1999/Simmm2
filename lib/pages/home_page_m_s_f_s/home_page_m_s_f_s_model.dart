@@ -213,6 +213,8 @@ class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
   ApiCallResponse? elevationDataMSFSgate;
   // Stores action output result for [Backend Call - API (GetElevation)] action in EliteAviationEFB widget.
   ApiCallResponse? elevationDataMSFSchartGate;
+  // Stores action output result for [Backend Call - API (GetElevation)] action in EliteAviationEFB widget.
+  ApiCallResponse? elevationDataMSFSANAVAIDS;
 
   @override
   void initState(BuildContext context) {}
