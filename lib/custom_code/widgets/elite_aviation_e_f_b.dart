@@ -16,7 +16,7 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 // ============================================================================
-// 1. الكلاس الرياضي (تم وضعه في كلاس مغلق لحل مشكلة FlutterFlow مع الدوال الحرة)
+// 1. الكلاس الرياضي
 // ============================================================================
 class GeoMath {
   static double calculateBearing(
@@ -63,7 +63,7 @@ class GeoMath {
 }
 
 // ============================================================================
-// 2. النماذج والرسومات الخاصة بالشارت والرادار (مضغوطة الأسطر بدون أي حذف للوجيك)
+// 2. النماذج والرسومات
 // ============================================================================
 class OSMWay {
   final List<Map<String, double>> geom;
@@ -656,7 +656,7 @@ class _AirplaneShapePainter extends CustomPainter {
 }
 
 // ============================================================================
-// 3. كلاسات الـ Widgets الإضافية (Radar, Buttons, Chart Area)
+// 3. كلاسات الـ Widgets الإضافية
 // ============================================================================
 
 class ChartAirplaneWidget extends StatefulWidget {
@@ -890,7 +890,6 @@ class _AirportChartWidget extends StatefulWidget {
 }
 
 class _AirportChartWidgetState extends State<_AirportChartWidget> {
-  bool _isLoading = true;
   List<OSMWay> _runways = [], _taxiways = [], _aprons = [], _buildings = [];
   List<OSMNode> _holdShorts = [], _gates = [], _windsocks = [];
   final TransformationController _transformationController =
@@ -923,7 +922,6 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
   }
 
   Future<void> _fetchAllAirportData() async {
-    setState(() => _isLoading = true);
     _runways.clear();
     _taxiways.clear();
     _aprons.clear();
@@ -931,31 +929,33 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
     _holdShorts.clear();
     _gates.clear();
     _windsocks.clear();
-    await Future.wait([
-      _fetchLayer(
-          '[out:json][timeout:15];way["aeroway"="runway"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-          'runway'),
-      _fetchLayer(
-          '[out:json][timeout:15];way["aeroway"~"taxiway|taxilane"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-          'taxiway'),
-      _fetchLayer(
-          '[out:json][timeout:15];way["aeroway"="apron"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-          'apron'),
-      _fetchLayer(
-          '[out:json][timeout:15];way["building"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-          'building'),
-      _fetchLayer(
-          '[out:json][timeout:15];node["aeroway"="holding_position"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-          'holdshort'),
-      _fetchLayer(
-          '[out:json][timeout:15];node["aeroway"="parking_position"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-          'gate'),
-      _fetchLayer(
-          '[out:json][timeout:15];node["aeroway"="windsock"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-          'windsock')
-    ]);
+    await _fetchLayer(
+        '[out:json];way["aeroway"="runway"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+        'runway');
+    if (mounted) setState(() {});
+    await _fetchLayer(
+        '[out:json];way["aeroway"~"taxiway|taxilane"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+        'taxiway');
+    if (mounted) setState(() {});
+    await _fetchLayer(
+        '[out:json];way["aeroway"="apron"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+        'apron');
+    if (mounted) setState(() {});
+    await _fetchLayer(
+        '[out:json];way["building"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+        'building');
+    await _fetchLayer(
+        '[out:json];node["aeroway"="holding_position"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+        'holdshort');
+    await _fetchLayer(
+        '[out:json];node["aeroway"="windsock"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+        'windsock');
+    if (mounted) setState(() {});
+    await _fetchLayer(
+        '[out:json];node["aeroway"="parking_position"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+        'gate');
     _calculateGateHeadings();
-    if (mounted) setState(() => _isLoading = false);
+    if (mounted) setState(() {});
   }
 
   Future<void> _fetchLayer(String query, String layerName) async {
@@ -963,9 +963,7 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
       final response = await http.get(
           Uri.parse(
               'https://overpass.openstreetmap.fr/api/interpreter?data=${Uri.encodeComponent(query)}'),
-          headers: {
-            'User-Agent': 'SimulatorStationApp/1.0'
-          }).timeout(const Duration(seconds: 15));
+          headers: {'User-Agent': 'SimulatorStationApp/1.0'});
       if (response.statusCode == 200)
         _parseOSMData(jsonDecode(response.body), layerName);
     } catch (e) {
@@ -1093,170 +1091,153 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _isLoading
-        ? const Center(
-            child: CircularProgressIndicator(
-                color: Color(0xFF4A90E2), strokeWidth: 3))
-        : Stack(children: [
-            InteractiveViewer(
-                transformationController: _transformationController,
-                constrained: false,
-                minScale: 0.02,
-                maxScale: 10.0,
-                boundaryMargin: const EdgeInsets.all(2000),
-                child: SizedBox(
-                    width: canvasSize,
-                    height: canvasSize,
-                    child: Stack(clipBehavior: Clip.none, children: [
-                      CustomPaint(
-                          size: Size(canvasSize, canvasSize),
-                          painter: AdvancedChartPainter(
-                              centerLat: widget.centerLat,
-                              centerLon: widget.centerLon,
-                              runways: _runways,
-                              taxiways: _taxiways,
-                              aprons: _aprons,
-                              buildings: _buildings,
-                              holdShorts: _holdShorts,
-                              windsocks: _windsocks,
-                              mapScale: mapScaleFactor)),
-                      ..._gates.map((gate) {
-                        Offset pos = _projectToCanvas(gate.lat, gate.lon);
-                        return Positioned(
-                            left: pos.dx - 100,
-                            top: pos.dy - 100,
-                            width: 200,
-                            height: 200,
-                            child: ChartAirplaneWidget(
-                                gate: gate,
-                                onTap: () {
-                                  if (widget.onChartGateSelected != null)
-                                    widget.onChartGateSelected!(gate.name,
-                                        gate.lat, gate.lon, gate.heading);
-                                }));
-                      }).toList(),
-                    ]))),
-            Positioned(
-                bottom: 30,
-                right: 30,
+    return Stack(children: [
+      InteractiveViewer(
+          transformationController: _transformationController,
+          constrained: false,
+          minScale: 0.02,
+          maxScale: 10.0,
+          boundaryMargin: const EdgeInsets.all(2000),
+          child: SizedBox(
+              width: canvasSize,
+              height: canvasSize,
+              child: Stack(clipBehavior: Clip.none, children: [
+                CustomPaint(
+                    size: Size(canvasSize, canvasSize),
+                    painter: AdvancedChartPainter(
+                        centerLat: widget.centerLat,
+                        centerLon: widget.centerLon,
+                        runways: _runways,
+                        taxiways: _taxiways,
+                        aprons: _aprons,
+                        buildings: _buildings,
+                        holdShorts: _holdShorts,
+                        windsocks: _windsocks,
+                        mapScale: mapScaleFactor)),
+                ..._gates.map((gate) {
+                  Offset pos = _projectToCanvas(gate.lat, gate.lon);
+                  return Positioned(
+                      left: pos.dx - 100,
+                      top: pos.dy - 100,
+                      width: 200,
+                      height: 200,
+                      child: ChartAirplaneWidget(
+                          gate: gate,
+                          onTap: () {
+                            if (widget.onChartGateSelected != null)
+                              widget.onChartGateSelected!(
+                                  gate.name, gate.lat, gate.lon, gate.heading);
+                          }));
+                }).toList(),
+              ]))),
+      Positioned(
+          bottom: 30,
+          right: 30,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                    color: const Color(0xFF09121F).withOpacity(0.8),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        color: const Color(0xFF4A90E2).withOpacity(0.3),
+                        width: 1.0)),
                 child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                              color: const Color(0xFF09121F).withOpacity(0.8),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color:
-                                      const Color(0xFF4A90E2).withOpacity(0.3),
-                                  width: 1.0)),
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.navigation,
-                                    color: Color(0xFF4A90E2), size: 20),
-                                Text('N',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold))
-                              ])),
-                      const SizedBox(height: 20),
-                      AnimatedBuilder(
-                          animation: _transformationController,
-                          builder: (context, child) {
-                            double metersPerPixel =
-                                (111320.0 / mapScaleFactor) /
-                                    _transformationController.value
-                                        .getMaxScaleOnAxis();
-                            double rawStep = (250.0 * metersPerPixel) / 3;
-                            int step = rawStep <= 0
-                                ? 1
-                                : ((rawStep /
-                                                    math.pow(
-                                                        10,
-                                                        (math.log(rawStep) /
-                                                                math.ln10)
-                                                            .floorToDouble()) <
-                                                1.5
-                                            ? 1
-                                            : rawStep /
-                                                        math.pow(
-                                                            10,
-                                                            (math.log(rawStep) /
-                                                                    math.ln10)
-                                                                .floorToDouble()) <
-                                                    3
-                                                ? 2
-                                                : rawStep /
-                                                            math.pow(
-                                                                10,
-                                                                (math.log(rawStep) /
-                                                                        math
-                                                                            .ln10)
-                                                                    .floorToDouble()) <
-                                                        7
-                                                    ? 5
-                                                    : 10) *
-                                        math.pow(
-                                            10,
-                                            (math.log(rawStep) / math.ln10)
-                                                .floorToDouble()))
-                                    .round();
-                            double barWidth = (step * 3) / metersPerPixel;
-                            return Container(
-                                width: barWidth + 20,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Text('0',
-                                                style: TextStyle(
-                                                    color: Color(0xFF638BB8),
-                                                    fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.w500)),
-                                            Text('$step',
-                                                style: const TextStyle(
-                                                    color: Color(0xFF638BB8),
-                                                    fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.w500)),
-                                            Text('${step * 2}',
-                                                style: const TextStyle(
-                                                    color: Color(0xFF638BB8),
-                                                    fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.w500)),
-                                            Text('${step * 3} m',
-                                                style: const TextStyle(
-                                                    color: Color(0xFF638BB8),
-                                                    fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.w500))
-                                          ]),
-                                      const SizedBox(height: 4),
-                                      CustomPaint(
-                                          size: Size(barWidth, 8),
-                                          painter: ExactScaleBarPainter(
-                                              color: const Color(0xFF638BB8))),
-                                    ]));
-                          }),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.navigation,
+                          color: Color(0xFF4A90E2), size: 20),
+                      Text('N',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold))
                     ])),
-          ]);
+            const SizedBox(height: 20),
+            AnimatedBuilder(
+                animation: _transformationController,
+                builder: (context, child) {
+                  double metersPerPixel = (111320.0 / mapScaleFactor) /
+                      _transformationController.value.getMaxScaleOnAxis();
+                  double rawStep = (250.0 * metersPerPixel) / 3;
+                  int step = rawStep <= 0
+                      ? 1
+                      : ((rawStep /
+                                          math.pow(
+                                              10,
+                                              (math.log(rawStep) / math.ln10)
+                                                  .floorToDouble()) <
+                                      1.5
+                                  ? 1
+                                  : rawStep /
+                                              math.pow(
+                                                  10,
+                                                  (math.log(rawStep) /
+                                                          math.ln10)
+                                                      .floorToDouble()) <
+                                          3
+                                      ? 2
+                                      : rawStep /
+                                                  math.pow(
+                                                      10,
+                                                      (math.log(rawStep) /
+                                                              math.ln10)
+                                                          .floorToDouble()) <
+                                              7
+                                          ? 5
+                                          : 10) *
+                              math.pow(
+                                  10,
+                                  (math.log(rawStep) / math.ln10)
+                                      .floorToDouble()))
+                          .round();
+                  double barWidth = (step * 3) / metersPerPixel;
+                  return Container(
+                      width: barWidth + 20,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('0',
+                                      style: TextStyle(
+                                          color: Color(0xFF638BB8),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500)),
+                                  Text('$step',
+                                      style: const TextStyle(
+                                          color: Color(0xFF638BB8),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500)),
+                                  Text('${step * 2}',
+                                      style: const TextStyle(
+                                          color: Color(0xFF638BB8),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500)),
+                                  Text('${step * 3} m',
+                                      style: const TextStyle(
+                                          color: Color(0xFF638BB8),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500))
+                                ]),
+                            const SizedBox(height: 4),
+                            CustomPaint(
+                                size: Size(barWidth, 8),
+                                painter: ExactScaleBarPainter(
+                                    color: const Color(0xFF638BB8))),
+                          ]));
+                }),
+          ])),
+    ]);
   }
 }
 
 // ============================================================================
-// 4. الكلاس الرئيسي ومحتواه (تم تضمينه كجزء من الكود الأساسي)
+// 4. الكلاس الرئيسي ومحتواه
 // ============================================================================
 
 class EliteAviationEFB extends StatefulWidget {
@@ -1416,13 +1397,11 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
       final double centerLat = sumLat / rwys.length,
           centerLon = sumLon / rwys.length;
       final String query =
-          '[out:json][timeout:25];(node["aeroway"~"gate|parking_position"](around:6500,$centerLat,$centerLon);way["aeroway"~"taxiway|taxilane"](around:6500,$centerLat,$centerLon););out center geom;';
+          '[out:json];(node["aeroway"~"gate|parking_position"](around:6500,$centerLat,$centerLon);way["aeroway"~"taxiway|taxilane"](around:6500,$centerLat,$centerLon););out center geom;';
       final response = await http.get(
           Uri.parse(
               'https://overpass.openstreetmap.fr/api/interpreter?data=${Uri.encodeComponent(query)}'),
-          headers: {
-            'User-Agent': 'SimulatorStationApp/1'
-          }).timeout(const Duration(seconds: 25));
+          headers: {'User-Agent': 'SimulatorStationApp/1'});
       if (response.statusCode != 200) {
         if (mounted)
           setState(() {
@@ -1659,16 +1638,21 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                     ]),
                 child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: _selectedMode == 0
-                        ? _buildRunwayRadarArea()
-                        : _selectedMode == 1
-                            ? _buildGatesArea()
-                            : _selectedMode == 2
-                                ? _buildAirportChartArea()
-                                : const Center(
-                                    child: Text("SELECT A MODE",
-                                        style: TextStyle(
-                                            color: Colors.white24)))))),
+                    child: Stack(children: [
+                      Offstage(
+                          offstage: _selectedMode != 0,
+                          child: _buildRunwayRadarArea()),
+                      Offstage(
+                          offstage: _selectedMode != 1,
+                          child: _buildGatesArea()),
+                      Offstage(
+                          offstage: _selectedMode != 2,
+                          child: _buildAirportChartArea()),
+                      if (_selectedMode > 2)
+                        const Center(
+                            child: Text("SELECT A MODE",
+                                style: TextStyle(color: Colors.white24))),
+                    ])))),
       ]),
     );
   }
