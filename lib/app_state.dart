@@ -438,10 +438,10 @@ class FFAppState extends ChangeNotifier {
     _efbNavaidTeleportLon = value;
   }
 
-  double _efbNavaidTeleportRadialHdg = 0.0;
-  double get efbNavaidTeleportRadialHdg => _efbNavaidTeleportRadialHdg;
-  set efbNavaidTeleportRadialHdg(double value) {
-    _efbNavaidTeleportRadialHdg = value;
+  double _efbNavaidTeleportHeading = 0.0;
+  double get efbNavaidTeleportHeading => _efbNavaidTeleportHeading;
+  set efbNavaidTeleportHeading(double value) {
+    _efbNavaidTeleportHeading = value;
   }
 
   double _efbNavaidTeleportAltitude = 0.0;
