@@ -120,18 +120,86 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
         NavigationDelegate(
           onPageFinished: (String url) {
             _webviewController.runJavaScript(r'''
-              window.renderEFBData = function(payload) {
-                  if (typeof map === 'undefined' || !map.isStyleLoaded()) return;
+              // Robust EFB map bridge: never lose data if Mapbox loads before/after Flutter.
+              window.__efbMapReady = false;
+              window.__efbPendingPayload = null;
+              window.__efbIconsReady = false;
+              window.__efbIconsPromise = null;
 
-                  // إضافة الأيقونات إذا لم تكن موجودة
-                  if (!map.hasImage('plane-vatsim')) map.addImage('plane-vatsim', createIcon('%23FFB300', true));
-                  if (!map.hasImage('plane-ivao')) map.addImage('plane-ivao', createIcon('%2300E676', true));
-                  if (!map.hasImage('plane-user')) map.addImage('plane-user', createIcon('%23E040FB', true));
-                  if (!map.hasImage('airport-icon')) map.addImage('airport-icon', createDotIcon('%2300FFFF'));
-                  if (!map.hasImage('navaid-icon')) map.addImage('navaid-icon', createTriangleIcon('%23D946EF'));
+              function postMapReady() {
+                if (window.__efbMapReady) return;
+                window.__efbMapReady = true;
+                if (window.EFBMapChannel) {
+                  window.EFBMapChannel.postMessage(JSON.stringify({ action: 'MAP_READY' }));
+                }
+                if (window.__efbPendingPayload) {
+                  var pending = window.__efbPendingPayload;
+                  window.__efbPendingPayload = null;
+                  window.renderEFBData(pending);
+                }
+              }
 
-                  // تحديث طيارات شبكات الطيران (مع إظهار الكول ساين بنفس لون الطائرة ومنع الإخفاء)
-                  updateLayer('efb-planes-source', 'efb-planes-layer', payload.planes, payload.planesVisible, {
+              function makeSvgImage(svg) {
+                return new Promise(function(resolve, reject) {
+                  var img = new Image();
+                  img.onload = function() { resolve(img); };
+                  img.onerror = reject;
+                  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+                });
+              }
+
+              async function ensureEfbIcons() {
+                if (window.__efbIconsReady) return;
+                if (window.__efbIconsPromise) return window.__efbIconsPromise;
+
+                window.__efbIconsPromise = (async function() {
+                var planePath = 'M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z';
+                var planeSvg = function(color) {
+                  return '<svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="' + planePath + '" fill="' + color + '" stroke="#000000" stroke-width="0.5"/></svg>';
+                };
+                var airportSvg = '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" fill="#00FFFF" stroke="#000000" stroke-width="2"/></svg>';
+                var navaidSvg = '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,2 22,7 22,17 12,22 2,17 2,7" fill="#D946EF" stroke="#000000" stroke-width="2"/></svg>';
+
+                var items = [
+                  ['plane-vatsim', planeSvg('#FFB300')],
+                  ['plane-ivao', planeSvg('#00E676')],
+                  ['plane-user', planeSvg('#E040FB')],
+                  ['airport-icon', airportSvg],
+                  ['navaid-icon', navaidSvg]
+                ];
+
+                for (var i = 0; i < items.length; i++) {
+                  var id = items[i][0];
+                  if (!map.hasImage(id)) {
+                    var image = await makeSvgImage(items[i][1]);
+                    if (!map.hasImage(id)) map.addImage(id, image);
+                  }
+                }
+                window.__efbIconsReady = true;
+                })();
+                try {
+                  await window.__efbIconsPromise;
+                } catch (e) {
+                  window.__efbIconsPromise = null;
+                  throw e;
+                }
+              }
+
+              window.renderEFBData = async function(payload) {
+                  if (typeof map === 'undefined' || !map.isStyleLoaded()) {
+                    window.__efbPendingPayload = payload;
+                    return;
+                  }
+
+                  try {
+                    await ensureEfbIcons();
+                  } catch (e) {
+                    window.__efbPendingPayload = payload;
+                    return;
+                  }
+
+                  // تحديث طيارات شبكات الطيران
+                  updateLayer('efb-planes-source', 'efb-planes-layer', payload.planes || [], payload.planesVisible, {
                       'icon-image': ['get', 'icon'],
                       'icon-size': 0.8,
                       'icon-rotate': ['get', 'hdg'],
@@ -149,8 +217,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       'text-halo-width': 2
                   });
 
-                  // تحديث المطارات
-                  updateLayer('efb-airports-source', 'efb-airports-layer', payload.airports, payload.airportsVisible, {
+                  updateLayer('efb-airports-source', 'efb-airports-layer', payload.airports || [], payload.airportsVisible, {
                       'icon-image': 'airport-icon',
                       'icon-size': 0.7,
                       'text-field': ['get', 'icao'],
@@ -166,8 +233,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       'text-halo-width': 2
                   });
 
-                  // تحديث المحطات
-                  updateLayer('efb-navaids-source', 'efb-navaids-layer', payload.navaids, payload.navaidsVisible, {
+                  updateLayer('efb-navaids-source', 'efb-navaids-layer', payload.navaids || [], payload.navaidsVisible, {
                       'icon-image': 'navaid-icon',
                       'icon-size': 0.8,
                       'text-field': ['get', 'name'],
@@ -184,28 +250,12 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   });
               };
 
-              function createIcon(color, isPlane) {
-                  var img = new Image();
-                  if(isPlane) img.src = 'data:image/svg+xml;charset=utf-8,<svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" fill="' + color + '" stroke="black" stroke-width="0.5"/></svg>';
-                  return img;
-              }
-              function createDotIcon(color) {
-                  var img = new Image();
-                  img.src = 'data:image/svg+xml;charset=utf-8,<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" fill="' + color + '" stroke="%23000000" stroke-width="2"/></svg>';
-                  return img;
-              }
-              function createTriangleIcon(color) {
-                  var img = new Image();
-                  img.src = 'data:image/svg+xml;charset=utf-8,<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,2 22,7 22,17 12,22 2,17 2,7" fill="' + color + '" stroke="%23000000" stroke-width="2"/></svg>';
-                  return img;
-              }
-
               function updateLayer(sourceId, layerId, dataArr, isVisible, layout, paint) {
                   if (!map.getSource(sourceId)) {
                       map.addSource(sourceId, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
                       map.addLayer({ id: layerId, type: 'symbol', source: sourceId, layout: layout, paint: paint });
                       map.on('click', layerId, function(e) {
-                          if (window.EFBMapChannel) {
+                          if (window.EFBMapChannel && e.features && e.features.length) {
                               var actionType = sourceId.includes('planes') ? 'PLANE_CLICKED' : (sourceId.includes('airports') ? 'AIRPORT_CLICKED' : 'NAVAID_CLICKED');
                               window.EFBMapChannel.postMessage(JSON.stringify({ action: actionType, data: e.features[0].properties }));
                           }
@@ -213,11 +263,18 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       map.on('mouseenter', layerId, function() { map.getCanvas().style.cursor = 'pointer'; });
                       map.on('mouseleave', layerId, function() { map.getCanvas().style.cursor = ''; });
                   }
-                  
+
+                  Object.keys(layout || {}).forEach(function(key) {
+                    try { map.setLayoutProperty(layerId, key, layout[key]); } catch (e) {}
+                  });
+                  Object.keys(paint || {}).forEach(function(key) {
+                    try { map.setPaintProperty(layerId, key, paint[key]); } catch (e) {}
+                  });
+
                   if (isVisible) {
                       var features = dataArr.map(function(item) {
-                          return { type: 'Feature', geometry: { type: 'Point', coordinates: [item.lon, item.lat] }, properties: item };
-                      });
+                          return { type: 'Feature', geometry: { type: 'Point', coordinates: [Number(item.lon), Number(item.lat)] }, properties: item };
+                      }).filter(function(f) { return isFinite(f.geometry.coordinates[0]) && isFinite(f.geometry.coordinates[1]); });
                       map.getSource(sourceId).setData({ type: 'FeatureCollection', features: features });
                       map.setLayoutProperty(layerId, 'visibility', 'visible');
                   } else {
@@ -230,8 +287,9 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   if (typeof map === 'undefined' || typeof mapboxgl === 'undefined') return;
                   if (!window.teleportMarker) {
                       var el = document.createElement('div');
-                      // أيقونة طائرة التليبورت باللون الأحمر
-                      el.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" fill="%23DC2626" stroke="white" stroke-width="1"/></svg>';
+                      el.style.width = '36px';
+                      el.style.height = '36px';
+                      el.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" fill="#FF3B30" stroke="white" stroke-width="1"/></svg>';
                       window.teleportMarker = new mapboxgl.Marker({element: el, rotationAlignment: 'map'}).setLngLat([lon, lat]).addTo(map);
                   } else {
                       window.teleportMarker.setLngLat([lon, lat]);
@@ -240,15 +298,15 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
               };
 
               window.drawFlightPath = function(coords) {
-                  if (typeof map === 'undefined') return;
+                  if (typeof map === 'undefined' || !map.isStyleLoaded()) return;
                   if (map.getSource('flight-path-source')) {
-                      map.getSource('flight-path-source').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: coords } });
+                      map.getSource('flight-path-source').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: coords || [] } });
                   } else {
-                      map.addSource('flight-path-source', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } } });
+                      map.addSource('flight-path-source', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords || [] } } });
                       map.addLayer({
                           id: 'flight-path-layer', type: 'line', source: 'flight-path-source',
                           layout: { 'line-join': 'round', 'line-cap': 'round' },
-                          paint: { 'line-color': '#FF00FF', 'line-width': 4 }
+                          paint: { 'line-color': '#FF3B30', 'line-width': 4 }
                       });
                   }
               };
@@ -257,13 +315,26 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       map.getSource('flight-path-source').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: [] } });
                   }
               };
-              
-              // إرسال رسالة عند جاهزية الستايل
-              map.on('style.load', function() {
-                 if (window.EFBMapChannel) {
-                    window.EFBMapChannel.postMessage(JSON.stringify({ action: 'MAP_READY' }));
-                 }
-              });
+
+              // Mapbox may finish style loading before onPageFinished, so check immediately and also listen.
+              function checkEfbMapReady() {
+                try {
+                  if (typeof map !== 'undefined' && map && map.isStyleLoaded()) {
+                    postMapReady();
+                    return true;
+                  }
+                } catch (e) {}
+                return false;
+              }
+
+              if (!checkEfbMapReady() && typeof map !== 'undefined') {
+                map.once('style.load', postMapReady);
+              }
+
+              var efbReadyPoll = setInterval(function() {
+                if (checkEfbMapReady()) clearInterval(efbReadyPoll);
+              }, 250);
+              setTimeout(function() { clearInterval(efbReadyPoll); }, 20000);
             ''');
           },
         ),
@@ -399,10 +470,20 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
     List<Map<String, dynamic>> navaidFeatures = [];
     if (showNavaids) {
       for (var n in rawNavaids) {
+        final nLat =
+            double.tryParse((n['lat'] ?? n['latitude'] ?? 0.0).toString()) ??
+                0.0;
+        final nLon = double.tryParse(
+                (n['lon'] ?? n['lng'] ?? n['longitude'] ?? 0.0).toString()) ??
+            0.0;
+        final nIdent =
+            (n['ident'] ?? n['id'] ?? n['identifier'] ?? n['code'] ?? '')
+                .toString();
+        final nName = (n['name'] ?? nIdent).toString();
         navaidFeatures.add({
-          "lat": double.tryParse(n['lat'].toString()) ?? 0.0,
-          "lon": double.tryParse(n['lon'].toString()) ?? 0.0,
-          "name": n['name'] ?? "",
+          "lat": nLat,
+          "lon": nLon,
+          "name": nIdent.isNotEmpty ? nIdent : nName,
           "raw": jsonEncode(n)
         });
       }
@@ -482,6 +563,9 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
         }
       }
       rawNavaids = temp;
+      if (_searchController.text.trim().isNotEmpty) {
+        _onSearchChanged(_searchController.text);
+      }
     } catch (e) {
       print("Error parsing Navaids: $e");
     }
@@ -592,11 +676,29 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
     }
 
     for (var n in rawNavaids) {
-      String nName = (n['name'] ?? "").toString().toLowerCase();
-      if (nName.contains(q)) {
+      final navaidSearchText = [
+        n['id'],
+        n['ident'],
+        n['identifier'],
+        n['code'],
+        n['name'],
+        n['type'],
+        n['frequency'],
+        n['freq'],
+      ]
+          .where((v) => v != null)
+          .map((v) => v.toString().toLowerCase())
+          .join(' ');
+      if (navaidSearchText.contains(q)) {
+        final ident =
+            (n['ident'] ?? n['id'] ?? n['identifier'] ?? n['code'] ?? '')
+                .toString();
+        final name = (n['name'] ?? ident).toString();
+        final type = (n['type'] ?? 'NAVAID').toString();
         results.add({
           'type': 'NAVAID',
-          'title': '${n['name']} (${n['type']})',
+          'title':
+              ident.isNotEmpty ? '$ident - $name ($type)' : '$name ($type)',
           'data': n
         });
       }
@@ -626,8 +728,12 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
     double lon = 0.0;
 
     if (result['type'] == 'AIRPORT' || result['type'] == 'NAVAID') {
-      lat = double.tryParse(result['data']['lat'].toString()) ?? 0.0;
-      lon = double.tryParse(result['data']['lon'].toString()) ?? 0.0;
+      final d = result['data'];
+      lat =
+          double.tryParse((d['lat'] ?? d['latitude'] ?? 0.0).toString()) ?? 0.0;
+      lon = double.tryParse(
+              (d['lon'] ?? d['lng'] ?? d['longitude'] ?? 0.0).toString()) ??
+          0.0;
     } else if (result['type'] == 'PLANE') {
       bool isVatsim = result['isVatsim'];
       lat = isVatsim
@@ -2033,7 +2139,7 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
 Future professionalAtis(String rawMetar) async {
   FlutterTts flutterTts = FlutterTts();
 
-  if (rawMetar == null || rawMetar.isEmpty) return;
+  if (rawMetar.isEmpty) return;
 
   String cleanText = rawMetar.replaceAll(RegExp(r'\(.*?\)'), '');
   cleanText = cleanText.replaceAll('[', ' ').replaceAll(']', ' ');
