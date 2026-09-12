@@ -93,6 +93,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   bool showFlightPath = false;
 
   bool _isMapReady = false;
+  double _mapZoom = 1.8;
 
   @override
   void initState() {
@@ -126,9 +127,24 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
               window.__efbIconsReady = false;
               window.__efbIconsPromise = null;
 
-              function postMapReady() {
+               function postZoomLevel() {
+                 try {
+                   if (typeof map !== 'undefined' && map) {
+                     var z = map.getZoom();
+                     if (window.EFBMapChannel) {
+                       window.EFBMapChannel.postMessage(JSON.stringify({ action: 'ZOOM_CHANGED', zoom: z }));
+                     }
+                   }
+                 } catch (e) {}
+               }
+
+               function postMapReady() {
                 if (window.__efbMapReady) return;
                 window.__efbMapReady = true;
+                if (typeof map !== 'undefined' && map) {
+                  try { map.on('zoomend', postZoomLevel); } catch (e) {}
+                }
+                postZoomLevel();
                 if (window.EFBMapChannel) {
                   window.EFBMapChannel.postMessage(JSON.stringify({ action: 'MAP_READY' }));
                 }
@@ -216,7 +232,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       'text-halo-color': '#000000',
                       'text-halo-width': 2
                   });
-
                   updateLayer('efb-airports-source', 'efb-airports-layer', payload.airports || [], payload.airportsVisible, {
                       'icon-image': 'airport-icon',
                       'icon-size': 0.7,
@@ -232,7 +247,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       'text-halo-color': '#000000',
                       'text-halo-width': 2
                   });
-
                   updateLayer('efb-navaids-source', 'efb-navaids-layer', payload.navaids || [], payload.navaidsVisible, {
                       'icon-image': 'navaid-icon',
                       'icon-size': 0.8,
@@ -346,9 +360,20 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
           final action = parsed['action'];
 
           if (action == 'MAP_READY') {
-            setState(() => _isMapReady = true);
+            setState(() {
+              _isMapReady = true;
+              final z = parsed['zoom'];
+              if (z is num) _mapZoom = z.toDouble();
+            });
+
             _pushDataToMap(); // رسم الداتا فوراً عند جاهزية الخريطة
             if (showFlightPath) _drawFlightPathIfEnabled();
+          } else if (action == 'ZOOM_CHANGED') {
+            final z = parsed['zoom'];
+
+            if (z is num && mounted) {
+              setState(() => _mapZoom = z.toDouble());
+            }
           } else {
             final data = parsed['data'];
             if (action == 'PLANE_CLICKED') {
@@ -558,7 +583,11 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
         var list = NavaidData.getNavaidData(k);
         if (list != null) {
           for (var n in list) {
-            temp.add(n.toMap());
+            final Map<String, dynamic> mapped = n.toMap();
+
+            mapped['ident'] = k.toUpperCase();
+
+            temp.add(mapped);
           }
         }
       }
@@ -776,6 +805,118 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
     }
   }
 
+  void _zoomIn() {
+    _webviewController
+        .runJavaScript("if(window.efbZoomIn) window.efbZoomIn();");
+  }
+
+  void _zoomOut() {
+    _webviewController
+        .runJavaScript("if(window.efbZoomOut) window.efbZoomOut();");
+  }
+
+  String _formatScaleNm(double value) {
+    if (value >= 10) return "${value.round()} NM";
+    if (value >= 1) {
+      final rounded = value.roundToDouble();
+      return "${rounded == value ? rounded.toInt() : value.toStringAsFixed(1)} NM";
+    }
+    return "${value.toStringAsFixed(1)} NM";
+  }
+
+  Widget _buildMapScaleBar() {
+    final double base = 50.0 * math.pow(2.0, 7.0 - _mapZoom).toDouble();
+    final List<double> values = [base * 4, base * 2, base, base / 2];
+
+    return Container(
+      width: 270,
+      height: 44,
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.82),
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(
+            color: const Color(0xFF00E5FF).withOpacity(0.55), width: 1.2),
+        boxShadow: const [
+          BoxShadow(color: Colors.black45, blurRadius: 8, spreadRadius: 1)
+        ],
+      ),
+      child: Row(
+        children: List.generate(4, (index) {
+          return Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  right: index < 3
+                      ? const BorderSide(color: Colors.white24, width: 1)
+                      : BorderSide.none,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  _formatScaleNm(values[index]),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildZoomControls() {
+    return Container(
+      width: 42,
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.84),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+            color: const Color(0xFF00E5FF).withOpacity(0.6), width: 1.2),
+        boxShadow: const [
+          BoxShadow(color: Colors.black45, blurRadius: 8, spreadRadius: 1)
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(10)),
+              onTap: _zoomIn,
+              child: const SizedBox(
+                width: 42,
+                height: 42,
+                child: Icon(Icons.add, color: Colors.cyanAccent, size: 22),
+              ),
+            ),
+          ),
+          Container(height: 1, color: Colors.white12),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(10)),
+              onTap: _zoomOut,
+              child: const SizedBox(
+                width: 42,
+                height: 42,
+                child: Icon(Icons.remove, color: Colors.cyanAccent, size: 22),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isLandscape =
@@ -858,7 +999,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       itemBuilder: (context, index) {
                         final res = searchResults[index];
                         IconData icn = res['type'] == 'AIRPORT'
-                            ? Icons.local_airport
+                            ? Icons.location_city
                             : (res['type'] == 'NAVAID'
                                 ? Icons.cell_tower
                                 : Icons.flight);
@@ -885,6 +1026,21 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                     ),
                   )
               ],
+            ),
+          ),
+          Positioned(
+            bottom: 92,
+            right: 15,
+            child: _buildZoomControls(),
+          ),
+          Positioned(
+            bottom: 15,
+            left: 15,
+            right: 15,
+            child: IgnorePointer(
+              child: Center(
+                child: _buildMapScaleBar(),
+              ),
             ),
           ),
           Positioned(
