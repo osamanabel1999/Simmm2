@@ -455,6 +455,36 @@ class FFAppState extends ChangeNotifier {
   set efbNavaidTeleportSpeed(double value) {
     _efbNavaidTeleportSpeed = value;
   }
+
+  double _msfsTeleportLat = 0.0;
+  double get msfsTeleportLat => _msfsTeleportLat;
+  set msfsTeleportLat(double value) {
+    _msfsTeleportLat = value;
+  }
+
+  double _msfsTeleportLng = 0.0;
+  double get msfsTeleportLng => _msfsTeleportLng;
+  set msfsTeleportLng(double value) {
+    _msfsTeleportLng = value;
+  }
+
+  double _msfsTeleportAlt = 0.0;
+  double get msfsTeleportAlt => _msfsTeleportAlt;
+  set msfsTeleportAlt(double value) {
+    _msfsTeleportAlt = value;
+  }
+
+  double _msfsTeleportHdg = 0.0;
+  double get msfsTeleportHdg => _msfsTeleportHdg;
+  set msfsTeleportHdg(double value) {
+    _msfsTeleportHdg = value;
+  }
+
+  double _msfsTeleportSpd = 0.0;
+  double get msfsTeleportSpd => _msfsTeleportSpd;
+  set msfsTeleportSpd(double value) {
+    _msfsTeleportSpd = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

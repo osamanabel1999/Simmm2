@@ -18891,12 +18891,62 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           speedKnots) async {
                                                     await actions
                                                         .sendTeleportRequest(
-                                                      '192.168.1.115',
+                                                      FFAppState().ipPC,
                                                       selectedLatitude!,
                                                       selectedLongitude!,
                                                       altitudeFt,
                                                       headingDeg,
                                                       speedKnots,
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                child:
+                                                    custom_widgets.EFBRadarMap(
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  userNetworkId: FFAppState()
+                                                      .ivaoVatsimID
+                                                      .toString(),
+                                                  depIcao: getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.origin.icao_code''',
+                                                  ).toString(),
+                                                  arrIcao: getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.destination.icao_code''',
+                                                  ).toString(),
+                                                  initialLat: 20.0,
+                                                  initialLng: 20.0,
+                                                  initialZoom: 1.8,
+                                                  onLocationSelected:
+                                                      (selectedLatitude,
+                                                          selectedLongitude,
+                                                          altitudeFt,
+                                                          headingDeg,
+                                                          speedKnots) async {
+                                                    await actions
+                                                        .sendTeleportRequest(
+                                                      FFAppState().ipPC,
+                                                      FFAppState()
+                                                          .msfsTeleportLat,
+                                                      FFAppState()
+                                                          .msfsTeleportLng,
+                                                      FFAppState()
+                                                          .msfsTeleportAlt,
+                                                      FFAppState()
+                                                          .msfsTeleportHdg,
+                                                      FFAppState()
+                                                          .msfsTeleportSpd,
                                                     );
                                                   },
                                                 ),
