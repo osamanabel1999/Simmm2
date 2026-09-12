@@ -17,7 +17,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter_tts/flutter_tts.dart';
 import '/app_state.dart';
-// 🔴 السطر السحري اللي بيحل الأيرور وبيخلي الويدجت يقرا ملف الأكشن بتاعك
+// 🔴 السطر السحري لاستدعاء كلاس المحطات لتجنب الخطأ
 import '/custom_code/actions/get_offline_navaid_data.dart';
 
 class EFBRadarMap extends StatefulWidget {
@@ -101,6 +101,9 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
     _clockTimer =
         Timer.periodic(const Duration(seconds: 1), (_) => _updateClock());
 
+    // 🔴 تحميل المحطات محلياً عشان تكون جاهزة للبحث فوراً
+    _loadNavaidsLocally();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchPlanesForSearch();
       _fetchAirportsForSearch();
@@ -117,81 +120,116 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageFinished: (String url) {
+            // 🔴 تم استبدال الروابط الخارجية بـ Raw SVG Icons عشان متختفيش أبداً
             _webviewController.runJavaScript('''
               if (typeof map !== 'undefined') {
                 map.on('style.load', function() {
                   if (!map.hasImage('plane-icon')) {
                     var img = new Image();
-                    img.src = 'https://cdn-icons-png.flaticon.com/512/60/60834.png';
+                    img.src = 'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="%23FFA500"><path d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" /></svg>';
                     img.onload = () => map.addImage('plane-icon', img);
                   }
                   if (!map.hasImage('airport-icon')) {
                     var img2 = new Image();
-                    img2.src = 'https://cdn-icons-png.flaticon.com/512/0/614.png';
+                    img2.src = 'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="%2300FFFF" stroke="%23000000" stroke-width="2"/></svg>';
                     img2.onload = () => map.addImage('airport-icon', img2);
                   }
                   if (!map.hasImage('navaid-icon')) {
                     var img3 = new Image();
-                    img3.src = 'https://cdn-icons-png.flaticon.com/512/619/619143.png';
+                    img3.src = 'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><polygon points="12,2 22,7 22,17 12,22 2,17 2,7" fill="%23D946EF" stroke="%23000000" stroke-width="2"/></svg>';
                     img3.onload = () => map.addImage('navaid-icon', img3);
                   }
                 });
+
+                // 🔴 حقن دالة الدوران الفوري (Live Rotation) لطيارة الـ Teleport
+                window.teleportMarker = null;
+                window.triggerTeleport = function(lat, lon, hdg) {
+                    if (typeof map === 'undefined' || typeof mapboxgl === 'undefined') return;
+                    if (!window.teleportMarker) {
+                        var el = document.createElement('div');
+                        el.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="%23DC2626" stroke="white" stroke-width="1"><path d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" /></svg>';
+                        window.teleportMarker = new mapboxgl.Marker({element: el, rotationAlignment: 'map'}).setLngLat([lon, lat]).addTo(map);
+                    } else {
+                        window.teleportMarker.setLngLat([lon, lat]);
+                    }
+                    window.teleportMarker.setRotation(hdg);
+                };
+
+                // 🔴 حقن دالة مسار الرحلة اللي كانت مفقودة
+                window.drawFlightPath = function(coords) {
+                    if (typeof map === 'undefined') return;
+                    if (map.getSource('flight-path-source')) {
+                        map.getSource('flight-path-source').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: coords } });
+                    } else {
+                        map.addSource('flight-path-source', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } } });
+                        map.addLayer({
+                            id: 'flight-path-layer', type: 'line', source: 'flight-path-source',
+                            layout: { 'line-join': 'round', 'line-cap': 'round' },
+                            paint: { 'line-color': '#FF00FF', 'line-width': 4 }
+                        });
+                    }
+                };
+                window.clearFlightPath = function() {
+                    if (typeof map !== 'undefined' && map.getSource('flight-path-source')) {
+                        map.getSource('flight-path-source').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: [] } });
+                    }
+                };
+
+                window.updateNavaids = function(dataArr, show) {
+                    if (typeof map === 'undefined') return;
+                    if (!map.getSource('navaids-source')) {
+                        map.addSource('navaids-source', {
+                            type: 'geojson',
+                            data: { type: 'FeatureCollection', features: [] }
+                        });
+                        map.addLayer({
+                            id: 'navaids-layer',
+                            type: 'symbol',
+                            source: 'navaids-source',
+                            layout: {
+                                'icon-image': 'navaid-icon',
+                                'icon-size': 0.8,
+                                'text-field': ['get', 'name'],
+                                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                                'text-size': 10,
+                                'text-offset': [0, 1.2],
+                                'text-anchor': 'top'
+                            },
+                            paint: {
+                                'text-color': '#D946EF',
+                                'text-halo-color': '#000000',
+                                'text-halo-width': 2
+                            }
+                        });
+
+                        map.on('click', 'navaids-layer', function(e) {
+                            var feature = e.features[0];
+                            if (window.EFBMapChannel) {
+                                window.EFBMapChannel.postMessage(JSON.stringify({
+                                    action: 'NAVAID_CLICKED',
+                                    data: feature.properties
+                                }));
+                            }
+                        });
+                        map.on('mouseenter', 'navaids-layer', function() { map.getCanvas().style.cursor = 'pointer'; });
+                        map.on('mouseleave', 'navaids-layer', function() { map.getCanvas().style.cursor = ''; });
+                    }
+
+                    if (show) {
+                        var features = dataArr.map(function(n) {
+                            return {
+                                type: 'Feature',
+                                geometry: { type: 'Point', coordinates: [n.lon, n.lat] },
+                                properties: n
+                            };
+                        });
+                        map.getSource('navaids-source').setData({ type: 'FeatureCollection', features: features });
+                        map.setLayoutProperty('navaids-layer', 'visibility', 'visible');
+                    } else {
+                        map.setLayoutProperty('navaids-layer', 'visibility', 'none');
+                    }
+                };
               }
-
-              window.updateNavaids = function(dataArr, show) {
-                  if (typeof map === 'undefined') return;
-                  if (!map.getSource('navaids-source')) {
-                      map.addSource('navaids-source', {
-                          type: 'geojson',
-                          data: { type: 'FeatureCollection', features: [] }
-                      });
-                      map.addLayer({
-                          id: 'navaids-layer',
-                          type: 'symbol',
-                          source: 'navaids-source',
-                          layout: {
-                              'icon-image': 'navaid-icon',
-                              'icon-size': 0.6,
-                              'text-field': ['get', 'name'],
-                              'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                              'text-size': 10,
-                              'text-offset': [0, 1.2],
-                              'text-anchor': 'top'
-                          },
-                          paint: {
-                              'text-color': '#D946EF',
-                              'text-halo-color': '#000000',
-                              'text-halo-width': 2
-                          }
-                      });
-
-                      map.on('click', 'navaids-layer', function(e) {
-                          var feature = e.features[0];
-                          if (window.EFBMapChannel) {
-                              window.EFBMapChannel.postMessage(JSON.stringify({
-                                  action: 'NAVAID_CLICKED',
-                                  data: feature.properties
-                              }));
-                          }
-                      });
-                      map.on('mouseenter', 'navaids-layer', function() { map.getCanvas().style.cursor = 'pointer'; });
-                      map.on('mouseleave', 'navaids-layer', function() { map.getCanvas().style.cursor = ''; });
-                  }
-
-                  if (show) {
-                      var features = dataArr.map(function(n) {
-                          return {
-                              type: 'Feature',
-                              geometry: { type: 'Point', coordinates: [n.lon, n.lat] },
-                              properties: n
-                          };
-                      });
-                      map.getSource('navaids-source').setData({ type: 'FeatureCollection', features: features });
-                      map.setLayoutProperty('navaids-layer', 'visibility', 'visible');
-                  } else {
-                      map.setLayoutProperty('navaids-layer', 'visibility', 'none');
-                  }
-              };
             ''');
           },
         ),
@@ -257,6 +295,23 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
         zuluTime =
             "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')} ZULU";
       });
+    }
+  }
+
+  void _loadNavaidsLocally() {
+    List<Map<String, dynamic>> temp = [];
+    try {
+      for (String k in NavaidData.keys) {
+        var list = NavaidData.getNavaidData(k);
+        if (list != null) {
+          for (var n in list) {
+            temp.add(n.toMap());
+          }
+        }
+      }
+      rawNavaids = temp;
+    } catch (e) {
+      print("Error parsing Navaids: $e");
     }
   }
 
@@ -359,6 +414,18 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       }
     }
 
+    // 🔴 تضمين المحطات في البحث
+    for (var n in rawNavaids) {
+      String nName = (n['name'] ?? "").toString().toLowerCase();
+      if (nName.contains(q)) {
+        results.add({
+          'type': 'NAVAID',
+          'title': '${n['name']} (${n['type']})',
+          'data': n
+        });
+      }
+    }
+
     setState(() {
       searchResults = results.take(6).toList();
       showSearchDropdown = results.isNotEmpty;
@@ -382,9 +449,9 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
     double lat = 0.0;
     double lon = 0.0;
 
-    if (result['type'] == 'AIRPORT') {
-      lat = double.parse(result['data']['lat'].toString());
-      lon = double.parse(result['data']['lon'].toString());
+    if (result['type'] == 'AIRPORT' || result['type'] == 'NAVAID') {
+      lat = double.tryParse(result['data']['lat'].toString()) ?? 0.0;
+      lon = double.tryParse(result['data']['lon'].toString()) ?? 0.0;
     } else if (result['type'] == 'PLANE') {
       bool isVatsim = result['isVatsim'];
       lat = isVatsim
@@ -469,7 +536,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         fontWeight: FontWeight.bold),
                     onChanged: _onSearchChanged,
                     decoration: InputDecoration(
-                      hintText: "Search ICAO, Callsign...",
+                      hintText: "Search ICAO, Callsign, Navaid...",
                       hintStyle:
                           const TextStyle(color: Colors.white54, fontSize: 12),
                       prefixIcon: const Icon(Icons.search,
@@ -509,12 +576,16 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         final res = searchResults[index];
                         IconData icn = res['type'] == 'AIRPORT'
                             ? Icons.local_airport
-                            : Icons.flight;
+                            : (res['type'] == 'NAVAID'
+                                ? Icons.cell_tower
+                                : Icons.flight);
                         Color icnColor = res['type'] == 'AIRPORT'
                             ? Colors.cyanAccent
-                            : (res['isVatsim'] == true
-                                ? Colors.amber
-                                : Colors.greenAccent);
+                            : (res['type'] == 'NAVAID'
+                                ? Colors.purpleAccent
+                                : (res['isVatsim'] == true
+                                    ? Colors.amber
+                                    : Colors.greenAccent));
                         return ListTile(
                           dense: true,
                           contentPadding:
@@ -603,24 +674,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         setState(() => showAirports = !showAirports);
                         _sendMapState('airports', showAirports);
                       }),
-                      _navaidMenuBtn("NAVAIDS", showNavaids, () async {
+                      _navaidMenuBtn("NAVAIDS", showNavaids, () {
                         setState(() => showNavaids = !showNavaids);
-                        if (showNavaids && rawNavaids.isEmpty) {
-                          List<Map<String, dynamic>> temp = [];
-                          try {
-                            for (String k in NavaidData.keys) {
-                              var list = NavaidData.getNavaidData(k);
-                              if (list != null) {
-                                for (var n in list) {
-                                  temp.add(n.toMap());
-                                }
-                              }
-                            }
-                            rawNavaids = temp;
-                          } catch (e) {
-                            print("Error parsing Navaids: $e");
-                          }
-                        }
                         String jsonData = jsonEncode(rawNavaids);
                         _webviewController.runJavaScript('''
                           if (window.updateNavaids) {
@@ -850,10 +905,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   if (manualLat != null && manualLng != null) {
                     _webviewController.runJavaScript(
                         "window.triggerTeleport($manualLat, $manualLng, ${_hdgCtrl.text});");
-                    _webviewController.runJavaScript('''
-                      var tIcon = document.querySelector('.teleport-marker-class, [style*="z-index: 999"]');
-                      if(tIcon) tIcon.style.transform = 'rotate(${_hdgCtrl.text}deg)';
-                    ''');
                   }
                 },
                 decoration: const InputDecoration(
@@ -876,13 +927,18 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   Widget _buildNavaidInfoBox(dynamic nav, bool isLandscape) {
     String name = nav['name']?.toString() ?? "Unknown";
     String type = nav['type']?.toString() ?? "NAV";
-    String freq = nav['freq']?.toString() ?? "-";
     String lat = nav['lat']?.toString() ?? "-";
     String lon = nav['lon']?.toString() ?? "-";
     String elev = nav['elev']?.toString() ?? "-";
     String country = nav['country']?.toString() ?? "-";
     String airport = nav['airport']?.toString() ?? "-";
     String power = nav['power']?.toString() ?? "-";
+
+    // 🔴 تنسيق التردد بشكل واقعي 118.250
+    String rawFreq = nav['freq']?.toString() ?? "0";
+    double fVal = double.tryParse(rawFreq) ?? 0.0;
+    if (fVal > 1000) fVal = fVal / 1000.0;
+    String freq = fVal.toStringAsFixed(3);
 
     double? boxWidth =
         isLandscape ? MediaQuery.of(context).size.width * 0.45 : null;
