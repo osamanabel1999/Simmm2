@@ -9,13 +9,16 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-// 🔴 تم تغيير المكتبة لتكون المكتبة الرسمية الحديثة
+// 🔴 المكتبة الرسمية الحديثة
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter_tts/flutter_tts.dart';
 import '/app_state.dart';
+// 🔴 السطر السحري اللي بيحل الأيرور وبيخلي الويدجت يقرا ملف الأكشن بتاعك
+import '/custom_code/actions/get_offline_navaid_data.dart';
 
 class EFBRadarMap extends StatefulWidget {
   const EFBRadarMap({
@@ -54,12 +57,12 @@ class EFBRadarMap extends StatefulWidget {
 }
 
 class _EFBRadarMapState extends State<EFBRadarMap> {
-  // 🔴 Controller متوافق مع الإصدار الرابع الرسمي
   late final WebViewController _webviewController;
 
   bool showVatsim = true;
   bool showIvao = true;
   bool showAirports = false;
+  bool showNavaids = false;
   bool showCallsigns = false;
   bool showRadarMode = false;
 
@@ -76,11 +79,12 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   List<dynamic> rawVatsimPlanes = [];
   List<dynamic> rawIvaoPlanes = [];
   List<dynamic> rawAirports = [];
+  List<Map<String, dynamic>> rawNavaids = [];
+
   final TextEditingController _searchController = TextEditingController();
   bool showSearchDropdown = false;
   List<Map<String, dynamic>> searchResults = [];
 
-  // --- New Features State Variables ---
   bool teleportMode = false;
   bool showTeleportControls = false;
   double? manualLat;
@@ -104,13 +108,94 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
     _refreshTimer = Timer.periodic(
         const Duration(seconds: 30), (_) => _fetchPlanesForSearch());
 
-    // 🔴 تجهيز رابط الخريطة وبدء تشغيل الـ WebView Controller الحديث
     String mapUrl =
         "https://osamanabel1999.github.io/EFB-Map/?lat=${widget.initialLat ?? 20.0}&lon=${widget.initialLng ?? 20.0}&zoom=${widget.initialZoom ?? 1.8}&dep=${widget.depIcao ?? ''}&arr=${widget.arrIcao ?? ''}&uid=${widget.userNetworkId ?? ''}";
 
     _webviewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.transparent)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (String url) {
+            _webviewController.runJavaScript('''
+              if (typeof map !== 'undefined') {
+                map.on('style.load', function() {
+                  if (!map.hasImage('plane-icon')) {
+                    var img = new Image();
+                    img.src = 'https://cdn-icons-png.flaticon.com/512/60/60834.png';
+                    img.onload = () => map.addImage('plane-icon', img);
+                  }
+                  if (!map.hasImage('airport-icon')) {
+                    var img2 = new Image();
+                    img2.src = 'https://cdn-icons-png.flaticon.com/512/0/614.png';
+                    img2.onload = () => map.addImage('airport-icon', img2);
+                  }
+                  if (!map.hasImage('navaid-icon')) {
+                    var img3 = new Image();
+                    img3.src = 'https://cdn-icons-png.flaticon.com/512/619/619143.png';
+                    img3.onload = () => map.addImage('navaid-icon', img3);
+                  }
+                });
+              }
+
+              window.updateNavaids = function(dataArr, show) {
+                  if (typeof map === 'undefined') return;
+                  if (!map.getSource('navaids-source')) {
+                      map.addSource('navaids-source', {
+                          type: 'geojson',
+                          data: { type: 'FeatureCollection', features: [] }
+                      });
+                      map.addLayer({
+                          id: 'navaids-layer',
+                          type: 'symbol',
+                          source: 'navaids-source',
+                          layout: {
+                              'icon-image': 'navaid-icon',
+                              'icon-size': 0.6,
+                              'text-field': ['get', 'name'],
+                              'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                              'text-size': 10,
+                              'text-offset': [0, 1.2],
+                              'text-anchor': 'top'
+                          },
+                          paint: {
+                              'text-color': '#D946EF',
+                              'text-halo-color': '#000000',
+                              'text-halo-width': 2
+                          }
+                      });
+
+                      map.on('click', 'navaids-layer', function(e) {
+                          var feature = e.features[0];
+                          if (window.EFBMapChannel) {
+                              window.EFBMapChannel.postMessage(JSON.stringify({
+                                  action: 'NAVAID_CLICKED',
+                                  data: feature.properties
+                              }));
+                          }
+                      });
+                      map.on('mouseenter', 'navaids-layer', function() { map.getCanvas().style.cursor = 'pointer'; });
+                      map.on('mouseleave', 'navaids-layer', function() { map.getCanvas().style.cursor = ''; });
+                  }
+
+                  if (show) {
+                      var features = dataArr.map(function(n) {
+                          return {
+                              type: 'Feature',
+                              geometry: { type: 'Point', coordinates: [n.lon, n.lat] },
+                              properties: n
+                          };
+                      });
+                      map.getSource('navaids-source').setData({ type: 'FeatureCollection', features: features });
+                      map.setLayoutProperty('navaids-layer', 'visibility', 'visible');
+                  } else {
+                      map.setLayoutProperty('navaids-layer', 'visibility', 'none');
+                  }
+              };
+            ''');
+          },
+        ),
+      )
       ..addJavaScriptChannel(
         'EFBMapChannel',
         onMessageReceived: (JavaScriptMessage message) {
@@ -130,6 +215,10 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
           } else if (action == 'AIRPORT_CLICKED') {
             setState(() {
               selectedItem = {'type': 'AIRPORT', 'data': data['data']};
+            });
+          } else if (action == 'NAVAID_CLICKED') {
+            setState(() {
+              selectedItem = {'type': 'NAVAID', 'data': data};
             });
           } else if (action == 'TELEPORT_CLICKED') {
             setState(() {
@@ -169,6 +258,23 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
             "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')} ZULU";
       });
     }
+  }
+
+  List<List<double>> _getCurvedPath(
+      double lat1, double lon1, double lat2, double lon2) {
+    List<List<double>> points = [];
+    for (int i = 0; i <= 30; i++) {
+      double t = i / 30.0;
+      double lat = lat1 + (lat2 - lat1) * t;
+      double lon = lon1 + (lon2 - lon1) * t;
+
+      double bulge = (lon2 - lon1).abs() * 0.15;
+      if (bulge > 12) bulge = 12;
+      lat += math.sin(t * math.pi) * bulge;
+
+      points.add([lon, lat]);
+    }
+    return points;
   }
 
   Future<void> _fetchAirportsForSearch() async {
@@ -288,7 +394,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
           ? (result['data']['longitude'] ?? 0.0).toDouble()
           : (result['data']['lastTrack']?['longitude'] ?? 0.0).toDouble();
     }
-    // 🔴 تشغيل الجافا سكريبت بالطريقة الحديثة
     _webviewController.runJavaScript("window.flyToCoords($lat, $lon, 11.0);");
   }
 
@@ -303,14 +408,12 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       double hdg = double.tryParse(_hdgCtrl.text) ?? 90.0;
       double spd = double.tryParse(_speedCtrl.text) ?? 450.0;
 
-      // 1. تخزين البيانات فوراً في الـ App State
       FFAppState().msfsTeleportLat = manualLat!;
       FFAppState().msfsTeleportLng = manualLng!;
       FFAppState().msfsTeleportAlt = alt;
       FFAppState().msfsTeleportHdg = hdg;
       FFAppState().msfsTeleportSpd = spd;
 
-      // 2. إرسال البيانات للـ Action Parameter
       if (widget.onLocationSelected != null) {
         widget.onLocationSelected!(
           manualLat!,
@@ -324,31 +427,20 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   }
 
   @override
-  void didUpdateWidget(covariant EFBRadarMap oldWidget) {
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    bool isLandscape =
+        MediaQuery.of(context).size.width > MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // ==========================================
-          // الطبقة السفلية: الخريطة الـ 3D (بالمكتبة الرسمية)
-          // ==========================================
           SizedBox(
             width: widget.width ?? MediaQuery.of(context).size.width,
             height: widget.height ?? MediaQuery.of(context).size.height,
             child: WebViewWidget(controller: _webviewController),
           ),
-
-          // ==========================================
-          // الطبقات العلوية: تصميم فلاتر الأصلي بدون أي تغيير
-          // ==========================================
-
-          // --- شريط البحث بالكامل فوق ---
           Positioned(
             top: 15,
             left: 15,
@@ -441,8 +533,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
               ],
             ),
           ),
-
-          // --- ساعة الزولو (Zulu Time) ---
           Positioned(
             bottom: 25,
             right: 15,
@@ -466,8 +556,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
               ),
             ),
           ),
-
-          // --- ملاحظة تحريك الطائرة أسفل الخريطة ---
           if (teleportMode)
             Positioned(
               bottom: 6,
@@ -490,8 +578,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                 ),
               ),
             ),
-
-          // --- القائمة اللي على الشمال ---
           Positioned(
             top: 65,
             left: 15,
@@ -517,6 +603,32 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         setState(() => showAirports = !showAirports);
                         _sendMapState('airports', showAirports);
                       }),
+                      _navaidMenuBtn("NAVAIDS", showNavaids, () async {
+                        setState(() => showNavaids = !showNavaids);
+                        if (showNavaids && rawNavaids.isEmpty) {
+                          List<Map<String, dynamic>> temp = [];
+                          try {
+                            for (String k in NavaidData.keys) {
+                              var list = NavaidData.getNavaidData(k);
+                              if (list != null) {
+                                for (var n in list) {
+                                  temp.add(n.toMap());
+                                }
+                              }
+                            }
+                            rawNavaids = temp;
+                          } catch (e) {
+                            print("Error parsing Navaids: $e");
+                          }
+                        }
+                        String jsonData = jsonEncode(rawNavaids);
+                        _webviewController.runJavaScript('''
+                          if (window.updateNavaids) {
+                            var data = $jsonData;
+                            window.updateNavaids(data, $showNavaids);
+                          }
+                        ''');
+                      }),
                       _menuBtn("CALLSIGN", showCallsigns, () {
                         setState(() => showCallsigns = !showCallsigns);
                         _sendMapState('callsigns', showCallsigns);
@@ -534,7 +646,29 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       }),
                       _menuBtn("FLIGHT PATH", showFlightPath, () {
                         setState(() => showFlightPath = !showFlightPath);
-                        _sendMapState('flightPath', showFlightPath);
+                        if (showFlightPath &&
+                            widget.depIcao != null &&
+                            widget.arrIcao != null) {
+                          var dep = rawAirports.firstWhere(
+                              (a) => a['icao'] == widget.depIcao,
+                              orElse: () => null);
+                          var arr = rawAirports.firstWhere(
+                              (a) => a['icao'] == widget.arrIcao,
+                              orElse: () => null);
+                          if (dep != null && arr != null) {
+                            double lat1 = double.parse(dep['lat'].toString());
+                            double lon1 = double.parse(dep['lon'].toString());
+                            double lat2 = double.parse(arr['lat'].toString());
+                            double lon2 = double.parse(arr['lon'].toString());
+                            List<List<double>> pathCoords =
+                                _getCurvedPath(lat1, lon1, lat2, lon2);
+                            _webviewController.runJavaScript(
+                                "window.drawFlightPath(${jsonEncode(pathCoords)});");
+                          }
+                        } else {
+                          _webviewController
+                              .runJavaScript("window.clearFlightPath();");
+                        }
                       }),
                     ]),
                   ),
@@ -554,8 +688,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
               ],
             ),
           ),
-
-          // --- القائمة اللي على اليمين ---
           Positioned(
             top: 65,
             right: 15,
@@ -613,15 +745,12 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
               ],
             ),
           ),
-
-          // --- لوحة التحكم الخاصة بالـ Teleport ---
           if (teleportMode && showTeleportControls)
             Positioned(
               bottom: 80,
               left: 15,
               child: _buildTeleportControls(),
             ),
-
           if (teleportMode && !showTeleportControls)
             Positioned(
               bottom: 25,
@@ -633,13 +762,13 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                 child: const Icon(Icons.settings, color: Colors.white),
               ),
             ),
-
           if (selectedItem != null && selectedItem!['type'] == 'PLANE')
             _buildInfoBox(selectedItem!['data'], selectedItem!['net'],
-                selectedItem!['isVatsim']),
-
+                selectedItem!['isVatsim'], isLandscape),
           if (selectedItem != null && selectedItem!['type'] == 'AIRPORT')
-            _buildAirportInfoBox(selectedItem!['data']),
+            _buildAirportInfoBox(selectedItem!['data'], isLandscape),
+          if (selectedItem != null && selectedItem!['type'] == 'NAVAID')
+            _buildNavaidInfoBox(selectedItem!['data'], isLandscape),
         ],
       ),
     );
@@ -721,6 +850,10 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   if (manualLat != null && manualLng != null) {
                     _webviewController.runJavaScript(
                         "window.triggerTeleport($manualLat, $manualLng, ${_hdgCtrl.text});");
+                    _webviewController.runJavaScript('''
+                      var tIcon = document.querySelector('.teleport-marker-class, [style*="z-index: 999"]');
+                      if(tIcon) tIcon.style.transform = 'rotate(${_hdgCtrl.text}deg)';
+                    ''');
                   }
                 },
                 decoration: const InputDecoration(
@@ -740,14 +873,154 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
     );
   }
 
-  Widget _buildAirportInfoBox(dynamic ap) {
-    return AdvancedAirportInfoBox(
-      ap: ap,
-      onClose: () => setState(() => selectedItem = null),
+  Widget _buildNavaidInfoBox(dynamic nav, bool isLandscape) {
+    String name = nav['name']?.toString() ?? "Unknown";
+    String type = nav['type']?.toString() ?? "NAV";
+    String freq = nav['freq']?.toString() ?? "-";
+    String lat = nav['lat']?.toString() ?? "-";
+    String lon = nav['lon']?.toString() ?? "-";
+    String elev = nav['elev']?.toString() ?? "-";
+    String country = nav['country']?.toString() ?? "-";
+    String airport = nav['airport']?.toString() ?? "-";
+    String power = nav['power']?.toString() ?? "-";
+
+    double? boxWidth =
+        isLandscape ? MediaQuery.of(context).size.width * 0.45 : null;
+
+    return Positioned(
+      bottom: 15,
+      right: 15,
+      left: isLandscape ? null : 15,
+      child: SizedBox(
+        width: boxWidth,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A).withOpacity(0.95),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+                color: Colors.purpleAccent.withOpacity(0.5), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.purpleAccent.withOpacity(0.1),
+                  blurRadius: 15,
+                  spreadRadius: 2)
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.cell_tower,
+                      color: Colors.purpleAccent, size: 36),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold)),
+                        const Text("Navaid Station",
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.purpleAccent.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.purpleAccent),
+                    ),
+                    child: Text(type,
+                        style: const TextStyle(
+                            color: Colors.purpleAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12)),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                      icon: const Icon(Icons.close,
+                          color: Colors.white54, size: 20),
+                      onPressed: () => setState(() => selectedItem = null),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints()),
+                ],
+              ),
+              const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(color: Colors.white10, height: 1)),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 3,
+                childAspectRatio: 2.2,
+                children: [
+                  _stat("FREQ", freq),
+                  _stat("ELEV", "$elev ft"),
+                  _stat("POWER", power),
+                  _stat("LAT", lat),
+                  _stat("LON", lon),
+                  _stat("COUNTRY", country),
+                ],
+              ),
+              if (airport.isNotEmpty &&
+                  airport != "null" &&
+                  airport != "-") ...[
+                const SizedBox(height: 12),
+                const Text("ASSOCIATED AIRPORT:",
+                    style: TextStyle(
+                        color: Colors.purpleAccent,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white10)),
+                  child: Text(airport,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold)),
+                ),
+              ]
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildInfoBox(dynamic p, String net, bool isVatsim) {
+  Widget _buildAirportInfoBox(dynamic ap, bool isLandscape) {
+    double? boxWidth =
+        isLandscape ? MediaQuery.of(context).size.width * 0.45 : null;
+
+    return Positioned(
+      bottom: 15,
+      right: 15,
+      left: isLandscape ? null : 15,
+      child: SizedBox(
+        width: boxWidth,
+        child: AdvancedAirportInfoBox(
+          ap: ap,
+          onClose: () => setState(() => selectedItem = null),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoBox(dynamic p, String net, bool isVatsim, bool isLandscape) {
     String call = p['callsign'] ?? "N/A";
     String dep = isVatsim
         ? (p['flight_plan']?['departure'] ?? "N/A")
@@ -828,166 +1101,177 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
     double alignX = (progress * 2) - 1.0;
     int distFlown = (gs * (onlineMinutes / 60.0)).round();
 
+    double? boxWidth =
+        isLandscape ? MediaQuery.of(context).size.width * 0.45 : null;
+
     return Positioned(
       bottom: 15,
-      left: 10,
-      right: 10,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0F172A).withOpacity(0.95),
-          borderRadius: BorderRadius.circular(20),
-          border:
-              Border.all(color: Colors.blueAccent.withOpacity(0.5), width: 1.5),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: Image.network(logoUrl,
-                          width: 45,
-                          height: 45,
-                          fit: BoxFit.contain,
-                          errorBuilder: (c, e, s) => const Icon(Icons.flight,
-                              color: Colors.black54, size: 40)),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(call,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold)),
-                        Text(pilot,
-                            style: const TextStyle(
-                                color: Colors.white70, fontSize: 13)),
-                        const SizedBox(height: 4),
-                        Text("Total Hrs: N/A (API) | Online: $timeOnline",
-                            style: const TextStyle(
-                                color: Colors.blueAccent,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: isVatsim
-                          ? Colors.amber.withOpacity(0.15)
-                          : Colors.greenAccent.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                          color: isVatsim ? Colors.amber : Colors.greenAccent),
-                    ),
-                    child: Text(net,
-                        style: TextStyle(
-                            color: isVatsim ? Colors.amber : Colors.greenAccent,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(dep,
-                      style: const TextStyle(
+      right: 15,
+      left: isLandscape ? null : 15,
+      child: SizedBox(
+        width: boxWidth,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A).withOpacity(0.95),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+                color: Colors.blueAccent.withOpacity(0.5), width: 1.5),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
                           color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900)),
-                  const Icon(Icons.flight_takeoff,
-                      color: Colors.white38, size: 16),
-                  const Icon(Icons.flight_land,
-                      color: Colors.white38, size: 16),
-                  Text(arr,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                      height: 2, width: double.infinity, color: Colors.white24),
-                  Align(
-                    alignment: Alignment(alignX, 0),
-                    child: Transform.rotate(
-                        angle: 3.14159 / 2,
-                        child: const Icon(Icons.airplanemode_active,
-                            color: Colors.blueAccent, size: 24)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Dist: $distFlown nm",
+                          borderRadius: BorderRadius.circular(8)),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.network(logoUrl,
+                            width: 45,
+                            height: 45,
+                            fit: BoxFit.contain,
+                            errorBuilder: (c, e, s) => const Icon(Icons.flight,
+                                color: Colors.black54, size: 40)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(call,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold)),
+                          Text(pilot,
+                              style: const TextStyle(
+                                  color: Colors.white70, fontSize: 13)),
+                          const SizedBox(height: 4),
+                          Text("Total Hrs: N/A (API) | Online: $timeOnline",
+                              style: const TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isVatsim
+                            ? Colors.amber.withOpacity(0.15)
+                            : Colors.greenAccent.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color:
+                                isVatsim ? Colors.amber : Colors.greenAccent),
+                      ),
+                      child: Text(net,
+                          style: TextStyle(
+                              color:
+                                  isVatsim ? Colors.amber : Colors.greenAccent,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(dep,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900)),
+                    const Icon(Icons.flight_takeoff,
+                        color: Colors.white38, size: 16),
+                    const Icon(Icons.flight_land,
+                        color: Colors.white38, size: 16),
+                    Text(arr,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                        height: 2,
+                        width: double.infinity,
+                        color: Colors.white24),
+                    Align(
+                      alignment: Alignment(alignX, 0),
+                      child: Transform.rotate(
+                          angle: 3.14159 / 2,
+                          child: const Icon(Icons.airplanemode_active,
+                              color: Colors.blueAccent, size: 24)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Dist: $distFlown nm",
+                        style: const TextStyle(
+                            color: Colors.white54, fontSize: 11)),
+                    Text("ETA: $remaining",
+                        style: const TextStyle(
+                            color: Colors.white54, fontSize: 11)),
+                  ],
+                ),
+                const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(color: Colors.white10, height: 1)),
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 3,
+                  childAspectRatio: 2.2,
+                  children: [
+                    _stat("GS", "$gs kts"),
+                    _stat("ALT", "$alt ft"),
+                    _stat("VS", "$vs fpm"),
+                    _stat("HDG", "$hdg°"),
+                    _stat("SQUAWK", squawk),
+                    _stat("TYPE", acft),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text("FLIGHT PLAN / ROUTE:",
+                    style: TextStyle(
+                        color: Colors.blueAccent,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white10)),
+                  child: Text(route,
                       style:
-                          const TextStyle(color: Colors.white54, fontSize: 11)),
-                  Text("ETA: $remaining",
-                      style:
-                          const TextStyle(color: Colors.white54, fontSize: 11)),
-                ],
-              ),
-              const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Divider(color: Colors.white10, height: 1)),
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 3,
-                childAspectRatio: 2.2,
-                children: [
-                  _stat("GS", "$gs kts"),
-                  _stat("ALT", "$alt ft"),
-                  _stat("VS", "$vs fpm"),
-                  _stat("HDG", "$hdg°"),
-                  _stat("SQUAWK", squawk),
-                  _stat("TYPE", acft),
-                ],
-              ),
-              const SizedBox(height: 12),
-              const Text("FLIGHT PLAN / ROUTE:",
-                  style: TextStyle(
-                      color: Colors.blueAccent,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(height: 6),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    color: Colors.black26,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.white10)),
-                child: Text(route,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis),
-              ),
-            ],
+                          const TextStyle(color: Colors.white70, fontSize: 12),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1012,6 +1296,23 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       color: active ? Colors.blueAccent : Colors.white,
                       fontSize: 9,
                       fontWeight: FontWeight.bold)))));
+
+  Widget _navaidMenuBtn(String label, bool active, VoidCallback onTap) =>
+      InkWell(
+          onTap: onTap,
+          child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              color: active
+                  ? Colors.purpleAccent.withOpacity(0.2)
+                  : Colors.transparent,
+              child: Center(
+                  child: Text(label,
+                      style: TextStyle(
+                          color: active ? Colors.purpleAccent : Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold)))));
+
   Widget _weatherMenuBtn(String label, bool active, VoidCallback onTap) =>
       InkWell(
           onTap: onTap,
@@ -1027,10 +1328,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                           fontSize: 9,
                           fontWeight: FontWeight.bold)))));
 }
-
-// ============================================================================
-// 👇👇 الـ Widget الاحترافي الخاص بالمطار 👇👇
-// ============================================================================
 
 class AdvancedAirportInfoBox extends StatefulWidget {
   final dynamic ap;
@@ -1151,104 +1448,98 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
     String iata =
         widget.ap['IATA'] ?? widget.ap['iata'] ?? widget.ap['iata_code'] ?? "-";
 
-    return Positioned(
-      bottom: 15,
-      left: 10,
-      right: 10,
-      child: Container(
-        constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.65),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0F172A).withOpacity(0.95),
-          borderRadius: BorderRadius.circular(20),
-          border:
-              Border.all(color: Colors.cyanAccent.withOpacity(0.5), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.cyanAccent.withOpacity(0.1),
-                blurRadius: 15,
-                spreadRadius: 2)
-          ],
-        ),
-        child: DefaultTabController(
-          length: 3,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                    left: 16, right: 8, top: 12, bottom: 4),
-                child: Row(
-                  children: [
-                    const Icon(Icons.local_airport,
-                        color: Colors.cyanAccent, size: 36),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold)),
-                          Text("$city, $country",
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  color: Colors.white70, fontSize: 12)),
-                        ],
-                      ),
+    return Container(
+      constraints:
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.65),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A).withOpacity(0.95),
+        borderRadius: BorderRadius.circular(20),
+        border:
+            Border.all(color: Colors.cyanAccent.withOpacity(0.5), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.cyanAccent.withOpacity(0.1),
+              blurRadius: 15,
+              spreadRadius: 2)
+        ],
+      ),
+      child: DefaultTabController(
+        length: 3,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 4),
+              child: Row(
+                children: [
+                  const Icon(Icons.local_airport,
+                      color: Colors.cyanAccent, size: 36),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold)),
+                        Text("$city, $country",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 12)),
+                      ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                          color: Colors.cyanAccent.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: Text(icao,
-                          style: const TextStyle(
-                              color: Colors.cyanAccent,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15)),
-                    ),
-                    const SizedBox(width: 4),
-                    IconButton(
-                        icon: const Icon(Icons.close,
-                            color: Colors.white54, size: 20),
-                        onPressed: widget.onClose,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints()),
-                  ],
-                ),
-              ),
-              const TabBar(
-                indicatorColor: Colors.cyanAccent,
-                labelColor: Colors.cyanAccent,
-                unselectedLabelColor: Colors.white54,
-                labelStyle:
-                    TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                tabs: [
-                  Tab(text: "INFO"),
-                  Tab(text: "RUNWAYS"),
-                  Tab(text: "WEATHER"),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                        color: Colors.cyanAccent.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Text(icao,
+                        style: const TextStyle(
+                            color: Colors.cyanAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15)),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                      icon: const Icon(Icons.close,
+                          color: Colors.white54, size: 20),
+                      onPressed: widget.onClose,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints()),
                 ],
               ),
-              Expanded(
-                child: isLoading
-                    ? const Center(
-                        child:
-                            CircularProgressIndicator(color: Colors.cyanAccent))
-                    : TabBarView(children: [
-                        _buildInfoTab(iata),
-                        _buildRunwaysTab(),
-                        _buildWeatherTab()
-                      ]),
-              ),
-            ],
-          ),
+            ),
+            const TabBar(
+              indicatorColor: Colors.cyanAccent,
+              labelColor: Colors.cyanAccent,
+              unselectedLabelColor: Colors.white54,
+              labelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              tabs: [
+                Tab(text: "INFO"),
+                Tab(text: "RUNWAYS"),
+                Tab(text: "WEATHER"),
+              ],
+            ),
+            Expanded(
+              child: isLoading
+                  ? const Center(
+                      child:
+                          CircularProgressIndicator(color: Colors.cyanAccent))
+                  : TabBarView(children: [
+                      _buildInfoTab(iata),
+                      _buildRunwaysTab(),
+                      _buildWeatherTab()
+                    ]),
+            ),
+          ],
         ),
       ),
     );
