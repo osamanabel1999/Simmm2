@@ -138,3 +138,14 @@ export '/custom_code/actions/get_offline_airport_data.dart'
     show getOfflineAirportData;
 export '/custom_code/actions/get_offline_navaid_data.dart'
     show getOfflineNavaidData;
+export '/custom_code/actions/get_offline_waypoint_data.dart'
+    show getOfflineWaypointData;
+export '/custom_code/actions/get_offline_mora_data.dart'
+    show getOfflineMoraData;
+export '/custom_code/actions/get_offline_msa_data.dart' show getOfflineMsaData;
+export '/custom_code/actions/get_offline_hold_data.dart'
+    show getOfflineHoldData;
+export '/custom_code/actions/get_offline_high_airways.dart'
+    show getOfflineHighAirways;
+export '/custom_code/actions/get_offline_low_airways.dart'
+    show getOfflineLowAirways;

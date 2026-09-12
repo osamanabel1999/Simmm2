@@ -17,6 +17,9 @@ import 'dart:math' as math;
 import 'package:flutter_tts/flutter_tts.dart';
 import '/app_state.dart';
 import '/custom_code/actions/get_offline_navaid_data.dart';
+import '/custom_code/actions/get_offline_waypoint_data.dart';
+import '/custom_code/actions/get_offline_high_airways.dart' as high_airways;
+import '/custom_code/actions/get_offline_low_airways.dart' as low_airways;
 
 class EFBRadarMap extends StatefulWidget {
   const EFBRadarMap({
@@ -52,6 +55,83 @@ class EFBRadarMap extends StatefulWidget {
 
   @override
   _EFBRadarMapState createState() => _EFBRadarMapState();
+}
+
+class _EfbMetricScalePainter extends CustomPainter {
+  const _EfbMetricScalePainter({required this.values, required this.labels});
+
+  final List<double> values;
+  final List<String> labels;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final lineY = size.height - 13;
+    final left = 4.0;
+    final right = size.width - 4.0;
+    final usable = right - left;
+
+    final textStyle = const TextStyle(
+      color: Colors.white,
+      fontSize: 11,
+      fontWeight: FontWeight.bold,
+      fontFamily: 'monospace',
+      shadows: [Shadow(color: Colors.black, blurRadius: 3)],
+    );
+
+    // Match the aviation-style scale appearance: cyan start, white body,
+    // crisp ticks, and no opaque card behind it.
+    final linePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.0
+      ..strokeCap = StrokeCap.square;
+
+    final cyanPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5.0
+      ..strokeCap = StrokeCap.square
+      ..color = const Color(0xFF00D9FF);
+
+    final whitePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.0
+      ..strokeCap = StrokeCap.square
+      ..color = Colors.white;
+
+    canvas.drawLine(Offset(left, lineY), Offset(right, lineY), whitePaint);
+    canvas.drawLine(
+        Offset(left, lineY), Offset(left + usable * 0.24, lineY), cyanPaint);
+
+    final tickPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0
+      ..color = Colors.white;
+    final cyanTickPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0
+      ..color = const Color(0xFF00D9FF);
+
+    for (int i = 0; i < values.length; i++) {
+      final x = left + usable * (i / (values.length - 1));
+      final tickHeight = i == 0 ? 18.0 : (i == values.length - 1 ? 18.0 : 13.0);
+      canvas.drawLine(
+          Offset(x, lineY - tickHeight / 2),
+          Offset(x, lineY + tickHeight / 2),
+          i == 0 ? cyanTickPaint : tickPaint);
+
+      final tp = TextPainter(
+        text: TextSpan(text: labels[i], style: textStyle),
+        textDirection: ui.TextDirection.ltr,
+      )..layout();
+      double textX = x - tp.width / 2;
+      if (i == 0) textX = x - 1;
+      if (i == values.length - 1) textX = x - tp.width + 1;
+      tp.paint(canvas, Offset(textX, 0));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _EfbMetricScalePainter oldDelegate) =>
+      oldDelegate.values != values || oldDelegate.labels != labels;
 }
 
 class _EFBRadarMapState extends State<EFBRadarMap> {
@@ -92,8 +172,15 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   final TextEditingController _hdgCtrl = TextEditingController(text: "90");
   bool showFlightPath = false;
 
+  // NAV AIDS
+  bool showWaypoints = false;
+  String activeAirwayMode = 'NONE'; // NONE / HIGH / LOW
+  List<Map<String, dynamic>> rawWaypoints = [];
+  List<Map<String, dynamic>> rawAirwaySegments = [];
+
   bool _isMapReady = false;
   double _mapZoom = 1.8;
+  double _mapCenterLat = 0.0;
 
   @override
   void initState() {
@@ -103,6 +190,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
         Timer.periodic(const Duration(seconds: 1), (_) => _updateClock());
 
     _loadNavaidsLocally();
+    _loadWaypointsAndAirwaysLocally();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchAirportsForSearch();
@@ -131,8 +219,10 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                  try {
                    if (typeof map !== 'undefined' && map) {
                      var z = map.getZoom();
+                     var centerLat = 0;
+                     try { centerLat = map.getCenter().lat; } catch (e) {}
                      if (window.EFBMapChannel) {
-                       window.EFBMapChannel.postMessage(JSON.stringify({ action: 'ZOOM_CHANGED', zoom: z }));
+                       window.EFBMapChannel.postMessage(JSON.stringify({ action: 'ZOOM_CHANGED', zoom: z, centerLat: centerLat }));
                      }
                    }
                  } catch (e) {}
@@ -175,13 +265,15 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                 };
                 var airportSvg = '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" fill="#00FFFF" stroke="#000000" stroke-width="2"/></svg>';
                 var navaidSvg = '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,2 22,7 22,17 12,22 2,17 2,7" fill="#D946EF" stroke="#000000" stroke-width="2"/></svg>';
+                var waypointSvg = '<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"12,2 22,21 2,21\" fill=\"#FFD166\" stroke=\"#111827\" stroke-width=\"1.5\"/></svg>';
 
                 var items = [
                   ['plane-vatsim', planeSvg('#FFB300')],
                   ['plane-ivao', planeSvg('#00E676')],
                   ['plane-user', planeSvg('#E040FB')],
                   ['airport-icon', airportSvg],
-                  ['navaid-icon', navaidSvg]
+                  ['navaid-icon', navaidSvg],
+                  ['waypoint-icon', waypointSvg]
                 ];
 
                 for (var i = 0; i < items.length; i++) {
@@ -200,6 +292,24 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   throw e;
                 }
               }
+
+              // Flutter overlay zoom buttons call these functions directly.
+              // Mapbox GL JS exposes zoomIn/zoomOut on the Map camera API.
+              window.efbZoomIn = function() {
+                try {
+                  if (typeof map !== 'undefined' && map && map.isStyleLoaded()) {
+                    map.zoomIn({ duration: 200 });
+                  }
+                } catch (e) {}
+              };
+
+              window.efbZoomOut = function() {
+                try {
+                  if (typeof map !== 'undefined' && map && map.isStyleLoaded()) {
+                    map.zoomOut({ duration: 200 });
+                  }
+                } catch (e) {}
+              };
 
               window.renderEFBData = async function(payload) {
                   if (typeof map === 'undefined' || !map.isStyleLoaded()) {
@@ -262,6 +372,24 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       'text-halo-color': '#000000',
                       'text-halo-width': 2
                   });
+                  updateLayer('efb-waypoints-source', 'efb-waypoints-layer', payload.waypoints || [], payload.waypointsVisible, {
+                      'icon-image': 'waypoint-icon',
+                      'icon-size': 0.75,
+                      'text-field': ['get', 'name'],
+                      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                      'text-size': 9,
+                      'text-offset': [0, 1.35],
+                      'text-anchor': 'top',
+                      'icon-allow-overlap': true,
+                      'text-allow-overlap': true
+                  }, {
+                      'text-color': '#FFD166',
+                      'text-halo-color': '#111827',
+                      'text-halo-width': 2
+                  });
+
+                  updateLineLayer('efb-airways-source', 'efb-airways-layer',
+                      payload.airways || [], payload.airwaysVisible, '#FFD166');
               };
 
               function updateLayer(sourceId, layerId, dataArr, isVisible, layout, paint) {
@@ -270,7 +398,13 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       map.addLayer({ id: layerId, type: 'symbol', source: sourceId, layout: layout, paint: paint });
                       map.on('click', layerId, function(e) {
                           if (window.EFBMapChannel && e.features && e.features.length) {
-                              var actionType = sourceId.includes('planes') ? 'PLANE_CLICKED' : (sourceId.includes('airports') ? 'AIRPORT_CLICKED' : 'NAVAID_CLICKED');
+                              var actionType = sourceId.includes('planes')
+                                ? 'PLANE_CLICKED'
+                                : (sourceId.includes('airports')
+                                  ? 'AIRPORT_CLICKED'
+                                  : (sourceId.includes('waypoints')
+                                    ? 'WAYPOINT_CLICKED'
+                                    : 'NAVAID_CLICKED'));
                               window.EFBMapChannel.postMessage(JSON.stringify({ action: actionType, data: e.features[0].properties }));
                           }
                       });
@@ -296,6 +430,43 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   }
               }
 
+              function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
+                  if (!map.getSource(sourceId)) {
+                      map.addSource(sourceId, {
+                          type: 'geojson',
+                          data: { type: 'FeatureCollection', features: [] }
+                      });
+                      map.addLayer({
+                          id: layerId,
+                          type: 'line',
+                          source: sourceId,
+                          layout: { 'line-join': 'round', 'line-cap': 'round' },
+                          paint: {
+                              'line-color': color,
+                              'line-width': 2.2,
+                              'line-opacity': 0.9
+                          }
+                      });
+                  } else {
+                      try { map.setPaintProperty(layerId, 'line-color', color); } catch (e) {}
+                      try { map.setPaintProperty(layerId, 'line-width', 2.2); } catch (e) {}
+                      try { map.setPaintProperty(layerId, 'line-opacity', 0.9); } catch (e) {}
+                  }
+                  if (isVisible) {
+                      map.getSource(sourceId).setData({
+                          type: 'FeatureCollection',
+                          features: dataArr || []
+                      });
+                      map.setLayoutProperty(layerId, 'visibility', 'visible');
+                  } else {
+                      map.getSource(sourceId).setData({
+                          type: 'FeatureCollection',
+                          features: []
+                      });
+                      map.setLayoutProperty(layerId, 'visibility', 'none');
+                  }
+              }
+
               window.teleportMarker = null;
               window.triggerTeleport = function(lat, lon, hdg) {
                   if (typeof map === 'undefined' || typeof mapboxgl === 'undefined') return;
@@ -313,20 +484,49 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
 
               window.drawFlightPath = function(coords) {
                   if (typeof map === 'undefined' || !map.isStyleLoaded()) return;
-                  if (map.getSource('flight-path-source')) {
-                      map.getSource('flight-path-source').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: coords || [] } });
+                  var flightPathColor = '#00E5FF';
+
+                  if (!map.getSource('flight-path-source')) {
+                      map.addSource('flight-path-source', {
+                          type: 'geojson',
+                          data: {
+                              type: 'Feature',
+                              geometry: { type: 'LineString', coordinates: coords || [] }
+                          }
+                      });
                   } else {
-                      map.addSource('flight-path-source', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords || [] } } });
-                      map.addLayer({
-                          id: 'flight-path-layer', type: 'line', source: 'flight-path-source',
-                          layout: { 'line-join': 'round', 'line-cap': 'round' },
-                          paint: { 'line-color': '#FF3B30', 'line-width': 4 }
+                      map.getSource('flight-path-source').setData({
+                          type: 'Feature',
+                          geometry: { type: 'LineString', coordinates: coords || [] }
                       });
                   }
+
+                  if (!map.getLayer('flight-path-layer')) {
+                      map.addLayer({
+                          id: 'flight-path-layer',
+                          type: 'line',
+                          source: 'flight-path-source',
+                          layout: { 'line-join': 'round', 'line-cap': 'round' },
+                          paint: {
+                              'line-color': flightPathColor,
+                              'line-width': 4,
+                              'line-opacity': 0.95
+                          }
+                      });
+                  } else {
+                      try { map.setPaintProperty('flight-path-layer', 'line-color', flightPathColor); } catch (e) {}
+                      try { map.setPaintProperty('flight-path-layer', 'line-width', 4); } catch (e) {}
+                      try { map.setPaintProperty('flight-path-layer', 'line-opacity', 0.95); } catch (e) {}
+                  }
+                  try { map.setLayoutProperty('flight-path-layer', 'visibility', 'visible'); } catch (e) {}
               };
               window.clearFlightPath = function() {
                   if (typeof map !== 'undefined' && map.getSource('flight-path-source')) {
-                      map.getSource('flight-path-source').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: [] } });
+                      map.getSource('flight-path-source').setData({
+                          type: 'Feature',
+                          geometry: { type: 'LineString', coordinates: [] }
+                      });
+                      try { map.setLayoutProperty('flight-path-layer', 'visibility', 'none'); } catch (e) {}
                   }
               };
 
@@ -364,6 +564,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
               _isMapReady = true;
               final z = parsed['zoom'];
               if (z is num) _mapZoom = z.toDouble();
+              final centerLat = parsed['centerLat'];
+              if (centerLat is num) _mapCenterLat = centerLat.toDouble();
             });
 
             _pushDataToMap(); // رسم الداتا فوراً عند جاهزية الخريطة
@@ -391,6 +593,11 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
             } else if (action == 'NAVAID_CLICKED') {
               setState(() => selectedItem = {
                     'type': 'NAVAID',
+                    'data': jsonDecode(data['raw'])
+                  });
+            } else if (action == 'WAYPOINT_CLICKED') {
+              setState(() => selectedItem = {
+                    'type': 'WAYPOINT',
                     'data': jsonDecode(data['raw'])
                   });
             } else if (action == 'TELEPORT_CLICKED') {
@@ -514,13 +721,61 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       }
     }
 
+    List<Map<String, dynamic>> waypointFeatures = [];
+    if (showWaypoints) {
+      for (var w in rawWaypoints) {
+        final wLat = double.tryParse((w['lat'] ?? 0.0).toString()) ?? 0.0;
+        final wLon = double.tryParse((w['lon'] ?? 0.0).toString()) ?? 0.0;
+        final wName = (w['name'] ?? '').toString().trim();
+        if (wLat.isFinite && wLon.isFinite && wName.isNotEmpty) {
+          waypointFeatures.add({
+            "lat": wLat,
+            "lon": wLon,
+            "name": wName,
+            "raw": jsonEncode(w),
+          });
+        }
+      }
+    }
+
+    List<Map<String, dynamic>> airwayFeatures = [];
+    if (activeAirwayMode != 'NONE') {
+      airwayFeatures = rawAirwaySegments
+          .where((segment) =>
+              (segment['mode'] ?? '').toString() == activeAirwayMode)
+          .map((segment) => {
+                "type": "Feature",
+                "geometry": {
+                  "type": "LineString",
+                  "coordinates": segment["coordinates"]
+                },
+                "properties": {
+                  "name": segment["name"] ?? "",
+                  "from": segment["from"] ?? "",
+                  "to": segment["to"] ?? "",
+                  "base": segment["base"] ?? 0,
+                  "top": segment["top"] ?? 0
+                }
+              })
+          .toList();
+
+      airwayFeatures = airwayFeatures.where((feature) {
+        final coords = feature["geometry"]?["coordinates"];
+        return coords is List && coords.length >= 2;
+      }).toList();
+    }
+
     String jsonPayload = jsonEncode({
       "planesVisible": (showVatsim || showIvao),
       "airportsVisible": showAirports,
       "navaidsVisible": showNavaids,
+      "waypointsVisible": showWaypoints,
+      "airwaysVisible": activeAirwayMode != 'NONE',
       "planes": planeFeatures,
       "airports": airportFeatures,
       "navaids": navaidFeatures,
+      "waypoints": waypointFeatures,
+      "airways": airwayFeatures,
     });
 
     _webviewController.runJavaScript('''
@@ -573,6 +828,119 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
         zuluTime =
             "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')} ZULU";
       });
+    }
+  }
+
+  void _loadWaypointsAndAirwaysLocally() {
+    try {
+      final List<Map<String, dynamic>> waypointTemp = [];
+      final Map<String, Map<String, dynamic>> waypointLookup =
+          <String, Map<String, dynamic>>{};
+
+      // Waypoints remain sourced from the existing Waypoint custom action.
+      for (String key in WaypointData.keys) {
+        final list = WaypointData.getWaypointData(key);
+        if (list == null) continue;
+
+        for (final waypoint in list) {
+          final mapped = waypoint.toMap();
+          final name = (mapped['name'] ?? key).toString().trim().toUpperCase();
+          final lat = double.tryParse((mapped['lat'] ?? 0.0).toString()) ?? 0.0;
+          final lon = double.tryParse((mapped['lon'] ?? 0.0).toString()) ?? 0.0;
+
+          if (!lat.isFinite || !lon.isFinite || name.isEmpty) continue;
+
+          final item = <String, dynamic>{
+            'name': name,
+            'lat': lat,
+            'lon': lon,
+          };
+
+          waypointTemp.add(item);
+          waypointLookup[name] ??= item;
+        }
+      }
+
+      final List<Map<String, dynamic>> airwayTemp = [];
+
+      // HIGH AIRWAYS are now read only from the dedicated HighAirways action.
+      for (String airwayName in high_airways.HighAirwayData.keys) {
+        final segments = high_airways.HighAirwayData.getAirway(airwayName);
+        if (segments == null || segments.isEmpty) continue;
+
+        final ordered = List.of(segments)
+          ..sort((a, b) => a.seq.compareTo(b.seq));
+
+        for (int i = 0; i < ordered.length - 1; i++) {
+          final from = ordered[i].ident.trim().toUpperCase();
+          final to = ordered[i + 1].ident.trim().toUpperCase();
+          final fromPoint = waypointLookup[from];
+          final toPoint = waypointLookup[to];
+
+          if (fromPoint == null || toPoint == null) continue;
+
+          airwayTemp.add({
+            'name': airwayName.trim().toUpperCase(),
+            'from': from,
+            'to': to,
+            'dir': ordered[i].dir,
+            'level': ordered[i].level,
+            'base': ordered[i].base,
+            'top': ordered[i].top,
+            'mode': 'HIGH',
+            'coordinates': [
+              [fromPoint['lon'], fromPoint['lat']],
+              [toPoint['lon'], toPoint['lat']],
+            ],
+          });
+        }
+      }
+
+      // LOW AIRWAYS are now read only from the dedicated LowAirways action.
+      for (String airwayName in low_airways.LowAirwayData.keys) {
+        final segments = low_airways.LowAirwayData.getAirway(airwayName);
+        if (segments == null || segments.isEmpty) continue;
+
+        final ordered = List.of(segments)
+          ..sort((a, b) => a.seq.compareTo(b.seq));
+
+        for (int i = 0; i < ordered.length - 1; i++) {
+          final from = ordered[i].ident.trim().toUpperCase();
+          final to = ordered[i + 1].ident.trim().toUpperCase();
+          final fromPoint = waypointLookup[from];
+          final toPoint = waypointLookup[to];
+
+          if (fromPoint == null || toPoint == null) continue;
+
+          airwayTemp.add({
+            'name': airwayName.trim().toUpperCase(),
+            'from': from,
+            'to': to,
+            'dir': ordered[i].dir,
+            'level': ordered[i].level,
+            'base': ordered[i].base,
+            'top': ordered[i].top,
+            'mode': 'LOW',
+            'coordinates': [
+              [fromPoint['lon'], fromPoint['lat']],
+              [toPoint['lon'], toPoint['lat']],
+            ],
+          });
+        }
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        rawWaypoints = waypointTemp;
+        rawAirwaySegments = airwayTemp;
+      });
+
+      if (_isMapReady) {
+        _pushDataToMap();
+      }
+    } catch (e) {
+      print("Error parsing Waypoints/Airways: $e");
     }
   }
 
@@ -815,57 +1183,56 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
         .runJavaScript("if(window.efbZoomOut) window.efbZoomOut();");
   }
 
-  String _formatScaleNm(double value) {
-    if (value >= 10) return "${value.round()} NM";
-    if (value >= 1) {
-      final rounded = value.roundToDouble();
-      return "${rounded == value ? rounded.toInt() : value.toStringAsFixed(1)} NM";
+  String _formatScaleMetric(double meters) {
+    if (!meters.isFinite || meters <= 0) return '0 m';
+    if (meters >= 1000) {
+      final km = meters / 1000.0;
+      if (km >= 10) return '${km.round()} km';
+      if ((km - km.round()).abs() < 0.05) return '${km.round()} km';
+      return '${km.toStringAsFixed(1)} km';
     }
-    return "${value.toStringAsFixed(1)} NM";
+    if (meters >= 100) return '${meters.round()} m';
+    if (meters >= 10) return '${(meters / 10).round() * 10} m';
+    return '${meters.round()} m';
+  }
+
+  double _niceScaleDistanceMeters() {
+    // Mapbox GL JS uses a 512px world tile. At the current zoom and latitude,
+    // this gives the real-world distance represented by one screen pixel.
+    const earthCircumferenceMeters = 40075016.686;
+    final latitudeRad = (_mapCenterLat.clamp(-85.0, 85.0)) * math.pi / 180.0;
+    final metersPerPixel = earthCircumferenceMeters *
+        math.cos(latitudeRad) /
+        (512.0 * math.pow(2.0, _mapZoom));
+
+    const targetPixels = 190.0;
+    final rawMeters = metersPerPixel * targetPixels;
+    if (!rawMeters.isFinite || rawMeters <= 0) return 1000.0;
+
+    final exponent = math.pow(10.0, (math.log(rawMeters) / math.ln10).floor());
+    final normalized = rawMeters / exponent;
+    final niceNormalized =
+        normalized >= 5 ? 5.0 : (normalized >= 2 ? 2.0 : 1.0);
+    return niceNormalized * exponent;
   }
 
   Widget _buildMapScaleBar() {
-    final double base = 50.0 * math.pow(2.0, 7.0 - _mapZoom).toDouble();
-    final List<double> values = [base * 4, base * 2, base, base / 2];
+    final double totalMeters = _niceScaleDistanceMeters();
+    final List<double> values = [
+      0,
+      totalMeters / 3,
+      totalMeters * 2 / 3,
+      totalMeters
+    ];
 
-    return Container(
-      width: 270,
-      height: 44,
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.82),
-        borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-            color: const Color(0xFF00E5FF).withOpacity(0.55), width: 1.2),
-        boxShadow: const [
-          BoxShadow(color: Colors.black45, blurRadius: 8, spreadRadius: 1)
-        ],
-      ),
-      child: Row(
-        children: List.generate(4, (index) {
-          return Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  right: index < 3
-                      ? const BorderSide(color: Colors.white24, width: 1)
-                      : BorderSide.none,
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  _formatScaleNm(values[index]),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'monospace',
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
+    return SizedBox(
+      width: 220,
+      height: 58,
+      child: CustomPaint(
+        painter: _EfbMetricScalePainter(
+          values: values,
+          labels: values.map(_formatScaleMetric).toList(),
+        ),
       ),
     );
   }
@@ -1036,11 +1403,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
           Positioned(
             bottom: 15,
             left: 15,
-            right: 15,
             child: IgnorePointer(
-              child: Center(
-                child: _buildMapScaleBar(),
-              ),
+              child: _buildMapScaleBar(),
             ),
           ),
           Positioned(
@@ -1115,6 +1479,28 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       }),
                       _navaidMenuBtn("NAVAIDS", showNavaids, () {
                         setState(() => showNavaids = !showNavaids);
+                        _pushDataToMap();
+                      }),
+                      _navAidOverlayBtn("WAYPOINTS", showWaypoints, () {
+                        setState(() {
+                          showWaypoints = !showWaypoints;
+                        });
+                        _pushDataToMap();
+                      }),
+                      _navAidOverlayBtn(
+                          "HIGH AIRWAY", activeAirwayMode == 'HIGH', () {
+                        setState(() {
+                          activeAirwayMode =
+                              activeAirwayMode == 'HIGH' ? 'NONE' : 'HIGH';
+                        });
+                        _pushDataToMap();
+                      }),
+                      _navAidOverlayBtn("LOW AIRWAY", activeAirwayMode == 'LOW',
+                          () {
+                        setState(() {
+                          activeAirwayMode =
+                              activeAirwayMode == 'LOW' ? 'NONE' : 'LOW';
+                        });
                         _pushDataToMap();
                       }),
                       _menuBtn("CALLSIGN", showCallsigns, () {
@@ -1790,6 +2176,23 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   child: Text(label,
                       style: TextStyle(
                           color: active ? Colors.purpleAccent : Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold)))));
+
+  Widget _navAidOverlayBtn(String label, bool active, VoidCallback onTap) =>
+      InkWell(
+          onTap: onTap,
+          child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              color: active
+                  ? const Color(0xFFFFD166).withOpacity(0.18)
+                  : Colors.transparent,
+              child: Center(
+                  child: Text(label,
+                      style: TextStyle(
+                          color:
+                              active ? const Color(0xFFFFD166) : Colors.white,
                           fontSize: 9,
                           fontWeight: FontWeight.bold)))));
 
