@@ -18858,50 +18858,58 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
                                           children: [
-                                            Expanded(
-                                              child: Container(
-                                                width: double.infinity,
-                                                height: double.infinity,
-                                                child: custom_widgets.RadarMap(
+                                            if (responsiveVisibility(
+                                              context: context,
+                                              phone: false,
+                                              tablet: false,
+                                              tabletLandscape: false,
+                                              desktop: false,
+                                            ))
+                                              Expanded(
+                                                child: Container(
                                                   width: double.infinity,
                                                   height: double.infinity,
-                                                  userNetworkId: FFAppState()
-                                                      .ivaoVatsimID
-                                                      .toString(),
-                                                  depIcao: getJsonField(
-                                                    (_model.simbreifResponse
-                                                            ?.jsonBody ??
-                                                        ''),
-                                                    r'''$.origin.icao_code''',
-                                                  ).toString(),
-                                                  arrIcao: getJsonField(
-                                                    (_model.simbreifResponse
-                                                            ?.jsonBody ??
-                                                        ''),
-                                                    r'''$.destination.icao_code''',
-                                                  ).toString(),
-                                                  initialLat: 35.0,
-                                                  initialLng: 70.0,
-                                                  initialZoom: 3.0,
-                                                  onLocationSelected:
-                                                      (selectedLatitude,
-                                                          selectedLongitude,
-                                                          altitudeFt,
-                                                          headingDeg,
-                                                          speedKnots) async {
-                                                    await actions
-                                                        .sendTeleportRequest(
-                                                      FFAppState().ipPC,
-                                                      selectedLatitude!,
-                                                      selectedLongitude!,
-                                                      altitudeFt,
-                                                      headingDeg,
-                                                      speedKnots,
-                                                    );
-                                                  },
+                                                  child:
+                                                      custom_widgets.RadarMap(
+                                                    width: double.infinity,
+                                                    height: double.infinity,
+                                                    userNetworkId: FFAppState()
+                                                        .ivaoVatsimID
+                                                        .toString(),
+                                                    depIcao: getJsonField(
+                                                      (_model.simbreifResponse
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.origin.icao_code''',
+                                                    ).toString(),
+                                                    arrIcao: getJsonField(
+                                                      (_model.simbreifResponse
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.destination.icao_code''',
+                                                    ).toString(),
+                                                    initialLat: 35.0,
+                                                    initialLng: 70.0,
+                                                    initialZoom: 3.0,
+                                                    onLocationSelected:
+                                                        (selectedLatitude,
+                                                            selectedLongitude,
+                                                            altitudeFt,
+                                                            headingDeg,
+                                                            speedKnots) async {
+                                                      await actions
+                                                          .sendTeleportRequest(
+                                                        FFAppState().ipPC,
+                                                        selectedLatitude!,
+                                                        selectedLongitude!,
+                                                        altitudeFt,
+                                                        headingDeg,
+                                                        speedKnots,
+                                                      );
+                                                    },
+                                                  ),
                                                 ),
                                               ),
-                                            ),
                                             Expanded(
                                               child: Container(
                                                 width: double.infinity,
