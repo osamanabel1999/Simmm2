@@ -120,7 +120,7 @@ class _EfbMetricScalePainter extends CustomPainter {
 
       final tp = TextPainter(
         text: TextSpan(text: labels[i], style: textStyle),
-        textDirection: ui.TextDirection.ltr,
+        textDirection: flutter_material.TextDirection.ltr,
       )..layout();
       double textX = x - tp.width / 2;
       if (i == 0) textX = x - 1;
