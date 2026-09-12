@@ -92,6 +92,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   final TextEditingController _hdgCtrl = TextEditingController(text: "90");
   bool showFlightPath = false;
 
+  bool _isMapReady = false;
+
   @override
   void initState() {
     super.initState();
@@ -117,39 +119,69 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageFinished: (String url) {
-            // 🔴 السكريبت الجبار للسيطرة على Mapbox من داخل فلاتر بدون تدخل الـ HTML
             _webviewController.runJavaScript(r'''
               window.renderEFBData = function(payload) {
                   if (typeof map === 'undefined' || !map.isStyleLoaded()) return;
 
-                  // 1. إضافة الأيقونات بألوانها الصريحة كـ SVG Data URIs
+                  // إضافة الأيقونات إذا لم تكن موجودة
                   if (!map.hasImage('plane-vatsim')) map.addImage('plane-vatsim', createIcon('%23FFB300', true));
                   if (!map.hasImage('plane-ivao')) map.addImage('plane-ivao', createIcon('%2300E676', true));
                   if (!map.hasImage('plane-user')) map.addImage('plane-user', createIcon('%23E040FB', true));
                   if (!map.hasImage('airport-icon')) map.addImage('airport-icon', createDotIcon('%2300FFFF'));
                   if (!map.hasImage('navaid-icon')) map.addImage('navaid-icon', createTriangleIcon('%23D946EF'));
 
-                  // 2. تحديث طيارات شبكات الطيران
+                  // تحديث طيارات شبكات الطيران (مع إظهار الكول ساين بنفس لون الطائرة ومنع الإخفاء)
                   updateLayer('efb-planes-source', 'efb-planes-layer', payload.planes, payload.planesVisible, {
-                      'icon-image': ['get', 'icon'], 'icon-size': 0.8, 'icon-rotate': ['get', 'hdg'],
-                      'icon-rotation-alignment': 'map', 'icon-allow-overlap': true,
-                      'text-field': ['get', 'label'], 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                      'text-size': 11, 'text-offset': [0, 1.5], 'text-anchor': 'top'
-                  }, {'text-color': '#FFFFFF', 'text-halo-color': '#000000', 'text-halo-width': 2});
+                      'icon-image': ['get', 'icon'],
+                      'icon-size': 0.8,
+                      'icon-rotate': ['get', 'hdg'],
+                      'icon-rotation-alignment': 'map',
+                      'icon-allow-overlap': true,
+                      'text-field': ['get', 'label'],
+                      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                      'text-size': 11,
+                      'text-offset': [0, 1.5],
+                      'text-anchor': 'top',
+                      'text-allow-overlap': true
+                  }, {
+                      'text-color': ['get', 'textColor'],
+                      'text-halo-color': '#000000',
+                      'text-halo-width': 2
+                  });
 
-                  // 3. تحديث المطارات
+                  // تحديث المطارات
                   updateLayer('efb-airports-source', 'efb-airports-layer', payload.airports, payload.airportsVisible, {
-                      'icon-image': 'airport-icon', 'icon-size': 0.7,
-                      'text-field': ['get', 'icao'], 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                      'text-size': 10, 'text-offset': [0, 1.2], 'text-anchor': 'top'
-                  }, {'text-color': '#00FFFF', 'text-halo-color': '#000000', 'text-halo-width': 2});
+                      'icon-image': 'airport-icon',
+                      'icon-size': 0.7,
+                      'text-field': ['get', 'icao'],
+                      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                      'text-size': 10,
+                      'text-offset': [0, 1.2],
+                      'text-anchor': 'top',
+                      'icon-allow-overlap': true,
+                      'text-allow-overlap': true
+                  }, {
+                      'text-color': '#00FFFF',
+                      'text-halo-color': '#000000',
+                      'text-halo-width': 2
+                  });
 
-                  // 4. تحديث المحطات
+                  // تحديث المحطات
                   updateLayer('efb-navaids-source', 'efb-navaids-layer', payload.navaids, payload.navaidsVisible, {
-                      'icon-image': 'navaid-icon', 'icon-size': 0.8,
-                      'text-field': ['get', 'name'], 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                      'text-size': 10, 'text-offset': [0, 1.2], 'text-anchor': 'top'
-                  }, {'text-color': '#D946EF', 'text-halo-color': '#000000', 'text-halo-width': 2});
+                      'icon-image': 'navaid-icon',
+                      'icon-size': 0.8,
+                      'text-field': ['get', 'name'],
+                      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                      'text-size': 10,
+                      'text-offset': [0, 1.2],
+                      'text-anchor': 'top',
+                      'icon-allow-overlap': true,
+                      'text-allow-overlap': true
+                  }, {
+                      'text-color': '#D946EF',
+                      'text-halo-color': '#000000',
+                      'text-halo-width': 2
+                  });
               };
 
               function createIcon(color, isPlane) {
@@ -181,6 +213,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       map.on('mouseenter', layerId, function() { map.getCanvas().style.cursor = 'pointer'; });
                       map.on('mouseleave', layerId, function() { map.getCanvas().style.cursor = ''; });
                   }
+                  
                   if (isVisible) {
                       var features = dataArr.map(function(item) {
                           return { type: 'Feature', geometry: { type: 'Point', coordinates: [item.lon, item.lat] }, properties: item };
@@ -194,9 +227,10 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
 
               window.teleportMarker = null;
               window.triggerTeleport = function(lat, lon, hdg) {
-                  if (typeof map === 'undefined') return;
+                  if (typeof map === 'undefined' || typeof mapboxgl === 'undefined') return;
                   if (!window.teleportMarker) {
                       var el = document.createElement('div');
+                      // أيقونة طائرة التليبورت باللون الأحمر
                       el.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" fill="%23DC2626" stroke="white" stroke-width="1"/></svg>';
                       window.teleportMarker = new mapboxgl.Marker({element: el, rotationAlignment: 'map'}).setLngLat([lon, lat]).addTo(map);
                   } else {
@@ -224,13 +258,13 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   }
               };
               
-              // إعادة بناء الطبقات لو تم تغيير الستايل (Dark <-> Satellite)
+              // إرسال رسالة عند جاهزية الستايل
               map.on('style.load', function() {
-                 if(window.lastPayload) window.renderEFBData(window.lastPayload);
-                 if(window.lastFlightPath) window.drawFlightPath(window.lastFlightPath);
+                 if (window.EFBMapChannel) {
+                    window.EFBMapChannel.postMessage(JSON.stringify({ action: 'MAP_READY' }));
+                 }
               });
             ''');
-            _pushDataToMap(); // إرسال الداتا فوراً أول ما يخلص تحميل
           },
         ),
       )
@@ -239,33 +273,54 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
         onMessageReceived: (JavaScriptMessage message) {
           final parsed = jsonDecode(message.message);
           final action = parsed['action'];
-          final data = parsed['data'];
 
-          if (action == 'PLANE_CLICKED') {
-            setState(() => selectedItem = {
-                  'type': 'PLANE',
-                  'data': jsonDecode(data['raw']),
-                  'net': data['net'],
-                  'isVatsim': data['isVatsim']
-                });
-          } else if (action == 'AIRPORT_CLICKED') {
-            setState(() => selectedItem = {
-                  'type': 'AIRPORT',
-                  'data': jsonDecode(data['raw'])
-                });
-          } else if (action == 'NAVAID_CLICKED') {
-            setState(() => selectedItem = {
-                  'type': 'NAVAID',
-                  'data': jsonDecode(data['raw'])
-                });
+          if (action == 'MAP_READY') {
+            setState(() => _isMapReady = true);
+            _pushDataToMap(); // رسم الداتا فوراً عند جاهزية الخريطة
+            if (showFlightPath) _drawFlightPathIfEnabled();
+          } else {
+            final data = parsed['data'];
+            if (action == 'PLANE_CLICKED') {
+              setState(() => selectedItem = {
+                    'type': 'PLANE',
+                    'data': jsonDecode(data['raw']),
+                    'net': data['net'],
+                    'isVatsim': data['isVatsim']
+                  });
+            } else if (action == 'AIRPORT_CLICKED') {
+              setState(() => selectedItem = {
+                    'type': 'AIRPORT',
+                    'data': jsonDecode(data['raw'])
+                  });
+            } else if (action == 'NAVAID_CLICKED') {
+              setState(() => selectedItem = {
+                    'type': 'NAVAID',
+                    'data': jsonDecode(data['raw'])
+                  });
+            } else if (action == 'TELEPORT_CLICKED') {
+              setState(() {
+                manualLat = data['lat'];
+                manualLng = data['lon'];
+              });
+              _webviewController.runJavaScript(
+                  "window.triggerTeleport(${data['lat']}, ${data['lon']}, ${_hdgCtrl.text});");
+            } else if (action == 'MAP_CLICKED') {
+              setState(() {
+                selectedItem = null;
+                showSearchDropdown = false;
+              });
+              FocusScope.of(context).unfocus();
+            }
           }
         },
       )
       ..loadRequest(Uri.parse(mapUrl));
   }
 
-  // 🔴 الدالة الديناميكية التي تقوم بجمع البيانات من فلاتر وإرسالها جاهزة كـ GeoJSON للويب
+  // 🔴 دالة معالجة وإرسال البيانات للرسم
   void _pushDataToMap() {
+    if (!_isMapReady) return;
+
     List<Map<String, dynamic>> planeFeatures = [];
 
     void processPlanes(List<dynamic> planes, bool isVatsim) {
@@ -293,12 +348,16 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
             ? p['cid']?.toString() ?? ""
             : p['userId']?.toString() ?? "";
 
-        // التحقق من طيارة المستخدم
         bool isUser = widget.userNetworkId != null &&
             widget.userNetworkId!.isNotEmpty &&
             pilotId == widget.userNetworkId;
+
         String iconType =
             isUser ? "plane-user" : (isVatsim ? "plane-vatsim" : "plane-ivao");
+
+        // 🔴 تحديد لون النص ليتطابق مع الأيقونة
+        String textColor =
+            isUser ? "#E040FB" : (isVatsim ? "#FFB300" : "#00E676");
 
         String label = "";
         if (showRadarMode) {
@@ -314,6 +373,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
           "hdg": hdg,
           "icon": iconType,
           "label": label,
+          "textColor": textColor,
           "net": isVatsim ? "VATSIM" : "IVAO",
           "isVatsim": isVatsim,
           "raw": jsonEncode(p)
@@ -361,6 +421,32 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       window.lastPayload = $jsonPayload;
       if (window.renderEFBData) window.renderEFBData(window.lastPayload);
     ''');
+  }
+
+  void _drawFlightPathIfEnabled() {
+    if (showFlightPath && widget.depIcao != null && widget.arrIcao != null) {
+      var dep = rawAirports.firstWhere((a) => a['icao'] == widget.depIcao,
+          orElse: () => null);
+      var arr = rawAirports.firstWhere((a) => a['icao'] == widget.arrIcao,
+          orElse: () => null);
+      if (dep != null && arr != null) {
+        double lat1 = double.parse(dep['lat'].toString());
+        double lon1 = double.parse(dep['lon'].toString());
+        double lat2 = double.parse(arr['lat'].toString());
+        double lon2 = double.parse(arr['lon'].toString());
+        List<List<double>> pathCoords = _getCurvedPath(lat1, lon1, lat2, lon2);
+        String coordsJson = jsonEncode(pathCoords);
+        _webviewController.runJavaScript('''
+             window.lastFlightPath = $coordsJson;
+             if(window.drawFlightPath) window.drawFlightPath(window.lastFlightPath);
+          ''');
+      }
+    } else {
+      _webviewController.runJavaScript('''
+             window.lastFlightPath = null;
+             if(window.clearFlightPath) window.clearFlightPath();
+        ''');
+    }
   }
 
   @override
@@ -430,23 +516,28 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   }
 
   Future<void> _fetchPlanesForSearch() async {
+    bool updated = false;
     if (showVatsim) {
       try {
         final res = await http
             .get(Uri.parse('https://data.vatsim.net/v3/vatsim-data.json'));
-        if (res.statusCode == 200)
+        if (res.statusCode == 200) {
           rawVatsimPlanes = json.decode(res.body)['pilots'] as List;
+          updated = true;
+        }
       } catch (e) {}
     }
     if (showIvao) {
       try {
         final res = await http
             .get(Uri.parse('https://api.ivao.aero/v2/tracker/whazzup'));
-        if (res.statusCode == 200)
+        if (res.statusCode == 200) {
           rawIvaoPlanes = json.decode(res.body)['clients']['pilots'] as List;
+          updated = true;
+        }
       } catch (e) {}
     }
-    _pushDataToMap(); // تحديث مستمر للداتا
+    if (updated) _pushDataToMap();
   }
 
   void _onSearchChanged(String query) {
@@ -500,7 +591,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       }
     }
 
-    // 🔴 تضمين المحطات في البحث بشكل صحيح
     for (var n in rawNavaids) {
       String nName = (n['name'] ?? "").toString().toLowerCase();
       if (nName.contains(q)) {
@@ -552,7 +642,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
 
   void _sendMapState(String key, dynamic value) {
     String valStr = value is String ? "'$value'" : value.toString();
-    _webviewController.runJavaScript("window.setMapState('$key', $valStr);");
+    _webviewController.runJavaScript(
+        "if(window.setMapState) window.setMapState('$key', $valStr);");
   }
 
   void _triggerTeleportAction() {
@@ -568,7 +659,13 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       FFAppState().msfsTeleportSpd = spd;
 
       if (widget.onLocationSelected != null) {
-        widget.onLocationSelected!(manualLat!, manualLng!, alt, hdg, spd);
+        widget.onLocationSelected!(
+          manualLat!,
+          manualLng!,
+          alt,
+          hdg,
+          spd,
+        );
       }
     }
   }
@@ -722,9 +819,10 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                 child: const Text(
                   "* Teleport feature currently works with MSFS only",
                   style: TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.redAccent,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -780,34 +878,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       }),
                       _menuBtn("FLIGHT PATH", showFlightPath, () {
                         setState(() => showFlightPath = !showFlightPath);
-                        if (showFlightPath &&
-                            widget.depIcao != null &&
-                            widget.arrIcao != null) {
-                          var dep = rawAirports.firstWhere(
-                              (a) => a['icao'] == widget.depIcao,
-                              orElse: () => null);
-                          var arr = rawAirports.firstWhere(
-                              (a) => a['icao'] == widget.arrIcao,
-                              orElse: () => null);
-                          if (dep != null && arr != null) {
-                            double lat1 = double.parse(dep['lat'].toString());
-                            double lon1 = double.parse(dep['lon'].toString());
-                            double lat2 = double.parse(arr['lat'].toString());
-                            double lon2 = double.parse(arr['lon'].toString());
-                            List<List<double>> pathCoords =
-                                _getCurvedPath(lat1, lon1, lat2, lon2);
-                            String coordsJson = jsonEncode(pathCoords);
-                            _webviewController.runJavaScript('''
-                               window.lastFlightPath = $coordsJson;
-                               if(window.drawFlightPath) window.drawFlightPath(window.lastFlightPath);
-                            ''');
-                          }
-                        } else {
-                          _webviewController.runJavaScript('''
-                               window.lastFlightPath = null;
-                               if(window.clearFlightPath) window.clearFlightPath();
-                          ''');
-                        }
+                        _drawFlightPathIfEnabled();
                       }),
                     ]),
                   ),
@@ -918,10 +989,11 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       width: 170,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-          color: Colors.black87,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: Colors.orangeAccent.withOpacity(0.6), width: 1.5)),
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(12),
+        border:
+            Border.all(color: Colors.orangeAccent.withOpacity(0.6), width: 1.5),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -935,9 +1007,9 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       fontSize: 10,
                       fontWeight: FontWeight.bold)),
               GestureDetector(
-                  onTap: () => setState(() => showTeleportControls = false),
-                  child:
-                      const Icon(Icons.close, color: Colors.white70, size: 16))
+                onTap: () => setState(() => showTeleportControls = false),
+                child: const Icon(Icons.close, color: Colors.white70, size: 16),
+              )
             ],
           ),
           const Divider(color: Colors.white24),
@@ -947,12 +1019,14 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
           const SizedBox(height: 8),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent,
-                minimumSize: const Size.fromHeight(28),
-                padding: EdgeInsets.zero),
+              backgroundColor: Colors.orangeAccent,
+              minimumSize: const Size.fromHeight(28),
+              padding: EdgeInsets.zero,
+            ),
             onPressed: () {
-              if (manualLat != null && manualLng != null)
+              if (manualLat != null && manualLng != null) {
                 _triggerTeleportAction();
+              }
             },
             child: const Text("SEND TELEPORT",
                 style: TextStyle(
@@ -989,13 +1063,14 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   }
                 },
                 decoration: const InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white24)),
-                    focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.orangeAccent))),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                  border: OutlineInputBorder(),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white24)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orangeAccent)),
+                ),
               ),
             ),
           )
@@ -1070,9 +1145,10 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                        color: Colors.purpleAccent.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.purpleAccent)),
+                      color: Colors.purpleAccent.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.purpleAccent),
+                    ),
                     child: Text(type,
                         style: const TextStyle(
                             color: Colors.purpleAccent,
@@ -1116,17 +1192,18 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
                 Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: Colors.black26,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.white10)),
-                    child: Text(airport,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold))),
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white10)),
+                  child: Text(airport,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold)),
+                ),
               ]
             ],
           ),
@@ -1146,7 +1223,9 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       child: SizedBox(
         width: boxWidth,
         child: AdvancedAirportInfoBox(
-            ap: ap, onClose: () => setState(() => selectedItem = null)),
+          ap: ap,
+          onClose: () => setState(() => selectedItem = null),
+        ),
       ),
     );
   }
@@ -1219,14 +1298,19 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       totalPlannedMins = eet > 1000 ? eet ~/ 60 : eet;
     }
 
+    double progress = 0.5;
     String remaining = "N/A";
     if (totalPlannedMins > 0 && onlineMinutes > 0) {
+      progress = onlineMinutes / totalPlannedMins;
+      if (progress > 1.0) progress = 1.0;
       int remMins = totalPlannedMins - onlineMinutes;
       if (remMins < 0) remMins = 0;
       remaining = "${remMins ~/ 60}h ${remMins % 60}m";
     }
 
+    double alignX = (progress * 2) - 1.0;
     int distFlown = (gs * (onlineMinutes / 60.0)).round();
+
     double? boxWidth =
         isLandscape ? MediaQuery.of(context).size.width * 0.45 : null;
 
@@ -1258,15 +1342,14 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8)),
                       child: ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: Image.network(logoUrl,
-                              width: 45,
-                              height: 45,
-                              fit: BoxFit.contain,
-                              errorBuilder: (c, e, s) => const Icon(
-                                  Icons.flight,
-                                  color: Colors.black54,
-                                  size: 40))),
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.network(logoUrl,
+                            width: 45,
+                            height: 45,
+                            fit: BoxFit.contain,
+                            errorBuilder: (c, e, s) => const Icon(Icons.flight,
+                                color: Colors.black54, size: 40)),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1294,14 +1377,14 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                          color: isVatsim
-                              ? Colors.amber.withOpacity(0.15)
-                              : Colors.greenAccent.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: isVatsim
-                                  ? Colors.amber
-                                  : Colors.greenAccent)),
+                        color: isVatsim
+                            ? Colors.amber.withOpacity(0.15)
+                            : Colors.greenAccent.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color:
+                                isVatsim ? Colors.amber : Colors.greenAccent),
+                      ),
                       child: Text(net,
                           style: TextStyle(
                               color:
@@ -1309,6 +1392,13 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                               fontWeight: FontWeight.bold,
                               fontSize: 11)),
                     ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                        icon: const Icon(Icons.close,
+                            color: Colors.white54, size: 20),
+                        onPressed: () => setState(() => selectedItem = null),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints()),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -1340,11 +1430,12 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         width: double.infinity,
                         color: Colors.white24),
                     Align(
-                        alignment: const Alignment(0, 0),
-                        child: Transform.rotate(
-                            angle: 3.14159 / 2,
-                            child: const Icon(Icons.airplanemode_active,
-                                color: Colors.blueAccent, size: 24))),
+                      alignment: Alignment(alignX, 0),
+                      child: Transform.rotate(
+                          angle: 3.14159 / 2,
+                          child: const Icon(Icons.airplanemode_active,
+                              color: Colors.blueAccent, size: 24)),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -1459,9 +1550,13 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
 class AdvancedAirportInfoBox extends StatefulWidget {
   final dynamic ap;
   final VoidCallback onClose;
-  const AdvancedAirportInfoBox(
-      {Key? key, required this.ap, required this.onClose})
-      : super(key: key);
+
+  const AdvancedAirportInfoBox({
+    Key? key,
+    required this.ap,
+    required this.onClose,
+  }) : super(key: key);
+
   @override
   _AdvancedAirportInfoBoxState createState() => _AdvancedAirportInfoBoxState();
 }
@@ -1469,6 +1564,7 @@ class AdvancedAirportInfoBox extends StatefulWidget {
 class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
   bool isLoading = true;
   Map<String, dynamic>? fpdbData;
+
   List<dynamic> vatsimControllers = [];
   String vatsimAtis = "";
   String vatsimMetar = "";
@@ -1482,28 +1578,39 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
   @override
   void didUpdateWidget(covariant AdvancedAirportInfoBox oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.ap['icao'] != widget.ap['icao']) _fetchAllData();
+    if (oldWidget.ap['icao'] != widget.ap['icao']) {
+      _fetchAllData();
+    }
   }
 
   Future<void> _fetchAllData() async {
     setState(() => isLoading = true);
     String icao = widget.ap['icao']?.toString().toUpperCase() ?? "";
+
     try {
       final fp = await http.get(
           Uri.parse('https://api.flightplandatabase.com/nav/airport/$icao'));
-      if (fp.statusCode == 200) fpdbData = json.decode(fp.body);
+      if (fp.statusCode == 200) {
+        fpdbData = json.decode(fp.body);
+      }
+
       final vat = await http
           .get(Uri.parse('https://data.vatsim.net/v3/vatsim-data.json'));
       if (vat.statusCode == 200) {
         final vatData = json.decode(vat.body);
         final controllers = vatData['controllers'] as List;
         final atisList = vatData['atis'] as List;
+
         vatsimControllers = controllers.where((c) {
-          return (c['callsign']?.toString() ?? "").startsWith("${icao}_");
+          String cs = c['callsign']?.toString() ?? "";
+          return cs.startsWith("${icao}_");
         }).toList();
+
         var atisNode = atisList.firstWhere((a) {
-          return (a['callsign']?.toString() ?? "").startsWith("${icao}_");
+          String cs = a['callsign']?.toString() ?? "";
+          return cs.startsWith("${icao}_");
         }, orElse: () => null);
+
         if (atisNode != null && atisNode['text_atis'] != null) {
           if (atisNode['text_atis'] is List) {
             vatsimAtis = (atisNode['text_atis'] as List).join("\n");
@@ -1511,16 +1618,21 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
             vatsimAtis = atisNode['text_atis'].toString();
           }
         }
+
         final met = await http
             .get(Uri.parse('https://metar.vatsim.net/metar.php?id=$icao'));
-        if (met.statusCode == 200) vatsimMetar = met.body.trim();
+        if (met.statusCode == 200) {
+          vatsimMetar = met.body.trim();
+        }
       }
     } catch (e) {}
+
     if (mounted) setState(() => isLoading = false);
   }
 
   String _str(dynamic val, [String def = "-"]) =>
       val != null ? val.toString() : def;
+
   String _parseLighting(dynamic l) {
     if (l == null) return "-";
     if (l is bool) return l ? "YES" : "NO";
@@ -1536,8 +1648,8 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
     if (d > 1000) {
       String str = d.toInt().toString();
       if (str.length >= 3) {
-        double? parsed =
-            double.tryParse("${str.substring(0, 3)}.${str.substring(3)}");
+        String formatted = "${str.substring(0, 3)}.${str.substring(3)}";
+        double? parsed = double.tryParse(formatted);
         if (parsed != null) d = parsed;
       }
     }
@@ -1550,6 +1662,7 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
     String icao = widget.ap['icao'] ?? "N/A";
     String city = widget.ap['city'] ?? "Unknown City";
     String country = widget.ap['country'] ?? "Unknown Country";
+
     String iata =
         widget.ap['IATA'] ?? widget.ap['iata'] ?? widget.ap['iata_code'] ?? "-";
 
@@ -1557,16 +1670,17 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
       constraints:
           BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.65),
       decoration: BoxDecoration(
-          color: const Color(0xFF0F172A).withOpacity(0.95),
-          borderRadius: BorderRadius.circular(20),
-          border:
-              Border.all(color: Colors.cyanAccent.withOpacity(0.5), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.cyanAccent.withOpacity(0.1),
-                blurRadius: 15,
-                spreadRadius: 2)
-          ]),
+        color: const Color(0xFF0F172A).withOpacity(0.95),
+        borderRadius: BorderRadius.circular(20),
+        border:
+            Border.all(color: Colors.cyanAccent.withOpacity(0.5), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.cyanAccent.withOpacity(0.1),
+              blurRadius: 15,
+              spreadRadius: 2)
+        ],
+      ),
       child: DefaultTabController(
         length: 3,
         child: Column(
@@ -1581,9 +1695,9 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
                       color: Colors.cyanAccent, size: 36),
                   const SizedBox(width: 12),
                   Expanded(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -1595,19 +1709,22 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                                color: Colors.white70, fontSize: 12))
-                      ])),
+                                color: Colors.white70, fontSize: 12)),
+                      ],
+                    ),
+                  ),
                   Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                          color: Colors.cyanAccent.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: Text(icao,
-                          style: const TextStyle(
-                              color: Colors.cyanAccent,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15))),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                        color: Colors.cyanAccent.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Text(icao,
+                        style: const TextStyle(
+                            color: Colors.cyanAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15)),
+                  ),
                   const SizedBox(width: 4),
                   IconButton(
                       icon: const Icon(Icons.close,
@@ -1619,26 +1736,27 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
               ),
             ),
             const TabBar(
-                indicatorColor: Colors.cyanAccent,
-                labelColor: Colors.cyanAccent,
-                unselectedLabelColor: Colors.white54,
-                labelStyle:
-                    TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                tabs: [
-                  Tab(text: "INFO"),
-                  Tab(text: "RUNWAYS"),
-                  Tab(text: "WEATHER")
-                ]),
+              indicatorColor: Colors.cyanAccent,
+              labelColor: Colors.cyanAccent,
+              unselectedLabelColor: Colors.white54,
+              labelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              tabs: [
+                Tab(text: "INFO"),
+                Tab(text: "RUNWAYS"),
+                Tab(text: "WEATHER"),
+              ],
+            ),
             Expanded(
-                child: isLoading
-                    ? const Center(
-                        child:
-                            CircularProgressIndicator(color: Colors.cyanAccent))
-                    : TabBarView(children: [
-                        _buildInfoTab(iata),
-                        _buildRunwaysTab(),
-                        _buildWeatherTab()
-                      ])),
+              child: isLoading
+                  ? const Center(
+                      child:
+                          CircularProgressIndicator(color: Colors.cyanAccent))
+                  : TabBarView(children: [
+                      _buildInfoTab(iata),
+                      _buildRunwaysTab(),
+                      _buildWeatherTab()
+                    ]),
+            ),
           ],
         ),
       ),
@@ -1651,11 +1769,13 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
       double? el = double.tryParse(fpdbData!['elevation'].toString());
       if (el != null) elevStr = "${el.round()} ft";
     }
+
     String varStr = "-";
     if (fpdbData?['magneticVariation'] != null) {
       double? v = double.tryParse(fpdbData!['magneticVariation'].toString());
       if (v != null) varStr = v.toStringAsFixed(1);
     }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -1698,13 +1818,14 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
               border: TableBorder.all(color: Colors.white10),
               children: [
                 TableRow(
-                    decoration:
-                        BoxDecoration(color: Colors.cyan.withOpacity(0.1)),
-                    children: [
-                      _cell("TYPE", isHeader: true),
-                      _cell("FREQ", isHeader: true),
-                      _cell("NAME", isHeader: true)
-                    ]),
+                  decoration:
+                      BoxDecoration(color: Colors.cyan.withOpacity(0.1)),
+                  children: [
+                    _cell("TYPE", isHeader: true),
+                    _cell("FREQ", isHeader: true),
+                    _cell("NAME", isHeader: true)
+                  ],
+                ),
                 ...vatsimControllers.map<TableRow>((c) => TableRow(children: [
                       _cell(c['callsign']?.toString().split('_').last ?? "ATC"),
                       _cell(_formatFreq(c['frequency'])),
@@ -1743,15 +1864,16 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
           defaultColumnWidth: const IntrinsicColumnWidth(),
           children: [
             TableRow(
-                decoration: BoxDecoration(color: Colors.cyan.withOpacity(0.1)),
-                children: [
-                  _cell("R/W", isHeader: true),
-                  _cell("LENGTH", isHeader: true),
-                  _cell("WIDTH", isHeader: true),
-                  _cell("SURFACE", isHeader: true),
-                  _cell("BEARING", isHeader: true),
-                  _cell("LIGHTING", isHeader: true)
-                ]),
+              decoration: BoxDecoration(color: Colors.cyan.withOpacity(0.1)),
+              children: [
+                _cell("R/W", isHeader: true),
+                _cell("LENGTH", isHeader: true),
+                _cell("WIDTH", isHeader: true),
+                _cell("SURFACE", isHeader: true),
+                _cell("BEARING", isHeader: true),
+                _cell("LIGHTING", isHeader: true)
+              ],
+            ),
             ...(fpdbData!['runways'] as List).map<TableRow>((r) {
               String lenStr = "-";
               if (r['length'] != null) {
@@ -1765,6 +1887,7 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
                 widStr =
                     wVal != null ? "${wVal.round()} ft" : "${r['width']} ft";
               }
+
               String bearingStr = "-";
               dynamic bVal = r['bearing'] ?? r['heading'];
               if (bVal != null) {
@@ -1778,6 +1901,7 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
                   }
                 }
               }
+
               return TableRow(children: [
                 _cell(_str(r['ident'])),
                 _cell(lenStr),
@@ -1806,19 +1930,21 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
                   fontSize: 13)),
           const SizedBox(height: 6),
           Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                  color: Colors.black45,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white10)),
-              child: Text(
-                  vatsimMetar.isNotEmpty ? vatsimMetar : "No METAR available.",
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      height: 1.4))),
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+                color: Colors.black45,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.white10)),
+            child: Text(
+              vatsimMetar.isNotEmpty ? vatsimMetar : "No METAR available.",
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  height: 1.4),
+            ),
+          ),
           const SizedBox(height: 16),
           const Text("VATSIM ATIS",
               style: TextStyle(
@@ -1827,44 +1953,49 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
                   fontSize: 13)),
           const SizedBox(height: 6),
           Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                  color: Colors.black45,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white10)),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                        vatsimAtis.isNotEmpty
-                            ? vatsimAtis
-                            : "No ATIS available on VATSIM.",
-                        style: const TextStyle(
-                            color: Colors.amberAccent,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            height: 1.4)),
-                    if (vatsimAtis.isNotEmpty) ...[
-                      const SizedBox(height: 10),
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.cyanAccent,
-                                  foregroundColor: Colors.black,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 8),
-                                  textStyle: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold)),
-                              icon: const Icon(Icons.volume_up, size: 16),
-                              label: const Text("LISTEN TO ATIS"),
-                              onPressed: () {
-                                professionalAtis(vatsimAtis);
-                              }))
-                    ]
-                  ])),
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+                color: Colors.black45,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.white10)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  vatsimAtis.isNotEmpty
+                      ? vatsimAtis
+                      : "No ATIS available on VATSIM.",
+                  style: const TextStyle(
+                      color: Colors.amberAccent,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      height: 1.4),
+                ),
+                if (vatsimAtis.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.cyanAccent,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        textStyle: const TextStyle(
+                            fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                      icon: const Icon(Icons.volume_up, size: 16),
+                      label: const Text("LISTEN TO ATIS"),
+                      onPressed: () {
+                        professionalAtis(vatsimAtis);
+                      },
+                    ),
+                  ),
+                ]
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -1901,13 +2032,15 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
 
 Future professionalAtis(String rawMetar) async {
   FlutterTts flutterTts = FlutterTts();
+
   if (rawMetar == null || rawMetar.isEmpty) return;
+
   String cleanText = rawMetar.replaceAll(RegExp(r'\(.*?\)'), '');
-  cleanText = cleanText
-      .replaceAll('[', ' ')
-      .replaceAll(']', ' ')
-      .toUpperCase()
-      .replaceAll(RegExp(r'[,;:\.]'), ' ');
+  cleanText = cleanText.replaceAll('[', ' ').replaceAll(']', ' ');
+
+  cleanText = cleanText.toUpperCase();
+  cleanText = cleanText.replaceAll(RegExp(r'[,;:\.]'), ' ');
+
   String speakDigit(String numStr) {
     Map<String, String> numbers = {
       '0': 'Zero',
@@ -1952,102 +2085,116 @@ Future professionalAtis(String rawMetar) async {
     'Y': 'Yankee',
     'Z': 'Zulu'
   };
-  cleanText = cleanText
-      .replaceAll(RegExp(r'\bWIND\b'), ' wind ')
-      .replaceAll(RegExp(r'\bATIS\b'), ' atis ')
-      .replaceAll(RegExp(r'\bBOTH\b'), ' both ')
-      .replaceAll(RegExp(r'\bHAVE\b'), ' have ')
-      .replaceAll(RegExp(r'\bNEED\b'), ' need ')
-      .replaceAll(RegExp(r'\bTO\b'), ' to ')
-      .replaceAll(RegExp(r'\bFROM\b'), ' from ')
-      .replaceAll(RegExp(r'\bHOLD\b'), ' hold ')
-      .replaceAll(RegExp(r'\bMODE\b'), ' mode ')
-      .replaceAll(RegExp(r'\bALL\b'), ' all ');
+
+  cleanText = cleanText.replaceAll(RegExp(r'\bWIND\b'), ' wind ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bATIS\b'), ' atis ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bBOTH\b'), ' both ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bHAVE\b'), ' have ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bNEED\b'), ' need ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bTO\b'), ' to ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bFROM\b'), ' from ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bHOLD\b'), ' hold ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bMODE\b'), ' mode ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bALL\b'), ' all ');
+
   cleanText = cleanText.replaceAllMapped(RegExp(r'(\d{3})V(\d{3})'), (match) {
     return " variable between ${speakDigit(match.group(1)!)} and ${speakDigit(match.group(2)!)} ";
   });
-  cleanText = cleanText
-      .replaceAll(RegExp(r'\+SHRA\b'), ' heavy shower rain ')
-      .replaceAll(RegExp(r'\-SHRA\b'), ' light shower rain ')
-      .replaceAll(RegExp(r'\bTDZ\b'), ' touch down zone ')
-      .replaceAll(RegExp(r'\bCLRC\b'), ' clearance ')
-      .replaceAll(RegExp(r'\bREQ\b'), ' request ')
-      .replaceAll(RegExp(r'\bTOBT\b'), ' target off block time ')
-      .replaceAll(RegExp(r'\bRNAV\b'), ' r nav ')
-      .replaceAll(RegExp(r'\bACK\b'), ' acknowledge ')
-      .replaceAll(RegExp(r'\bSQK\b'), ' squawk ')
-      .replaceAll(RegExp(r'\bCTC\b'), ' contact ')
-      .replaceAll(RegExp(r'\bCLD\b'), ' cloud ')
-      .replaceAll(RegExp(r'\bTEMP\b'), ' temperature ')
-      .replaceAll(RegExp(r'\bAPP\b'), ' approach ')
-      .replaceAll(RegExp(r'\bAPR\b'), ' approach ')
-      .replaceAll(RegExp(r'\bAPCH\b'), ' approach ')
-      .replaceAll(RegExp(r'\bAPCHS\b'), ' approaches ')
-      .replaceAll(RegExp(r'\bAPRS\b'), ' approaches ')
-      .replaceAll(RegExp(r'\b9999\b'), ' ten kilometers or more ')
-      .replaceAll(RegExp(r'\bVRB\b'), ' variable ')
-      .replaceAll(RegExp(r'\bBTN\b'), ' between ')
-      .replaceAll(RegExp(r'\bVIS\b'), ' visibility ')
-      .replaceAll(RegExp(r'\bCMB\b'), ' climb ')
-      .replaceAll(RegExp(r'\bDEG\b'), ' degrees ')
-      .replaceAll(RegExp(r'\bTCU\b'), ' towering cumulus ')
-      .replaceAll(RegExp(r'\bILS\b'), ' i l s ')
-      .replaceAll(RegExp(r'\bVHF\b'), ' v h f ')
-      .replaceAll(RegExp(r'\bATC\b'), ' a t c ')
-      .replaceAll(RegExp(r'\bGLS\b'), ' glide slope ')
-      .replaceAll(RegExp(r'\bTRL\b'), ' transition level ')
-      .replaceAll(RegExp(r'\bNOSIG\b'), ' no significant change ')
-      .replaceAll(RegExp(r'\bARRS\b'), ' arrivals ')
-      .replaceAll(RegExp(r'\bARR\b'), ' arrival ')
-      .replaceAll(RegExp(r'\bARPT\b'), ' airport ')
-      .replaceAll(RegExp(r'\bDEP\b'), ' departure ')
-      .replaceAll(RegExp(r'\bAVBL\b'), ' available ')
-      .replaceAll(RegExp(r'\bDRCTN\b'), ' direction ')
-      .replaceAll(RegExp(r'\bCLSD\b'), ' closed ')
-      .replaceAll(RegExp(r'\bEXP\b'), ' expect ')
-      .replaceAll(RegExp(r'\bEQPT\b'), ' equipment ')
-      .replaceAll(RegExp(r'\bCAUT\b'), ' caution ')
-      .replaceAll(RegExp(r'\bDEPG\b'), ' departure ')
-      .replaceAll(RegExp(r'\bDEPS\b'), ' departures ')
-      .replaceAll(RegExp(r'\bLDG\b'), ' landing ');
-  cleanText = cleanText
-      .replaceAllMapped(RegExp(r'(\d*)KT\b'), (match) {
-        return "${match.group(1)} knots ";
-      })
-      .replaceAllMapped(RegExp(r'(\d*)KM\b'), (match) {
-        return "${match.group(1)} kilometers ";
-      })
-      .replaceAllMapped(RegExp(r'(\d*)HPA\b'), (match) {
-        return "${match.group(1)} hectopascals ";
-      })
-      .replaceAllMapped(RegExp(r'(\d+)FT\b'), (match) {
-        return "${match.group(1)} feet ";
-      })
-      .replaceAll(RegExp(r'\bFT\b'), ' feet ')
-      .replaceAll(RegExp(r'\bKT\b'), ' knots ')
-      .replaceAll(RegExp(r'\bKM\b'), ' kilometers ');
-  cleanText = cleanText
-      .replaceAll('FEW', ' few ')
-      .replaceAll('BKN', ' broken ')
-      .replaceAll('SCT', ' scattered ')
-      .replaceAll('OVC', ' overcast ')
-      .replaceAll('CLR', ' clear ')
-      .replaceAll('SKC', ' sky clear ')
-      .replaceAll(RegExp(r'\bRWY\b'), ' runway ')
-      .replaceAll(RegExp(r'\bRWYS\b'), ' runways ')
-      .replaceAll(RegExp(r'\bINFO\b'), ' information ')
-      .replaceAll(RegExp(r'\bSIMUL\b'), ' simultaneous ')
-      .replaceAll(RegExp(r'\bADVS\b'), ' advice ');
+
+  cleanText = cleanText.replaceAll(RegExp(r'\+SHRA\b'), ' heavy shower rain ');
+  cleanText = cleanText.replaceAll(RegExp(r'\-SHRA\b'), ' light shower rain ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bTDZ\b'), ' touch down zone ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bCLRC\b'), ' clearance ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bREQ\b'), ' request ');
+  cleanText =
+      cleanText.replaceAll(RegExp(r'\bTOBT\b'), ' target off block time ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bRNAV\b'), ' r nav ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bACK\b'), ' acknowledge ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bSQK\b'), ' squawk ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bCTC\b'), ' contact ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bCLD\b'), ' cloud ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bTEMP\b'), ' temperature ');
+
+  cleanText = cleanText.replaceAll(RegExp(r'\bAPP\b'), ' approach ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bAPR\b'), ' approach ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bAPCH\b'), ' approach ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bAPCHS\b'), ' approaches ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bAPRS\b'), ' approaches ');
+
+  cleanText =
+      cleanText.replaceAll(RegExp(r'\b9999\b'), ' ten kilometers or more ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bVRB\b'), ' variable ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bBTN\b'), ' between ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bVIS\b'), ' visibility ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bCMB\b'), ' climb ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bDEG\b'), ' degrees ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bTCU\b'), ' towering cumulus ');
+
+  cleanText = cleanText.replaceAll(RegExp(r'\bILS\b'), ' i l s ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bVHF\b'), ' v h f ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bATC\b'), ' a t c ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bGLS\b'), ' glide slope ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bTRL\b'), ' transition level ');
+  cleanText =
+      cleanText.replaceAll(RegExp(r'\bNOSIG\b'), ' no significant change ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bARRS\b'), ' arrivals ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bARR\b'), ' arrival ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bARPT\b'), ' airport ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bDEP\b'), ' departure ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bAVBL\b'), ' available ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bDRCTN\b'), ' direction ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bCLSD\b'), ' closed ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bEXP\b'), ' expect ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bEQPT\b'), ' equipment ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bCAUT\b'), ' caution ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bDEPG\b'), ' departure ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bDEPS\b'), ' departures ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bLDG\b'), ' landing ');
+
+  cleanText = cleanText.replaceAllMapped(RegExp(r'(\d*)KT\b'), (match) {
+    String num = match.group(1) ?? "";
+    return "$num knots ";
+  });
+  cleanText = cleanText.replaceAllMapped(RegExp(r'(\d*)KM\b'), (match) {
+    String num = match.group(1) ?? "";
+    return "$num kilometers ";
+  });
+  cleanText = cleanText.replaceAllMapped(RegExp(r'(\d*)HPA\b'), (match) {
+    String num = match.group(1) ?? "";
+    return "$num hectopascals ";
+  });
+  cleanText = cleanText.replaceAllMapped(RegExp(r'(\d+)FT\b'), (match) {
+    return "${match.group(1)} feet ";
+  });
+  cleanText = cleanText.replaceAll(RegExp(r'\bFT\b'), ' feet ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bKT\b'), ' knots ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bKM\b'), ' kilometers ');
+
+  cleanText = cleanText.replaceAll('FEW', ' few ');
+  cleanText = cleanText.replaceAll('BKN', ' broken ');
+  cleanText = cleanText.replaceAll('SCT', ' scattered ');
+  cleanText = cleanText.replaceAll('OVC', ' overcast ');
+  cleanText = cleanText.replaceAll('CLR', ' clear ');
+  cleanText = cleanText.replaceAll('SKC', ' sky clear ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bRWY\b'), ' runway ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bRWYS\b'), ' runways ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bINFO\b'), ' information ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bSIMUL\b'), ' simultaneous ');
+  cleanText = cleanText.replaceAll(RegExp(r'\bADVS\b'), ' advice ');
+
   cleanText = cleanText.replaceAllMapped(RegExp(r'\bT(\d{2})\b'), (match) {
     return " temperature ${speakDigit(match.group(1)!)} ";
   });
   cleanText = cleanText.replaceAllMapped(RegExp(r'\bDP(\d{2})\b'), (match) {
     return " dew point ${speakDigit(match.group(1)!)} ";
   });
+
   cleanText = cleanText.replaceAllMapped(
       RegExp(r'INFORMATION\s+([A-Z])\b', caseSensitive: false), (match) {
-    return " information ${phonetics[match.group(1)!.toUpperCase()] ?? match.group(1)!.toUpperCase()} ";
+    String letter = match.group(1)!.toUpperCase();
+    return " information ${phonetics[letter] ?? letter} ";
   });
+
   cleanText =
       cleanText.replaceAllMapped(RegExp(r'\bQNH[:\s]*(\d{4})\b'), (match) {
     return " q n h ${speakDigit(match.group(1)!)} ";
@@ -2077,9 +2224,11 @@ Future professionalAtis(String rawMetar) async {
         : (match.group(2) == 'R' ? 'right' : 'center');
     return " ${match.group(1)} $side ";
   });
-  cleanText = cleanText
-      .replaceAll(RegExp(r'\bCAVOK\b'), ' ceiling and visibility ok ')
-      .replaceAll('/', ' ');
+
+  cleanText =
+      cleanText.replaceAll(RegExp(r'\bCAVOK\b'), ' ceiling and visibility ok ');
+  cleanText = cleanText.replaceAll('/', ' ');
+
   cleanText =
       cleanText.replaceAllMapped(RegExp(r'\b(TIME\s+)?(\d{4})Z\b'), (match) {
     return " time ${speakDigit(match.group(2)!)} zulu ";
@@ -2091,6 +2240,7 @@ Future professionalAtis(String rawMetar) async {
 
   for (String word in words) {
     if (word.isEmpty) continue;
+
     if (!foundIcaoCode &&
         word.length == 4 &&
         RegExp(r'^[A-Z]{4}$').hasMatch(word)) {
@@ -2102,6 +2252,7 @@ Future professionalAtis(String rawMetar) async {
       foundIcaoCode = true;
       continue;
     }
+
     if (word.length == 1) {
       if (RegExp(r'^[A-Z]$').hasMatch(word) && phonetics.containsKey(word)) {
         finalWords.add(phonetics[word]!);
@@ -2128,6 +2279,7 @@ Future professionalAtis(String rawMetar) async {
   }
 
   String finalSpeech = finalWords.join(' ').toLowerCase();
+
   await flutterTts.setLanguage("en-US");
   await flutterTts.setPitch(0.85);
   await flutterTts.setSpeechRate(0.42);
