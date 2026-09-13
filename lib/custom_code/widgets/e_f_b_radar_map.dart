@@ -188,6 +188,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   bool _isMapReady = false;
   double _mapZoom = 1.8;
   double _mapCenterLat = 0.0;
+  double _mapCenterLng = 0.0;
 
   @override
   void initState() {
@@ -233,9 +234,19 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                    if (typeof map !== 'undefined' && map) {
                      var z = map.getZoom();
                      var centerLat = 0;
-                     try { centerLat = map.getCenter().lat; } catch (e) {}
+                     var centerLng = 0;
+                     try {
+                       var c = map.getCenter();
+                       centerLat = c.lat;
+                       centerLng = c.lng;
+                     } catch (e) {}
                      if (window.EFBMapChannel) {
-                       window.EFBMapChannel.postMessage(JSON.stringify({ action: 'ZOOM_CHANGED', zoom: z, centerLat: centerLat }));
+                       window.EFBMapChannel.postMessage(JSON.stringify({
+                         action: 'ZOOM_CHANGED',
+                         zoom: z,
+                         centerLat: centerLat,
+                         centerLng: centerLng
+                       }));
                      }
                    }
                  } catch (e) {}
@@ -246,6 +257,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                 window.__efbMapReady = true;
                 if (typeof map !== 'undefined' && map) {
                   try { map.on('zoomend', postZoomLevel); } catch (e) {}
+                  try { map.on('moveend', postZoomLevel); } catch (e) {}
                 }
                 postZoomLevel();
                 if (window.EFBMapChannel) {
@@ -385,24 +397,9 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       'text-halo-color': '#000000',
                       'text-halo-width': 2
                   });
-                  updateLayer('efb-waypoints-source', 'efb-waypoints-layer', payload.waypoints || [], payload.waypointsVisible, {
-                      'icon-image': 'waypoint-icon',
-                      'icon-size': 0.75,
-                      'text-field': ['get', 'name'],
-                      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                      'text-size': 9,
-                      'text-offset': [0, 1.35],
-                      'text-anchor': 'top',
-                      'icon-allow-overlap': true,
-                      'text-allow-overlap': true
-                  }, {
-                      'text-color': '#FFD166',
-                      'text-halo-color': '#111827',
-                      'text-halo-width': 2
-                  });
+                  updateEfbWaypoints(payload.waypoints || [], payload.waypointsVisible);
 
-                  updateLineLayer('efb-airways-source', 'efb-airways-layer',
-                      payload.airways || [], payload.airwaysVisible, '#FFD166');
+                  updateAirways(payload.airways || [], payload.airwaysVisible);
 
                   updateSegmentLayers(payload.segments || [], payload.segmentsVisible);
               };
@@ -445,7 +442,210 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   }
               }
 
-              function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
+              
+               window.updateEfbWaypointsOnly = function(payload) {
+                   if (!payload) return;
+                   updateEfbWaypoints(payload.waypoints || [], payload.waypointsVisible);
+               };
+
+               function updateEfbWaypoints(dataArr, isVisible) {
+                   var sourceId = 'efb-waypoints-source';
+                   var layerId = 'efb-waypoints-layer';
+
+                   if (!map.getSource(sourceId)) {
+                       map.addSource(sourceId, {
+                           type: 'geojson',
+                           data: { type: 'FeatureCollection', features: [] },
+                           tolerance: 1.0,
+                           maxzoom: 18
+                       });
+                   }
+
+                   if (!map.getLayer(layerId)) {
+                       map.addLayer({
+                           id: layerId,
+                           type: 'symbol',
+                           source: sourceId,
+                           minzoom: 1.2,
+                           layout: {
+                               'icon-image': 'waypoint-icon',
+                               'icon-size': ['interpolate', ['linear'], ['zoom'], 1.2, 0.55, 4, 0.72, 8, 0.82],
+                               'text-field': ['get', 'name'],
+                               'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                               'text-size': ['interpolate', ['linear'], ['zoom'], 1.2, 7, 4, 9, 8, 10],
+                               'text-offset': [0, 1.35],
+                               'text-anchor': 'top',
+                               'icon-allow-overlap': true,
+                               'text-allow-overlap': true
+                           },
+                           paint: {
+                               'text-color': '#FFD166',
+                               'text-halo-color': '#111827',
+                               'text-halo-width': 2
+                           }
+                       });
+                       map.on('click', layerId, function(e) {
+                           if (window.EFBMapChannel && e.features && e.features.length) {
+                               window.EFBMapChannel.postMessage(JSON.stringify({
+                                   action: 'WAYPOINT_CLICKED',
+                                   data: e.features[0].properties
+                               }));
+                           }
+                       });
+                       map.on('mouseenter', layerId, function() { map.getCanvas().style.cursor = 'pointer'; });
+                       map.on('mouseleave', layerId, function() { map.getCanvas().style.cursor = ''; });
+                   }
+
+                   var features = Array.isArray(dataArr) ? dataArr.map(function(item) {
+                       return {
+                           type: 'Feature',
+                           geometry: { type: 'Point', coordinates: [Number(item.lon), Number(item.lat)] },
+                           properties: item
+                       };
+                   }).filter(function(f) {
+                       return isFinite(f.geometry.coordinates[0]) && isFinite(f.geometry.coordinates[1]);
+                   }) : [];
+
+                   map.getSource(sourceId).setData({
+                       type: 'FeatureCollection',
+                       features: isVisible ? features : []
+                   });
+                   try { map.setLayoutProperty(layerId, 'visibility', isVisible ? 'visible' : 'none'); } catch (e) {}
+               }
+
+               function updateAirways(dataArr, isVisible) {
+                   var sourceId = 'efb-airways-overlay-source';
+                   var lineLayerId = 'efb-airways-overlay-layer';
+                   var nameSourceId = 'efb-airways-name-source';
+                   var nameLayerId = 'efb-airways-name-layer';
+                   var altSourceId = 'efb-airways-alt-source';
+                   var altLayerId = 'efb-airways-alt-layer';
+
+                   try {
+                     if (map.getLayer('efb-airways-layer')) {
+                       map.setLayoutProperty('efb-airways-layer', 'visibility', 'none');
+                     }
+                   } catch (e) {}
+
+                   if (!map.getSource(sourceId)) map.addSource(sourceId, {
+                       type: 'geojson',
+                       data: { type: 'FeatureCollection', features: [] },
+                       tolerance: 0.2,
+                       maxzoom: 18
+                   });
+                   if (!map.getSource(nameSourceId)) map.addSource(nameSourceId, {
+                       type: 'geojson', data: { type: 'FeatureCollection', features: [] }
+                   });
+                   if (!map.getSource(altSourceId)) map.addSource(altSourceId, {
+                       type: 'geojson', data: { type: 'FeatureCollection', features: [] }
+                   });
+
+                   if (!map.getLayer(lineLayerId)) {
+                       map.addLayer({
+                           id: lineLayerId,
+                           type: 'line',
+                           source: sourceId,
+                           layout: { 'line-join': 'round', 'line-cap': 'round' },
+                           paint: {
+                               'line-color': '#FFD166',
+                               'line-width': ['interpolate', ['linear'], ['zoom'], 1.5, 1.5, 5, 2.4, 9, 3.2],
+                               'line-opacity': 0.96
+                           }
+                       });
+                   } else {
+                       try { map.setPaintProperty(lineLayerId, 'line-color', '#FFD166'); } catch (e) {}
+                       try { map.setPaintProperty(lineLayerId, 'line-opacity', 0.96); } catch (e) {}
+                   }
+
+                   if (!map.getLayer(nameLayerId)) {
+                       map.addLayer({
+                           id: nameLayerId,
+                           type: 'symbol',
+                           source: nameSourceId,
+                           minzoom: 2.2,
+                           layout: {
+                               'text-field': ['get', 'name'],
+                               'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                               'text-size': ['interpolate', ['linear'], ['zoom'], 2.2, 8, 5, 10, 9, 12],
+                               'text-offset': [0, 1.25],
+                               'text-anchor': 'top',
+                               'text-allow-overlap': true,
+                               'text-ignore-placement': true,
+                               'symbol-placement': 'point'
+                           },
+                           paint: {
+                               'text-color': '#FFD166',
+                               'text-halo-color': '#111827',
+                               'text-halo-width': 2
+                           }
+                       });
+                   }
+
+                   if (!map.getLayer(altLayerId)) {
+                       map.addLayer({
+                           id: altLayerId,
+                           type: 'symbol',
+                           source: altSourceId,
+                           minzoom: 2.2,
+                           layout: {
+                               'text-field': ['get', 'altText'],
+                               'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                               'text-size': ['interpolate', ['linear'], ['zoom'], 2.2, 7, 5, 8.5, 9, 10],
+                               'text-offset': [0, -1.25],
+                               'text-anchor': 'bottom',
+                               'text-allow-overlap': true,
+                               'text-ignore-placement': true,
+                               'symbol-placement': 'point'
+                           },
+                           paint: {
+                               'text-color': '#FFFFFF',
+                               'text-halo-color': '#111827',
+                               'text-halo-width': 2
+                           }
+                       });
+                   }
+
+                   var features = Array.isArray(dataArr) ? dataArr : [];
+                   var labels = [];
+                   features.forEach(function(feature) {
+                       if (!feature || !feature.geometry || feature.geometry.type !== 'LineString') return;
+                       var coords = feature.geometry.coordinates;
+                       if (!Array.isArray(coords) || coords.length < 2) return;
+                       var i = Math.floor((coords.length - 1) / 2);
+                       var a = coords[i];
+                       var b = coords[i + 1] || a;
+                       if (!Array.isArray(a) || !Array.isArray(b)) return;
+
+                       var lon = (Number(a[0]) + Number(b[0])) / 2;
+                       var lat = (Number(a[1]) + Number(b[1])) / 2;
+                       if (!isFinite(lon) || !isFinite(lat)) return;
+
+                       var p = feature.properties || {};
+                       var base = Number(p.base);
+                       var top = Number(p.top);
+                       var altText = 'ALT —';
+                       if (isFinite(base) && isFinite(top) && (base || top)) altText = 'FL ' + Math.round(base) + '–' + Math.round(top);
+                       else if (isFinite(top) && top) altText = 'TOP FL ' + Math.round(top);
+                       else if (isFinite(base) && base) altText = 'BASE FL ' + Math.round(base);
+
+                       labels.push({
+                           type: 'Feature',
+                           geometry: { type: 'Point', coordinates: [lon, lat] },
+                           properties: { name: String(p.name || ''), altText: altText }
+                       });
+                   });
+
+                   map.getSource(sourceId).setData({ type: 'FeatureCollection', features: isVisible ? features : [] });
+                   map.getSource(nameSourceId).setData({ type: 'FeatureCollection', features: isVisible ? labels : [] });
+                   map.getSource(altSourceId).setData({ type: 'FeatureCollection', features: isVisible ? labels : [] });
+
+                   var visibility = isVisible ? 'visible' : 'none';
+                   try { map.setLayoutProperty(lineLayerId, 'visibility', visibility); } catch (e) {}
+                   try { map.setLayoutProperty(nameLayerId, 'visibility', visibility); } catch (e) {}
+                   try { map.setLayoutProperty(altLayerId, 'visibility', visibility); } catch (e) {}
+               }
+
+function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                   if (!map.getSource(sourceId)) {
                       map.addSource(sourceId, {
                           type: 'geojson',
@@ -625,42 +825,50 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
 
               window.drawFlightPath = function(coords) {
                   if (typeof map === 'undefined' || !map.isStyleLoaded()) return;
+
+                  var sourceId = 'efb-flight-path-source-v2';
+                  var layerId = 'efb-flight-path-layer-v2';
                   var flightPathColor = '#00E5FF';
 
-                  if (!map.getSource('flight-path-source')) {
-                      map.addSource('flight-path-source', {
+                  try {
+                    if (map.getLayer('flight-path-layer')) {
+                      map.setLayoutProperty('flight-path-layer', 'visibility', 'none');
+                    }
+                  } catch (e) {}
+
+                  if (!map.getSource(sourceId)) {
+                      map.addSource(sourceId, {
                           type: 'geojson',
-                          data: {
-                              type: 'Feature',
-                              geometry: { type: 'LineString', coordinates: coords || [] }
-                          }
+                          data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords || [] } }
                       });
                   } else {
-                      map.getSource('flight-path-source').setData({
+                      map.getSource(sourceId).setData({
                           type: 'Feature',
                           geometry: { type: 'LineString', coordinates: coords || [] }
                       });
                   }
 
-                  if (!map.getLayer('flight-path-layer')) {
+                  if (!map.getLayer(layerId)) {
                       map.addLayer({
-                          id: 'flight-path-layer',
+                          id: layerId,
                           type: 'line',
-                          source: 'flight-path-source',
+                          source: sourceId,
                           layout: { 'line-join': 'round', 'line-cap': 'round' },
                           paint: {
                               'line-color': flightPathColor,
                               'line-width': 4,
-                              'line-opacity': 0.95
+                              'line-opacity': 0.98
                           }
                       });
                   } else {
-                      try { map.setPaintProperty('flight-path-layer', 'line-color', flightPathColor); } catch (e) {}
-                      try { map.setPaintProperty('flight-path-layer', 'line-width', 4); } catch (e) {}
-                      try { map.setPaintProperty('flight-path-layer', 'line-opacity', 0.95); } catch (e) {}
+                      try { map.setPaintProperty(layerId, 'line-color', flightPathColor); } catch (e) {}
+                      try { map.setPaintProperty(layerId, 'line-width', 4); } catch (e) {}
+                      try { map.setPaintProperty(layerId, 'line-opacity', 0.98); } catch (e) {}
                   }
-                  try { map.setLayoutProperty('flight-path-layer', 'visibility', 'visible'); } catch (e) {}
+
+                  try { map.setLayoutProperty(layerId, 'visibility', 'visible'); } catch (e) {}
               };
+
               window.clearFlightPath = function() {
                   if (typeof map !== 'undefined' && map.getSource('flight-path-source')) {
                       map.getSource('flight-path-source').setData({
@@ -707,15 +915,24 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
               if (z is num) _mapZoom = z.toDouble();
               final centerLat = parsed['centerLat'];
               if (centerLat is num) _mapCenterLat = centerLat.toDouble();
+              final centerLng = parsed['centerLng'];
+              if (centerLng is num) _mapCenterLng = centerLng.toDouble();
             });
 
             _pushDataToMap(); // رسم الداتا فوراً عند جاهزية الخريطة
             if (showFlightPath) _drawFlightPathIfEnabled();
           } else if (action == 'ZOOM_CHANGED') {
             final z = parsed['zoom'];
+            final centerLat = parsed['centerLat'];
+            final centerLng = parsed['centerLng'];
 
-            if (z is num && mounted) {
-              setState(() => _mapZoom = z.toDouble());
+            if (mounted) {
+              setState(() {
+                if (z is num) _mapZoom = z.toDouble();
+                if (centerLat is num) _mapCenterLat = centerLat.toDouble();
+                if (centerLng is num) _mapCenterLng = centerLng.toDouble();
+              });
+              if (showWaypoints) _pushWaypointsOnly();
             }
           } else {
             final data = parsed['data'];
@@ -764,6 +981,71 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   }
 
   // 🔴 دالة معالجة وإرسال البيانات للرسم
+  List<Map<String, dynamic>> _buildVisibleWaypointFeatures() {
+    if (!showWaypoints || rawWaypoints.isEmpty) return [];
+
+    final double zoom = _mapZoom;
+    final double centerLat = _mapCenterLat;
+    final double centerLng = _mapCenterLng;
+    final double lonHalfSpan = (180.0 / math.pow(2.0, zoom.clamp(1.0, 12.0)))
+        .clamp(8.0, 180.0)
+        .toDouble();
+    final double latHalfSpan = (85.0 / math.pow(2.0, zoom.clamp(1.0, 12.0)))
+        .clamp(5.0, 85.0)
+        .toDouble();
+
+    final double gridSize = zoom < 2.5
+        ? 2.5
+        : (zoom < 4.0
+            ? 1.25
+            : (zoom < 5.5
+                ? 0.5
+                : (zoom < 7.0 ? 0.2 : (zoom < 9.0 ? 0.08 : 0.03))));
+
+    final Map<String, Map<String, dynamic>> sampled = {};
+
+    for (final waypoint in rawWaypoints) {
+      final lat = double.tryParse((waypoint['lat'] ?? '').toString());
+      final lon = double.tryParse((waypoint['lon'] ?? '').toString());
+      final name = (waypoint['name'] ?? '').toString().trim();
+
+      if (lat == null ||
+          lon == null ||
+          !lat.isFinite ||
+          !lon.isFinite ||
+          name.isEmpty) {
+        continue;
+      }
+      if (lat < centerLat - latHalfSpan || lat > centerLat + latHalfSpan)
+        continue;
+
+      double delta = lon - centerLng;
+      while (delta > 180.0) delta -= 360.0;
+      while (delta < -180.0) delta += 360.0;
+      if (delta.abs() > lonHalfSpan) continue;
+
+      sampled.putIfAbsent(
+        '${(lat / gridSize).floor()}:${(lon / gridSize).floor()}',
+        () => waypoint,
+      );
+    }
+
+    return sampled.values.toList(growable: false);
+  }
+
+  void _pushWaypointsOnly() {
+    if (!_isMapReady) return;
+
+    final json = jsonEncode({
+      "waypointsVisible": showWaypoints,
+      "waypoints": _buildVisibleWaypointFeatures(),
+    });
+
+    _webviewController.runJavaScript('''
+      if (window.updateEfbWaypointsOnly) window.updateEfbWaypointsOnly($json);
+    ''');
+  }
+
   void _pushDataToMap() {
     if (!_isMapReady) return;
 
@@ -864,22 +1146,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       }
     }
 
-    List<Map<String, dynamic>> waypointFeatures = [];
-    if (showWaypoints) {
-      for (var w in rawWaypoints) {
-        final wLat = double.tryParse((w['lat'] ?? 0.0).toString()) ?? 0.0;
-        final wLon = double.tryParse((w['lon'] ?? 0.0).toString()) ?? 0.0;
-        final wName = (w['name'] ?? '').toString().trim();
-        if (wLat.isFinite && wLon.isFinite && wName.isNotEmpty) {
-          waypointFeatures.add({
-            "lat": wLat,
-            "lon": wLon,
-            "name": wName,
-            "raw": jsonEncode(w),
-          });
-        }
-      }
-    }
+    List<Map<String, dynamic>> waypointFeatures =
+        _buildVisibleWaypointFeatures();
 
     List<Map<String, dynamic>> airwayFeatures = [];
     if (activeAirwayMode != 'NONE') {
@@ -1938,7 +2206,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         setState(() {
                           showWaypoints = !showWaypoints;
                         });
-                        _pushDataToMap();
+                        _pushWaypointsOnly();
                       }),
                       _navAidOverlayBtn(
                           "HIGH AIRWAY", activeAirwayMode == 'HIGH', () {
