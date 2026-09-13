@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import 'dart:ui' as ui;
+
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -120,7 +122,7 @@ class _EfbMetricScalePainter extends CustomPainter {
 
       final tp = TextPainter(
         text: TextSpan(text: labels[i], style: textStyle),
-        textDirection: flutter_material.TextDirection.ltr,
+        textDirection: ui.TextDirection.ltr,
       )..layout();
       double textX = x - tp.width / 2;
       if (i == 0) textX = x - 1;
@@ -178,6 +180,11 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   List<Map<String, dynamic>> rawWaypoints = [];
   List<Map<String, dynamic>> rawAirwaySegments = [];
 
+  // SEGMENTS / SIGMET overlay
+  bool showSegments = false;
+  List<Map<String, dynamic>> rawSegments = [];
+  Timer? _segmentRefreshTimer;
+
   bool _isMapReady = false;
   double _mapZoom = 1.8;
   double _mapCenterLat = 0.0;
@@ -198,6 +205,12 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
     });
     _refreshTimer = Timer.periodic(
         const Duration(seconds: 30), (_) => _fetchPlanesForSearch());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchSegments();
+    });
+    _segmentRefreshTimer =
+        Timer.periodic(const Duration(seconds: 60), (_) => _fetchSegments());
 
     String mapUrl =
         "https://osamanabel1999.github.io/EFB-Map/?lat=${widget.initialLat ?? 20.0}&lon=${widget.initialLng ?? 20.0}&zoom=${widget.initialZoom ?? 1.8}";
@@ -390,6 +403,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
 
                   updateLineLayer('efb-airways-source', 'efb-airways-layer',
                       payload.airways || [], payload.airwaysVisible, '#FFD166');
+
+                  updateSegmentLayers(payload.segments || [], payload.segmentsVisible);
               };
 
               function updateLayer(sourceId, layerId, dataArr, isVisible, layout, paint) {
@@ -465,6 +480,132 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       });
                       map.setLayoutProperty(layerId, 'visibility', 'none');
                   }
+              }
+
+              function updateSegmentLayers(dataArr, isVisible) {
+                var fillSourceId = 'efb-segments-fill-source';
+                var lineSourceId = 'efb-segments-line-source';
+                var labelSourceId = 'efb-segments-label-source';
+                var fillLayerId = 'efb-segments-fill-layer';
+                var lineLayerId = 'efb-segments-line-layer';
+                var labelLayerId = 'efb-segments-label-layer';
+
+                function emptyCollection() {
+                  return { type: 'FeatureCollection', features: [] };
+                }
+
+                if (!map.getSource(fillSourceId)) {
+                  map.addSource(fillSourceId, { type: 'geojson', data: emptyCollection() });
+                }
+                if (!map.getSource(lineSourceId)) {
+                  map.addSource(lineSourceId, { type: 'geojson', data: emptyCollection() });
+                }
+                if (!map.getSource(labelSourceId)) {
+                  map.addSource(labelSourceId, { type: 'geojson', data: emptyCollection() });
+                }
+
+                if (!map.getLayer(fillLayerId)) {
+                  map.addLayer({
+                    id: fillLayerId,
+                    type: 'fill',
+                    source: fillSourceId,
+                    paint: {
+                      'fill-color': '#E65A4F',
+                      'fill-opacity': 0.22
+                    }
+                  });
+                } else {
+                  try { map.setPaintProperty(fillLayerId, 'fill-color', '#E65A4F'); } catch (e) {}
+                  try { map.setPaintProperty(fillLayerId, 'fill-opacity', 0.22); } catch (e) {}
+                }
+
+                if (!map.getLayer(lineLayerId)) {
+                  map.addLayer({
+                    id: lineLayerId,
+                    type: 'line',
+                    source: lineSourceId,
+                    layout: {
+                      'line-join': 'round',
+                      'line-cap': 'round'
+                    },
+                    paint: {
+                      'line-color': '#FF6B5E',
+                      'line-width': 2,
+                      'line-opacity': 0.72,
+                      'line-dasharray': [5, 4]
+                    }
+                  });
+                } else {
+                  try { map.setPaintProperty(lineLayerId, 'line-color', '#FF6B5E'); } catch (e) {}
+                  try { map.setPaintProperty(lineLayerId, 'line-width', 2); } catch (e) {}
+                  try { map.setPaintProperty(lineLayerId, 'line-opacity', 0.72); } catch (e) {}
+                  try { map.setPaintProperty(lineLayerId, 'line-dasharray', [5, 4]); } catch (e) {}
+                }
+
+                if (!map.getLayer(labelLayerId)) {
+                  map.addLayer({
+                    id: labelLayerId,
+                    type: 'symbol',
+                    source: labelSourceId,
+                    layout: {
+                      'symbol-placement': 'point',
+                      'text-field': ['get', 'segmentLabel'],
+                      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                      'text-size': 15,
+                      'text-allow-overlap': true,
+                      'text-ignore-placement': true
+                    },
+                    paint: {
+                      'text-color': '#FF6B5E',
+                      'text-halo-color': '#2A1111',
+                      'text-halo-width': 2.2
+                    }
+                  });
+                } else {
+                  try { map.setLayoutProperty(labelLayerId, 'text-field', ['get', 'segmentLabel']); } catch (e) {}
+                  try { map.setPaintProperty(labelLayerId, 'text-color', '#FF6B5E'); } catch (e) {}
+                  try { map.setPaintProperty(labelLayerId, 'text-halo-color', '#2A1111'); } catch (e) {}
+                  try { map.setPaintProperty(labelLayerId, 'text-halo-width', 2.2); } catch (e) {}
+                }
+
+                if (!map.__efbSegmentClickBound) {
+                  map.__efbSegmentClickBound = true;
+                  map.on('click', fillLayerId, function(e) {
+                    if (window.EFBMapChannel && e.features && e.features.length) {
+                      window.EFBMapChannel.postMessage(JSON.stringify({
+                        action: 'SEGMENT_CLICKED',
+                        data: e.features[0].properties
+                      }));
+                    }
+                  });
+                  map.on('mouseenter', fillLayerId, function() {
+                    map.getCanvas().style.cursor = 'pointer';
+                  });
+                  map.on('mouseleave', fillLayerId, function() {
+                    map.getCanvas().style.cursor = '';
+                  });
+                }
+
+                var features = Array.isArray(dataArr) ? dataArr : [];
+                var fc = { type: 'FeatureCollection', features: features };
+                map.getSource(fillSourceId).setData(fc);
+                map.getSource(lineSourceId).setData(fc);
+
+                var labelFeatures = features.filter(function(feature) {
+                  return feature &&
+                    feature.geometry &&
+                    (feature.geometry.type === 'Polygon' ||
+                     feature.geometry.type === 'MultiPolygon');
+                });
+                map.getSource(labelSourceId).setData({
+                  type: 'FeatureCollection',
+                  features: labelFeatures
+                });
+
+                var visibility = isVisible ? 'visible' : 'none';
+                try { map.setLayoutProperty(fillLayerId, 'visibility', visibility); } catch (e) {}
+                try { map.setLayoutProperty(lineLayerId, 'visibility', visibility); } catch (e) {}
+                try { map.setLayoutProperty(labelLayerId, 'visibility', visibility); } catch (e) {}
               }
 
               window.teleportMarker = null;
@@ -600,6 +741,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                     'type': 'WAYPOINT',
                     'data': jsonDecode(data['raw'])
                   });
+            } else if (action == 'SEGMENT_CLICKED') {
+              setState(() => selectedItem = {'type': 'SEGMENT', 'data': data});
             } else if (action == 'TELEPORT_CLICKED') {
               setState(() {
                 manualLat = data['lat'];
@@ -765,17 +908,53 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       }).toList();
     }
 
+    List<Map<String, dynamic>> segmentFeatures = [];
+    if (showSegments) {
+      segmentFeatures = rawSegments
+          .map((segment) {
+            final geometry = segment['geometry'];
+            if (geometry is! Map) return null;
+
+            final geometryType = geometry['type']?.toString() ?? '';
+            if (geometryType != 'Polygon' && geometryType != 'MultiPolygon') {
+              return null;
+            }
+
+            return <String, dynamic>{
+              "type": "Feature",
+              "geometry": geometry,
+              "properties": {
+                "region": segment["region"] ?? "",
+                "fir": segment["fir"] ?? "",
+                "hazard": segment["hazard"] ?? "SIGMET",
+                "qualifier": segment["qualifier"] ?? "",
+                "activeTime": segment["activeTime"] ?? "",
+                "levelAltitude": segment["levelAltitude"] ?? "",
+                "movementDirection": segment["movementDirection"] ?? "",
+                "movementSpeed": segment["movementSpeed"] ?? "",
+                "statusChange": segment["statusChange"] ?? "",
+                "rawText": segment["rawText"] ?? "",
+                "segmentLabel": segment["segmentLabel"] ?? "SIGMET",
+              }
+            };
+          })
+          .whereType<Map<String, dynamic>>()
+          .toList();
+    }
+
     String jsonPayload = jsonEncode({
       "planesVisible": (showVatsim || showIvao),
       "airportsVisible": showAirports,
       "navaidsVisible": showNavaids,
       "waypointsVisible": showWaypoints,
       "airwaysVisible": activeAirwayMode != 'NONE',
+      "segmentsVisible": showSegments,
       "planes": planeFeatures,
       "airports": airportFeatures,
       "navaids": navaidFeatures,
       "waypoints": waypointFeatures,
       "airways": airwayFeatures,
+      "segments": segmentFeatures,
     });
 
     _webviewController.runJavaScript('''
@@ -814,6 +993,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   void dispose() {
     _clockTimer?.cancel();
     _refreshTimer?.cancel();
+    _segmentRefreshTimer?.cancel();
     _searchController.dispose();
     _speedCtrl.dispose();
     _altCtrl.dispose();
@@ -983,6 +1163,279 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
       points.add([lon, lat]);
     }
     return points;
+  }
+
+  dynamic _segmentFirstValue(Map<String, dynamic> map, List<String> keys,
+      [dynamic fallback]) {
+    for (final key in keys) {
+      if (map.containsKey(key) && map[key] != null) {
+        final value = map[key];
+        if (value is String && value.trim().isEmpty) continue;
+        return value;
+      }
+    }
+    return fallback;
+  }
+
+  String _segmentText(dynamic value, [String fallback = "—"]) {
+    if (value == null) return fallback;
+    if (value is String) {
+      final v = value.trim();
+      return v.isEmpty ? fallback : v;
+    }
+    return value.toString();
+  }
+
+  String _segmentLevelText(Map<String, dynamic> props) {
+    final direct = _segmentFirstValue(props, [
+      'flightLevels',
+      'flight_levels',
+      'level',
+      'levelsText',
+      'levelAltitude'
+    ]);
+    if (direct != null && direct.toString().trim().isNotEmpty) {
+      return direct.toString();
+    }
+
+    final low = _segmentFirstValue(props,
+        ['altitudeLow', 'altitude_low', 'base', 'baseAltitude', 'bottom']);
+    final high = _segmentFirstValue(
+        props, ['altitudeHi', 'altitude_hi', 'top', 'topAltitude', 'upper']);
+
+    final lowText = low == null ? "" : low.toString();
+    final highText = high == null ? "" : high.toString();
+
+    if (lowText.isNotEmpty && highText.isNotEmpty) {
+      return "$lowText / $highText";
+    }
+    if (highText.isNotEmpty) return "TOP $highText";
+    if (lowText.isNotEmpty) return "FROM $lowText";
+    return "—";
+  }
+
+  String _segmentActiveTimeText(Map<String, dynamic> props) {
+    final direct = _segmentFirstValue(props,
+        ['activeTime', 'active_time', 'validTime', 'valid_time', 'valid']);
+    if (direct != null && direct.toString().trim().isNotEmpty) {
+      return direct.toString();
+    }
+
+    final from = _segmentFirstValue(
+        props, ['validTimeFrom', 'valid_time_from', 'startTime', 'start_time']);
+    final to = _segmentFirstValue(
+        props, ['validTimeTo', 'valid_time_to', 'endTime', 'end_time']);
+
+    if (from != null && to != null) {
+      return "${from.toString()} → ${to.toString()}";
+    }
+    if (from != null) return from.toString();
+    if (to != null) return to.toString();
+    return "—";
+  }
+
+  String _segmentMovementText(Map<String, dynamic> props) {
+    final direct = _segmentFirstValue(props, ['movement', 'movementText']);
+    if (direct != null && direct.toString().trim().isNotEmpty) {
+      if (direct is Map) {
+        final movementMap = Map<String, dynamic>.from(direct);
+        final dir = _segmentFirstValue(movementMap, ['direction', 'dir']);
+        final speed =
+            _segmentFirstValue(movementMap, ['speed_kt', 'speed', 'speedKt']);
+        if (dir != null && speed != null) {
+          return "${dir.toString()} ${speed.toString()} KT";
+        }
+        if (dir != null) return dir.toString();
+        if (speed != null) return "${speed.toString()} KT";
+      } else {
+        return direct.toString();
+      }
+    }
+
+    final dir = _segmentFirstValue(props,
+        ['movementDir', 'movement_dir', 'movementDirection', 'direction']);
+    final speed = _segmentFirstValue(
+        props, ['movementSpd', 'movement_spd', 'movementSpeed', 'speed']);
+
+    if (dir != null && speed != null) {
+      return "${dir.toString()} ${speed.toString()}";
+    }
+    if (dir != null) return dir.toString();
+    if (speed != null) return speed.toString();
+    return "—";
+  }
+
+  String _segmentMovementDirectionText(Map<String, dynamic> props) {
+    final direct = _segmentFirstValue(props, ['movement', 'movementText']);
+    if (direct is Map) {
+      final movementMap = Map<String, dynamic>.from(direct);
+      final dir = _segmentFirstValue(movementMap, ['direction', 'dir']);
+      if (dir != null) return dir.toString();
+    }
+
+    final dir = _segmentFirstValue(props,
+        ['movementDir', 'movement_dir', 'movementDirection', 'direction']);
+    return _segmentText(dir);
+  }
+
+  String _segmentMovementSpeedText(Map<String, dynamic> props) {
+    final direct = _segmentFirstValue(props, ['movement', 'movementText']);
+    if (direct is Map) {
+      final movementMap = Map<String, dynamic>.from(direct);
+      final speed =
+          _segmentFirstValue(movementMap, ['speed_kt', 'speed', 'speedKt']);
+      if (speed != null) return "${speed.toString()} KT";
+    }
+
+    final speed = _segmentFirstValue(
+        props, ['movementSpd', 'movement_spd', 'movementSpeed', 'speed']);
+    return _segmentText(speed);
+  }
+
+  List<Map<String, dynamic>> _normaliseSegmentGeoJson(dynamic decoded) {
+    final List<Map<String, dynamic>> result = [];
+
+    dynamic sourceFeatures;
+    if (decoded is Map && decoded['type'] == 'FeatureCollection') {
+      sourceFeatures = decoded['features'];
+    } else if (decoded is List) {
+      sourceFeatures = decoded;
+    } else if (decoded is Map && decoded['features'] is List) {
+      sourceFeatures = decoded['features'];
+    } else {
+      sourceFeatures = const [];
+    }
+
+    if (sourceFeatures is! List) return result;
+
+    for (final item in sourceFeatures) {
+      if (item is! Map) continue;
+
+      final feature = Map<String, dynamic>.from(item);
+      final rawGeometry = feature['geometry'];
+      if (rawGeometry is! Map) continue;
+
+      final geometry = Map<String, dynamic>.from(rawGeometry);
+      final geometryType = geometry['type']?.toString() ?? '';
+      if (geometryType != 'Polygon' && geometryType != 'MultiPolygon') {
+        continue;
+      }
+
+      final rawProperties = feature['properties'];
+      final props = rawProperties is Map
+          ? Map<String, dynamic>.from(rawProperties)
+          : <String, dynamic>{};
+
+      final region = _segmentText(
+          _segmentFirstValue(
+              props, ['region', 'regionId', 'region_id', 'icaoId', 'icao_id']),
+          "");
+      final fir = _segmentText(
+          _segmentFirstValue(
+              props, ['fir', 'firId', 'fir_id', 'icaoId', 'icao_id']),
+          "");
+      final hazard = _segmentText(
+          _segmentFirstValue(props, ['hazard', 'hazardCode', 'hazard_code']),
+          "SIGMET");
+      final qualifier = _segmentText(
+          _segmentFirstValue(
+              props, ['qualifier', 'qualifierType', 'qualifier_type']),
+          "");
+      final activeTime = _segmentActiveTimeText(props);
+      final levelAltitude = _segmentLevelText(props);
+      final movement = _segmentMovementText(props);
+      final movementDirection = _segmentMovementDirectionText(props);
+      final movementSpeed = _segmentMovementSpeedText(props);
+      final statusChange = _segmentText(_segmentFirstValue(props, [
+        'statusChange',
+        'status_change',
+        'intensityChange',
+        'intensity_change',
+        'trend',
+        'evolution'
+      ]));
+      final rawText = _segmentText(_segmentFirstValue(
+          props, ['rawSigmet', 'raw_sigmet', 'rawText', 'raw_text', 'raw']));
+
+      final label = hazard.isEmpty || hazard == "—" ? "SIGMET" : hazard;
+
+      result.add({
+        'geometry': geometry,
+        'region': region.isEmpty ? fir : region,
+        'fir': fir.isEmpty ? region : fir,
+        'hazard': hazard,
+        'qualifier': qualifier,
+        'activeTime': activeTime,
+        'levelAltitude': levelAltitude,
+        'movementDirection':
+            movementDirection == "—" ? movement : movementDirection,
+        'movementSpeed': movementSpeed,
+        'statusChange': statusChange,
+        'rawText': rawText,
+        'segmentLabel': label.isEmpty ? 'SIGMET' : label,
+      });
+    }
+
+    return result;
+  }
+
+  Future<void> _fetchSegments() async {
+    try {
+      // International SIGMETs are worldwide; domestic SIGMETs cover the US.
+      const endpoints = [
+        'https://aviationweather.gov/api/data/isigmet?format=geojson',
+        'https://aviationweather.gov/api/data/airsigmet?format=geojson',
+      ];
+
+      final List<Map<String, dynamic>> combined = [];
+
+      for (final endpoint in endpoints) {
+        try {
+          final response = await http.get(
+            Uri.parse(endpoint),
+            headers: const {
+              'Accept': 'application/geo+json, application/json',
+            },
+          ).timeout(const Duration(seconds: 15));
+
+          if (response.statusCode == 204) continue;
+          if (response.statusCode != 200 || response.body.trim().isEmpty) {
+            continue;
+          }
+
+          final decoded = jsonDecode(response.body);
+          combined.addAll(_normaliseSegmentGeoJson(decoded));
+        } catch (_) {
+          // Keep the other source alive if one endpoint is temporarily unavailable.
+        }
+      }
+
+      if (!mounted) return;
+
+      final seen = <String>{};
+      final unique = <Map<String, dynamic>>[];
+      for (final segment in combined) {
+        final key = [
+          segment['fir'],
+          segment['hazard'],
+          segment['qualifier'],
+          segment['activeTime'],
+          segment['rawText']
+        ].join('|');
+
+        if (seen.add(key)) {
+          unique.add(segment);
+        }
+      }
+
+      setState(() {
+        rawSegments = unique;
+      });
+
+      _pushDataToMap();
+    } catch (_) {
+      // Never break the map if the live weather feed is unavailable.
+    }
   }
 
   Future<void> _fetchAirportsForSearch() async {
@@ -1598,6 +2051,11 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                             activeWeatherLayer == 'WIND' ? 'NONE' : 'WIND');
                         _sendMapState('weather', activeWeatherLayer);
                       }),
+                      const Divider(color: Colors.white24, height: 1),
+                      _segmentMenuBtn("SEGMENT", showSegments, () {
+                        setState(() => showSegments = !showSegments);
+                        _pushDataToMap();
+                      }),
                     ]),
                   ),
               ],
@@ -1627,6 +2085,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
             _buildAirportInfoBox(selectedItem!['data'], isLandscape),
           if (selectedItem != null && selectedItem!['type'] == 'NAVAID')
             _buildNavaidInfoBox(selectedItem!['data'], isLandscape),
+          if (selectedItem != null && selectedItem!['type'] == 'SEGMENT')
+            _buildSegmentInfoBox(selectedItem!['data'], isLandscape),
         ],
       ),
     );
@@ -1723,6 +2183,236 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Widget _buildSegmentInfoBox(dynamic segment, bool isLandscape) {
+    final Map<String, dynamic> data = segment is Map
+        ? Map<String, dynamic>.from(segment)
+        : <String, dynamic>{};
+
+    final String region = _segmentText(data['region']);
+    final String fir = _segmentText(data['fir']);
+    final String hazard = _segmentText(data['hazard'], "SIGMET");
+    final String qualifier = _segmentText(data['qualifier']);
+    final String activeTime = _segmentText(data['activeTime']);
+    final String levelAltitude = _segmentText(data['levelAltitude']);
+    final String movementDirection = _segmentText(data['movementDirection']);
+    final String movementSpeed = _segmentText(data['movementSpeed']);
+    final String statusChange = _segmentText(data['statusChange']);
+    final String rawText = _segmentText(data['rawText']);
+
+    final double? boxWidth =
+        isLandscape ? MediaQuery.of(context).size.width * 0.52 : null;
+
+    Widget row(String title, String value, {bool mono = false}) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.22),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 112,
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Color(0xFFFF6B5E),
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                value,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: mono ? 'monospace' : null,
+                  height: 1.25,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Positioned(
+      bottom: 15,
+      right: 15,
+      left: isLandscape ? null : 15,
+      child: SizedBox(
+        width: boxWidth,
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.78,
+          ),
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: const Color(0xFF160D0D).withOpacity(0.96),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: const Color(0xFFFF6B5E).withOpacity(0.58),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFF6B5E).withOpacity(0.12),
+                blurRadius: 18,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF6B5E).withOpacity(0.14),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFFF6B5E).withOpacity(0.45),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Color(0xFFFF6B5E),
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 11),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            hazard,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 19,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            fir.isNotEmpty && fir != "—"
+                                ? "SIGMET • $fir"
+                                : "SIGMET ADVISORY",
+                            style: const TextStyle(
+                              color: Color(0xFFFF8D83),
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (qualifier != "—" && qualifier.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 9, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF6B5E).withOpacity(0.14),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: const Color(0xFFFF6B5E).withOpacity(0.7),
+                          ),
+                        ),
+                        child: Text(
+                          qualifier,
+                          style: const TextStyle(
+                            color: Color(0xFFFF8D83),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 3),
+                    IconButton(
+                      icon: const Icon(Icons.close,
+                          color: Colors.white54, size: 20),
+                      onPressed: () => setState(() => selectedItem = null),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(color: Colors.white10, height: 1),
+                ),
+                row(
+                  "REGION / FIR",
+                  region == "—" && fir == "—"
+                      ? "—"
+                      : (region == "—"
+                          ? fir
+                          : (fir == "—" || region == fir
+                              ? region
+                              : "$region / $fir")),
+                ),
+                row("HAZARD", hazard),
+                row("QUALIFIER", qualifier),
+                row("ACTIVE TIME", activeTime),
+                row("LEVEL / ALTITUDE", levelAltitude),
+                row("MOVEMENT DIRECTION", movementDirection),
+                row("MOVEMENT SPEED", movementSpeed),
+                row("STATUS CHANGE", statusChange),
+                const SizedBox(height: 2),
+                const Text(
+                  "RAW TEXT",
+                  style: TextStyle(
+                    color: Color(0xFFFF6B5E),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(11),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.32),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: SelectableText(
+                    rawText,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 10.5,
+                      height: 1.35,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -2149,6 +2839,47 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
             style: const TextStyle(
                 color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold))
       ]);
+
+  Widget _segmentMenuBtn(String label, bool active, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
+        decoration: BoxDecoration(
+          color: active
+              ? const Color(0xFFE65A4F).withOpacity(0.18)
+              : Colors.transparent,
+          border: Border(
+            left: BorderSide(
+              color: active ? const Color(0xFFFF6B5E) : Colors.transparent,
+              width: 3,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: active ? const Color(0xFFFF6B5E) : Colors.white70,
+              size: 16,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: active ? const Color(0xFFFF6B5E) : Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _menuBtn(String label, bool active, VoidCallback onTap) => InkWell(
       onTap: onTap,
