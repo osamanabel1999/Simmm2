@@ -185,6 +185,12 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   List<Map<String, dynamic>> rawSegments = [];
   Timer? _segmentRefreshTimer;
 
+  // FIR / UIR BOUNDARIES overlay
+  bool showFir = false;
+  bool _firLoaded = false;
+  bool _firLoading = false;
+  List<Map<String, dynamic>> rawFirBoundaries = [];
+
   bool _isMapReady = false;
   double _mapZoom = 1.8;
   double _mapCenterLat = 0.0;
@@ -280,7 +286,22 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
               }
 
               async function ensureEfbIcons() {
-                if (window.__efbIconsReady) return;
+                // Runtime images are removed by Mapbox when the map style changes.
+                // Re-check the actual images so waypoint/plane icons cannot disappear
+                // while their text labels remain visible.
+                if (window.__efbIconsReady) {
+                  try {
+                    if (map.hasImage('plane-vatsim') &&
+                        map.hasImage('plane-ivao') &&
+                        map.hasImage('plane-user') &&
+                        map.hasImage('airport-icon') &&
+                        map.hasImage('navaid-icon') &&
+                        map.hasImage('waypoint-icon')) {
+                      return;
+                    }
+                  } catch (e) {}
+                  window.__efbIconsReady = false;
+                }
                 if (window.__efbIconsPromise) return window.__efbIconsPromise;
 
                 window.__efbIconsPromise = (async function() {
@@ -402,6 +423,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   updateAirways(payload.airways || [], payload.airwaysVisible);
 
                   updateSegmentLayers(payload.segments || [], payload.segmentsVisible);
+
+                  updateEfbFir(payload.fir || [], payload.firVisible);
               };
 
               function updateLayer(sourceId, layerId, dataArr, isVisible, layout, paint) {
@@ -808,6 +831,223 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 try { map.setLayoutProperty(labelLayerId, 'visibility', visibility); } catch (e) {}
               }
 
+              function firBeforeLayerId() {
+                try {
+                  var layers = map.getStyle().layers || [];
+                  for (var i = 0; i < layers.length; i++) {
+                    if (layers[i] && layers[i].type === 'symbol') {
+                      return layers[i].id;
+                    }
+                  }
+                } catch (e) {}
+                return undefined;
+              }
+
+              function addFirLayerInSafeOrder(definition) {
+                try {
+                  var beforeId = firBeforeLayerId();
+                  if (beforeId) {
+                    map.addLayer(definition, beforeId);
+                  } else {
+                    map.addLayer(definition);
+                  }
+                } catch (e) {
+                  try { map.addLayer(definition); } catch (ignored) {}
+                }
+              }
+
+              function updateEfbFir(dataArr, isVisible) {
+                var fillSourceId = 'efb-fir-fill-source';
+                var labelSourceId = 'efb-fir-label-source';
+                var fillLayerId = 'efb-fir-fill-layer';
+                var lineLayerId = 'efb-fir-line-layer';
+                var labelLayerId = 'efb-fir-label-layer';
+
+                var features = Array.isArray(dataArr) ? dataArr : [];
+                var labels = [];
+
+                features.forEach(function(feature) {
+                  if (!feature || !feature.geometry || !feature.properties) return;
+
+                  var p = feature.properties || {};
+                  var lat = Number(p.labelLat);
+                  var lon = Number(p.labelLon);
+
+                  if (isFinite(lat) && isFinite(lon) &&
+                      lat >= -90 && lat <= 90 &&
+                      lon >= -180 && lon <= 180) {
+                    labels.push({
+                      type: 'Feature',
+                      geometry: {
+                        type: 'Point',
+                        coordinates: [lon, lat]
+                      },
+                      properties: {
+                        id: String(p.id || ''),
+                        region: String(p.region || ''),
+                        division: String(p.division || ''),
+                        oceanic: String(p.oceanic || '0')
+                      }
+                    });
+                  }
+                });
+
+                if (!map.getSource(fillSourceId)) {
+                  map.addSource(fillSourceId, {
+                    type: 'geojson',
+                    data: { type: 'FeatureCollection', features: [] }
+                  });
+                }
+
+                if (!map.getSource(labelSourceId)) {
+                  map.addSource(labelSourceId, {
+                    type: 'geojson',
+                    data: { type: 'FeatureCollection', features: [] }
+                  });
+                }
+
+                if (!map.getLayer(fillLayerId)) {
+                  addFirLayerInSafeOrder({
+                    id: fillLayerId,
+                    type: 'fill',
+                    source: fillSourceId,
+                    paint: {
+                      'fill-color': '#4A90E2',
+                      'fill-opacity': 0.055
+                    }
+                  });
+                }
+
+                if (!map.getLayer(lineLayerId)) {
+                  addFirLayerInSafeOrder({
+                    id: lineLayerId,
+                    type: 'line',
+                    source: fillSourceId,
+                    layout: {
+                      'line-join': 'round',
+                      'line-cap': 'round'
+                    },
+                    paint: {
+                      'line-color': '#4A90E2',
+                      'line-width': 1.15,
+                      'line-opacity': 0.40
+                    }
+                  });
+                }
+
+                if (!map.getLayer(labelLayerId)) {
+                  map.addLayer({
+                    id: labelLayerId,
+                    type: 'symbol',
+                    source: labelSourceId,
+                    minzoom: 1.5,
+                    layout: {
+                      'text-field': ['get', 'id'],
+                      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                      'text-size': 10,
+                      'text-allow-overlap': true,
+                      'text-ignore-placement': true,
+                      'symbol-placement': 'point'
+                    },
+                    paint: {
+                      'text-color': '#E5E7EB',
+                      'text-halo-color': '#111827',
+                      'text-halo-width': 1.8
+                    }
+                  });
+                }
+
+                try { map.setPaintProperty(fillLayerId, 'fill-color', '#4A90E2'); } catch (e) {}
+                try { map.setPaintProperty(fillLayerId, 'fill-opacity', 0.055); } catch (e) {}
+                try { map.setPaintProperty(lineLayerId, 'line-color', '#4A90E2'); } catch (e) {}
+                try { map.setPaintProperty(lineLayerId, 'line-width', 1.15); } catch (e) {}
+                try { map.setPaintProperty(lineLayerId, 'line-opacity', 0.40); } catch (e) {}
+
+                var visibility = isVisible ? 'visible' : 'none';
+                try { map.setLayoutProperty(fillLayerId, 'visibility', visibility); } catch (e) {}
+                try { map.setLayoutProperty(lineLayerId, 'visibility', visibility); } catch (e) {}
+                try { map.setLayoutProperty(labelLayerId, 'visibility', visibility); } catch (e) {}
+
+                map.getSource(fillSourceId).setData({
+                  type: 'FeatureCollection',
+                  features: isVisible ? features : []
+                });
+
+                map.getSource(labelSourceId).setData({
+                  type: 'FeatureCollection',
+                  features: isVisible ? labels : []
+                });
+
+                if (!map.__efbFirClickBound) {
+                  map.__efbFirClickBound = true;
+
+                  map.on('click', labelLayerId, function(e) {
+                    if (!e.features || !e.features.length) return;
+
+                    if (window.EFBMapChannel) {
+                      window.EFBMapChannel.postMessage(JSON.stringify({
+                        action: 'FIR_CLICKED',
+                        data: e.features[0].properties || {}
+                      }));
+                    }
+
+                    if (e.originalEvent && e.originalEvent.stopPropagation) {
+                      e.originalEvent.stopPropagation();
+                    }
+                  });
+
+                  map.on('click', fillLayerId, function(e) {
+                    if (!e.features || !e.features.length) return;
+
+                    // Never let a huge FIR polygon steal a click from a
+                    // plane, airport, navaid, waypoint, airway or segment.
+                    var priorityLayers = [
+                      'efb-planes-layer',
+                      'efb-airports-layer',
+                      'efb-navaids-layer',
+                      'efb-waypoints-layer',
+                      'efb-airways-overlay-layer',
+                      'efb-airways-name-layer',
+                      'efb-airways-alt-layer',
+                      'efb-segments-fill-layer',
+                      'efb-segments-line-layer',
+                      'efb-segments-label-layer'
+                    ];
+
+                    var existing = priorityLayers.filter(function(id) {
+                      try { return !!map.getLayer(id); } catch (ignored) { return false; }
+                    });
+
+                    var hits = [];
+                    try {
+                      if (existing.length) {
+                        hits = map.queryRenderedFeatures(e.point, {
+                          layers: existing
+                        }) || [];
+                      }
+                    } catch (ignored) {}
+
+                    if (hits.length > 0) return;
+
+                    if (window.EFBMapChannel) {
+                      window.EFBMapChannel.postMessage(JSON.stringify({
+                        action: 'FIR_CLICKED',
+                        data: e.features[0].properties || {}
+                      }));
+                    }
+                  });
+
+                  map.on('mouseenter', labelLayerId, function() {
+                    map.getCanvas().style.cursor = 'pointer';
+                  });
+                  map.on('mouseleave', labelLayerId, function() {
+                    map.getCanvas().style.cursor = '';
+                  });
+                }
+              }
+
+              window.updateEfbFir = updateEfbFir;
+
               window.teleportMarker = null;
               window.triggerTeleport = function(lat, lon, hdg) {
                   if (typeof map === 'undefined' || typeof mapboxgl === 'undefined') return;
@@ -826,60 +1066,164 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
               window.drawFlightPath = function(coords) {
                   if (typeof map === 'undefined' || !map.isStyleLoaded()) return;
 
-                  var sourceId = 'efb-flight-path-source-v2';
-                  var layerId = 'efb-flight-path-layer-v2';
-                  var flightPathColor = '#00E5FF';
+                  var sourceId = 'efb-flight-path-source-v3';
+                  var casingLayerId = 'efb-flight-path-casing-v3';
+                  var layerId = 'efb-flight-path-layer-v3';
 
                   try {
-                    if (map.getLayer('flight-path-layer')) {
-                      map.setLayoutProperty('flight-path-layer', 'visibility', 'none');
-                    }
+                    var style = map.getStyle();
+                    var layers = (style && style.layers) ? style.layers : [];
+                    layers.forEach(function(layer) {
+                      var id = String(layer.id || '');
+                      if (/flight.*path|path.*flight/i.test(id) &&
+                          id !== casingLayerId && id !== layerId) {
+                        try { map.setLayoutProperty(id, 'visibility', 'none'); } catch (e) {}
+                      }
+                    });
                   } catch (e) {}
 
                   if (!map.getSource(sourceId)) {
-                      map.addSource(sourceId, {
-                          type: 'geojson',
-                          data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords || [] } }
-                      });
+                    map.addSource(sourceId, {
+                      type: 'geojson',
+                      lineMetrics: true,
+                      data: {
+                        type: 'Feature',
+                        properties: { route: 'EFB_FLIGHT_PATH' },
+                        geometry: {
+                          type: 'LineString',
+                          coordinates: coords || []
+                        }
+                      }
+                    });
                   } else {
-                      map.getSource(sourceId).setData({
-                          type: 'Feature',
-                          geometry: { type: 'LineString', coordinates: coords || [] }
-                      });
+                    map.getSource(sourceId).setData({
+                      type: 'Feature',
+                      properties: { route: 'EFB_FLIGHT_PATH' },
+                      geometry: {
+                        type: 'LineString',
+                        coordinates: coords || []
+                      }
+                    });
+                  }
+
+                  if (!map.getLayer(casingLayerId)) {
+                    map.addLayer({
+                      id: casingLayerId,
+                      type: 'line',
+                      source: sourceId,
+                      layout: {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                      },
+                      paint: {
+                        'line-color': '#5A0B0B',
+                        'line-width': 7,
+                        'line-opacity': 0.70
+                      }
+                    });
                   }
 
                   if (!map.getLayer(layerId)) {
-                      map.addLayer({
-                          id: layerId,
-                          type: 'line',
-                          source: sourceId,
-                          layout: { 'line-join': 'round', 'line-cap': 'round' },
-                          paint: {
-                              'line-color': flightPathColor,
-                              'line-width': 4,
-                              'line-opacity': 0.98
-                          }
-                      });
+                    map.addLayer({
+                      id: layerId,
+                      type: 'line',
+                      source: sourceId,
+                      layout: {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                      },
+                      paint: {
+                        'line-color': '#FF3B30',
+                        'line-width': 3.5,
+                        'line-opacity': 1.0
+                      }
+                    });
                   } else {
-                      try { map.setPaintProperty(layerId, 'line-color', flightPathColor); } catch (e) {}
-                      try { map.setPaintProperty(layerId, 'line-width', 4); } catch (e) {}
-                      try { map.setPaintProperty(layerId, 'line-opacity', 0.98); } catch (e) {}
+                    try { map.setPaintProperty(layerId, 'line-color', '#FF3B30'); } catch (e) {}
+                    try { map.setPaintProperty(layerId, 'line-width', 3.5); } catch (e) {}
+                    try { map.setPaintProperty(layerId, 'line-opacity', 1.0); } catch (e) {}
                   }
 
+                  try { map.setPaintProperty(casingLayerId, 'line-color', '#5A0B0B'); } catch (e) {}
+                  try { map.setPaintProperty(casingLayerId, 'line-width', 7); } catch (e) {}
+                  try { map.setPaintProperty(casingLayerId, 'line-opacity', 0.70); } catch (e) {}
+
+                  try { map.setLayoutProperty(casingLayerId, 'visibility', 'visible'); } catch (e) {}
                   try { map.setLayoutProperty(layerId, 'visibility', 'visible'); } catch (e) {}
               };
 
               window.clearFlightPath = function() {
-                  if (typeof map !== 'undefined' && map.getSource('flight-path-source')) {
-                      map.getSource('flight-path-source').setData({
-                          type: 'Feature',
-                          geometry: { type: 'LineString', coordinates: [] }
+                  var sourceId = 'efb-flight-path-source-v3';
+                  var casingLayerId = 'efb-flight-path-casing-v3';
+                  var layerId = 'efb-flight-path-layer-v3';
+
+                  try {
+                    if (typeof map !== 'undefined') {
+                      if (map.getSource(sourceId)) {
+                        map.getSource(sourceId).setData({
+                          type: 'FeatureCollection',
+                          features: []
+                        });
+                      }
+                      if (map.getLayer(casingLayerId)) {
+                        map.setLayoutProperty(casingLayerId, 'visibility', 'none');
+                      }
+                      if (map.getLayer(layerId)) {
+                        map.setLayoutProperty(layerId, 'visibility', 'none');
+                      }
+
+                      var style = map.getStyle();
+                      var layers = (style && style.layers) ? style.layers : [];
+                      layers.forEach(function(layer) {
+                        var id = String(layer.id || '');
+                        if (/flight.*path|path.*flight/i.test(id) &&
+                            id !== casingLayerId && id !== layerId) {
+                          try { map.setLayoutProperty(id, 'visibility', 'none'); } catch (e) {}
+                        }
                       });
-                      try { map.setLayoutProperty('flight-path-layer', 'visibility', 'none'); } catch (e) {}
-                  }
+                    }
+                  } catch (e) {}
               };
 
+              // Rebuild runtime EFB sources, layers and icons after a DARK/SATELLITE
+              // style replacement. Mapbox removes runtime layers/images on style changes.
+              window.__efbStyleRehydrateBound = false;
+
+              function bindEfbStyleRehydrate() {
+                if (window.__efbStyleRehydrateBound) return;
+                if (typeof map === 'undefined' || !map) return;
+
+                window.__efbStyleRehydrateBound = true;
+
+                map.on('style.load', async function() {
+                  window.__efbMapReady = false;
+                  window.__efbIconsReady = false;
+                  window.__efbIconsPromise = null;
+                  window.__efbFirClickBound = false;
+
+                  try { await ensureEfbIcons(); } catch (e) {}
+
+                  window.__efbMapReady = true;
+
+                  if (window.lastPayload) {
+                    try { await window.renderEFBData(window.lastPayload); } catch (e) {}
+                  }
+
+                  if (window.lastFlightPath &&
+                      Array.isArray(window.lastFlightPath) &&
+                      window.lastFlightPath.length >= 2) {
+                    try { window.drawFlightPath(window.lastFlightPath); } catch (e) {}
+                  } else {
+                    try { window.clearFlightPath(); } catch (e) {}
+                  }
+                });
+              }
+
+              bindEfbStyleRehydrate();
+
               // Mapbox may finish style loading before onPageFinished, so check immediately and also listen.
+              bindEfbStyleRehydrate();
+
               function checkEfbMapReady() {
                 try {
                   if (typeof map !== 'undefined' && map && map.isStyleLoaded()) {
@@ -960,6 +1304,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                   });
             } else if (action == 'SEGMENT_CLICKED') {
               setState(() => selectedItem = {'type': 'SEGMENT', 'data': data});
+            } else if (action == 'FIR_CLICKED') {
+              setState(() => selectedItem = {'type': 'FIR', 'data': data});
             } else if (action == 'TELEPORT_CLICKED') {
               setState(() {
                 manualLat = data['lat'];
@@ -1217,6 +1563,21 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
       "waypointsVisible": showWaypoints,
       "airwaysVisible": activeAirwayMode != 'NONE',
       "segmentsVisible": showSegments,
+      "firVisible": showFir,
+      "fir": rawFirBoundaries
+          .map((fir) => {
+                "type": "Feature",
+                "geometry": fir["geometry"],
+                "properties": {
+                  "id": fir["id"],
+                  "region": fir["region"],
+                  "division": fir["division"],
+                  "oceanic": fir["oceanic"],
+                  "labelLat": fir["labelLat"],
+                  "labelLon": fir["labelLon"],
+                }
+              })
+          .toList(),
       "planes": planeFeatures,
       "airports": airportFeatures,
       "navaids": navaidFeatures,
@@ -1647,6 +2008,152 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     return result;
   }
 
+  Future<void> _toggleFirOverlay() async {
+    if (showFir) {
+      if (mounted) {
+        setState(() => showFir = false);
+      }
+      _pushFirOnly();
+      return;
+    }
+
+    if (mounted) {
+      setState(() => showFir = true);
+    }
+
+    if (!_firLoaded) {
+      await _fetchFirBoundaries();
+    } else {
+      _pushFirOnly();
+    }
+  }
+
+  Future<void> _fetchFirBoundaries() async {
+    if (_firLoading) return;
+
+    _firLoading = true;
+    try {
+      const url =
+          'https://raw.githubusercontent.com/vatsimnetwork/vatspy-data-project/master/Boundaries.geojson';
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: const {
+          'Accept': 'application/geo+json, application/json',
+        },
+      ).timeout(const Duration(seconds: 30));
+
+      if (response.statusCode != 200 || response.body.trim().isEmpty) {
+        return;
+      }
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map || decoded['type'] != 'FeatureCollection') {
+        return;
+      }
+
+      final features = decoded['features'];
+      if (features is! List) return;
+
+      final normalised = <Map<String, dynamic>>[];
+
+      for (final item in features) {
+        if (item is! Map) continue;
+
+        final geometryRaw = item['geometry'];
+        if (geometryRaw is! Map) continue;
+
+        final geometry = Map<String, dynamic>.from(geometryRaw);
+        final geometryType = geometry['type']?.toString() ?? '';
+
+        if (geometryType != 'Polygon' && geometryType != 'MultiPolygon') {
+          continue;
+        }
+
+        final propsRaw = item['properties'];
+        final props = propsRaw is Map
+            ? Map<String, dynamic>.from(propsRaw)
+            : <String, dynamic>{};
+
+        final id = _firText(props['id']);
+        if (id.isEmpty) continue;
+
+        final labelLat =
+            double.tryParse(_firText(props['label_lat']).replaceAll(',', '.'));
+        final labelLon =
+            double.tryParse(_firText(props['label_lon']).replaceAll(',', '.'));
+
+        if (labelLat == null ||
+            labelLon == null ||
+            !labelLat.isFinite ||
+            !labelLon.isFinite ||
+            labelLat < -90 ||
+            labelLat > 90 ||
+            labelLon < -180 ||
+            labelLon > 180) {
+          continue;
+        }
+
+        normalised.add({
+          'id': id,
+          'region': _firText(props['region']),
+          'division': _firText(props['division']),
+          'oceanic': _firText(props['oceanic']),
+          'labelLat': labelLat,
+          'labelLon': labelLon,
+          'geometry': geometry,
+        });
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        rawFirBoundaries = normalised;
+        _firLoaded = normalised.isNotEmpty;
+      });
+
+      if (showFir) {
+        _pushFirOnly();
+      }
+    } catch (_) {
+      // Optional overlay: never break the navigation map if the feed fails.
+    } finally {
+      _firLoading = false;
+    }
+  }
+
+  String _firText(dynamic value, [String fallback = ""]) {
+    if (value == null) return fallback;
+    final s = value.toString().trim();
+    return s.isEmpty ? fallback : s;
+  }
+
+  void _pushFirOnly() {
+    if (!_isMapReady) return;
+
+    final payload = jsonEncode({
+      'visible': showFir,
+      'features': rawFirBoundaries.map((fir) {
+        return {
+          'type': 'Feature',
+          'geometry': fir['geometry'],
+          'properties': {
+            'id': fir['id'],
+            'region': fir['region'],
+            'division': fir['division'],
+            'oceanic': fir['oceanic'],
+            'labelLat': fir['labelLat'],
+            'labelLon': fir['labelLon'],
+          },
+        };
+      }).toList(),
+    });
+
+    _webviewController.runJavaScript('''
+      if (window.updateEfbFir) window.updateEfbFir($payload);
+    ''');
+  }
+
   Future<void> _fetchSegments() async {
     try {
       // International SIGMETs are worldwide; domestic SIGMETs cover the US.
@@ -1713,6 +2220,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
       if (response.statusCode == 200) {
         rawAirports = json.decode(response.body);
         _pushDataToMap();
+        if (showFlightPath) _drawFlightPathIfEnabled();
       }
     } catch (e) {}
   }
@@ -2224,6 +2732,9 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                         });
                         _pushDataToMap();
                       }),
+                      _navAidOverlayBtn("FIR / UIR", showFir, () {
+                        _toggleFirOverlay();
+                      }),
                       _menuBtn("CALLSIGN", showCallsigns, () {
                         setState(() {
                           showCallsigns = !showCallsigns;
@@ -2355,6 +2866,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             _buildNavaidInfoBox(selectedItem!['data'], isLandscape),
           if (selectedItem != null && selectedItem!['type'] == 'SEGMENT')
             _buildSegmentInfoBox(selectedItem!['data'], isLandscape),
+          if (selectedItem != null && selectedItem!['type'] == 'FIR')
+            _buildFirInfoBox(selectedItem!['data'], isLandscape),
         ],
       ),
     );
@@ -2451,6 +2964,143 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Widget _buildFirInfoBox(dynamic fir, bool isLandscape) {
+    final Map<String, dynamic> data =
+        fir is Map ? Map<String, dynamic>.from(fir) : <String, dynamic>{};
+
+    final String id = _firText(data['id'], "—");
+    final String region = _firText(data['region'], "—");
+    final String division = _firText(data['division'], "—");
+    final String oceanicRaw = _firText(data['oceanic'], "—");
+    final String oceanic =
+        oceanicRaw == '1' ? 'YES' : (oceanicRaw == '0' ? 'NO' : oceanicRaw);
+
+    final double? boxWidth =
+        isLandscape ? MediaQuery.of(context).size.width * 0.40 : null;
+
+    Widget row(String title, String value) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.22),
+          borderRadius: BorderRadius.circular(9),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 118,
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Color(0xFF93C5FD),
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Positioned(
+      bottom: 15,
+      right: 15,
+      left: isLandscape ? null : 15,
+      child: SizedBox(
+        width: boxWidth,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0B1220).withOpacity(0.97),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: const Color(0xFF4A90E2).withOpacity(0.62),
+              width: 1.4,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF4A90E2).withOpacity(0.10),
+                blurRadius: 18,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4A90E2).withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(11),
+                      border: Border.all(
+                        color: const Color(0xFF4A90E2).withOpacity(0.42),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.public,
+                      color: Color(0xFF93C5FD),
+                      size: 23,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      id,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close,
+                        color: Colors.white54, size: 20),
+                    onPressed: () => setState(() => selectedItem = null),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 11),
+                child: Divider(color: Colors.white10, height: 1),
+              ),
+              row("FIR ID", id),
+              row("REGION", region),
+              row("DIVISION", division),
+              row("OCEANIC STATUS", oceanic),
+            ],
+          ),
+        ),
       ),
     );
   }
