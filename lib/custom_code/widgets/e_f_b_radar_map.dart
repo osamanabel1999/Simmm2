@@ -2824,7 +2824,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
           .toList();
 
       airwayFeatures = airwayFeatures.where((feature) {
-        final coords = feature["geometry"]?["coordinates"];
+        final geometry = feature["geometry"];
+        final coords = geometry is Map ? geometry["coordinates"] : null;
         return coords is List && coords.length >= 2;
       }).toList();
     }
@@ -2907,7 +2908,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 }
               })
           .where((feature) {
-        final c = feature["geometry"]?["coordinates"];
+        final geometry = feature["geometry"];
+        final c = geometry is Map ? geometry["coordinates"] : null;
         return c is List && c.length >= 2;
       }).toList(),
       "planes": planeFeatures,
@@ -5318,7 +5320,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                           color: segmentColor.withOpacity(0.45),
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.warning_amber_rounded,
                         color: segmentColor,
                         size: 28,
@@ -5406,7 +5408,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 row("MOVEMENT SPEED", movementSpeed),
                 row("STATUS CHANGE", statusChange),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   "RAW TEXT",
                   style: TextStyle(
                     color: segmentColor,
@@ -5786,8 +5788,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        const Icon(Icons.flight_takeoff,
-                            color: accent, size: 24),
+                        Icon(Icons.flight_takeoff, color: accent, size: 24),
                         const SizedBox(width: 9),
                         Expanded(
                           child: Column(
