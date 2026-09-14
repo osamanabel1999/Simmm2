@@ -24,6 +24,7 @@ import '/custom_code/actions/get_offline_navaid_data.dart';
 import '/custom_code/actions/get_offline_waypoint_data.dart';
 import '/custom_code/actions/get_offline_high_airways.dart' as high_airways;
 import '/custom_code/actions/get_offline_low_airways.dart' as low_airways;
+import '/custom_code/actions/get_offline_hold_data.dart' as hold_data;
 
 // Background parser for the live PIREP/AIREP GeoJSON feed.
 // Kept top-level so Flutter's compute() can execute it in a background isolate.
@@ -3269,14 +3270,14 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
 
     final List<Map<String, dynamic>> features = <Map<String, dynamic>>[];
 
-    for (final fixIdentRaw in HoldData.keys) {
+    for (final fixIdentRaw in hold_data.HoldData.keys) {
       final String fixIdent = fixIdentRaw.trim().toUpperCase();
       if (fixIdent.isEmpty) continue;
 
       final fix = fixLookup[fixIdent];
       if (fix == null) continue;
 
-      final holds = HoldData.getHold(fixIdent);
+      final holds = hold_data.HoldData.getHold(fixIdent);
       if (holds == null || holds.isEmpty) continue;
 
       for (int index = 0; index < holds.length; index++) {
