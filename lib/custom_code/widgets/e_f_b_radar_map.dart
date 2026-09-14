@@ -495,6 +495,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   bool showPireps = false;
   List<Map<String, dynamic>> rawPireps = [];
   Timer? _pirepRefreshTimer;
+  bool _pirepSheetOpen = false;
   Timer? _precipitationTimer;
   int _precipitationFrameIndex = 0;
   List<String> _precipitationTiles = [];
@@ -654,6 +655,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         map.hasImage('plane-ivao') &&
                         map.hasImage('plane-user') &&
                         map.hasImage('airport-icon') &&
+                        map.hasImage('vor-icon') &&
+                        map.hasImage('ndb-icon') &&
                         map.hasImage('navaid-icon') &&
                         map.hasImage('waypoint-icon') &&
                         map.hasImage('pirep-arrow-icon')) {
@@ -670,7 +673,10 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   return '<svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="' + planePath + '" fill="' + color + '" stroke="#000000" stroke-width="0.5"/></svg>';
                 };
                 var airportSvg = '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" fill="#00FFFF" stroke="#000000" stroke-width="2"/></svg>';
-                var navaidSvg = '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,2 22,7 22,17 12,22 2,17 2,7" fill="#D946EF" stroke="#000000" stroke-width="2"/></svg>';
+                // FAA chart-inspired symbols: VOR=open hexagon, NDB=dotted circle + center dot.
+                var vorSvg = '<svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="none" stroke="#22D3EE" stroke-width="2"/><circle cx="12" cy="12" r="1.7" fill="#22D3EE"/></svg>';
+                var ndbSvg = '<svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" fill="none" stroke="#D946EF" stroke-width="1.8" stroke-dasharray="1.2 2.2"/><circle cx="12" cy="12" r="2" fill="#D946EF"/></svg>';
+                var navaidSvg = '<svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="none" stroke="#A78BFA" stroke-width="1.8"/><circle cx="12" cy="12" r="1.7" fill="#A78BFA"/></svg>';
                 var waypointSvg = '<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"12,2 22,21 2,21\" fill=\"#FFD166\" stroke=\"#111827\" stroke-width=\"1.5\"/></svg>';
 
                 var pirepArrowSvg = '<svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M12 2L18 18L12 15L6 18Z\" fill=\"#FF8A3D\" stroke=\"#081018\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/></svg>';
@@ -680,6 +686,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   ['plane-ivao', planeSvg('#00E676')],
                   ['plane-user', planeSvg('#E040FB')],
                   ['airport-icon', airportSvg],
+                  ['vor-icon', vorSvg],
+                  ['ndb-icon', ndbSvg],
                   ['navaid-icon', navaidSvg],
                   ['waypoint-icon', waypointSvg],
                   ['pirep-arrow-icon', pirepArrowSvg]
@@ -767,8 +775,14 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       'text-halo-width': 2
                   });
                   updateLayer('efb-navaids-source', 'efb-navaids-layer', payload.navaids || [], payload.navaidsVisible, {
-                      'icon-image': 'navaid-icon',
-                      'icon-size': 0.8,
+                      'icon-image': [
+                        'match',
+                        ['get', 'navaidClass'],
+                        'VOR', 'vor-icon',
+                        'NDB', 'ndb-icon',
+                        'navaid-icon'
+                      ],
+                      'icon-size': ['interpolate', ['linear'], ['zoom'], 1.2, 0.65, 4, 0.85, 8, 1.0],
                       'text-field': ['get', 'name'],
                       'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
                       'text-size': 10,
@@ -777,7 +791,13 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       'icon-allow-overlap': true,
                       'text-allow-overlap': true
                   }, {
-                      'text-color': '#D946EF',
+                      'text-color': [
+                        'match',
+                        ['get', 'navaidClass'],
+                        'VOR', '#22D3EE',
+                        'NDB', '#D946EF',
+                        '#A78BFA'
+                      ],
                       'text-halo-color': '#000000',
                       'text-halo-width': 2
                   });
@@ -800,6 +820,12 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   if (!map.getSource(sourceId)) {
                       map.addSource(sourceId, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
                       map.addLayer({ id: layerId, type: 'symbol', source: sourceId, layout: layout, paint: paint });
+                  }
+
+                  // Bind each EFB layer interaction only once across style switches.
+                  window.__efbLayerClickBound = window.__efbLayerClickBound || {};
+                  if (!window.__efbLayerClickBound[layerId]) {
+                      window.__efbLayerClickBound[layerId] = true;
                       map.on('click', layerId, function(e) {
                           if (window.EFBMapChannel && e.features && e.features.length) {
                               var actionType = sourceId.includes('planes')
@@ -814,6 +840,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       });
                       map.on('mouseenter', layerId, function() { map.getCanvas().style.cursor = 'pointer'; });
                       map.on('mouseleave', layerId, function() { map.getCanvas().style.cursor = ''; });
+                  }
                   }
 
                   Object.keys(layout || {}).forEach(function(key) {
@@ -1111,6 +1138,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   var labelLayerId = 'efb-oceanic-label-layer';
                   var endpointSourceId = 'efb-oceanic-endpoint-source';
                   var endpointLayerId = 'efb-oceanic-endpoint-layer';
+                  var hitLayerId = 'efb-oceanic-hit-layer';
 
                   var features = Array.isArray(dataArr) ? dataArr : [];
                   var lineFeatures = [];
@@ -1236,6 +1264,19 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       'line-opacity': 0.8
                     }
                   });
+                  // Wide transparent hit area: the NAT line stays easy to tap at world zoom.
+                  addSafe({
+                    id: hitLayerId,
+                    type: 'line',
+                    source: sourceId,
+                    layout: { 'line-join': 'round', 'line-cap': 'round' },
+                    paint: {
+                      'line-color': '#FFFFFF',
+                      'line-width': ['interpolate', ['linear'], ['zoom'], 1.2, 12, 5, 16, 9, 20],
+                      'line-opacity': 0.001
+                    }
+                  });
+
                   addSafe({
                     id: endpointLayerId,
                     type: 'circle',
@@ -1271,7 +1312,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
 
                   if (!map.__efbOceanicClickBound) {
                     map.__efbOceanicClickBound = true;
-                    map.on('click', lineLayerId, function(e) {
+                    map.on('click', hitLayerId, function(e) {
                       if (!e.features || !e.features.length) return;
                       if (window.EFBMapChannel) {
                         window.EFBMapChannel.postMessage(JSON.stringify({
@@ -1283,10 +1324,10 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         e.originalEvent.stopPropagation();
                       }
                     });
-                    map.on('mouseenter', lineLayerId, function() {
+                    map.on('mouseenter', hitLayerId, function() {
                       map.getCanvas().style.cursor = 'pointer';
                     });
-                    map.on('mouseleave', lineLayerId, function() {
+                    map.on('mouseleave', hitLayerId, function() {
                       map.getCanvas().style.cursor = '';
                     });
                   }
@@ -1727,7 +1768,47 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                    } catch (e) {}
                  }
 
-                 // Soft outer glow behind the actual intensity bands.
+                                  // Broad heatmap makes the auroral oval visible at normal/world zoom.
+                 addAuroraLayer({
+                   id: 'efb-aurora-heat-layer',
+                   type: 'heatmap',
+                   source: sourceId,
+                   maxzoom: 10,
+                   paint: {
+                     'heatmap-weight': [
+                       'interpolate', ['linear'], ['get', 'aurora'],
+                       5, 0.05,
+                       25, 0.20,
+                       60, 0.55,
+                       100, 1.0
+                     ],
+                     'heatmap-intensity': [
+                       'interpolate', ['linear'], ['zoom'],
+                       1, 0.75,
+                       3, 1.0,
+                       6, 1.35,
+                       10, 1.6
+                     ],
+                     'heatmap-radius': [
+                       'interpolate', ['linear'], ['zoom'],
+                       1, 16,
+                       3, 24,
+                       6, 36,
+                       10, 52
+                     ],
+                     'heatmap-opacity': 0.78,
+                     'heatmap-color': [
+                       'interpolate', ['linear'], ['heatmap-density'],
+                       0, 'rgba(0,255,102,0)',
+                       0.12, 'rgba(0,255,102,0.20)',
+                       0.35, 'rgba(0,255,102,0.45)',
+                       0.65, 'rgba(120,255,0,0.72)',
+                       1, 'rgba(220,255,0,0.92)'
+                     ]
+                   }
+                 });
+
+// Soft outer glow behind the actual intensity bands.
                  addAuroraLayer({
                    id: glowLayerId,
                    type: 'circle',
@@ -1803,7 +1884,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                    }
                  });
 
-                 [glowLayerId, lowLayerId, midLayerId, highLayerId].forEach(function(layerId) {
+                 [glowLayerId, 'efb-aurora-heat-layer', lowLayerId, midLayerId, highLayerId].forEach(function(layerId) {
                    try {
                      map.setLayoutProperty(
                        layerId,
@@ -1931,27 +2012,73 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                      }
                    } catch (e) {}
 
-                   map.on('click', layerId, function(e) {
-                     if (!e.features || !e.features.length) return;
-                     var properties = e.features[0].properties || {};
-                     if (window.EFBMapChannel) {
-                       window.EFBMapChannel.postMessage(JSON.stringify({
-                         action: 'PIREP_CLICKED',
-                         data: properties
-                       }));
-                     }
-                     if (e.originalEvent && e.originalEvent.stopPropagation) {
-                       e.originalEvent.stopPropagation();
-                     }
-                   });
+                   window.__efbPirepClickBound = window.__efbPirepClickBound || false;
 
-                   map.on('mouseenter', layerId, function() {
-                     map.getCanvas().style.cursor = 'pointer';
-                   });
-                   map.on('mouseleave', layerId, function() {
-                     map.getCanvas().style.cursor = '';
-                   });
-                 }
+
+                   if (!window.__efbPirepClickBound) {
+
+
+                     window.__efbPirepClickBound = true;
+
+
+                     map.on('click', layerId, function(e) {
+
+
+                       if (!e.features || !e.features.length) return;
+
+
+                       var properties = e.features[0].properties || {};
+
+
+                       if (window.EFBMapChannel) {
+
+
+                         window.EFBMapChannel.postMessage(JSON.stringify({
+
+
+                           action: 'PIREP_CLICKED',
+
+
+                           data: properties
+
+
+                         }));
+
+
+                       }
+
+
+                       if (e.originalEvent && e.originalEvent.stopPropagation) {
+
+
+                         e.originalEvent.stopPropagation();
+
+
+                       }
+
+
+                     });
+
+
+                     map.on('mouseenter', layerId, function() {
+
+
+                       map.getCanvas().style.cursor = 'pointer';
+
+
+                     });
+
+
+                     map.on('mouseleave', layerId, function() {
+
+
+                       map.getCanvas().style.cursor = '';
+
+
+                     });
+
+
+                   }
 
                  map.getSource(sourceId).setData({
                    type: 'FeatureCollection',
@@ -2418,7 +2545,6 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                   window.__efbMapReady = false;
                   window.__efbIconsReady = false;
                   window.__efbIconsPromise = null;
-                  window.__efbFirClickBound = false;
 
                   try { await ensureEfbIcons(); } catch (e) {}
 
@@ -2605,13 +2731,16 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
               setState(() => selectedItem = {'type': 'OCEANIC', 'data': data});
             } else if (action == 'PIREP_CLICKED') {
               final pirepData = Map<String, dynamic>.from(data ?? {});
-              if (mounted) {
+              if (mounted && !_pirepSheetOpen) {
+                _pirepSheetOpen = true;
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (_) => _buildPirepBottomSheet(pirepData),
-                );
+                ).whenComplete(() {
+                  _pirepSheetOpen = false;
+                });
               }
             } else if (action == 'TELEPORT_CLICKED') {
               setState(() {
@@ -2790,10 +2919,25 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             (n['ident'] ?? n['id'] ?? n['identifier'] ?? n['code'] ?? '')
                 .toString();
         final nName = (n['name'] ?? nIdent).toString();
+        final rawNavaidType = (n['type'] ??
+                n['navaidType'] ??
+                n['navaid_type'] ??
+                n['facilityType'] ??
+                n['facility_type'] ??
+                n['kind'] ??
+                '')
+            .toString()
+            .trim()
+            .toUpperCase();
+        final navaidClass = rawNavaidType.contains('VOR')
+            ? 'VOR'
+            : (rawNavaidType.contains('NDB') ? 'NDB' : 'OTHER');
         navaidFeatures.add({
           "lat": nLat,
           "lon": nLon,
           "name": nIdent.isNotEmpty ? nIdent : nName,
+          "navaidClass": navaidClass,
+          "type": rawNavaidType,
           "raw": jsonEncode(n)
         });
       }
@@ -3678,6 +3822,11 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
 
     if (mounted) setState(() => showFir = true);
     _pushDataToMap();
+    Future.delayed(const Duration(milliseconds: 120), () {
+      if (!mounted || !showFir) return;
+      _pushDataToMap();
+      _pushFirOnly();
+    });
 
     if (!_firLoaded) {
       if (_firLoading) return;
@@ -5445,8 +5594,25 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
   }
 
   Widget _buildNavaidInfoBox(dynamic nav, bool isLandscape) {
+    final rawType = (nav['type'] ??
+            nav['navaidType'] ??
+            nav['navaid_type'] ??
+            nav['facilityType'] ??
+            nav['facility_type'] ??
+            '')
+        .toString()
+        .toUpperCase();
+    final navaidClass = rawType.contains('VOR')
+        ? 'VOR'
+        : (rawType.contains('NDB') ? 'NDB' : 'OTHER');
+    final Color navaidAccent = navaidClass == 'VOR'
+        ? const Color(0xFF22D3EE)
+        : (navaidClass == 'NDB'
+            ? const Color(0xFFD946EF)
+            : const Color(0xFFA78BFA));
+
     String name = nav['name']?.toString() ?? "Unknown";
-    String type = nav['type']?.toString() ?? "NAV";
+    String type = rawType.isEmpty ? "NAV" : rawType;
     String lat = nav['lat']?.toString() ?? "-";
     String lon = nav['lon']?.toString() ?? "-";
     String elev = nav['elev']?.toString() ?? "-";
@@ -5473,11 +5639,11 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
           decoration: BoxDecoration(
             color: const Color(0xFF0F172A).withOpacity(0.95),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-                color: Colors.purpleAccent.withOpacity(0.5), width: 1.5),
+            border:
+                Border.all(color: navaidAccent.withOpacity(0.5), width: 1.5),
             boxShadow: [
               BoxShadow(
-                  color: Colors.purpleAccent.withOpacity(0.1),
+                  color: navaidAccent.withOpacity(0.1),
                   blurRadius: 15,
                   spreadRadius: 2)
             ],
@@ -5488,8 +5654,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.cell_tower,
-                      color: Colors.purpleAccent, size: 36),
+                  const Icon(Icons.cell_tower, color: navaidAccent, size: 36),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -5510,13 +5675,13 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.purpleAccent.withOpacity(0.15),
+                      color: navaidAccent.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.purpleAccent),
+                      border: Border.all(color: navaidAccent),
                     ),
                     child: Text(type,
                         style: const TextStyle(
-                            color: Colors.purpleAccent,
+                            color: navaidAccent,
                             fontWeight: FontWeight.bold,
                             fontSize: 12)),
                   ),
@@ -5552,7 +5717,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 const SizedBox(height: 12),
                 const Text("ASSOCIATED AIRPORT:",
                     style: TextStyle(
-                        color: Colors.purpleAccent,
+                        color: navaidAccent,
                         fontSize: 10,
                         fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
@@ -5574,7 +5739,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
               _buildMapTeleportButton(
                 label: "TELEPORT TO NAVAID",
                 icon: Icons.flight_takeoff,
-                color: Colors.purpleAccent,
+                color: navaidAccent,
                 onTap: () => _showMapTeleportSheet(
                   double.tryParse(lat) ?? 0.0,
                   double.tryParse(lon) ?? 0.0,
