@@ -5654,7 +5654,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.cell_tower, color: navaidAccent, size: 36),
+                  Icon(Icons.cell_tower, color: navaidAccent, size: 36),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -5680,7 +5680,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       border: Border.all(color: navaidAccent),
                     ),
                     child: Text(type,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: navaidAccent,
                             fontWeight: FontWeight.bold,
                             fontSize: 12)),
@@ -5715,7 +5715,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                   airport != "null" &&
                   airport != "-") ...[
                 const SizedBox(height: 12),
-                const Text("ASSOCIATED AIRPORT:",
+                Text("ASSOCIATED AIRPORT:",
                     style: TextStyle(
                         color: navaidAccent,
                         fontSize: 10,
@@ -6947,9 +6947,7 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  vatsimAtis.isNotEmpty
-                      ? vatsimAtis
-                      : "No ATIS available on VATSIM.",
+                  vatsimAtis.isNotEmpty ? vatsimAtis : "No ATIS available.",
                   style: const TextStyle(
                       color: Colors.amberAccent,
                       fontSize: 12,
