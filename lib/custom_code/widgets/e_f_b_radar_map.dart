@@ -174,6 +174,171 @@ List<Map<String, dynamic>> _parseAuroraGeoJsonInIsolate(String responseBody) {
   return result;
 }
 
+// Background parser for IVAO North Atlantic (NAT) tracks.
+List<Map<String, dynamic>> _parseOceanicNatTracksInIsolate(
+    String responseBody) {
+  final decoded = jsonDecode(responseBody);
+  dynamic rawTracks;
+  if (decoded is List) {
+    rawTracks = decoded;
+  } else if (decoded is Map) {
+    rawTracks = decoded['tracks'] ??
+        decoded['data'] ??
+        decoded['natTracks'] ??
+        decoded['nat_tracks'];
+  }
+  if (rawTracks is! List) return <Map<String, dynamic>>[];
+
+  String clean(dynamic value) => value == null ? '' : value.toString().trim();
+
+  List<dynamic> asList(dynamic value) {
+    if (value is List) return value;
+    if (value == null) return <dynamic>[];
+    return <dynamic>[value];
+  }
+
+  double? number(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(clean(value).replaceAll(',', '.'));
+  }
+
+  List<double>? coordinate(String token) {
+    final v = token.trim().toUpperCase();
+    final simple = RegExp(r'^(\d{1,2})\/(\d{1,3})$').firstMatch(v);
+    if (simple != null) {
+      final lat = double.tryParse(simple.group(1)!);
+      final west = double.tryParse(simple.group(2)!);
+      if (lat == null ||
+          west == null ||
+          lat < 0 ||
+          lat > 90 ||
+          west < 0 ||
+          west > 180) return null;
+      return <double>[lat, -west];
+    }
+    final dm = RegExp(r'^(\d{2})(\d{2})\/(\d{1,3})$').firstMatch(v);
+    if (dm != null) {
+      final deg = double.tryParse(dm.group(1)!);
+      final min = double.tryParse(dm.group(2)!);
+      final west = double.tryParse(dm.group(3)!);
+      if (deg == null ||
+          min == null ||
+          west == null ||
+          deg < 0 ||
+          deg > 90 ||
+          min < 0 ||
+          min >= 60 ||
+          west < 0 ||
+          west > 180) return null;
+      return <double>[deg + min / 60.0, -west];
+    }
+    return null;
+  }
+
+  final result = <Map<String, dynamic>>[];
+  for (final raw in rawTracks) {
+    if (raw is! Map) continue;
+    final track = Map<String, dynamic>.from(raw);
+    final identifier = clean(
+        track['identifier'] ?? track['id'] ?? track['name'] ?? track['track']);
+    if (identifier.isEmpty) continue;
+
+    final dirRaw = clean(track['direction']).toUpperCase();
+    final direction = dirRaw.contains('WEST')
+        ? 'WEST'
+        : (dirRaw.contains('EAST') ? 'EAST' : dirRaw);
+
+    final waypoints = <String>[];
+    final coords = <List<double>>[];
+
+    for (final rawWp in asList(track['waypoints'])) {
+      String token = '';
+      if (rawWp is Map) {
+        final wp = Map<String, dynamic>.from(rawWp);
+        token = clean(wp['name'] ??
+            wp['identifier'] ??
+            wp['ident'] ??
+            wp['point'] ??
+            wp['waypoint']);
+        final lat = number(wp['lat'] ?? wp['latitude']);
+        final lon = number(wp['lon'] ?? wp['longitude']);
+        if (lat != null &&
+            lon != null &&
+            lat.isFinite &&
+            lon.isFinite &&
+            lat >= -90 &&
+            lat <= 90 &&
+            lon >= -180 &&
+            lon <= 180) {
+          coords.add(<double>[lon, lat]);
+        }
+      } else {
+        token = clean(rawWp);
+      }
+      if (token.isEmpty) continue;
+      waypoints.add(token);
+      final parsed = coordinate(token);
+      if (parsed != null) coords.add(<double>[parsed[1], parsed[0]]);
+    }
+
+    if (waypoints.isEmpty && track['route'] is String) {
+      waypoints.addAll(clean(track['route'])
+          .split(RegExp(r'\s+'))
+          .where((e) => e.isNotEmpty));
+      for (final token in waypoints) {
+        final parsed = coordinate(token);
+        if (parsed != null) coords.add(<double>[parsed[1], parsed[0]]);
+      }
+    }
+
+    final east = asList(track['eastboundLevels'] ??
+            track['eastbound_levels'] ??
+            track['eastbound'])
+        .map(clean)
+        .where((e) => e.isNotEmpty)
+        .toList();
+    final west = asList(track['westboundLevels'] ??
+            track['westbound_levels'] ??
+            track['westbound'])
+        .map(clean)
+        .where((e) => e.isNotEmpty)
+        .toList();
+    final levels = direction == 'EAST'
+        ? east
+        : (direction == 'WEST' ? west : <String>{...east, ...west}.toList());
+
+    final cleanCoords = <List<double>>[];
+    for (final c in coords) {
+      if (c.length < 2) continue;
+      final lon = c[0], lat = c[1];
+      if (!lon.isFinite ||
+          !lat.isFinite ||
+          lon < -180 ||
+          lon > 180 ||
+          lat < -90 ||
+          lat > 90) continue;
+      if (cleanCoords.isEmpty ||
+          cleanCoords.last[0] != lon ||
+          cleanCoords.last[1] != lat) {
+        cleanCoords.add(<double>[lon, lat]);
+      }
+    }
+    if (cleanCoords.length < 2) continue;
+
+    result.add(<String, dynamic>{
+      'identifier': identifier,
+      'direction': direction,
+      'waypoints': waypoints,
+      'eastboundLevels': east,
+      'westboundLevels': west,
+      'validLevels': levels,
+      'route': waypoints.join(' '),
+      'coordinates': cleanCoords,
+    });
+  }
+  return result;
+}
+
 class EFBRadarMap extends StatefulWidget {
   const EFBRadarMap({
     Key? key,
@@ -379,6 +544,11 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   bool _firLoaded = false;
   bool _firLoading = false;
   List<Map<String, dynamic>> rawFirBoundaries = [];
+
+  // IVAO North Atlantic NAT tracks
+  bool showOceanic = false;
+  bool _oceanicLoading = false;
+  List<Map<String, dynamic>> rawOceanicTracks = [];
 
   bool _isMapReady = false;
   double _mapZoom = 1.8;
@@ -622,6 +792,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   updateEfbPireps(payload.pireps || [], payload.pirepsVisible);
 
                   updateEfbAurora(payload.aurora || [], payload.auroraVisible);
+                  updateEfbOceanic(payload.oceanic || [], payload.oceanicVisible);
+                  try { window.forceEfbOperationalLayerColors(); } catch (e) {}
               };
 
               function updateLayer(sourceId, layerId, dataArr, isVisible, layout, paint) {
@@ -911,6 +1083,234 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                    try { map.setLayoutProperty(nameLayerId, 'visibility', visibility); } catch (e) {}
                    try { map.setLayoutProperty(altLayerId, 'visibility', visibility); } catch (e) {}
                }
+
+
+                function oceanicBeforeLayerId() {
+                  try {
+                    var preferred = [
+                      'efb-airports-layer',
+                      'efb-planes-layer',
+                      'efb-navaids-layer',
+                      'efb-waypoints-layer'
+                    ];
+                    for (var p = 0; p < preferred.length; p++) {
+                      if (map.getLayer(preferred[p])) return preferred[p];
+                    }
+                    var layers = (map.getStyle() && map.getStyle().layers) || [];
+                    for (var i = 0; i < layers.length; i++) {
+                      if (layers[i].type === 'symbol') return layers[i].id;
+                    }
+                  } catch (e) {}
+                  return undefined;
+                }
+
+                function updateEfbOceanic(dataArr, isVisible) {
+                  var sourceId = 'efb-oceanic-source';
+                  var lineLayerId = 'efb-oceanic-line-layer';
+                  var labelSourceId = 'efb-oceanic-label-source';
+                  var labelLayerId = 'efb-oceanic-label-layer';
+                  var endpointSourceId = 'efb-oceanic-endpoint-source';
+                  var endpointLayerId = 'efb-oceanic-endpoint-layer';
+
+                  var features = Array.isArray(dataArr) ? dataArr : [];
+                  var lineFeatures = [];
+                  var labels = [];
+                  var endpoints = [];
+
+                  features.forEach(function(feature) {
+                    if (!feature || !feature.geometry ||
+                        feature.geometry.type !== 'LineString') return;
+
+                    var coords = feature.geometry.coordinates;
+                    if (!Array.isArray(coords) || coords.length < 2) return;
+
+                    var props = feature.properties || {};
+                    var direction = String(props.direction || '').toUpperCase();
+                    var color = direction === 'WEST' ? '#FF9F43' : '#4DA3FF';
+
+                    lineFeatures.push({
+                      type: 'Feature',
+                      geometry: { type: 'LineString', coordinates: coords },
+                      properties: Object.assign({}, props, { trackColor: color })
+                    });
+
+                    var first = coords[0];
+                    var last = coords[coords.length - 1];
+                    if (Array.isArray(first) && first.length >= 2) {
+                      endpoints.push({
+                        type: 'Feature',
+                        geometry: {
+                          type: 'Point',
+                          coordinates: [Number(first[0]), Number(first[1])]
+                        },
+                        properties: {
+                          identifier: String(props.identifier || ''),
+                          direction: direction,
+                          trackColor: color
+                        }
+                      });
+                    }
+                    if (Array.isArray(last) && last.length >= 2) {
+                      endpoints.push({
+                        type: 'Feature',
+                        geometry: {
+                          type: 'Point',
+                          coordinates: [Number(last[0]), Number(last[1])]
+                        },
+                        properties: {
+                          identifier: String(props.identifier || ''),
+                          direction: direction,
+                          trackColor: color
+                        }
+                      });
+                    }
+
+                    if (Array.isArray(first) && first.length >= 2) {
+                      labels.push({
+                        type: 'Feature',
+                        geometry: {
+                          type: 'Point',
+                          coordinates: [Number(first[0]), Number(first[1])]
+                        },
+                        properties: {
+                          identifier: String(props.identifier || ''),
+                          direction: direction,
+                          trackColor: color
+                        }
+                      });
+                    }
+                    if (Array.isArray(last) && last.length >= 2) {
+                      labels.push({
+                        type: 'Feature',
+                        geometry: {
+                          type: 'Point',
+                          coordinates: [Number(last[0]), Number(last[1])]
+                        },
+                        properties: {
+                          identifier: String(props.identifier || ''),
+                          direction: direction,
+                          trackColor: color
+                        }
+                      });
+                    }
+                  });
+
+                  function empty() {
+                    return { type: 'FeatureCollection', features: [] };
+                  }
+                  if (!map.getSource(sourceId)) {
+                    map.addSource(sourceId, { type: 'geojson', data: empty() });
+                  }
+                  if (!map.getSource(labelSourceId)) {
+                    map.addSource(labelSourceId, { type: 'geojson', data: empty() });
+                  }
+                  if (!map.getSource(endpointSourceId)) {
+                    map.addSource(endpointSourceId, { type: 'geojson', data: empty() });
+                  }
+
+                  var beforeId = oceanicBeforeLayerId();
+                  function addSafe(definition) {
+                    try {
+                      if (!map.getLayer(definition.id)) {
+                        if (beforeId && map.getLayer(beforeId)) {
+                          map.addLayer(definition, beforeId);
+                        } else {
+                          map.addLayer(definition);
+                        }
+                      }
+                    } catch (e) {
+                      try {
+                        if (!map.getLayer(definition.id)) map.addLayer(definition);
+                      } catch (ignored) {}
+                    }
+                  }
+
+                  addSafe({
+                    id: lineLayerId,
+                    type: 'line',
+                    source: sourceId,
+                    layout: { 'line-join': 'round', 'line-cap': 'round' },
+                    paint: {
+                      'line-color': ['coalesce', ['get', 'trackColor'], '#4DA3FF'],
+                      'line-width': 3.0,
+                      'line-opacity': 0.8
+                    }
+                  });
+                  addSafe({
+                    id: endpointLayerId,
+                    type: 'circle',
+                    source: endpointSourceId,
+                    paint: {
+                      'circle-radius': ['interpolate', ['linear'], ['zoom'],
+                        1.5, 2.5, 5, 3.5, 9, 4.5],
+                      'circle-color': ['coalesce', ['get', 'trackColor'], '#FFFFFF'],
+                      'circle-opacity': 0.95,
+                      'circle-stroke-color': '#071019',
+                      'circle-stroke-width': 1.2
+                    }
+                  });
+                  addSafe({
+                    id: labelLayerId,
+                    type: 'symbol',
+                    source: labelSourceId,
+                    minzoom: 1.5,
+                    layout: {
+                      'text-field': ['get', 'identifier'],
+                      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                      'text-size': ['interpolate', ['linear'], ['zoom'],
+                        1.5, 8, 5, 10, 9, 12],
+                      'text-allow-overlap': true,
+                      'text-ignore-placement': true
+                    },
+                    paint: {
+                      'text-color': '#FFFFFF',
+                      'text-halo-color': ['coalesce', ['get', 'trackColor'], '#071019'],
+                      'text-halo-width': 2
+                    }
+                  });
+
+                  if (!map.__efbOceanicClickBound) {
+                    map.__efbOceanicClickBound = true;
+                    map.on('click', lineLayerId, function(e) {
+                      if (!e.features || !e.features.length) return;
+                      if (window.EFBMapChannel) {
+                        window.EFBMapChannel.postMessage(JSON.stringify({
+                          action: 'OCEANIC_CLICKED',
+                          data: e.features[0].properties || {}
+                        }));
+                      }
+                      if (e.originalEvent && e.originalEvent.stopPropagation) {
+                        e.originalEvent.stopPropagation();
+                      }
+                    });
+                    map.on('mouseenter', lineLayerId, function() {
+                      map.getCanvas().style.cursor = 'pointer';
+                    });
+                    map.on('mouseleave', lineLayerId, function() {
+                      map.getCanvas().style.cursor = '';
+                    });
+                  }
+
+                  map.getSource(sourceId).setData({
+                    type: 'FeatureCollection',
+                    features: isVisible ? lineFeatures : []
+                  });
+                  map.getSource(labelSourceId).setData({
+                    type: 'FeatureCollection',
+                    features: isVisible ? labels : []
+                  });
+                  map.getSource(endpointSourceId).setData({
+                    type: 'FeatureCollection',
+                    features: isVisible ? endpoints : []
+                  });
+
+                  var visibility = isVisible ? 'visible' : 'none';
+                  try { map.setLayoutProperty(lineLayerId, 'visibility', visibility); } catch (e) {}
+                  try { map.setLayoutProperty(endpointLayerId, 'visibility', visibility); } catch (e) {}
+                  try { map.setLayoutProperty(labelLayerId, 'visibility', visibility); } catch (e) {}
+                }
+
+                window.updateEfbOceanic = updateEfbOceanic;
 
 function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                   if (!map.getSource(sourceId)) {
@@ -1972,6 +2372,38 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                   } catch (e) {}
               };
 
+              window.forceEfbOperationalLayerColors = function() {
+                if (typeof map === 'undefined' || !map || !map.isStyleLoaded()) return;
+
+                try { map.setPaintProperty('efb-flight-path-casing-v3', 'line-color', '#4A0B0B'); } catch (e) {}
+                try { map.setPaintProperty('efb-flight-path-casing-v3', 'line-width', 8); } catch (e) {}
+                try { map.setPaintProperty('efb-flight-path-casing-v3', 'line-opacity', 0.78); } catch (e) {}
+                try { map.setPaintProperty('efb-flight-path-casing-v3', 'line-pattern', null); } catch (e) {}
+                try { map.setPaintProperty('efb-flight-path-layer-v3', 'line-color', '#FF2D2D'); } catch (e) {}
+                try { map.setPaintProperty('efb-flight-path-layer-v3', 'line-width', 4); } catch (e) {}
+                try { map.setPaintProperty('efb-flight-path-layer-v3', 'line-opacity', 1); } catch (e) {}
+                try { map.setPaintProperty('efb-flight-path-layer-v3', 'line-pattern', null); } catch (e) {}
+
+                try { map.setPaintProperty('efb-airways-overlay-layer', 'line-color', '#FFE08A'); } catch (e) {}
+                try { map.setPaintProperty('efb-airways-overlay-layer', 'line-opacity', 0.96); } catch (e) {}
+                try { map.setPaintProperty('efb-airways-name-layer', 'text-color', '#FFD166'); } catch (e) {}
+                try { map.setPaintProperty('efb-airways-name-layer', 'text-halo-color', '#111827'); } catch (e) {}
+                try { map.setPaintProperty('efb-airways-alt-layer', 'text-color', '#FFFFFF'); } catch (e) {}
+                try { map.setPaintProperty('efb-airways-alt-layer', 'text-halo-color', '#111827'); } catch (e) {}
+                try { map.setPaintProperty('efb-airways-endpoint-layer', 'circle-color', '#FFF3B0'); } catch (e) {}
+                try { map.setPaintProperty('efb-airways-endpoint-layer', 'circle-stroke-color', '#5A3D00'); } catch (e) {}
+
+                try { map.setPaintProperty('efb-fir-fill-layer', 'fill-color', '#38BDF8'); } catch (e) {}
+                try { map.setPaintProperty('efb-fir-fill-layer', 'fill-opacity', 0.12); } catch (e) {}
+                try { map.setPaintProperty('efb-fir-line-layer', 'line-color', '#67E8F9'); } catch (e) {}
+                try { map.setPaintProperty('efb-fir-line-layer', 'line-opacity', 0.82); } catch (e) {}
+                try { map.setPaintProperty('efb-fir-label-layer', 'text-color', '#FFFFFF'); } catch (e) {}
+
+                try { map.setPaintProperty('efb-segments-fill-layer', 'fill-color', ['coalesce', ['get', 'hazardColor'], '#FFFF00']); } catch (e) {}
+                try { map.setPaintProperty('efb-segments-line-layer', 'line-color', ['coalesce', ['get', 'hazardColor'], '#FFFF00']); } catch (e) {}
+                try { map.setPaintProperty('efb-segments-label-layer', 'text-color', ['coalesce', ['get', 'hazardColor'], '#FFFF00']); } catch (e) {}
+              };
+
               // Rebuild runtime EFB sources, layers and icons after a DARK/SATELLITE
               // style replacement. Mapbox removes runtime layers/images on style changes.
               window.__efbStyleRehydrateBound = false;
@@ -2035,6 +2467,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       );
                     } catch (e) {}
                   }
+                try { window.forceEfbOperationalLayerColors(); } catch (e) {}
+
                 });
               }
 
@@ -2134,19 +2568,41 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                     'data': jsonDecode(data['raw'])
                   });
             } else if (action == 'NAVAID_CLICKED') {
+              final navaidData = data is Map
+                  ? Map<String, dynamic>.from(data)
+                  : <String, dynamic>{};
+              final rawNavaid = navaidData['raw'];
+              final decodedNavaid =
+                  rawNavaid is String && rawNavaid.trim().isNotEmpty
+                      ? jsonDecode(rawNavaid)
+                      : navaidData;
               setState(() => selectedItem = {
                     'type': 'NAVAID',
-                    'data': jsonDecode(data['raw'])
+                    'data': decodedNavaid is Map
+                        ? Map<String, dynamic>.from(decodedNavaid)
+                        : navaidData
                   });
             } else if (action == 'WAYPOINT_CLICKED') {
+              final waypointData = data is Map
+                  ? Map<String, dynamic>.from(data)
+                  : <String, dynamic>{};
+              final rawWaypoint = waypointData['raw'];
+              final decodedWaypoint =
+                  rawWaypoint is String && rawWaypoint.trim().isNotEmpty
+                      ? jsonDecode(rawWaypoint)
+                      : waypointData;
               setState(() => selectedItem = {
                     'type': 'WAYPOINT',
-                    'data': jsonDecode(data['raw'])
+                    'data': decodedWaypoint is Map
+                        ? Map<String, dynamic>.from(decodedWaypoint)
+                        : waypointData
                   });
             } else if (action == 'SEGMENT_CLICKED') {
               setState(() => selectedItem = {'type': 'SEGMENT', 'data': data});
             } else if (action == 'FIR_CLICKED') {
               setState(() => selectedItem = {'type': 'FIR', 'data': data});
+            } else if (action == 'OCEANIC_CLICKED') {
+              setState(() => selectedItem = {'type': 'OCEANIC', 'data': data});
             } else if (action == 'PIREP_CLICKED') {
               final pirepData = Map<String, dynamic>.from(data ?? {});
               if (mounted) {
@@ -2432,6 +2888,28 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 }
               })
           .toList(),
+      "oceanicVisible": showOceanic,
+      "oceanic": rawOceanicTracks
+          .map((track) => {
+                "type": "Feature",
+                "geometry": {
+                  "type": "LineString",
+                  "coordinates": track["coordinates"] ?? []
+                },
+                "properties": {
+                  "identifier": track["identifier"] ?? "",
+                  "direction": track["direction"] ?? "",
+                  "route": track["route"] ?? "",
+                  "waypoints": track["waypoints"] ?? [],
+                  "eastboundLevels": track["eastboundLevels"] ?? [],
+                  "westboundLevels": track["westboundLevels"] ?? [],
+                  "validLevels": track["validLevels"] ?? []
+                }
+              })
+          .where((feature) {
+        final c = feature["geometry"]?["coordinates"];
+        return c is List && c.length >= 2;
+      }).toList(),
       "planes": planeFeatures,
       "airports": airportFeatures,
       "navaids": navaidFeatures,
@@ -3018,13 +3496,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         _auroraLoading = false;
       }
 
-      if (_isMapReady) {
-        try {
-          await _webviewController.runJavaScript(
-            "if(window.clearEfbAurora) window.clearEfbAurora();",
-          );
-        } catch (_) {}
-      }
+      _pushDataToMap();
       return;
     }
 
@@ -3034,6 +3506,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         _auroraLoading = true;
       });
     }
+    _pushDataToMap();
 
     try {
       const url =
@@ -3053,14 +3526,18 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         response.body,
       );
 
-      if (!mounted || !showAurora) return;
+      if (!mounted) return;
+      if (!showAurora) {
+        _auroraLoading = false;
+        return;
+      }
 
       setState(() {
         rawAurora = parsed;
         _auroraLoading = false;
       });
 
-      _pushAuroraOnly();
+      _pushDataToMap();
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -3070,13 +3547,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         });
       }
 
-      if (_isMapReady) {
-        try {
-          await _webviewController.runJavaScript(
-            "if(window.clearEfbAurora) window.clearEfbAurora();",
-          );
-        } catch (_) {}
-      }
+      _pushDataToMap();
     }
   }
 
@@ -3098,17 +3569,15 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
       if (mounted) setState(() => showPireps = false);
       _pirepRefreshTimer?.cancel();
       _pirepRefreshTimer = null;
-      if (_isMapReady) {
-        await _webviewController.runJavaScript(
-          "if(window.clearEfbPireps) window.clearEfbPireps();",
-        );
-      }
+      _pushDataToMap();
       return;
     }
 
     if (mounted) setState(() => showPireps = true);
+    _pushDataToMap();
 
     await _fetchPireps();
+    if (!mounted || !showPireps) return;
 
     _pirepRefreshTimer?.cancel();
     _pirepRefreshTimer = Timer.periodic(
@@ -3141,50 +3610,86 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         rawPireps = parsed;
       });
 
-      if (_isMapReady) {
-        final payload = jsonEncode({
-          'visible': true,
-          'features': parsed,
-        });
-
-        await _webviewController.runJavaScript('''
-          if (window.updateEfbPireps) window.updateEfbPireps($payload);
-        ''');
-      }
+      _pushDataToMap();
     } catch (_) {
       // Optional live feed: never break the EFB map if it is unavailable.
     }
   }
 
-  Future<void> _toggleFirOverlay() async {
-    if (showFir) {
-      if (mounted) {
-        setState(() => showFir = false);
-      }
-      _pushFirOnly();
+  Future<void> _toggleOceanicOverlay() async {
+    if (showOceanic) {
+      if (mounted) setState(() => showOceanic = false);
+      _pushDataToMap();
       return;
     }
 
     if (mounted) {
-      setState(() => showFir = true);
+      setState(() {
+        showOceanic = true;
+        _oceanicLoading = true;
+      });
+    }
+    _pushDataToMap();
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.ivao.aero/v2/nat-tracks'),
+        headers: const {'Accept': 'application/json'},
+      ).timeout(const Duration(seconds: 20));
+      if (response.statusCode != 200 || response.body.trim().isEmpty) {
+        throw Exception('IVAO NAT tracks unavailable');
+      }
+
+      final parsed = await compute(
+        _parseOceanicNatTracksInIsolate,
+        response.body,
+      );
+      if (!mounted) return;
+      if (!showOceanic) {
+        _oceanicLoading = false;
+        return;
+      }
+
+      setState(() {
+        rawOceanicTracks = parsed;
+        _oceanicLoading = false;
+      });
+      _pushDataToMap();
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          showOceanic = false;
+          _oceanicLoading = false;
+          rawOceanicTracks = [];
+        });
+      }
+      _pushDataToMap();
+    }
+  }
+
+  Future<void> _toggleFirOverlay() async {
+    if (showFir) {
+      if (mounted) setState(() => showFir = false);
+      _pushDataToMap();
+      return;
     }
 
-    // Push immediately so FIR visibility never waits for an unrelated
-    // menu/map action after the network fetch completes.
-    _pushFirOnly();
+    if (mounted) setState(() => showFir = true);
+    _pushDataToMap();
 
     if (!_firLoaded) {
+      if (_firLoading) return;
       await _fetchFirBoundaries();
       if (mounted && showFir) {
         if (_firLoaded) {
-          _pushFirOnly();
+          _pushDataToMap();
         } else {
           setState(() => showFir = false);
-          _pushFirOnly();
+          _pushDataToMap();
         }
       }
     } else {
-      _pushFirOnly();
+      _pushDataToMap();
     }
   }
 
@@ -3277,6 +3782,10 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
       }
     } catch (_) {
       // Optional overlay: never break the navigation map if the feed fails.
+      if (mounted && showFir) {
+        setState(() => showFir = false);
+        _pushDataToMap();
+      }
     } finally {
       _firLoading = false;
     }
@@ -3932,6 +4441,9 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                         });
                         _pushDataToMap();
                       }),
+                      _navAidOverlayBtn("OCEANIC", showOceanic, () {
+                        _toggleOceanicOverlay();
+                      }),
                       _navAidOverlayBtn("FIR / UIR", showFir, () {
                         _toggleFirOverlay();
                       }),
@@ -4074,6 +4586,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             _buildSegmentInfoBox(selectedItem!['data'], isLandscape),
           if (selectedItem != null && selectedItem!['type'] == 'FIR')
             _buildFirInfoBox(selectedItem!['data'], isLandscape),
+          if (selectedItem != null && selectedItem!['type'] == 'OCEANIC')
+            _buildOceanicInfoBox(selectedItem!['data'], isLandscape),
         ],
       ),
     );
@@ -4170,6 +4684,174 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Widget _buildOceanicInfoBox(dynamic track, bool isLandscape) {
+    final data =
+        track is Map ? Map<String, dynamic>.from(track) : <String, dynamic>{};
+
+    String text(dynamic value, [String fallback = '—']) {
+      if (value == null) return fallback;
+      final s = value.toString().trim();
+      return s.isEmpty ? fallback : s;
+    }
+
+    List<String> listValue(dynamic value) {
+      if (value is List) {
+        return value
+            .map((e) => e.toString().trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+      }
+      final s = text(value, '');
+      return s.isEmpty ? <String>[] : s.split(RegExp(r'\s+'));
+    }
+
+    final identifier = text(data['identifier'], 'NAT TRACK');
+    final direction = text(data['direction'], '—').toUpperCase();
+    final levels = listValue(data['validLevels']);
+    final route = text(data['route'], listValue(data['waypoints']).join(' '));
+    final accent =
+        direction == 'WEST' ? const Color(0xFFFF9F43) : const Color(0xFF4DA3FF);
+
+    Widget row(String title, String value, {bool mono = false}) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.22),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 105,
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: accent,
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                value,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: mono ? 'monospace' : null,
+                  height: 1.3,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final boxWidth =
+        isLandscape ? MediaQuery.of(context).size.width * 0.54 : null;
+
+    return Positioned(
+      bottom: 15,
+      right: 15,
+      left: isLandscape ? null : 15,
+      child: SizedBox(
+        width: boxWidth,
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.78,
+          ),
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: const Color(0xFF081019).withOpacity(0.97),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: accent.withOpacity(0.62), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: accent.withOpacity(0.12),
+                blurRadius: 18,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: accent.withOpacity(0.14),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: accent.withOpacity(0.48)),
+                      ),
+                      child: Icon(Icons.public, color: accent, size: 27),
+                    ),
+                    const SizedBox(width: 11),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'TRACK $identifier',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            direction == '—'
+                                ? 'OCEANIC NAT TRACK'
+                                : 'OCEANIC NAT • $direction',
+                            style: TextStyle(
+                              color: accent,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close,
+                          color: Colors.white54, size: 20),
+                      onPressed: () => setState(() => selectedItem = null),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(color: Colors.white10, height: 1),
+                ),
+                row('DIRECTION', direction),
+                row('VALID AT', levels.isEmpty ? '—' : levels.join(' '),
+                    mono: true),
+                row('ROUTE', route, mono: true),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -4537,6 +5219,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     final String region = _segmentText(data['region']);
     final String fir = _segmentText(data['fir']);
     final String hazard = _segmentText(data['hazard'], "SIGMET");
+    final Color segmentColor = _sigmetHazardColor(hazard);
     final String qualifier = _segmentText(data['qualifier']);
     final String activeTime = _segmentText(data['activeTime']);
     final String levelAltitude = _segmentText(data['levelAltitude']);
@@ -4565,8 +5248,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
               width: 112,
               child: Text(
                 title,
-                style: const TextStyle(
-                  color: Color(0xFFFF6B5E),
+                style: TextStyle(
+                  color: segmentColor,
                   fontSize: 9.5,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.4,
@@ -4606,12 +5289,12 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             color: const Color(0xFF160D0D).withOpacity(0.96),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: const Color(0xFFFF6B5E).withOpacity(0.58),
+              color: segmentColor.withOpacity(0.58),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFF6B5E).withOpacity(0.12),
+                color: segmentColor.withOpacity(0.12),
                 blurRadius: 18,
                 spreadRadius: 2,
               ),
@@ -4629,15 +5312,15 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       width: 46,
                       height: 46,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF6B5E).withOpacity(0.14),
+                        color: segmentColor.withOpacity(0.14),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFFFF6B5E).withOpacity(0.45),
+                          color: segmentColor.withOpacity(0.45),
                         ),
                       ),
                       child: const Icon(
                         Icons.warning_amber_rounded,
-                        color: Color(0xFFFF6B5E),
+                        color: segmentColor,
                         size: 28,
                       ),
                     ),
@@ -4650,7 +5333,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                             hazard,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 19,
                               fontWeight: FontWeight.w900,
@@ -4661,8 +5344,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                             fir.isNotEmpty && fir != "—"
                                 ? "SIGMET • $fir"
                                 : "SIGMET ADVISORY",
-                            style: const TextStyle(
-                              color: Color(0xFFFF8D83),
+                            style: TextStyle(
+                              color: segmentColor.withOpacity(0.88),
                               fontSize: 10.5,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.6,
@@ -4676,16 +5359,16 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 9, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B5E).withOpacity(0.14),
+                          color: segmentColor.withOpacity(0.14),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: const Color(0xFFFF6B5E).withOpacity(0.7),
+                            color: segmentColor.withOpacity(0.7),
                           ),
                         ),
                         child: Text(
                           qualifier,
-                          style: const TextStyle(
-                            color: Color(0xFFFF8D83),
+                          style: TextStyle(
+                            color: segmentColor.withOpacity(0.88),
                             fontWeight: FontWeight.bold,
                             fontSize: 10,
                           ),
@@ -4726,7 +5409,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 const Text(
                   "RAW TEXT",
                   style: TextStyle(
-                    color: Color(0xFFFF6B5E),
+                    color: segmentColor,
                     fontSize: 9.5,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.4,
@@ -4743,7 +5426,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                   ),
                   child: SelectableText(
                     rawText,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white70,
                       fontSize: 10.5,
                       height: 1.35,
@@ -5050,6 +5733,10 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
   ) async {
     if (!lat.isFinite || !lon.isFinite) return;
 
+    final Color accent = locationType.toUpperCase() == 'WAYPOINT'
+        ? const Color(0xFFFFD166)
+        : const Color(0xFFD946EF);
+
     manualLat = lat;
     manualLng = lon;
 
@@ -5100,7 +5787,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                     Row(
                       children: [
                         const Icon(Icons.flight_takeoff,
-                            color: Colors.orangeAccent, size: 24),
+                            color: accent, size: 24),
                         const SizedBox(width: 9),
                         Expanded(
                           child: Column(
@@ -5160,11 +5847,11 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _buildTeleportSheetInput("ALTITUDE FT", _altCtrl),
+                    _buildTeleportSheetInput("ALTITUDE FT", _altCtrl, accent),
                     const SizedBox(height: 9),
-                    _buildTeleportSheetInput("SPEED KTS", _speedCtrl),
+                    _buildTeleportSheetInput("SPEED KTS", _speedCtrl, accent),
                     const SizedBox(height: 9),
-                    _buildTeleportSheetInput("HEADING °", _hdgCtrl),
+                    _buildTeleportSheetInput("HEADING °", _hdgCtrl, accent),
                     const SizedBox(height: 14),
                     SizedBox(
                       width: double.infinity,
@@ -5236,6 +5923,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
   Widget _buildTeleportSheetInput(
     String label,
     TextEditingController controller,
+    Color accent,
   ) {
     return Container(
       height: 48,
@@ -5243,7 +5931,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
       decoration: BoxDecoration(
         color: const Color(0xFF111820),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: accent.withOpacity(0.22)),
       ),
       child: Row(
         children: [
