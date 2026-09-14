@@ -23,6 +23,156 @@ import '/custom_code/actions/get_offline_waypoint_data.dart';
 import '/custom_code/actions/get_offline_high_airways.dart' as high_airways;
 import '/custom_code/actions/get_offline_low_airways.dart' as low_airways;
 
+// Background parser for the live PIREP/AIREP GeoJSON feed.
+// Kept top-level so Flutter's compute() can execute it in a background isolate.
+List<Map<String, dynamic>> _parsePirepGeoJsonInIsolate(String responseBody) {
+  final decoded = jsonDecode(responseBody);
+  final List<dynamic> features = decoded is Map && decoded['features'] is List
+      ? decoded['features'] as List<dynamic>
+      : <dynamic>[];
+
+  final result = <Map<String, dynamic>>[];
+
+  for (final item in features) {
+    if (item is! Map) continue;
+
+    final geometryRaw = item['geometry'];
+    final propertiesRaw = item['properties'];
+    if (geometryRaw is! Map) continue;
+
+    final coordinates = geometryRaw['coordinates'];
+    if (coordinates is! List || coordinates.length < 2) continue;
+
+    final lon = coordinates[0] is num
+        ? (coordinates[0] as num).toDouble()
+        : double.tryParse(coordinates[0].toString());
+    final lat = coordinates[1] is num
+        ? (coordinates[1] as num).toDouble()
+        : double.tryParse(coordinates[1].toString());
+
+    if (lon == null ||
+        lat == null ||
+        !lon.isFinite ||
+        !lat.isFinite ||
+        lat < -90 ||
+        lat > 90 ||
+        lon < -180 ||
+        lon > 180) {
+      continue;
+    }
+
+    final properties = propertiesRaw is Map
+        ? Map<String, dynamic>.from(propertiesRaw)
+        : <String, dynamic>{};
+
+    dynamic firstValue(List<String> keys) {
+      for (final key in keys) {
+        final value = properties[key];
+        if (value != null && value.toString().trim().isNotEmpty) {
+          return value;
+        }
+      }
+      return null;
+    }
+
+    double? asDouble(dynamic value) {
+      if (value is num) return value.toDouble();
+      return double.tryParse(value?.toString() ?? '');
+    }
+
+    final rawWdir = firstValue(['wdir', 'windDir', 'wind_dir']);
+    final rawWspd = firstValue(['wspd', 'windSpeed', 'wind_speed']);
+    final rawFltLvl =
+        firstValue(['fltLvl', 'fltlevel', 'flightLevel', 'flight_level']);
+    final rawObsTime = firstValue(
+        ['obsTime', 'obstime', 'observationTime', 'observation_time']);
+    final rawAcType =
+        firstValue(['acType', 'actype', 'aircraftType', 'aircraft_type']);
+    final rawIcaoId = firstValue(['icaoId', 'icao_id', 'station', 'stationId']);
+    final rawAirepType =
+        firstValue(['airepType', 'airep_type', 'reportType', 'report_type']);
+    final rawTbInt = firstValue(['tbInt', 'tb_int', 'turbulence']);
+    final rawIcgInt = firstValue(['icgInt', 'icg_int', 'icing']);
+    final rawTemp = firstValue(['temp', 'temperature']);
+    final rawOb = firstValue(['rawOb', 'raw_ob', 'rawText', 'raw_text']);
+
+    double windDir = asDouble(rawWdir) ?? 0.0;
+    if (!windDir.isFinite) windDir = 0.0;
+    windDir %= 360.0;
+    if (windDir < 0) windDir += 360.0;
+
+    final normalized = <String, dynamic>{
+      'lat': lat,
+      'lon': lon,
+      'wdir': windDir,
+      'wspd': asDouble(rawWspd),
+      'fltLvl': asDouble(rawFltLvl),
+      'obsTime': rawObsTime,
+      'acType': rawAcType,
+      'icaoId': rawIcaoId,
+      'airepType': rawAirepType,
+      'tbInt': rawTbInt,
+      'icgInt': rawIcgInt,
+      'temp': asDouble(rawTemp),
+      'rawOb': rawOb,
+      'properties': properties,
+    };
+
+    // Preserve the complete original properties map so provider-specific
+    // fields are still available in the details sheet.
+    result.add(normalized);
+  }
+
+  return result;
+}
+
+// Background parser for NOAA OVATION aurora data.
+// NOAA publishes coordinates as [Longitude, Latitude, Aurora].
+List<Map<String, dynamic>> _parseAuroraGeoJsonInIsolate(String responseBody) {
+  final decoded = jsonDecode(responseBody);
+  final coordinates = decoded is Map && decoded['coordinates'] is List
+      ? decoded['coordinates'] as List<dynamic>
+      : <dynamic>[];
+
+  final result = <Map<String, dynamic>>[];
+
+  for (final point in coordinates) {
+    if (point is! List || point.length < 3) continue;
+
+    final lon = point[0] is num
+        ? (point[0] as num).toDouble()
+        : double.tryParse(point[0].toString());
+    final lat = point[1] is num
+        ? (point[1] as num).toDouble()
+        : double.tryParse(point[1].toString());
+    final intensity = point[2] is num
+        ? (point[2] as num).toDouble()
+        : double.tryParse(point[2].toString());
+
+    if (lon == null ||
+        lat == null ||
+        intensity == null ||
+        !lon.isFinite ||
+        !lat.isFinite ||
+        !intensity.isFinite ||
+        lat < -90 ||
+        lat > 90 ||
+        lon < -180 ||
+        lon > 360 ||
+        intensity < 5) {
+      continue;
+    }
+
+    result.add({
+      'lat': lat,
+      'lon': lon,
+      'aurora': intensity.clamp(0.0, 100.0),
+    });
+  }
+
+  return result;
+}
+
 class EFBRadarMap extends StatefulWidget {
   const EFBRadarMap({
     Key? key,
@@ -60,10 +210,15 @@ class EFBRadarMap extends StatefulWidget {
 }
 
 class _EfbMetricScalePainter extends CustomPainter {
-  const _EfbMetricScalePainter({required this.values, required this.labels});
+  const _EfbMetricScalePainter({
+    required this.values,
+    required this.labels,
+    required this.activeLength,
+  });
 
   final List<double> values;
   final List<String> labels;
+  final double activeLength;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -87,11 +242,11 @@ class _EfbMetricScalePainter extends CustomPainter {
       ..strokeWidth = 4.0
       ..strokeCap = StrokeCap.square;
 
-    final cyanPaint = Paint()
+    final greenPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5.0
       ..strokeCap = StrokeCap.square
-      ..color = const Color(0xFF00D9FF);
+      ..color = const Color(0xFF55E27A);
 
     final whitePaint = Paint()
       ..style = PaintingStyle.stroke
@@ -99,18 +254,22 @@ class _EfbMetricScalePainter extends CustomPainter {
       ..strokeCap = StrokeCap.square
       ..color = Colors.white;
 
-    canvas.drawLine(Offset(left, lineY), Offset(right, lineY), whitePaint);
     canvas.drawLine(
-        Offset(left, lineY), Offset(left + usable * 0.24, lineY), cyanPaint);
+        Offset(left, lineY), Offset(left + activeLength, lineY), greenPaint);
+    canvas.drawLine(
+      Offset(left + activeLength, lineY),
+      Offset(right, lineY),
+      whitePaint,
+    );
 
     final tickPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
       ..color = Colors.white;
-    final cyanTickPaint = Paint()
+    final greenTickPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
-      ..color = const Color(0xFF00D9FF);
+      ..color = const Color(0xFF55E27A);
 
     for (int i = 0; i < values.length; i++) {
       final x = left + usable * (i / (values.length - 1));
@@ -118,7 +277,7 @@ class _EfbMetricScalePainter extends CustomPainter {
       canvas.drawLine(
           Offset(x, lineY - tickHeight / 2),
           Offset(x, lineY + tickHeight / 2),
-          i == 0 ? cyanTickPaint : tickPaint);
+          i == 0 ? greenTickPaint : tickPaint);
 
       final tp = TextPainter(
         text: TextSpan(text: labels[i], style: textStyle),
@@ -133,7 +292,9 @@ class _EfbMetricScalePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _EfbMetricScalePainter oldDelegate) =>
-      oldDelegate.values != values || oldDelegate.labels != labels;
+      oldDelegate.values != values ||
+      oldDelegate.labels != labels ||
+      oldDelegate.activeLength != activeLength;
 }
 
 class _EFBRadarMapState extends State<EFBRadarMap> {
@@ -150,6 +311,20 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   bool showRightMenu = false;
   String currentMapStyle = 'DARK';
   String activeWeatherLayer = 'NONE';
+
+  // PRECIPITATION RADAR LOOP / PIREPs
+  bool showPireps = false;
+  List<Map<String, dynamic>> rawPireps = [];
+  Timer? _pirepRefreshTimer;
+  Timer? _precipitationTimer;
+  int _precipitationFrameIndex = 0;
+  List<String> _precipitationTiles = [];
+  bool _precipitationLoading = false;
+
+  // NOAA OVATION AURORA overlay
+  bool showAurora = false;
+  bool _auroraLoading = false;
+  List<Map<String, dynamic>> rawAurora = [];
 
   Map<String, dynamic>? selectedItem;
   Timer? _refreshTimer;
@@ -296,7 +471,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         map.hasImage('plane-user') &&
                         map.hasImage('airport-icon') &&
                         map.hasImage('navaid-icon') &&
-                        map.hasImage('waypoint-icon')) {
+                        map.hasImage('waypoint-icon') &&
+                        map.hasImage('pirep-arrow-icon')) {
                       return;
                     }
                   } catch (e) {}
@@ -313,13 +489,16 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                 var navaidSvg = '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,2 22,7 22,17 12,22 2,17 2,7" fill="#D946EF" stroke="#000000" stroke-width="2"/></svg>';
                 var waypointSvg = '<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"12,2 22,21 2,21\" fill=\"#FFD166\" stroke=\"#111827\" stroke-width=\"1.5\"/></svg>';
 
+                var pirepArrowSvg = '<svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M12 2L18 18L12 15L6 18Z\" fill=\"#FF8A3D\" stroke=\"#081018\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/></svg>';
+
                 var items = [
                   ['plane-vatsim', planeSvg('#FFB300')],
                   ['plane-ivao', planeSvg('#00E676')],
                   ['plane-user', planeSvg('#E040FB')],
                   ['airport-icon', airportSvg],
                   ['navaid-icon', navaidSvg],
-                  ['waypoint-icon', waypointSvg]
+                  ['waypoint-icon', waypointSvg],
+                  ['pirep-arrow-icon', pirepArrowSvg]
                 ];
 
                 for (var i = 0; i < items.length; i++) {
@@ -425,6 +604,10 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   updateSegmentLayers(payload.segments || [], payload.segmentsVisible);
 
                   updateEfbFir(payload.fir || [], payload.firVisible);
+
+                  updateEfbPireps(payload.pireps || [], payload.pirepsVisible);
+
+                  updateEfbAurora(payload.aurora || [], payload.auroraVisible);
               };
 
               function updateLayer(sourceId, layerId, dataArr, isVisible, layout, paint) {
@@ -543,6 +726,8 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                    var nameLayerId = 'efb-airways-name-layer';
                    var altSourceId = 'efb-airways-alt-source';
                    var altLayerId = 'efb-airways-alt-layer';
+                   var endpointSourceId = 'efb-airways-endpoint-source';
+                   var endpointLayerId = 'efb-airways-endpoint-layer';
 
                    try {
                      if (map.getLayer('efb-airways-layer')) {
@@ -562,6 +747,9 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                    if (!map.getSource(altSourceId)) map.addSource(altSourceId, {
                        type: 'geojson', data: { type: 'FeatureCollection', features: [] }
                    });
+                   if (!map.getSource(endpointSourceId)) map.addSource(endpointSourceId, {
+                       type: 'geojson', data: { type: 'FeatureCollection', features: [] }
+                   });
 
                    if (!map.getLayer(lineLayerId)) {
                        map.addLayer({
@@ -570,14 +758,29 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                            source: sourceId,
                            layout: { 'line-join': 'round', 'line-cap': 'round' },
                            paint: {
-                               'line-color': '#FFD166',
+                               'line-color': '#FFE08A',
                                'line-width': ['interpolate', ['linear'], ['zoom'], 1.5, 1.5, 5, 2.4, 9, 3.2],
                                'line-opacity': 0.96
                            }
                        });
                    } else {
-                       try { map.setPaintProperty(lineLayerId, 'line-color', '#FFD166'); } catch (e) {}
+                       try { map.setPaintProperty(lineLayerId, 'line-color', '#FFE08A'); } catch (e) {}
                        try { map.setPaintProperty(lineLayerId, 'line-opacity', 0.96); } catch (e) {}
+                   }
+
+                   if (!map.getLayer(endpointLayerId)) {
+                       map.addLayer({
+                           id: endpointLayerId,
+                           type: 'circle',
+                           source: endpointSourceId,
+                           paint: {
+                               'circle-radius': ['interpolate', ['linear'], ['zoom'], 1.5, 2.4, 5, 3.2, 9, 4.2],
+                               'circle-color': '#FFF3B0',
+                               'circle-opacity': 1.0,
+                               'circle-stroke-color': '#5A3D00',
+                               'circle-stroke-width': 1.2
+                           }
+                       });
                    }
 
                    if (!map.getLayer(nameLayerId)) {
@@ -630,10 +833,35 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
 
                    var features = Array.isArray(dataArr) ? dataArr : [];
                    var labels = [];
+                   var endpoints = [];
                    features.forEach(function(feature) {
                        if (!feature || !feature.geometry || feature.geometry.type !== 'LineString') return;
                        var coords = feature.geometry.coordinates;
                        if (!Array.isArray(coords) || coords.length < 2) return;
+
+                       var first = coords[0];
+                       var last = coords[coords.length - 1];
+                       if (Array.isArray(first) && first.length >= 2) {
+                           endpoints.push({
+                               type: 'Feature',
+                               geometry: {
+                                   type: 'Point',
+                                   coordinates: [Number(first[0]), Number(first[1])]
+                               },
+                               properties: {}
+                           });
+                       }
+                       if (Array.isArray(last) && last.length >= 2) {
+                           endpoints.push({
+                               type: 'Feature',
+                               geometry: {
+                                   type: 'Point',
+                                   coordinates: [Number(last[0]), Number(last[1])]
+                               },
+                               properties: {}
+                           });
+                       }
+
                        var i = Math.floor((coords.length - 1) / 2);
                        var a = coords[i];
                        var b = coords[i + 1] || a;
@@ -661,9 +889,11 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                    map.getSource(sourceId).setData({ type: 'FeatureCollection', features: isVisible ? features : [] });
                    map.getSource(nameSourceId).setData({ type: 'FeatureCollection', features: isVisible ? labels : [] });
                    map.getSource(altSourceId).setData({ type: 'FeatureCollection', features: isVisible ? labels : [] });
+                   map.getSource(endpointSourceId).setData({ type: 'FeatureCollection', features: isVisible ? endpoints : [] });
 
                    var visibility = isVisible ? 'visible' : 'none';
                    try { map.setLayoutProperty(lineLayerId, 'visibility', visibility); } catch (e) {}
+                   try { map.setLayoutProperty(endpointLayerId, 'visibility', visibility); } catch (e) {}
                    try { map.setLayoutProperty(nameLayerId, 'visibility', visibility); } catch (e) {}
                    try { map.setLayoutProperty(altLayerId, 'visibility', visibility); } catch (e) {}
                }
@@ -733,13 +963,13 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                     type: 'fill',
                     source: fillSourceId,
                     paint: {
-                      'fill-color': '#E65A4F',
-                      'fill-opacity': 0.22
+                      'fill-color': ['coalesce', ['get', 'hazardColor'], '#FFFF00'],
+                      'fill-opacity': 0.20
                     }
                   });
                 } else {
-                  try { map.setPaintProperty(fillLayerId, 'fill-color', '#E65A4F'); } catch (e) {}
-                  try { map.setPaintProperty(fillLayerId, 'fill-opacity', 0.22); } catch (e) {}
+                  try { map.setPaintProperty(fillLayerId, 'fill-color', ['coalesce', ['get', 'hazardColor'], '#FFFF00']); } catch (e) {}
+                  try { map.setPaintProperty(fillLayerId, 'fill-opacity', 0.20); } catch (e) {}
                 }
 
                 if (!map.getLayer(lineLayerId)) {
@@ -752,16 +982,16 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       'line-cap': 'round'
                     },
                     paint: {
-                      'line-color': '#FF6B5E',
+                      'line-color': ['coalesce', ['get', 'hazardColor'], '#FFFF00'],
                       'line-width': 2,
-                      'line-opacity': 0.72,
+                      'line-opacity': 0.95,
                       'line-dasharray': [5, 4]
                     }
                   });
                 } else {
-                  try { map.setPaintProperty(lineLayerId, 'line-color', '#FF6B5E'); } catch (e) {}
+                  try { map.setPaintProperty(lineLayerId, 'line-color', ['coalesce', ['get', 'hazardColor'], '#FFFF00']); } catch (e) {}
                   try { map.setPaintProperty(lineLayerId, 'line-width', 2); } catch (e) {}
-                  try { map.setPaintProperty(lineLayerId, 'line-opacity', 0.72); } catch (e) {}
+                  try { map.setPaintProperty(lineLayerId, 'line-opacity', 0.95); } catch (e) {}
                   try { map.setPaintProperty(lineLayerId, 'line-dasharray', [5, 4]); } catch (e) {}
                 }
 
@@ -779,15 +1009,15 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       'text-ignore-placement': true
                     },
                     paint: {
-                      'text-color': '#FF6B5E',
-                      'text-halo-color': '#2A1111',
+                      'text-color': ['coalesce', ['get', 'hazardColor'], '#FFFF00'],
+                      'text-halo-color': '#111111',
                       'text-halo-width': 2.2
                     }
                   });
                 } else {
                   try { map.setLayoutProperty(labelLayerId, 'text-field', ['get', 'segmentLabel']); } catch (e) {}
-                  try { map.setPaintProperty(labelLayerId, 'text-color', '#FF6B5E'); } catch (e) {}
-                  try { map.setPaintProperty(labelLayerId, 'text-halo-color', '#2A1111'); } catch (e) {}
+                  try { map.setPaintProperty(labelLayerId, 'text-color', ['coalesce', ['get', 'hazardColor'], '#FFFF00']); } catch (e) {}
+                  try { map.setPaintProperty(labelLayerId, 'text-halo-color', '#111111'); } catch (e) {}
                   try { map.setPaintProperty(labelLayerId, 'text-halo-width', 2.2); } catch (e) {}
                 }
 
@@ -830,6 +1060,517 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 try { map.setLayoutProperty(lineLayerId, 'visibility', visibility); } catch (e) {}
                 try { map.setLayoutProperty(labelLayerId, 'visibility', visibility); } catch (e) {}
               }
+
+               function weatherRasterBeforeLayerId() {
+                 try {
+                   var layers = map.getStyle().layers || [];
+                   for (var i = 0; i < layers.length; i++) {
+                     var id = String((layers[i] && layers[i].id) || '').toLowerCase();
+                     if (/airport|traffic/.test(id)) return layers[i].id;
+                   }
+                 } catch (e) {}
+                 return undefined;
+               }
+
+               function addWeatherRasterLayerSafe(definition) {
+                 try {
+                   var beforeId = weatherRasterBeforeLayerId();
+                   if (beforeId && map.getLayer(beforeId)) {
+                     map.addLayer(definition, beforeId);
+                   } else {
+                     map.addLayer(definition);
+                   }
+                 } catch (e) {
+                   try { map.addLayer(definition); } catch (ignored) {}
+                 }
+               }
+
+               function updatePrecipitationRasterLayers(frameUrls, isVisible) {
+                 var urls = Array.isArray(frameUrls) ? frameUrls : [];
+                 var prefix = 'efb-precipitation-frame-';
+
+                 try {
+                   var currentLayers = (map.getStyle().layers || []).slice();
+                   currentLayers.forEach(function(layer) {
+                     if (String(layer.id || '').indexOf(prefix) === 0) {
+                       try { map.removeLayer(layer.id); } catch (e) {}
+                     }
+                   });
+                 } catch (e) {}
+
+                 try {
+                   var sources = map.getStyle().sources || {};
+                   Object.keys(sources).forEach(function(sourceId) {
+                     if (sourceId.indexOf(prefix) === 0) {
+                       try { map.removeSource(sourceId); } catch (e) {}
+                     }
+                   });
+                 } catch (e) {}
+
+                 urls.forEach(function(tileUrl, index) {
+                   var sourceId = prefix + 'source-' + index;
+                   var layerId = prefix + index;
+
+                   map.addSource(sourceId, {
+                     type: 'raster',
+                     tiles: [String(tileUrl)],
+                     tileSize: 256,
+                     attribution: 'RainViewer'
+                   });
+
+                   addWeatherRasterLayerSafe({
+                     id: layerId,
+                     type: 'raster',
+                     source: sourceId,
+                     minzoom: 0,
+                     maxzoom: 22,
+                     paint: {
+                       'raster-opacity': (isVisible && index === 0) ? 0.85 : 0.0,
+                       'raster-fade-duration': 0
+                     }
+                   });
+                 });
+
+                 window.__efbPrecipitationFrames = urls;
+                 window.__efbPrecipitationVisible = !!isVisible;
+                 window.__efbPrecipitationFrameIndex = 0;
+               }
+
+               function setEfbPrecipitationFrame(index) {
+                 var urls = window.__efbPrecipitationFrames || [];
+                 if (!urls.length) return;
+
+                 var frame = Math.max(
+                   0,
+                   Math.min(Number(index) || 0, urls.length - 1)
+                 );
+                 window.__efbPrecipitationFrameIndex = frame;
+
+                 for (var i = 0; i < urls.length; i++) {
+                   var layerId = 'efb-precipitation-frame-' + i;
+                   try {
+                     if (map.getLayer(layerId)) {
+                       map.setPaintProperty(
+                         layerId,
+                         'raster-opacity',
+                         i === frame && window.__efbPrecipitationVisible
+                           ? 0.85
+                           : 0.0
+                       );
+                     }
+                   } catch (e) {}
+                 }
+               }
+
+               function clearEfbPrecipitation() {
+                 window.__efbPrecipitationVisible = false;
+                 window.__efbPrecipitationFrames = [];
+                 window.__efbPrecipitationFrameIndex = 0;
+
+                 try {
+                   var currentLayers = (map.getStyle().layers || []).slice();
+                   currentLayers.forEach(function(layer) {
+                     if (String(layer.id || '').indexOf('efb-precipitation-frame-') === 0) {
+                       try { map.removeLayer(layer.id); } catch (e) {}
+                     }
+                   });
+                 } catch (e) {}
+
+                 try {
+                   var sources = map.getStyle().sources || {};
+                   Object.keys(sources).forEach(function(sourceId) {
+                     if (sourceId.indexOf('efb-precipitation-frame-') === 0) {
+                       try { map.removeSource(sourceId); } catch (e) {}
+                     }
+                   });
+                 } catch (e) {}
+               }
+
+               window.setEfbPrecipitationFrames = updatePrecipitationRasterLayers;
+               window.setEfbPrecipitationFrame = setEfbPrecipitationFrame;
+               window.clearEfbPrecipitation = clearEfbPrecipitation;
+
+
+               function auroraBeforeLayerId() {
+                 try {
+                   var preferred = [
+                     'efb-airports-layer',
+                     'efb-planes-layer',
+                     'efb-navaids-layer',
+                     'efb-waypoints-layer',
+                     'efb-airways-overlay-layer'
+                   ];
+                   for (var p = 0; p < preferred.length; p++) {
+                     if (map.getLayer(preferred[p])) return preferred[p];
+                   }
+
+                   var layers = (map.getStyle() && map.getStyle().layers) || [];
+                   for (var i = 0; i < layers.length; i++) {
+                     if (layers[i].type === 'symbol') return layers[i].id;
+                   }
+                 } catch (e) {}
+                 return undefined;
+               }
+
+               function clearEfbAurora() {
+                 window.__efbAuroraVisible = false;
+                 window.__efbAuroraPoints = [];
+
+                 var layerIds = [
+                   'efb-aurora-low-layer',
+                   'efb-aurora-mid-layer',
+                   'efb-aurora-high-layer',
+                   'efb-aurora-glow-layer'
+                 ];
+
+                 for (var i = 0; i < layerIds.length; i++) {
+                   try {
+                     if (map.getLayer(layerIds[i])) map.removeLayer(layerIds[i]);
+                   } catch (e) {}
+                 }
+
+                 try {
+                   if (map.getSource('efb-aurora-source')) {
+                     map.removeSource('efb-aurora-source');
+                   }
+                 } catch (e) {}
+               }
+
+               function updateEfbAurora(dataArr, isVisible) {
+                 window.__efbAuroraVisible = !!isVisible;
+                 window.__efbAuroraPoints = Array.isArray(dataArr) ? dataArr : [];
+
+                 if (!isVisible) {
+                   clearEfbAurora();
+                   return;
+                 }
+
+                 if (!map || !map.isStyleLoaded()) return;
+
+                 var features = [];
+                 (Array.isArray(dataArr) ? dataArr : []).forEach(function(item) {
+                   if (!item) return;
+
+                   var lat = Number(item.lat);
+                   var lon = Number(item.lon);
+                   var aurora = Number(item.aurora);
+
+                   if (!isFinite(lat) || !isFinite(lon) || !isFinite(aurora)) return;
+                   if (lat < -90 || lat > 90 || lon < -180 || lon > 360 || aurora < 5) return;
+
+                   // Normalize NOAA's 0..359 east-longitude representation to -180..180.
+                   if (lon > 180) lon -= 360;
+
+                   var intensity = Math.max(5, Math.min(100, aurora));
+
+                   features.push({
+                     type: 'Feature',
+                     geometry: {
+                       type: 'Point',
+                       coordinates: [lon, lat]
+                     },
+                     properties: {
+                       aurora: intensity
+                     }
+                   });
+                 });
+
+                 var geojson = {
+                   type: 'FeatureCollection',
+                   features: features
+                 };
+
+                 var sourceId = 'efb-aurora-source';
+                 var lowLayerId = 'efb-aurora-low-layer';
+                 var midLayerId = 'efb-aurora-mid-layer';
+                 var highLayerId = 'efb-aurora-high-layer';
+                 var glowLayerId = 'efb-aurora-glow-layer';
+
+                 try {
+                   if (map.getSource(sourceId)) {
+                     map.getSource(sourceId).setData(geojson);
+                   } else {
+                     map.addSource(sourceId, {
+                       type: 'geojson',
+                       data: geojson
+                     });
+                   }
+                 } catch (e) {
+                   return;
+                 }
+
+                 var beforeId = auroraBeforeLayerId();
+
+                 function addAuroraLayer(definition) {
+                   try {
+                     if (!map.getLayer(definition.id)) {
+                       if (beforeId && map.getLayer(beforeId)) {
+                         map.addLayer(definition, beforeId);
+                       } else {
+                         map.addLayer(definition);
+                       }
+                     }
+                   } catch (e) {}
+                 }
+
+                 // Soft outer glow behind the actual intensity bands.
+                 addAuroraLayer({
+                   id: glowLayerId,
+                   type: 'circle',
+                   source: sourceId,
+                   paint: {
+                     'circle-radius': [
+                       'interpolate', ['linear'], ['zoom'],
+                       1, 5,
+                       3, 8,
+                       6, 13,
+                       9, 18
+                     ],
+                     'circle-color': '#00FF66',
+                     'circle-opacity': 0.08,
+                     'circle-blur': 1
+                   }
+                 });
+
+                 addAuroraLayer({
+                   id: lowLayerId,
+                   type: 'circle',
+                   source: sourceId,
+                   filter: ['all', ['>=', ['get', 'aurora'], 5], ['<=', ['get', 'aurora'], 25]],
+                   paint: {
+                     'circle-radius': [
+                       'interpolate', ['linear'], ['zoom'],
+                       1, 2.5,
+                       3, 4,
+                       6, 7,
+                       9, 10
+                     ],
+                     'circle-color': '#00FF66',
+                     'circle-opacity': 0.15,
+                     'circle-blur': 0.75
+                   }
+                 });
+
+                 addAuroraLayer({
+                   id: midLayerId,
+                   type: 'circle',
+                   source: sourceId,
+                   filter: ['all', ['>', ['get', 'aurora'], 25], ['<=', ['get', 'aurora'], 60]],
+                   paint: {
+                     'circle-radius': [
+                       'interpolate', ['linear'], ['zoom'],
+                       1, 3,
+                       3, 5,
+                       6, 8,
+                       9, 12
+                     ],
+                     'circle-color': '#00FF66',
+                     'circle-opacity': 0.34,
+                     'circle-blur': 0.65
+                   }
+                 });
+
+                 addAuroraLayer({
+                   id: highLayerId,
+                   type: 'circle',
+                   source: sourceId,
+                   filter: ['>', ['get', 'aurora'], 60],
+                   paint: {
+                     'circle-radius': [
+                       'interpolate', ['linear'], ['zoom'],
+                       1, 3.5,
+                       3, 6,
+                       6, 10,
+                       9, 15
+                     ],
+                     'circle-color': '#CCFF00',
+                     'circle-opacity': 0.52,
+                     'circle-blur': 0.55
+                   }
+                 });
+
+                 [glowLayerId, lowLayerId, midLayerId, highLayerId].forEach(function(layerId) {
+                   try {
+                     map.setLayoutProperty(
+                       layerId,
+                       'visibility',
+                       window.__efbAuroraVisible ? 'visible' : 'none'
+                     );
+                   } catch (e) {}
+                 });
+               }
+
+               window.updateEfbAurora = updateEfbAurora;
+               window.clearEfbAurora = clearEfbAurora;
+
+               function pirepBeforeLayerId() {
+                 try {
+                   var preferred = [
+                     'efb-airports-layer',
+                     'efb-planes-layer',
+                     'efb-navaids-layer',
+                     'efb-waypoints-layer'
+                   ];
+                   for (var p = 0; p < preferred.length; p++) {
+                     if (map.getLayer(preferred[p])) return preferred[p];
+                   }
+                 } catch (e) {}
+                 return undefined;
+               }
+
+               function updateEfbPireps(dataArr, isVisible) {
+                 var sourceId = 'efb-pireps-source';
+                 var layerId = 'efb-pireps-layer';
+                 var features = [];
+
+                 (Array.isArray(dataArr) ? dataArr : []).forEach(function(item) {
+                   if (!item) return;
+
+                   var lat = Number(item.lat);
+                   var lon = Number(item.lon);
+                   if (!isFinite(lat) || !isFinite(lon)) return;
+
+                   var props = item.properties || {};
+                   var fl = Number(item.fltLvl);
+                   var flText = isFinite(fl)
+                     ? 'FL' + Math.round(fl)
+                     : 'PIREP';
+                   var wdir = Number(item.wdir);
+                   if (!isFinite(wdir)) wdir = 0;
+
+                   var properties = Object.assign({}, props, {
+                     lat: lat,
+                     lon: lon,
+                     wdir: wdir,
+                     fltLvl: isFinite(fl) ? fl : null,
+                     flText: flText,
+                     wspd: item.wspd == null ? null : item.wspd,
+                     temp: item.temp == null ? null : item.temp,
+                     tbInt: item.tbInt == null ? null : item.tbInt,
+                     icgInt: item.icgInt == null ? null : item.icgInt,
+                     acType: item.acType == null ? null : item.acType,
+                     obsTime: item.obsTime == null ? null : item.obsTime,
+                     icaoId: item.icaoId == null ? null : item.icaoId,
+                     airepType: item.airepType == null ? null : item.airepType,
+                     rawOb: item.rawOb == null ? null : item.rawOb
+                   });
+
+                   features.push({
+                     type: 'Feature',
+                     geometry: {
+                       type: 'Point',
+                       coordinates: [lon, lat]
+                     },
+                     properties: properties
+                   });
+                 });
+
+                 if (!map.getSource(sourceId)) {
+                   map.addSource(sourceId, {
+                     type: 'geojson',
+                     data: { type: 'FeatureCollection', features: [] },
+                     tolerance: 0.5,
+                     maxzoom: 18
+                   });
+                 }
+
+                 if (!map.getLayer(layerId)) {
+                   var layerDef = {
+                     id: layerId,
+                     type: 'symbol',
+                     source: sourceId,
+                     minzoom: 1.0,
+                     layout: {
+                       'icon-image': 'pirep-arrow-icon',
+                       'icon-size': ['interpolate', ['linear'], ['zoom'], 1, 0.42, 4, 0.58, 8, 0.72],
+                       'icon-rotate': ['get', 'wdir'],
+                       'icon-rotation-alignment': 'map',
+                       'icon-allow-overlap': true,
+                       'text-field': ['get', 'flText'],
+                       'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                       'text-size': ['interpolate', ['linear'], ['zoom'], 1, 7, 4, 8.5, 8, 10],
+                       'text-offset': [0, 1.35],
+                       'text-anchor': 'top',
+                       'text-allow-overlap': true,
+                       'text-ignore-placement': true
+                     },
+                     paint: {
+                       'text-color': '#F5F7FA',
+                       'text-halo-color': '#081018',
+                       'text-halo-width': 2
+                     }
+                   };
+
+                   var beforeId = pirepBeforeLayerId();
+                   if (beforeId) {
+                     try { map.addLayer(layerDef, beforeId); }
+                     catch (e) { map.addLayer(layerDef); }
+                   } else {
+                     map.addLayer(layerDef);
+                   }
+
+                   // Keep PIREPs above FIR labels while remaining below
+                   // operational airport/aircraft symbol layers.
+                   try {
+                     if (map.getLayer('efb-fir-label-layer')) {
+                       map.moveLayer('efb-fir-label-layer', layerId);
+                     }
+                   } catch (e) {}
+
+                   map.on('click', layerId, function(e) {
+                     if (!e.features || !e.features.length) return;
+                     var properties = e.features[0].properties || {};
+                     if (window.EFBMapChannel) {
+                       window.EFBMapChannel.postMessage(JSON.stringify({
+                         action: 'PIREP_CLICKED',
+                         data: properties
+                       }));
+                     }
+                     if (e.originalEvent && e.originalEvent.stopPropagation) {
+                       e.originalEvent.stopPropagation();
+                     }
+                   });
+
+                   map.on('mouseenter', layerId, function() {
+                     map.getCanvas().style.cursor = 'pointer';
+                   });
+                   map.on('mouseleave', layerId, function() {
+                     map.getCanvas().style.cursor = '';
+                   });
+                 }
+
+                 map.getSource(sourceId).setData({
+                   type: 'FeatureCollection',
+                   features: isVisible ? features : []
+                 });
+
+                 try {
+                   map.setLayoutProperty(
+                     layerId,
+                     'visibility',
+                     isVisible ? 'visible' : 'none'
+                   );
+                 } catch (e) {}
+               }
+
+               function clearEfbPireps() {
+                 try {
+                   var sourceId = 'efb-pireps-source';
+                   var layerId = 'efb-pireps-layer';
+                   if (map.getSource(sourceId)) {
+                     map.getSource(sourceId).setData({
+                       type: 'FeatureCollection',
+                       features: []
+                     });
+                   }
+                   if (map.getLayer(layerId)) {
+                     map.setLayoutProperty(layerId, 'visibility', 'none');
+                   }
+                 } catch (e) {}
+               }
+
+               window.updateEfbPireps = updateEfbPireps;
+               window.clearEfbPireps = clearEfbPireps;
 
               function firBeforeLayerId() {
                 try {
@@ -912,8 +1653,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                     type: 'fill',
                     source: fillSourceId,
                     paint: {
-                      'fill-color': '#4A90E2',
-                      'fill-opacity': 0.055
+                      'fill-color': '#38BDF8',
+                      'fill-opacity': 0.12
                     }
                   });
                 }
@@ -928,9 +1669,9 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       'line-cap': 'round'
                     },
                     paint: {
-                      'line-color': '#4A90E2',
-                      'line-width': 1.15,
-                      'line-opacity': 0.40
+                      'line-color': '#67E8F9',
+                      'line-width': 1.8,
+                      'line-opacity': 0.82
                     }
                   });
                 }
@@ -950,18 +1691,18 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       'symbol-placement': 'point'
                     },
                     paint: {
-                      'text-color': '#E5E7EB',
-                      'text-halo-color': '#111827',
-                      'text-halo-width': 1.8
+                      'text-color': '#FFFFFF',
+                      'text-halo-color': '#06121A',
+                      'text-halo-width': 2.4
                     }
                   });
                 }
 
-                try { map.setPaintProperty(fillLayerId, 'fill-color', '#4A90E2'); } catch (e) {}
-                try { map.setPaintProperty(fillLayerId, 'fill-opacity', 0.055); } catch (e) {}
-                try { map.setPaintProperty(lineLayerId, 'line-color', '#4A90E2'); } catch (e) {}
-                try { map.setPaintProperty(lineLayerId, 'line-width', 1.15); } catch (e) {}
-                try { map.setPaintProperty(lineLayerId, 'line-opacity', 0.40); } catch (e) {}
+                try { map.setPaintProperty(fillLayerId, 'fill-color', '#38BDF8'); } catch (e) {}
+                try { map.setPaintProperty(fillLayerId, 'fill-opacity', 0.12); } catch (e) {}
+                try { map.setPaintProperty(lineLayerId, 'line-color', '#67E8F9'); } catch (e) {}
+                try { map.setPaintProperty(lineLayerId, 'line-width', 1.8); } catch (e) {}
+                try { map.setPaintProperty(lineLayerId, 'line-opacity', 0.82); } catch (e) {}
 
                 var visibility = isVisible ? 'visible' : 'none';
                 try { map.setLayoutProperty(fillLayerId, 'visibility', visibility); } catch (e) {}
@@ -1106,8 +1847,19 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                     });
                   }
 
+                  var flightPathBeforeId = null;
+                  try {
+                    var pathLayers = map.getStyle().layers || [];
+                    for (var pi = 0; pi < pathLayers.length; pi++) {
+                      if (pathLayers[pi] && pathLayers[pi].type === 'symbol') {
+                        flightPathBeforeId = pathLayers[pi].id;
+                        break;
+                      }
+                    }
+                  } catch (e) {}
+
                   if (!map.getLayer(casingLayerId)) {
-                    map.addLayer({
+                    var casingDefinition = {
                       id: casingLayerId,
                       type: 'line',
                       source: sourceId,
@@ -1116,15 +1868,24 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                         'line-cap': 'round'
                       },
                       paint: {
-                        'line-color': '#5A0B0B',
-                        'line-width': 7,
-                        'line-opacity': 0.70
+                        'line-color': '#4A0B0B',
+                        'line-width': 8,
+                        'line-opacity': 0.78
                       }
-                    });
+                    };
+                    try {
+                      if (flightPathBeforeId) {
+                        map.addLayer(casingDefinition, flightPathBeforeId);
+                      } else {
+                        map.addLayer(casingDefinition);
+                      }
+                    } catch (e) {
+                      try { map.addLayer(casingDefinition); } catch (ignored) {}
+                    }
                   }
 
                   if (!map.getLayer(layerId)) {
-                    map.addLayer({
+                    var mainDefinition = {
                       id: layerId,
                       type: 'line',
                       source: sourceId,
@@ -1133,23 +1894,35 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                         'line-cap': 'round'
                       },
                       paint: {
-                        'line-color': '#FF3B30',
-                        'line-width': 3.5,
+                        'line-color': '#FF2D2D',
+                        'line-width': 4.0,
                         'line-opacity': 1.0
                       }
-                    });
+                    };
+                    try {
+                      if (flightPathBeforeId) {
+                        map.addLayer(mainDefinition, flightPathBeforeId);
+                      } else {
+                        map.addLayer(mainDefinition);
+                      }
+                    } catch (e) {
+                      try { map.addLayer(mainDefinition); } catch (ignored) {}
+                    }
                   } else {
-                    try { map.setPaintProperty(layerId, 'line-color', '#FF3B30'); } catch (e) {}
-                    try { map.setPaintProperty(layerId, 'line-width', 3.5); } catch (e) {}
+                    try { map.setPaintProperty(layerId, 'line-color', '#FF2D2D'); } catch (e) {}
+                    try { map.setPaintProperty(layerId, 'line-pattern', null); } catch (e) {}
+                    try { map.setPaintProperty(layerId, 'line-width', 4.0); } catch (e) {}
                     try { map.setPaintProperty(layerId, 'line-opacity', 1.0); } catch (e) {}
                   }
 
-                  try { map.setPaintProperty(casingLayerId, 'line-color', '#5A0B0B'); } catch (e) {}
-                  try { map.setPaintProperty(casingLayerId, 'line-width', 7); } catch (e) {}
-                  try { map.setPaintProperty(casingLayerId, 'line-opacity', 0.70); } catch (e) {}
+                  try { map.setPaintProperty(casingLayerId, 'line-color', '#4A0B0B'); } catch (e) {}
+                  try { map.setPaintProperty(casingLayerId, 'line-pattern', null); } catch (e) {}
+                  try { map.setPaintProperty(casingLayerId, 'line-width', 8); } catch (e) {}
+                  try { map.setPaintProperty(casingLayerId, 'line-opacity', 0.78); } catch (e) {}
 
                   try { map.setLayoutProperty(casingLayerId, 'visibility', 'visible'); } catch (e) {}
                   try { map.setLayoutProperty(layerId, 'visibility', 'visible'); } catch (e) {}
+
               };
 
               window.clearFlightPath = function() {
@@ -1216,6 +1989,38 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                   } else {
                     try { window.clearFlightPath(); } catch (e) {}
                   }
+
+                  if (window.__efbPrecipitationFrames &&
+                      window.__efbPrecipitationFrames.length &&
+                      window.__efbPrecipitationVisible) {
+                    try {
+                      updatePrecipitationRasterLayers(
+                        window.__efbPrecipitationFrames,
+                        true
+                      );
+                      setEfbPrecipitationFrame(
+                        window.__efbPrecipitationFrameIndex || 0
+                      );
+                    } catch (e) {}
+                  }
+
+                  if (window.lastPayload && window.lastPayload.pirepsVisible) {
+                    try {
+                      updateEfbPireps(
+                        window.lastPayload.pireps || [],
+                        true
+                      );
+                    } catch (e) {}
+                  }
+
+                  if (window.lastPayload && window.lastPayload.auroraVisible) {
+                    try {
+                      updateEfbAurora(
+                        window.lastPayload.aurora || [],
+                        true
+                      );
+                    } catch (e) {}
+                  }
                 });
               }
 
@@ -1265,6 +2070,28 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
 
             _pushDataToMap(); // رسم الداتا فوراً عند جاهزية الخريطة
             if (showFlightPath) _drawFlightPathIfEnabled();
+            if (showPireps && rawPireps.isNotEmpty) {
+              final pirepPayload = jsonEncode({
+                'visible': true,
+                'features': rawPireps,
+              });
+              _webviewController.runJavaScript(
+                "if(window.updateEfbPireps) window.updateEfbPireps($pirepPayload);",
+              );
+            }
+            if (activeWeatherLayer == 'PRECIPITATION' &&
+                _precipitationTiles.isNotEmpty) {
+              final precipitationPayload = jsonEncode(_precipitationTiles);
+              _webviewController.runJavaScript('''
+                if(window.setEfbPrecipitationFrames) {
+                  window.setEfbPrecipitationFrames($precipitationPayload, true);
+                  window.setEfbPrecipitationFrame($_precipitationFrameIndex);
+                }
+              ''');
+            }
+            if (showAurora && rawAurora.isNotEmpty) {
+              _pushAuroraOnly();
+            }
           } else if (action == 'ZOOM_CHANGED') {
             final z = parsed['zoom'];
             final centerLat = parsed['centerLat'];
@@ -1306,6 +2133,16 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
               setState(() => selectedItem = {'type': 'SEGMENT', 'data': data});
             } else if (action == 'FIR_CLICKED') {
               setState(() => selectedItem = {'type': 'FIR', 'data': data});
+            } else if (action == 'PIREP_CLICKED') {
+              final pirepData = Map<String, dynamic>.from(data ?? {});
+              if (mounted) {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => _buildPirepBottomSheet(pirepData),
+                );
+              }
             } else if (action == 'TELEPORT_CLICKED') {
               setState(() {
                 manualLat = data['lat'];
@@ -1549,6 +2386,9 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 "statusChange": segment["statusChange"] ?? "",
                 "rawText": segment["rawText"] ?? "",
                 "segmentLabel": segment["segmentLabel"] ?? "SIGMET",
+                "hazardColor": _sigmetHazardColorHex(
+                  (segment["hazard"] ?? "SIGMET").toString(),
+                ),
               }
             };
           })
@@ -1584,6 +2424,10 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
       "waypoints": waypointFeatures,
       "airways": airwayFeatures,
       "segments": segmentFeatures,
+      "pirepsVisible": showPireps,
+      "pireps": rawPireps,
+      "auroraVisible": showAurora,
+      "aurora": rawAurora,
     });
 
     _webviewController.runJavaScript('''
@@ -1623,6 +2467,12 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     _clockTimer?.cancel();
     _refreshTimer?.cancel();
     _segmentRefreshTimer?.cancel();
+    _pirepRefreshTimer?.cancel();
+    _precipitationTimer?.cancel();
+    rawAurora.clear();
+    _webviewController.runJavaScript(
+      'if(window.clearEfbPrecipitation) window.clearEfbPrecipitation(); if(window.clearEfbPireps) window.clearEfbPireps(); if(window.clearEfbAurora) window.clearEfbAurora();',
+    );
     _searchController.dispose();
     _speedCtrl.dispose();
     _altCtrl.dispose();
@@ -2008,6 +2858,290 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     return result;
   }
 
+  Future<void> _stopPrecipitationOverlay() async {
+    _precipitationTimer?.cancel();
+    _precipitationTimer = null;
+    _precipitationFrameIndex = 0;
+    _precipitationTiles = [];
+    _precipitationLoading = false;
+
+    if (_isMapReady) {
+      try {
+        await _webviewController.runJavaScript(
+          "if(window.clearEfbPrecipitation) window.clearEfbPrecipitation();",
+        );
+      } catch (_) {}
+    }
+  }
+
+  Future<void> _setWeatherLayerExclusive(String layer) async {
+    // Strict radio group: Precipitation / Rain / Temp / Wind.
+    final target = layer.toUpperCase();
+
+    await _stopPrecipitationOverlay();
+
+    if (!mounted) return;
+
+    setState(() {
+      activeWeatherLayer = activeWeatherLayer == target ? 'NONE' : target;
+    });
+
+    // Clear the hosted weather overlay first so no previous weather layer
+    // survives when switching between Rain/Temp/Wind.
+    _sendMapState('weather', 'NONE');
+
+    if (activeWeatherLayer != 'NONE') {
+      _sendMapState('weather', activeWeatherLayer);
+    }
+  }
+
+  Future<void> _togglePrecipitationOverlay() async {
+    if (activeWeatherLayer == 'PRECIPITATION') {
+      await _stopPrecipitationOverlay();
+      if (mounted) setState(() => activeWeatherLayer = 'NONE');
+      return;
+    }
+
+    await _stopPrecipitationOverlay();
+    _sendMapState('weather', 'NONE');
+
+    if (!mounted) return;
+    setState(() {
+      activeWeatherLayer = 'PRECIPITATION';
+      _precipitationLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.rainviewer.com/public/weather-maps.json'),
+        headers: const {'Accept': 'application/json'},
+      ).timeout(const Duration(seconds: 15));
+
+      if (response.statusCode != 200 || response.body.trim().isEmpty) {
+        throw Exception('RainViewer metadata unavailable');
+      }
+
+      final decoded = jsonDecode(response.body);
+      final host = decoded is Map ? decoded['host']?.toString() ?? '' : '';
+      final radar = decoded is Map ? decoded['radar'] : null;
+      final past = radar is Map ? radar['past'] : null;
+
+      if (host.isEmpty || past is! List) {
+        throw Exception('Invalid RainViewer metadata');
+      }
+
+      final recent = past
+          .whereType<Map>()
+          .map((frame) {
+            final path = frame['path']?.toString() ?? '';
+            if (path.isEmpty) return null;
+            return '$host$path/256/{z}/{x}/{y}/2/1_1.png';
+          })
+          .whereType<String>()
+          .toList();
+
+      final frames =
+          recent.length > 6 ? recent.sublist(recent.length - 6) : recent;
+
+      if (frames.isEmpty) {
+        throw Exception('No radar frames returned');
+      }
+
+      if (!mounted || activeWeatherLayer != 'PRECIPITATION') return;
+
+      setState(() {
+        _precipitationTiles = frames;
+        _precipitationFrameIndex = 0;
+        _precipitationLoading = false;
+      });
+
+      final framesJson = jsonEncode(frames);
+      await _webviewController.runJavaScript('''
+        if (window.setEfbPrecipitationFrames) {
+          window.setEfbPrecipitationFrames($framesJson, true);
+        }
+      ''');
+
+      _precipitationTimer?.cancel();
+      _precipitationTimer =
+          Timer.periodic(const Duration(milliseconds: 600), (_) {
+        if (!mounted || activeWeatherLayer != 'PRECIPITATION') {
+          _precipitationTimer?.cancel();
+          return;
+        }
+
+        if (_precipitationTiles.isEmpty) return;
+
+        _precipitationFrameIndex =
+            (_precipitationFrameIndex + 1) % _precipitationTiles.length;
+
+        _webviewController.runJavaScript(
+          "if(window.setEfbPrecipitationFrame) window.setEfbPrecipitationFrame($_precipitationFrameIndex);",
+        );
+      });
+    } catch (_) {
+      await _stopPrecipitationOverlay();
+      if (mounted) {
+        setState(() {
+          activeWeatherLayer = 'NONE';
+          _precipitationLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _toggleAurora() async {
+    if (showAurora) {
+      if (mounted) {
+        setState(() {
+          showAurora = false;
+          rawAurora = [];
+          _auroraLoading = false;
+        });
+      } else {
+        showAurora = false;
+        rawAurora = [];
+        _auroraLoading = false;
+      }
+
+      if (_isMapReady) {
+        try {
+          await _webviewController.runJavaScript(
+            "if(window.clearEfbAurora) window.clearEfbAurora();",
+          );
+        } catch (_) {}
+      }
+      return;
+    }
+
+    if (mounted) {
+      setState(() {
+        showAurora = true;
+        _auroraLoading = true;
+      });
+    }
+
+    try {
+      const url =
+          'https://services.swpc.noaa.gov/json/ovation_aurora_latest.json';
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: const {'Accept': 'application/json'},
+      ).timeout(const Duration(seconds: 20));
+
+      if (response.statusCode != 200 || response.body.trim().isEmpty) {
+        throw Exception('NOAA OVATION aurora data unavailable');
+      }
+
+      final parsed = await compute(
+        _parseAuroraGeoJsonInIsolate,
+        response.body,
+      );
+
+      if (!mounted || !showAurora) return;
+
+      setState(() {
+        rawAurora = parsed;
+        _auroraLoading = false;
+      });
+
+      _pushAuroraOnly();
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          showAurora = false;
+          rawAurora = [];
+          _auroraLoading = false;
+        });
+      }
+
+      if (_isMapReady) {
+        try {
+          await _webviewController.runJavaScript(
+            "if(window.clearEfbAurora) window.clearEfbAurora();",
+          );
+        } catch (_) {}
+      }
+    }
+  }
+
+  void _pushAuroraOnly() {
+    if (!_isMapReady) return;
+
+    final payload = jsonEncode({
+      'visible': showAurora,
+      'points': rawAurora,
+    });
+
+    _webviewController.runJavaScript('''
+      if (window.updateEfbAurora) window.updateEfbAurora($payload);
+    ''');
+  }
+
+  Future<void> _togglePireps() async {
+    if (showPireps) {
+      if (mounted) setState(() => showPireps = false);
+      _pirepRefreshTimer?.cancel();
+      _pirepRefreshTimer = null;
+      if (_isMapReady) {
+        await _webviewController.runJavaScript(
+          "if(window.clearEfbPireps) window.clearEfbPireps();",
+        );
+      }
+      return;
+    }
+
+    if (mounted) setState(() => showPireps = true);
+
+    await _fetchPireps();
+
+    _pirepRefreshTimer?.cancel();
+    _pirepRefreshTimer = Timer.periodic(
+      const Duration(minutes: 2),
+      (_) => _fetchPireps(),
+    );
+  }
+
+  Future<void> _fetchPireps() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'https://aviationweather.gov/api/data/pirep?format=geojson&bbox=-180,-90,180,90',
+        ),
+        headers: const {'Accept': 'application/geo+json, application/json'},
+      ).timeout(const Duration(seconds: 30));
+
+      if (response.statusCode != 200 || response.body.trim().isEmpty) {
+        return;
+      }
+
+      final parsed = await compute(
+        _parsePirepGeoJsonInIsolate,
+        response.body,
+      );
+
+      if (!mounted || !showPireps) return;
+
+      setState(() {
+        rawPireps = parsed;
+      });
+
+      if (_isMapReady) {
+        final payload = jsonEncode({
+          'visible': true,
+          'features': parsed,
+        });
+
+        await _webviewController.runJavaScript('''
+          if (window.updateEfbPireps) window.updateEfbPireps($payload);
+        ''');
+      }
+    } catch (_) {
+      // Optional live feed: never break the EFB map if it is unavailable.
+    }
+  }
+
   Future<void> _toggleFirOverlay() async {
     if (showFir) {
       if (mounted) {
@@ -2021,8 +3155,20 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
       setState(() => showFir = true);
     }
 
+    // Push immediately so FIR visibility never waits for an unrelated
+    // menu/map action after the network fetch completes.
+    _pushFirOnly();
+
     if (!_firLoaded) {
       await _fetchFirBoundaries();
+      if (mounted && showFir) {
+        if (_firLoaded) {
+          _pushFirOnly();
+        } else {
+          setState(() => showFir = false);
+          _pushFirOnly();
+        }
+      }
     } else {
       _pushFirOnly();
     }
@@ -2152,6 +3298,31 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     _webviewController.runJavaScript('''
       if (window.updateEfbFir) window.updateEfbFir($payload);
     ''');
+  }
+
+  Color _sigmetHazardColor(String hazard) {
+    final value = hazard.trim().toUpperCase();
+    if (value == 'TS' || value.contains('CONVECTIVE')) {
+      return Colors.red;
+    }
+    if (value == 'ICE' || value.contains('ICING')) {
+      return Colors.blue;
+    }
+    if (value == 'TURB' || value.contains('TURBULENCE')) {
+      return Colors.orange;
+    }
+    if (value == 'VA' || value.contains('VOLCANIC ASH')) {
+      return Colors.grey.shade700;
+    }
+    if (value == 'MTW') {
+      return Colors.purple;
+    }
+    return Colors.yellow;
+  }
+
+  String _sigmetHazardColorHex(String hazard) {
+    final color = _sigmetHazardColor(hazard);
+    return '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
   }
 
   Future<void> _fetchSegments() async {
@@ -2434,7 +3605,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         math.cos(latitudeRad) /
         (512.0 * math.pow(2.0, _mapZoom));
 
-    const targetPixels = 190.0;
+    final targetPixels =
+        (95.0 + (_mapZoom.clamp(1.0, 12.0) - 1.0) * 9.5).clamp(95.0, 200.0);
     final rawMeters = metersPerPixel * targetPixels;
     if (!rawMeters.isFinite || rawMeters <= 0) return 1000.0;
 
@@ -2735,6 +3907,9 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       _navAidOverlayBtn("FIR / UIR", showFir, () {
                         _toggleFirOverlay();
                       }),
+                      _menuBtn("PIREP", showPireps, () {
+                        _togglePireps();
+                      }),
                       _menuBtn("CALLSIGN", showCallsigns, () {
                         setState(() {
                           showCallsigns = !showCallsigns;
@@ -2815,25 +3990,26 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                         _sendMapState('mapStyle', 'SATELLITE');
                       }),
                       const Divider(color: Colors.white24, height: 1),
+                      _weatherMenuBtn("PRECIPITATION",
+                          activeWeatherLayer == 'PRECIPITATION', () {
+                        _togglePrecipitationOverlay();
+                      }),
                       _weatherMenuBtn("RAIN", activeWeatherLayer == 'RAIN', () {
-                        setState(() => activeWeatherLayer =
-                            activeWeatherLayer == 'RAIN' ? 'NONE' : 'RAIN');
-                        _sendMapState('weather', activeWeatherLayer);
+                        _setWeatherLayerExclusive('RAIN');
                       }),
                       _weatherMenuBtn("TEMP", activeWeatherLayer == 'TEMP', () {
-                        setState(() => activeWeatherLayer =
-                            activeWeatherLayer == 'TEMP' ? 'NONE' : 'TEMP');
-                        _sendMapState('weather', activeWeatherLayer);
+                        _setWeatherLayerExclusive('TEMP');
                       }),
                       _weatherMenuBtn("WIND", activeWeatherLayer == 'WIND', () {
-                        setState(() => activeWeatherLayer =
-                            activeWeatherLayer == 'WIND' ? 'NONE' : 'WIND');
-                        _sendMapState('weather', activeWeatherLayer);
+                        _setWeatherLayerExclusive('WIND');
                       }),
                       const Divider(color: Colors.white24, height: 1),
                       _segmentMenuBtn("SEGMENT", showSegments, () {
                         setState(() => showSegments = !showSegments);
                         _pushDataToMap();
+                      }),
+                      _menuBtn("AURORA", showAurora, () {
+                        _toggleAurora();
                       }),
                     ]),
                   ),
@@ -2864,6 +4040,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             _buildAirportInfoBox(selectedItem!['data'], isLandscape),
           if (selectedItem != null && selectedItem!['type'] == 'NAVAID')
             _buildNavaidInfoBox(selectedItem!['data'], isLandscape),
+          if (selectedItem != null && selectedItem!['type'] == 'WAYPOINT')
+            _buildWaypointInfoBox(selectedItem!['data'], isLandscape),
           if (selectedItem != null && selectedItem!['type'] == 'SEGMENT')
             _buildSegmentInfoBox(selectedItem!['data'], isLandscape),
           if (selectedItem != null && selectedItem!['type'] == 'FIR')
@@ -2964,6 +4142,224 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Widget _buildPirepBottomSheet(Map<String, dynamic> data) {
+    String value(dynamic v, [String fallback = '—']) {
+      if (v == null) return fallback;
+      final s = v.toString().trim();
+      return s.isEmpty ? fallback : s;
+    }
+
+    dynamic prop(String key) {
+      final direct = data[key];
+      if (direct != null) return direct;
+      final props = data['properties'];
+      if (props is Map) return props[key];
+      return null;
+    }
+
+    String formatFlightLevel(dynamic raw) {
+      if (raw == null) return '—';
+      final n = double.tryParse(raw.toString());
+      if (n == null || !n.isFinite) return value(raw);
+      final fl = n.round();
+      return 'FL${fl.toString().padLeft(3, '0')}  •  ${fl * 100} FT';
+    }
+
+    String formatZulu(dynamic raw) {
+      if (raw == null) return '—';
+      final s = raw.toString().trim();
+      if (s.isEmpty) return '—';
+      return s.endsWith('Z') ? s : '$s Z';
+    }
+
+    String formatWind(dynamic dir, dynamic speed) {
+      final d = double.tryParse(dir?.toString() ?? '');
+      final s = double.tryParse(speed?.toString() ?? '');
+      final dirText =
+          d == null ? value(dir) : '${d.round().toString().padLeft(3, '0')}°';
+      final speedText = s == null ? value(speed) : '${s.round()} KTS';
+      return '$dirText / $speedText';
+    }
+
+    String formatTemp(dynamic raw) {
+      final t = double.tryParse(raw?.toString() ?? '');
+      if (t == null || !t.isFinite) return value(raw);
+      return '${t.toStringAsFixed(t % 1 == 0 ? 0 : 1)} °C';
+    }
+
+    final rawOb = value(prop('rawOb'));
+    final props = <String, dynamic>{};
+    final sourceProps = data['properties'];
+    if (sourceProps is Map) {
+      sourceProps.forEach((key, val) {
+        props[key.toString()] = val;
+      });
+    }
+    data.forEach((key, val) {
+      if (key != 'properties') props.putIfAbsent(key, () => val);
+    });
+
+    const labelStyle = TextStyle(
+      color: Colors.white54,
+      fontSize: 9,
+      fontWeight: FontWeight.bold,
+      letterSpacing: 0.5,
+    );
+    const valueStyle = TextStyle(
+      color: Colors.white,
+      fontSize: 13,
+      fontWeight: FontWeight.w600,
+    );
+
+    Widget row(String label, String text) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(width: 125, child: Text(label, style: labelStyle)),
+            Expanded(child: Text(text, style: valueStyle)),
+          ],
+        ),
+      );
+    }
+
+    Widget card(String title, List<Widget> children) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(11),
+        decoration: BoxDecoration(
+          color: const Color(0xFF111820),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: labelStyle),
+            const SizedBox(height: 7),
+            ...children,
+          ],
+        ),
+      );
+    }
+
+    const excluded = <String>{
+      'acType',
+      'fltLvl',
+      'obsTime',
+      'wdir',
+      'wspd',
+      'temp',
+      'tbInt',
+      'icgInt',
+      'icaoId',
+      'airepType',
+      'rawOb',
+      'lat',
+      'lon',
+      'flText',
+      'properties',
+    };
+
+    return SafeArea(
+      child: Container(
+        constraints: const BoxConstraints(maxHeight: 650),
+        decoration: const BoxDecoration(
+          color: Color(0xFF070C11),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+        ),
+        child: RepaintBoundary(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(Icons.flight_takeoff,
+                        color: Color(0xFFFF8A3D), size: 20),
+                    const SizedBox(width: 7),
+                    const Expanded(
+                      child: Text(
+                        'LIVE PIREP / AIREP',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close, color: Colors.white54),
+                    ),
+                  ],
+                ),
+                card('REPORT', [
+                  row('AIRCRAFT / TYPE', value(prop('acType'))),
+                  row('FLIGHT LEVEL', formatFlightLevel(prop('fltLvl'))),
+                  row('OBSERVATION TIME', formatZulu(prop('obsTime'))),
+                  row('STATION / FIR', value(prop('icaoId'))),
+                  row('REPORT TYPE', value(prop('airepType'))),
+                ]),
+                card('WIND / TEMPERATURE', [
+                  row('WIND', formatWind(prop('wdir'), prop('wspd'))),
+                  row('OUTSIDE AIR TEMP', formatTemp(prop('temp'))),
+                ]),
+                card('HAZARDS', [
+                  row('TURBULENCE', value(prop('tbInt'))),
+                  row('ICING', value(prop('icgInt'))),
+                ]),
+                card('RAW OBSERVATION', [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.black45,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: SelectableText(
+                      rawOb,
+                      style: const TextStyle(
+                        color: Color(0xFFB8F2FF),
+                        fontSize: 11,
+                        height: 1.45,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                ]),
+                if (props.isNotEmpty)
+                  card('ALL AVAILABLE PROPERTIES', [
+                    ...props.entries
+                        .where((entry) => !excluded.contains(entry.key))
+                        .map((entry) => row(
+                              entry.key.toUpperCase(),
+                              value(entry.value),
+                            )),
+                  ]),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -3460,10 +4856,402 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                           fontSize: 13,
                           fontWeight: FontWeight.bold)),
                 ),
-              ]
+              ],
+              const SizedBox(height: 14),
+              _buildMapTeleportButton(
+                label: "TELEPORT TO NAVAID",
+                icon: Icons.flight_takeoff,
+                color: Colors.purpleAccent,
+                onTap: () => _showMapTeleportSheet(
+                  double.tryParse(lat) ?? 0.0,
+                  double.tryParse(lon) ?? 0.0,
+                  name,
+                  "NAVAID",
+                ),
+              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildWaypointInfoBox(dynamic waypoint, bool isLandscape) {
+    final name = waypoint['name']?.toString() ?? "UNKNOWN";
+    final lat = double.tryParse(
+          (waypoint['lat'] ?? waypoint['latitude'] ?? 0.0).toString(),
+        ) ??
+        0.0;
+    final lon = double.tryParse(
+          (waypoint['lon'] ?? waypoint['lng'] ?? waypoint['longitude'] ?? 0.0)
+              .toString(),
+        ) ??
+        0.0;
+
+    double? boxWidth =
+        isLandscape ? MediaQuery.of(context).size.width * 0.45 : null;
+
+    return Positioned(
+      bottom: 15,
+      right: 15,
+      left: isLandscape ? null : 15,
+      child: SizedBox(
+        width: boxWidth,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A).withOpacity(0.96),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+                color: const Color(0xFFFFD166).withOpacity(0.55), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFFD166).withOpacity(0.08),
+                blurRadius: 15,
+                spreadRadius: 2,
+              )
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.navigation,
+                      color: Color(0xFFFFD166), size: 34),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Text(
+                          "Waypoint",
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close,
+                        color: Colors.white54, size: 20),
+                    onPressed: () => setState(() => selectedItem = null),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Divider(color: Colors.white10, height: 1),
+              ),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                childAspectRatio: 3.2,
+                children: [
+                  _stat("LAT", lat.toStringAsFixed(6)),
+                  _stat("LON", lon.toStringAsFixed(6)),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _buildMapTeleportButton(
+                label: "TELEPORT TO WAYPOINT",
+                icon: Icons.flight_takeoff,
+                color: const Color(0xFFFFD166),
+                onTap: () => _showMapTeleportSheet(
+                  lat,
+                  lon,
+                  name,
+                  "WAYPOINT",
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMapTeleportButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 46,
+      child: ElevatedButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon, size: 18, color: Colors.black),
+        label: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showMapTeleportSheet(
+    double lat,
+    double lon,
+    String locationName,
+    String locationType,
+  ) async {
+    if (!lat.isFinite || !lon.isFinite) return;
+
+    manualLat = lat;
+    manualLng = lon;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 12,
+              right: 12,
+              top: 12,
+              bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 12,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF0B1118),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(22)),
+                border: Border.all(color: Colors.white12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black54,
+                    blurRadius: 22,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 42,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.white24,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Icon(Icons.flight_takeoff,
+                            color: Colors.orangeAccent, size: 24),
+                        const SizedBox(width: 9),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "TELEPORT SETUP",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.6,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                "$locationType • $locationName",
+                                style: const TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.of(sheetContext).pop(),
+                          icon: const Icon(Icons.close, color: Colors.white54),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(11),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.035),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white10),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _teleportCoordinateCard(
+                              "LATITUDE",
+                              lat.toStringAsFixed(6),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _teleportCoordinateCard(
+                              "LONGITUDE",
+                              lon.toStringAsFixed(6),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildTeleportSheetInput("ALTITUDE FT", _altCtrl),
+                    const SizedBox(height: 9),
+                    _buildTeleportSheetInput("SPEED KTS", _speedCtrl),
+                    const SizedBox(height: 9),
+                    _buildTeleportSheetInput("HEADING °", _hdgCtrl),
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          manualLat = lat;
+                          manualLng = lon;
+                          _triggerTeleportAction();
+                          Navigator.of(sheetContext).pop();
+                        },
+                        icon: const Icon(Icons.my_location,
+                            color: Colors.black, size: 19),
+                        label: const Text(
+                          "TELEPORT",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orangeAccent,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(13),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _teleportCoordinateCard(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white38,
+            fontSize: 8.5,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.6,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'monospace',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTeleportSheetInput(
+    String label,
+    TextEditingController controller,
+  ) {
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111820),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 92,
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.4,
+              ),
+            ),
+          ),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              textAlign: TextAlign.right,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+                signed: false,
+              ),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: "0",
+                hintStyle: TextStyle(color: Colors.white24),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
