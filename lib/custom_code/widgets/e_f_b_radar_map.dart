@@ -185,6 +185,7 @@ class EFBRadarMap extends StatefulWidget {
     this.initialLng,
     this.initialZoom,
     this.onLocationSelected,
+    this.onWaypointNavaidTeleport,
   }) : super(key: key);
 
   final double? width;
@@ -204,6 +205,18 @@ class EFBRadarMap extends StatefulWidget {
     double? headingDeg,
     double? speedKnots,
   )? onLocationSelected;
+
+  // Dedicated teleport callback shared by both Waypoints and NAVAIDs.
+  // This is intentionally separate from onLocationSelected so FlutterFlow
+  // can connect the simulator/API teleport action without changing the
+  // existing location-selection callback.
+  final Future Function(
+    double? latitude,
+    double? longitude,
+    double? altitudeFt,
+    double? headingDeg,
+    double? speedKnots,
+  )? onWaypointNavaidTeleport;
 
   @override
   _EFBRadarMapState createState() => _EFBRadarMapState();
@@ -3034,7 +3047,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         throw Exception('NOAA OVATION aurora data unavailable');
       }
 
-      final parsed = await compute(
+      final parsed = await foundation.compute(
         _parseAuroraGeoJsonInIsolate,
         response.body,
       );
@@ -3116,7 +3129,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         return;
       }
 
-      final parsed = await compute(
+      final parsed = await foundation.compute(
         _parsePirepGeoJsonInIsolate,
         response.body,
       );
@@ -3561,6 +3574,18 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
       FFAppState().msfsTeleportHdg = hdg;
       FFAppState().msfsTeleportSpd = spd;
 
+      // Dedicated Waypoint/NAVAID teleport callback for simulator/API wiring.
+      if (widget.onWaypointNavaidTeleport != null) {
+        widget.onWaypointNavaidTeleport!(
+          manualLat!,
+          manualLng!,
+          alt,
+          hdg,
+          spd,
+        );
+      }
+
+      // Preserve the existing location-selection callback for backward compatibility.
       if (widget.onLocationSelected != null) {
         widget.onLocationSelected!(
           manualLat!,
@@ -3633,6 +3658,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         painter: _EfbMetricScalePainter(
           values: values,
           labels: values.map(_formatScaleMetric).toList(),
+          activeLength: (95.0 + (_mapZoom.clamp(1.0, 12.0) - 1.0) * 9.5)
+              .clamp(95.0, 200.0),
         ),
       ),
     );

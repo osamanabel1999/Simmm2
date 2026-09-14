@@ -18957,6 +18957,27 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           .msfsTeleportSpd,
                                                     );
                                                   },
+                                                  onWaypointNavaidTeleport:
+                                                      (latitude,
+                                                          longitude,
+                                                          altitudeFt,
+                                                          headingDeg,
+                                                          speedKnots) async {
+                                                    await actions
+                                                        .sendTeleportRequest(
+                                                      FFAppState().ipPC,
+                                                      FFAppState()
+                                                          .msfsTeleportLat,
+                                                      FFAppState()
+                                                          .msfsTeleportLng,
+                                                      FFAppState()
+                                                          .msfsTeleportAlt,
+                                                      FFAppState()
+                                                          .msfsTeleportHdg,
+                                                      FFAppState()
+                                                          .msfsTeleportSpd,
+                                                    );
+                                                  },
                                                 ),
                                               ),
                                             ),
