@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import 'package:flutter/foundation.dart';
 import 'dart:ui' as ui;
 
 import 'package:webview_flutter/webview_flutter.dart';
@@ -3047,7 +3048,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         throw Exception('NOAA OVATION aurora data unavailable');
       }
 
-      final parsed = await foundation.compute(
+      final parsed = await compute(
         _parseAuroraGeoJsonInIsolate,
         response.body,
       );
@@ -3129,7 +3130,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         return;
       }
 
-      final parsed = await foundation.compute(
+      final parsed = await compute(
         _parsePirepGeoJsonInIsolate,
         response.body,
       );
