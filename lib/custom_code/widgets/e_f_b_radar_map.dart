@@ -532,6 +532,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   // NAV AIDS
   bool showWaypoints = false;
   String activeAirwayMode = 'NONE'; // NONE / HIGH / LOW
+  bool showHolds = false;
   List<Map<String, dynamic>> rawWaypoints = [];
   List<Map<String, dynamic>> rawAirwaySegments = [];
 
@@ -802,6 +803,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       'text-halo-width': 2
                   });
                   updateEfbWaypoints(payload.waypoints || [], payload.waypointsVisible);
+                  updateEfbHolds(payload.holds || [], payload.holdsVisible);
 
                   updateAirways(payload.airways || [], payload.airwaysVisible);
 
@@ -841,7 +843,6 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                       map.on('mouseenter', layerId, function() { map.getCanvas().style.cursor = 'pointer'; });
                       map.on('mouseleave', layerId, function() { map.getCanvas().style.cursor = ''; });
                   }
-                  }
 
                   Object.keys(layout || {}).forEach(function(key) {
                     try { map.setLayoutProperty(layerId, key, layout[key]); } catch (e) {}
@@ -859,9 +860,166 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   } else {
                       map.setLayoutProperty(layerId, 'visibility', 'none');
                   }
-              }
+               }
 
               
+               function updateEfbHolds(dataArr, isVisible) {
+                 var sourceId = 'efb-holds-source';
+                 var lineLayerId = 'efb-holds-layer';
+                 var hitLayerId = 'efb-holds-hit-layer';
+
+                 if (!map.getSource(sourceId)) {
+                   map.addSource(sourceId, {
+                     type: 'geojson',
+                     data: { type: 'FeatureCollection', features: [] }
+                   });
+                 }
+
+                 var beforeId;
+                 try {
+                   var preferred = [
+                     'efb-planes-layer',
+                     'efb-airports-layer',
+                     'efb-navaids-layer',
+                     'efb-waypoints-layer',
+                     'efb-airways-name-layer'
+                   ];
+                   for (var i = 0; i < preferred.length; i++) {
+                     if (map.getLayer(preferred[i])) {
+                       beforeId = preferred[i];
+                       break;
+                     }
+                   }
+                   if (!beforeId) {
+                     var styleLayers =
+                       (map.getStyle() && map.getStyle().layers) || [];
+                     for (var j = 0; j < styleLayers.length; j++) {
+                       if (styleLayers[j].type === 'symbol') {
+                         beforeId = styleLayers[j].id;
+                         break;
+                       }
+                     }
+                   }
+                 } catch (e) {}
+
+                 if (!map.getLayer(lineLayerId)) {
+                   var lineLayer = {
+                     id: lineLayerId,
+                     type: 'line',
+                     source: sourceId,
+                     layout: {
+                       'line-join': 'round',
+                       'line-cap': 'round'
+                     },
+                     paint: {
+                       'line-color': '#D946EF',
+                       'line-width': 2.2,
+                       'line-opacity': 0.92
+                     }
+                   };
+                   if (beforeId) {
+                     map.addLayer(lineLayer, beforeId);
+                   } else {
+                     map.addLayer(lineLayer);
+                   }
+                 }
+
+                 if (!map.getLayer(hitLayerId)) {
+                   var hitLayer = {
+                     id: hitLayerId,
+                     type: 'line',
+                     source: sourceId,
+                     layout: {
+                       'line-join': 'round',
+                       'line-cap': 'round'
+                     },
+                     paint: {
+                       'line-color': '#D946EF',
+                       'line-width': 14,
+                       'line-opacity': 0
+                     }
+                   };
+                   if (beforeId) {
+                     map.addLayer(hitLayer, beforeId);
+                   } else {
+                     map.addLayer(hitLayer);
+                   }
+                 }
+
+                 window.__efbHoldClickBound =
+                     window.__efbHoldClickBound || false;
+
+                 if (!window.__efbHoldClickBound) {
+                   window.__efbHoldClickBound = true;
+
+                   map.on('click', hitLayerId, function(e) {
+                     if (window.EFBMapChannel &&
+                         e.features &&
+                         e.features.length) {
+                       window.EFBMapChannel.postMessage(JSON.stringify({
+                         action: 'HOLD_CLICKED',
+                         data: e.features[0].properties
+                       }));
+                     }
+                   });
+
+                   map.on('mouseenter', hitLayerId, function() {
+                     map.getCanvas().style.cursor = 'pointer';
+                   });
+                   map.on('mouseleave', hitLayerId, function() {
+                     map.getCanvas().style.cursor = '';
+                   });
+                 }
+
+                 var features = Array.isArray(dataArr) ? dataArr : [];
+                 var validFeatures = features.filter(function(feature) {
+                   return feature &&
+                     feature.geometry &&
+                     feature.geometry.type === 'LineString' &&
+                     Array.isArray(feature.geometry.coordinates) &&
+                     feature.geometry.coordinates.length >= 2;
+                 });
+
+                 map.getSource(sourceId).setData({
+                   type: 'FeatureCollection',
+                   features: isVisible ? validFeatures : []
+                 });
+
+                 try {
+                   map.setPaintProperty(
+                     lineLayerId,
+                     'line-color',
+                     '#D946EF'
+                   );
+                   map.setPaintProperty(
+                     lineLayerId,
+                     'line-width',
+                     2.2
+                   );
+                   map.setPaintProperty(
+                     lineLayerId,
+                     'line-opacity',
+                     0.92
+                   );
+                 } catch (e) {}
+
+                 try {
+                   map.setLayoutProperty(
+                     lineLayerId,
+                     'visibility',
+                     isVisible ? 'visible' : 'none'
+                   );
+                 } catch (e) {}
+
+                 try {
+                   map.setLayoutProperty(
+                     hitLayerId,
+                     'visibility',
+                     isVisible ? 'visible' : 'none'
+                   );
+                 } catch (e) {}
+               }
+
                window.updateEfbWaypointsOnly = function(payload) {
                    if (!payload) return;
                    updateEfbWaypoints(payload.waypoints || [], payload.waypointsVisible);
@@ -2079,6 +2237,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
 
 
                    }
+                 }
 
                  map.getSource(sourceId).setData({
                    type: 'FeatureCollection',
@@ -2529,6 +2688,64 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 try { map.setPaintProperty('efb-segments-fill-layer', 'fill-color', ['coalesce', ['get', 'hazardColor'], '#FFFF00']); } catch (e) {}
                 try { map.setPaintProperty('efb-segments-line-layer', 'line-color', ['coalesce', ['get', 'hazardColor'], '#FFFF00']); } catch (e) {}
                 try { map.setPaintProperty('efb-segments-label-layer', 'text-color', ['coalesce', ['get', 'hazardColor'], '#FFFF00']); } catch (e) {}
+
+                // EFB operational overlays must stay visually independent from the
+                // basemap lighting. Mapbox GL JS v3 supports emissive strength on
+                // line/fill/circle/symbol paint properties. Keep every call guarded
+                // so a style that does not expose one of these properties cannot
+                // interrupt the rest of the EFB rendering pipeline.
+                var efbEmissiveLineLayers = [
+                  'efb-flight-path-casing-v3',
+                  'efb-flight-path-layer-v3',
+                  'efb-airways-overlay-layer',
+                  'efb-fir-line-layer',
+                  'efb-segments-line-layer',
+                  'efb-oceanic-line-layer',
+                  'efb-oceanic-hit-layer',
+                  'efb-holds-layer',
+                  'efb-holds-hit-layer'
+                ];
+                efbEmissiveLineLayers.forEach(function(id) {
+                  try { map.setPaintProperty(id, 'line-emissive-strength', 1); } catch (e) {}
+                });
+
+                var efbEmissiveFillLayers = [
+                  'efb-fir-fill-layer',
+                  'efb-segments-fill-layer'
+                ];
+                efbEmissiveFillLayers.forEach(function(id) {
+                  try { map.setPaintProperty(id, 'fill-emissive-strength', 1); } catch (e) {}
+                });
+
+                var efbEmissiveCircleLayers = [
+                  'efb-airways-endpoint-layer',
+                  'efb-oceanic-endpoint-layer',
+                  'efb-pireps-layer',
+                  'efb-aurora-low-layer',
+                  'efb-aurora-mid-layer',
+                  'efb-aurora-high-layer',
+                  'efb-aurora-glow-layer'
+                ];
+                efbEmissiveCircleLayers.forEach(function(id) {
+                  try { map.setPaintProperty(id, 'circle-emissive-strength', 1); } catch (e) {}
+                });
+
+                var efbEmissiveSymbolLayers = [
+                  'efb-planes-layer',
+                  'efb-airports-layer',
+                  'efb-navaids-layer',
+                  'efb-waypoints-layer',
+                  'efb-airways-name-layer',
+                  'efb-airways-alt-layer',
+                  'efb-fir-label-layer',
+                  'efb-segments-label-layer',
+                  'efb-oceanic-label-layer',
+                  'efb-pireps-label-layer'
+                ];
+                efbEmissiveSymbolLayers.forEach(function(id) {
+                  try { map.setPaintProperty(id, 'icon-emissive-strength', 1); } catch (e) {}
+                  try { map.setPaintProperty(id, 'text-emissive-strength', 1); } catch (e) {}
+                });
               };
 
               // Rebuild runtime EFB sources, layers and icons after a DARK/SATELLITE
@@ -2723,6 +2940,14 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                         ? Map<String, dynamic>.from(decodedWaypoint)
                         : waypointData
                   });
+            } else if (action == 'HOLD_CLICKED') {
+              final holdData = data is Map
+                  ? Map<String, dynamic>.from(data)
+                  : <String, dynamic>{};
+              setState(() => selectedItem = {
+                    'type': 'HOLD',
+                    'data': holdData,
+                  });
             } else if (action == 'SEGMENT_CLICKED') {
               setState(() => selectedItem = {'type': 'SEGMENT', 'data': data});
             } else if (action == 'FIR_CLICKED') {
@@ -2826,6 +3051,282 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     _webviewController.runJavaScript('''
       if (window.updateEfbWaypointsOnly) window.updateEfbWaypointsOnly($json);
     ''');
+  }
+
+  // ============================================================================
+  // HOLDING PATTERN GENERATOR
+  // ============================================================================
+  List<List<double>> _generateHoldingPatternCoordinates({
+    required double fixLat,
+    required double fixLon,
+    required double inboundCourseDeg,
+    required bool turnRight,
+    required double legTime,
+    required double legDist,
+    required int speed,
+  }) {
+    const double earthRadiusNm = 3440.065;
+    const int fallbackSpeedKt = 180;
+
+    if (!fixLat.isFinite || !fixLon.isFinite) return [];
+
+    double course = inboundCourseDeg % 360.0;
+    if (course < 0) course += 360.0;
+
+    final double turnSpeedKt =
+        speed > 0 ? speed.toDouble() : fallbackSpeedKt.toDouble();
+
+    // Standard-rate turn = 3 deg/sec. Radius in NM:
+    // R = V / omega = V / (pi/60), after converting knots to NM/sec.
+    final double turnRadiusNm = turnSpeedKt / (60.0 * math.pi);
+
+    double legLengthNm = legDist > 0
+        ? legDist
+        : (legTime > 0 ? turnSpeedKt * legTime / 60.0 : 1.0);
+
+    if (!legLengthNm.isFinite || legLengthNm <= 0) legLengthNm = 1.0;
+
+    final double courseRad = course * math.pi / 180.0;
+
+    // Inbound unit vector, East/North.
+    final double ux = math.sin(courseRad);
+    final double uy = math.cos(courseRad);
+
+    // Right-hand normal of the inbound course.
+    final double rx = math.cos(courseRad);
+    final double ry = -math.sin(courseRad);
+
+    // Holding side: +1 for right turns, -1 for left turns.
+    final double side = turnRight ? 1.0 : -1.0;
+    final double sx = rx * side;
+    final double sy = ry * side;
+
+    List<double> geo(double eastNm, double northNm) {
+      final double latRad = fixLat * math.pi / 180.0;
+      final double cosLat = math.cos(latRad).abs().clamp(0.01, 1.0).toDouble();
+      final double dLat = northNm / earthRadiusNm;
+      final double dLon = eastNm / (earthRadiusNm * cosLat);
+
+      return <double>[
+        fixLon + dLon * 180.0 / math.pi,
+        fixLat + dLat * 180.0 / math.pi,
+      ];
+    }
+
+    List<double> rotateClockwise(
+      double x,
+      double y,
+      double angleRad,
+    ) {
+      final double c = math.cos(angleRad);
+      final double sn = math.sin(angleRad);
+      return <double>[
+        x * c + y * sn,
+        -x * sn + y * c,
+      ];
+    }
+
+    final List<List<double>> points = <List<double>>[];
+    points.add(geo(0.0, 0.0));
+
+    const int arcSamples = 24;
+    final double turnSign = turnRight ? 1.0 : -1.0;
+
+    // Fix-end 180° turn.
+    final double center1X = sx * turnRadiusNm;
+    final double center1Y = sy * turnRadiusNm;
+    final double startRadiusX = -sx * turnRadiusNm;
+    final double startRadiusY = -sy * turnRadiusNm;
+
+    for (int i = 1; i <= arcSamples; i++) {
+      final double angle = turnSign * math.pi * (i / arcSamples);
+      final rotated = rotateClockwise(startRadiusX, startRadiusY, angle);
+      points.add(geo(
+        center1X + rotated[0],
+        center1Y + rotated[1],
+      ));
+    }
+
+    // Outbound straight leg.
+    final double outboundStartX = sx * 2.0 * turnRadiusNm;
+    final double outboundStartY = sy * 2.0 * turnRadiusNm;
+    final int lineSamples = math.max(4, (legLengthNm * 2.0).round());
+
+    for (int i = 1; i <= lineSamples; i++) {
+      final double fraction = i / lineSamples;
+      points.add(geo(
+        outboundStartX - ux * legLengthNm * fraction,
+        outboundStartY - uy * legLengthNm * fraction,
+      ));
+    }
+
+    // Outbound-end 180° turn.
+    final double outboundEndX = outboundStartX - ux * legLengthNm;
+    final double outboundEndY = outboundStartY - uy * legLengthNm;
+
+    final double center2X = outboundEndX - sx * turnRadiusNm;
+    final double center2Y = outboundEndY - sy * turnRadiusNm;
+
+    for (int i = 1; i <= arcSamples; i++) {
+      final double angle = turnSign * math.pi * (i / arcSamples);
+      final rotated = rotateClockwise(
+        sx * turnRadiusNm,
+        sy * turnRadiusNm,
+        angle,
+      );
+      points.add(geo(
+        center2X + rotated[0],
+        center2Y + rotated[1],
+      ));
+    }
+
+    // Inbound straight leg back to the fix.
+    final double inboundStartX = outboundEndX - sx * 2.0 * turnRadiusNm;
+    final double inboundStartY = outboundEndY - sy * 2.0 * turnRadiusNm;
+    final int inboundSamples = math.max(4, (legLengthNm * 2.0).round());
+
+    for (int i = 1; i <= inboundSamples; i++) {
+      final double fraction = i / inboundSamples;
+      points.add(geo(
+        inboundStartX + ux * legLengthNm * fraction,
+        inboundStartY + uy * legLengthNm * fraction,
+      ));
+    }
+
+    if (points.isNotEmpty) {
+      points[0] = <double>[fixLon, fixLat];
+      points[points.length - 1] = <double>[fixLon, fixLat];
+    }
+
+    return points;
+  }
+
+  List<Map<String, dynamic>> _buildVisibleHoldFeatures() {
+    if (!showHolds) return <Map<String, dynamic>>[];
+
+    final Map<String, Map<String, dynamic>> fixLookup =
+        <String, Map<String, dynamic>>{};
+
+    for (final waypoint in rawWaypoints) {
+      final String name = (waypoint['name'] ?? waypoint['ident'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+      final double? lat = double.tryParse(
+        (waypoint['lat'] ?? waypoint['latitude'] ?? '').toString(),
+      );
+      final double? lon = double.tryParse(
+        (waypoint['lon'] ?? waypoint['lng'] ?? waypoint['longitude'] ?? '')
+            .toString(),
+      );
+
+      if (name.isNotEmpty &&
+          lat != null &&
+          lon != null &&
+          lat.isFinite &&
+          lon.isFinite) {
+        fixLookup[name] = <String, dynamic>{
+          'lat': lat,
+          'lon': lon,
+          'name': name,
+          'source': 'WAYPOINT',
+        };
+      }
+    }
+
+    for (final navaid in rawNavaids) {
+      final String ident = (navaid['ident'] ??
+              navaid['id'] ??
+              navaid['identifier'] ??
+              navaid['code'] ??
+              '')
+          .toString()
+          .trim()
+          .toUpperCase();
+      final double? lat = double.tryParse(
+        (navaid['lat'] ?? navaid['latitude'] ?? '').toString(),
+      );
+      final double? lon = double.tryParse(
+        (navaid['lon'] ?? navaid['lng'] ?? navaid['longitude'] ?? '')
+            .toString(),
+      );
+
+      if (ident.isNotEmpty &&
+          lat != null &&
+          lon != null &&
+          lat.isFinite &&
+          lon.isFinite) {
+        fixLookup[ident] = <String, dynamic>{
+          'lat': lat,
+          'lon': lon,
+          'name': ident,
+          'source': 'NAVAID',
+        };
+      }
+    }
+
+    final List<Map<String, dynamic>> features = <Map<String, dynamic>>[];
+
+    for (final fixIdentRaw in HoldData.keys) {
+      final String fixIdent = fixIdentRaw.trim().toUpperCase();
+      if (fixIdent.isEmpty) continue;
+
+      final fix = fixLookup[fixIdent];
+      if (fix == null) continue;
+
+      final holds = HoldData.getHold(fixIdent);
+      if (holds == null || holds.isEmpty) continue;
+
+      for (int index = 0; index < holds.length; index++) {
+        final hold = holds[index];
+
+        final coords = _generateHoldingPatternCoordinates(
+          fixLat: (fix['lat'] as num).toDouble(),
+          fixLon: (fix['lon'] as num).toDouble(),
+          inboundCourseDeg: hold.course,
+          turnRight: hold.turnRight,
+          legTime: hold.legTime,
+          legDist: hold.legDist,
+          speed: hold.speed,
+        );
+
+        if (coords.length < 4) continue;
+
+        final double legNm = hold.legDist > 0
+            ? hold.legDist
+            : (hold.legTime > 0 && hold.speed > 0
+                ? hold.speed * hold.legTime / 60.0
+                : 0.0);
+
+        features.add(<String, dynamic>{
+          'type': 'Feature',
+          'geometry': <String, dynamic>{
+            'type': 'LineString',
+            'coordinates': coords,
+          },
+          'properties': <String, dynamic>{
+            'fix': fixIdent,
+            'holdIndex': index,
+            'course': hold.course,
+            'turn': hold.turnRight ? 'R' : 'L',
+            'turnDirection': hold.turnRight ? 'RIGHT' : 'LEFT',
+            'legTime': hold.legTime,
+            'legDist': hold.legDist,
+            'legNm': legNm,
+            'minAlt': hold.minAlt,
+            'maxAlt': hold.maxAlt,
+            'speed': hold.speed,
+            'airport': hold.airport,
+            'lat': fix['lat'],
+            'lon': fix['lon'],
+            'fixSource': fix['source'],
+            'raw': jsonEncode(hold.toMap()),
+          },
+        });
+      }
+    }
+
+    return features;
   }
 
   void _pushDataToMap() {
@@ -3061,6 +3562,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
       "navaids": navaidFeatures,
       "waypoints": waypointFeatures,
       "airways": airwayFeatures,
+      "holdsVisible": showHolds,
+      "holds": _buildVisibleHoldFeatures(),
       "segments": segmentFeatures,
       "pirepsVisible": showPireps,
       "pireps": rawPireps,
@@ -4592,6 +5095,10 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                         });
                         _pushDataToMap();
                       }),
+                      _navAidOverlayBtn("HOLDS", showHolds, () {
+                        setState(() => showHolds = !showHolds);
+                        _pushDataToMap();
+                      }),
                       _navAidOverlayBtn("OCEANIC", showOceanic, () {
                         _toggleOceanicOverlay();
                       }),
@@ -4733,6 +5240,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             _buildNavaidInfoBox(selectedItem!['data'], isLandscape),
           if (selectedItem != null && selectedItem!['type'] == 'WAYPOINT')
             _buildWaypointInfoBox(selectedItem!['data'], isLandscape),
+          if (selectedItem != null && selectedItem!['type'] == 'HOLD')
+            _buildHoldInfoBox(selectedItem!['data'], isLandscape),
           if (selectedItem != null && selectedItem!['type'] == 'SEGMENT')
             _buildSegmentInfoBox(selectedItem!['data'], isLandscape),
           if (selectedItem != null && selectedItem!['type'] == 'FIR')
@@ -5754,6 +6263,239 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     );
   }
 
+  Widget _buildHoldInfoBox(dynamic holdData, bool isLandscape) {
+    final Map<String, dynamic> data = holdData is Map
+        ? Map<String, dynamic>.from(holdData)
+        : <String, dynamic>{};
+
+    const Color holdColor = Color(0xFFD946EF);
+
+    final String fix =
+        (data['fix'] ?? "UNKNOWN").toString().trim().toUpperCase();
+    final double lat = double.tryParse((data['lat'] ?? 0.0).toString()) ?? 0.0;
+    final double lon = double.tryParse((data['lon'] ?? 0.0).toString()) ?? 0.0;
+    final double course =
+        double.tryParse((data['course'] ?? 0.0).toString()) ?? 0.0;
+    final String turn = (data['turnDirection'] ?? data['turn'] ?? "RIGHT")
+        .toString()
+        .toUpperCase();
+    final double legTime =
+        double.tryParse((data['legTime'] ?? 0.0).toString()) ?? 0.0;
+    final double legDist =
+        double.tryParse((data['legDist'] ?? 0.0).toString()) ?? 0.0;
+    final int minAlt = int.tryParse((data['minAlt'] ?? 0).toString()) ?? 0;
+    final int maxAlt = int.tryParse((data['maxAlt'] ?? 0).toString()) ?? 0;
+    final int speed = int.tryParse((data['speed'] ?? 0).toString()) ?? 0;
+    final String airport = (data['airport'] ?? "").toString().trim();
+
+    final String legValue = legTime > 0
+        ? "${legTime.toStringAsFixed(1)} Min"
+        : (legDist > 0 ? "${legDist.toStringAsFixed(1)} NM" : "—");
+
+    final String altValue =
+        minAlt > 0 || maxAlt > 0 ? "$minAlt - $maxAlt FT" : "—";
+
+    final String speedValue = speed > 0 ? "$speed KT" : "—";
+
+    final double? boxWidth =
+        isLandscape ? MediaQuery.of(context).size.width * 0.45 : null;
+
+    Widget stat(String label, String value) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.22),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white38,
+                fontSize: 8.5,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.6,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Positioned(
+      bottom: 15,
+      right: 15,
+      left: isLandscape ? null : 15,
+      child: SizedBox(
+        width: boxWidth,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A).withOpacity(0.97),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: holdColor.withOpacity(0.62),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: holdColor.withOpacity(0.10),
+                blurRadius: 16,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: holdColor.withOpacity(0.13),
+                      borderRadius: BorderRadius.circular(11),
+                      border: Border.all(
+                        color: holdColor.withOpacity(0.45),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.loop_rounded,
+                      color: holdColor,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          fix,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          "Holding Pattern • $turn TURNS",
+                          style: TextStyle(
+                            color: holdColor.withOpacity(0.90),
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white54,
+                      size: 20,
+                    ),
+                    onPressed: () => setState(() => selectedItem = null),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Divider(color: Colors.white10, height: 1),
+              ),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                childAspectRatio: 3.0,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                children: [
+                  stat(
+                    "INBOUND COURSE",
+                    "${course.round().toString().padLeft(3, '0')}°",
+                  ),
+                  stat("TURN", turn),
+                  stat("LEG", legValue),
+                  stat("ALTITUDE", altValue),
+                  stat("MAX SPEED", speedValue),
+                  stat(
+                    "FIX",
+                    "${lat.toStringAsFixed(5)}, ${lon.toStringAsFixed(5)}",
+                  ),
+                ],
+              ),
+              if (airport.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 11,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: Text(
+                    "AIRPORT: $airport",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 14),
+              _buildMapTeleportButton(
+                label: "TELEPORT TO HOLD",
+                icon: Icons.flight_takeoff,
+                color: holdColor,
+                onTap: () {
+                  manualLat = lat;
+                  manualLng = lon;
+
+                  if (minAlt > 0) {
+                    _altCtrl.text = (maxAlt > 0 ? maxAlt : minAlt).toString();
+                  }
+                  if (speed > 0) {
+                    _speedCtrl.text = speed.toString();
+                  }
+                  _hdgCtrl.text = course.toStringAsFixed(0);
+
+                  _showMapTeleportSheet(
+                    lat,
+                    lon,
+                    fix,
+                    "HOLD",
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildWaypointInfoBox(dynamic waypoint, bool isLandscape) {
     final name = waypoint['name']?.toString() ?? "UNKNOWN";
     final lat = double.tryParse(
@@ -5900,9 +6642,12 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
   ) async {
     if (!lat.isFinite || !lon.isFinite) return;
 
-    final Color accent = locationType.toUpperCase() == 'WAYPOINT'
+    final String normalizedLocationType = locationType.toUpperCase();
+    final Color accent = normalizedLocationType == 'WAYPOINT'
         ? const Color(0xFFFFD166)
-        : const Color(0xFFD946EF);
+        : (normalizedLocationType == 'HOLD'
+            ? const Color(0xFFD946EF)
+            : const Color(0xFFD946EF));
 
     manualLat = lat;
     manualLng = lon;
@@ -6041,7 +6786,9 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orangeAccent,
+                          backgroundColor: normalizedLocationType == 'HOLD'
+                              ? accent
+                              : Colors.orangeAccent,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(13),
@@ -6947,7 +7694,9 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  vatsimAtis.isNotEmpty ? vatsimAtis : "No ATIS available.",
+                  vatsimAtis.isNotEmpty
+                      ? vatsimAtis
+                      : "No ATIS available on VATSIM.",
                   style: const TextStyle(
                       color: Colors.amberAccent,
                       fontSize: 12,
