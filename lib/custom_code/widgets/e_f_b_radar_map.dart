@@ -18,6 +18,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:flutter/services.dart';
 import '/app_state.dart';
 import '/custom_code/actions/get_offline_navaid_data.dart';
 import '/custom_code/actions/get_offline_waypoint_data.dart';
@@ -528,6 +529,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   final TextEditingController _altCtrl = TextEditingController(text: "36000");
   final TextEditingController _hdgCtrl = TextEditingController(text: "90");
   bool showFlightPath = false;
+  bool _routeCopied = false;
 
   // NAV AIDS
   bool showWaypoints = false;
@@ -3577,23 +3579,41 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     ''');
   }
 
+  Map<String, dynamic>? _findAirportByIcao(String? icao) {
+    final String target = (icao ?? '').trim().toUpperCase();
+    if (target.isEmpty) return null;
+
+    for (final dynamic item in rawAirports) {
+      if (item is! Map) continue;
+      final String itemIcao =
+          (item['icao'] ?? '').toString().trim().toUpperCase();
+      if (itemIcao == target) {
+        return Map<String, dynamic>.from(item);
+      }
+    }
+    return null;
+  }
+
   void _drawFlightPathIfEnabled() {
     if (showFlightPath && widget.depIcao != null && widget.arrIcao != null) {
-      var dep = rawAirports.firstWhere((a) => a['icao'] == widget.depIcao,
-          orElse: () => null);
-      var arr = rawAirports.firstWhere((a) => a['icao'] == widget.arrIcao,
-          orElse: () => null);
+      final Map<String, dynamic>? dep = _findAirportByIcao(widget.depIcao);
+      final Map<String, dynamic>? arr = _findAirportByIcao(widget.arrIcao);
+
       if (dep != null && arr != null) {
-        double lat1 = double.parse(dep['lat'].toString());
-        double lon1 = double.parse(dep['lon'].toString());
-        double lat2 = double.parse(arr['lat'].toString());
-        double lon2 = double.parse(arr['lon'].toString());
-        List<List<double>> pathCoords = _getCurvedPath(lat1, lon1, lat2, lon2);
-        String coordsJson = jsonEncode(pathCoords);
-        _webviewController.runJavaScript('''
+        final double? lat1 = double.tryParse((dep['lat'] ?? '').toString());
+        final double? lon1 = double.tryParse((dep['lon'] ?? '').toString());
+        final double? lat2 = double.tryParse((arr['lat'] ?? '').toString());
+        final double? lon2 = double.tryParse((arr['lon'] ?? '').toString());
+
+        if (lat1 != null && lon1 != null && lat2 != null && lon2 != null) {
+          final List<List<double>> pathCoords =
+              _getCurvedPath(lat1, lon1, lat2, lon2);
+          final String coordsJson = jsonEncode(pathCoords);
+          _webviewController.runJavaScript('''
              window.lastFlightPath = $coordsJson;
              if(window.drawFlightPath) window.drawFlightPath(window.lastFlightPath);
           ''');
+        }
       }
     } else {
       _webviewController.runJavaScript('''
@@ -7149,16 +7169,87 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 const SizedBox(height: 6),
                 Container(
                   width: double.infinity,
+                  constraints: const BoxConstraints(maxHeight: 130),
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                       color: Colors.black26,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: Colors.white10)),
-                  child: Text(route,
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis),
+                  child: Scrollbar(
+                    thumbVisibility: true,
+                    radius: const Radius.circular(8),
+                    child: SingleChildScrollView(
+                      child: Text(route,
+                          style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                              height: 1.45)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: _routeCopyButton(route),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _routeCopyButton(String route) {
+    final bool canCopy = route.trim().isNotEmpty && route.trim() != "N/A";
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      height: 30,
+      decoration: BoxDecoration(
+        color: _routeCopied
+            ? Colors.greenAccent.withOpacity(0.14)
+            : Colors.blueAccent.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: _routeCopied
+              ? Colors.greenAccent.withOpacity(0.60)
+              : Colors.blueAccent.withOpacity(0.35),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: !canCopy
+              ? null
+              : () async {
+                  await Clipboard.setData(ClipboardData(text: route.trim()));
+                  if (!mounted) return;
+                  setState(() => _routeCopied = true);
+                  Future<void>.delayed(const Duration(milliseconds: 1600), () {
+                    if (mounted) setState(() => _routeCopied = false);
+                  });
+                },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 9),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _routeCopied ? Icons.check_rounded : Icons.copy_rounded,
+                  size: 13,
+                  color: _routeCopied ? Colors.greenAccent : Colors.blueAccent,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  _routeCopied ? "COPIED" : "COPY",
+                  style: TextStyle(
+                    color:
+                        _routeCopied ? Colors.greenAccent : Colors.blueAccent,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ],
             ),
@@ -7299,6 +7390,10 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
   List<dynamic> vatsimControllers = [];
   String vatsimAtis = "";
   String vatsimMetar = "";
+  String aviationWeatherTaf = "";
+  bool _metarCopied = false;
+  bool _tafCopied = false;
+  bool _atisCopied = false;
 
   @override
   void initState() {
@@ -7315,50 +7410,204 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
   }
 
   Future<void> _fetchAllData() async {
+    if (!mounted) return;
     setState(() => isLoading = true);
-    String icao = widget.ap['icao']?.toString().toUpperCase() ?? "";
+
+    final String icao =
+        widget.ap['icao']?.toString().trim().toUpperCase() ?? "";
+
+    // Reset airport-specific weather before loading the newly selected airport.
+    vatsimAtis = "";
+    vatsimMetar = "";
+    aviationWeatherTaf = "";
+    fpdbData = null;
+    vatsimControllers = [];
 
     try {
       final fp = await http.get(
-          Uri.parse('https://api.flightplandatabase.com/nav/airport/$icao'));
-      if (fp.statusCode == 200) {
-        fpdbData = json.decode(fp.body);
+        Uri.parse('https://api.flightplandatabase.com/nav/airport/$icao'),
+      );
+      if (fp.statusCode == 200 && fp.body.trim().isNotEmpty) {
+        final decoded = json.decode(fp.body);
+        if (decoded is Map) {
+          fpdbData = Map<String, dynamic>.from(decoded);
+        }
       }
 
-      final vat = await http
-          .get(Uri.parse('https://data.vatsim.net/v3/vatsim-data.json'));
-      if (vat.statusCode == 200) {
-        final vatData = json.decode(vat.body);
-        final controllers = vatData['controllers'] as List;
-        final atisList = vatData['atis'] as List;
+      final vat = await http.get(
+        Uri.parse('https://data.vatsim.net/v3/vatsim-data.json'),
+      );
+      if (vat.statusCode == 200 && vat.body.trim().isNotEmpty) {
+        final decoded = json.decode(vat.body);
+        if (decoded is Map) {
+          final dynamic controllersRaw = decoded['controllers'];
+          final dynamic atisRaw = decoded['atis'];
 
-        vatsimControllers = controllers.where((c) {
-          String cs = c['callsign']?.toString() ?? "";
-          return cs.startsWith("${icao}_");
-        }).toList();
+          final List<dynamic> controllers =
+              controllersRaw is List ? controllersRaw : <dynamic>[];
+          final List<dynamic> atisList =
+              atisRaw is List ? atisRaw : <dynamic>[];
 
-        var atisNode = atisList.firstWhere((a) {
-          String cs = a['callsign']?.toString() ?? "";
-          return cs.startsWith("${icao}_");
-        }, orElse: () => null);
+          vatsimControllers = controllers.where((c) {
+            if (c is! Map) return false;
+            final String cs = c['callsign']?.toString() ?? "";
+            return cs.toUpperCase().startsWith("${icao}_");
+          }).toList();
 
-        if (atisNode != null && atisNode['text_atis'] != null) {
-          if (atisNode['text_atis'] is List) {
-            vatsimAtis = (atisNode['text_atis'] as List).join("\n");
-          } else {
-            vatsimAtis = atisNode['text_atis'].toString();
+          Map<String, dynamic>? atisNode;
+          for (final dynamic item in atisList) {
+            if (item is! Map) continue;
+            final String cs = item['callsign']?.toString() ?? "";
+            if (cs.toUpperCase().startsWith("${icao}_")) {
+              atisNode = Map<String, dynamic>.from(item);
+              break;
+            }
+          }
+
+          if (atisNode != null && atisNode['text_atis'] != null) {
+            final dynamic textAtis = atisNode['text_atis'];
+            if (textAtis is List) {
+              vatsimAtis = textAtis.join("\n").trim();
+            } else {
+              vatsimAtis = textAtis.toString().trim();
+            }
           }
         }
+      }
 
-        final met = await http
-            .get(Uri.parse('https://metar.vatsim.net/metar.php?id=$icao'));
-        if (met.statusCode == 200) {
-          vatsimMetar = met.body.trim();
+      final met = await http.get(
+        Uri.parse('https://metar.vatsim.net/metar.php?id=$icao'),
+      );
+      if (met.statusCode == 200) {
+        vatsimMetar = met.body.trim();
+      }
+
+      // AviationWeather.gov TAF. The documented Data API supports GeoJSON;
+      // requesting the selected ICAO keeps the response small and avoids
+      // repeatedly downloading the entire worldwide TAF collection.
+      final taf = await http.get(
+        Uri.parse(
+          'https://aviationweather.gov/api/data/taf?format=geojson&ids=$icao',
+        ),
+      );
+
+      if (taf.statusCode == 200 && taf.body.trim().isNotEmpty) {
+        final decodedTaf = json.decode(taf.body);
+
+        String extractTafFromMap(Map<String, dynamic> map) {
+          const List<String> rawKeys = <String>[
+            'rawTAF',
+            'rawTaf',
+            'raw_taf',
+            'rawText',
+            'raw_text',
+            'taf',
+            'text',
+            'report',
+          ];
+
+          for (final String key in rawKeys) {
+            final dynamic value = map[key];
+            if (value != null && value.toString().trim().isNotEmpty) {
+              return value.toString().trim();
+            }
+          }
+          return '';
+        }
+
+        if (decodedTaf is Map) {
+          final dynamic features = decodedTaf['features'];
+          if (features is List) {
+            for (final dynamic feature in features) {
+              if (feature is! Map) continue;
+
+              final dynamic properties = feature['properties'];
+              final Map<String, dynamic> props = properties is Map
+                  ? Map<String, dynamic>.from(properties)
+                  : <String, dynamic>{};
+
+              final String station = (props['station'] ??
+                      props['stationId'] ??
+                      props['icaoId'] ??
+                      props['icao'] ??
+                      props['id'] ??
+                      '')
+                  .toString()
+                  .trim()
+                  .toUpperCase();
+
+              final String raw = extractTafFromMap(props);
+              if (raw.isNotEmpty && (station.isEmpty || station == icao)) {
+                aviationWeatherTaf = raw;
+                break;
+              }
+
+              final String directRaw = extractTafFromMap(
+                Map<String, dynamic>.from(feature),
+              );
+              if (directRaw.isNotEmpty) {
+                aviationWeatherTaf = directRaw;
+                break;
+              }
+            }
+          } else {
+            aviationWeatherTaf =
+                extractTafFromMap(Map<String, dynamic>.from(decodedTaf));
+          }
+        } else if (decodedTaf is List) {
+          for (final dynamic item in decodedTaf) {
+            if (item is Map) {
+              final String raw =
+                  extractTafFromMap(Map<String, dynamic>.from(item));
+              if (raw.isNotEmpty) {
+                aviationWeatherTaf = raw;
+                break;
+              }
+            }
+          }
         }
       }
-    } catch (e) {}
+    } catch (_) {
+      // Keep the existing UI alive if one external data source is unavailable.
+    }
 
-    if (mounted) setState(() => isLoading = false);
+    if (mounted) {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _copyWeatherValue(
+    String value,
+    String type,
+  ) async {
+    final String text = value.trim();
+    if (text.isEmpty) return;
+
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
+
+    setState(() {
+      if (type == 'METAR') {
+        _metarCopied = true;
+      } else if (type == 'TAF') {
+        _tafCopied = true;
+      } else if (type == 'ATIS') {
+        _atisCopied = true;
+      }
+    });
+
+    Future<void>.delayed(const Duration(milliseconds: 1600), () {
+      if (!mounted) return;
+      setState(() {
+        if (type == 'METAR') {
+          _metarCopied = false;
+        } else if (type == 'TAF') {
+          _tafCopied = false;
+        } else if (type == 'ATIS') {
+          _atisCopied = false;
+        }
+      });
+    });
   }
 
   String _str(dynamic val, [String def = "-"]) =>
@@ -7648,48 +7897,183 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
     );
   }
 
+  Widget _buildCopyButton({
+    required bool copied,
+    required VoidCallback onTap,
+    Color accent = Colors.cyanAccent,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      height: 30,
+      decoration: BoxDecoration(
+        color: copied
+            ? Colors.greenAccent.withOpacity(0.14)
+            : accent.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: copied
+              ? Colors.greenAccent.withOpacity(0.60)
+              : accent.withOpacity(0.35),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 9),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 180),
+                  child: Icon(
+                    copied ? Icons.check_rounded : Icons.copy_rounded,
+                    key: ValueKey<bool>(copied),
+                    size: 13,
+                    color: copied ? Colors.greenAccent : accent,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 180),
+                  child: Text(
+                    copied ? "COPIED" : "COPY",
+                    key: ValueKey<bool>(copied),
+                    style: TextStyle(
+                      color: copied ? Colors.greenAccent : accent,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _weatherHeader(
+    String title, {
+    required bool copied,
+    required bool canCopy,
+    required VoidCallback onCopy,
+    Color accent = Colors.cyanAccent,
+  }) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              color: accent,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+        if (canCopy)
+          _buildCopyButton(
+            copied: copied,
+            onTap: onCopy,
+            accent: accent,
+          ),
+      ],
+    );
+  }
+
   Widget _buildWeatherTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("METAR",
-              style: TextStyle(
-                  color: Colors.cyanAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13)),
+          _weatherHeader(
+            "METAR",
+            copied: _metarCopied,
+            canCopy: vatsimMetar.trim().isNotEmpty,
+            onCopy: () => _copyWeatherValue(vatsimMetar, 'METAR'),
+          ),
           const SizedBox(height: 6),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-                color: Colors.black45,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white10)),
+              color: Colors.black45,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white10),
+            ),
             child: Text(
               vatsimMetar.isNotEmpty ? vatsimMetar : "No METAR available.",
               style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  height: 1.4),
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                height: 1.4,
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          const Text("VATSIM ATIS",
-              style: TextStyle(
-                  color: Colors.cyanAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13)),
+          _weatherHeader(
+            "TAF",
+            copied: _tafCopied,
+            canCopy: aviationWeatherTaf.trim().isNotEmpty,
+            onCopy: () => _copyWeatherValue(aviationWeatherTaf, 'TAF'),
+          ),
           const SizedBox(height: 6),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-                color: Colors.black45,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white10)),
+              color: Colors.black45,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white10),
+            ),
+            child: Text(
+              aviationWeatherTaf.isNotEmpty
+                  ? aviationWeatherTaf
+                  : "No TAF available.",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                height: 1.4,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (vatsimAtis.isNotEmpty)
+            _weatherHeader(
+              "VATSIM ATIS",
+              copied: _atisCopied,
+              canCopy: true,
+              onCopy: () => _copyWeatherValue(vatsimAtis, 'ATIS'),
+              accent: Colors.amberAccent,
+            )
+          else
+            const Text(
+              "VATSIM ATIS",
+              style: TextStyle(
+                color: Colors.cyanAccent,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+            ),
+          const SizedBox(height: 6),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.black45,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white10),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -7698,10 +8082,11 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
                       ? vatsimAtis
                       : "No ATIS available on VATSIM.",
                   style: const TextStyle(
-                      color: Colors.amberAccent,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      height: 1.4),
+                    color: Colors.amberAccent,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    height: 1.4,
+                  ),
                 ),
                 if (vatsimAtis.isNotEmpty) ...[
                   const SizedBox(height: 10),
@@ -7712,9 +8097,13 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
                         backgroundColor: Colors.cyanAccent,
                         foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         textStyle: const TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.bold),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       icon: const Icon(Icons.volume_up, size: 16),
                       label: const Text("LISTEN TO ATIS"),
@@ -7723,7 +8112,7 @@ class _AdvancedAirportInfoBoxState extends State<AdvancedAirportInfoBox> {
                       },
                     ),
                   ),
-                ]
+                ],
               ],
             ),
           ),
