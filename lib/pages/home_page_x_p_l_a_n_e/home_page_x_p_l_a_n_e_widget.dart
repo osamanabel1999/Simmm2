@@ -239,11 +239,11 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
           );
           _model.chartGateselectedXplane = await actions.moveAircraftBackward(
             getJsonField(
-              _model.chartGateselectedXplane,
+              _model.autoResultGateChart,
               r'''$.x''',
             ),
             getJsonField(
-              _model.chartGateselectedXplane,
+              _model.autoResultGateChart,
               r'''$.z''',
             ),
             FFAppState().chartGateHdg,
