@@ -330,14 +330,10 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   dynamic vectorsResult1;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneGATE1;
-  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
-  dynamic vectorsResultGate;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneNAVAIDS;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneChartGATE;
-  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
-  dynamic vectorsResultGateChart;
 
   @override
   void initState(BuildContext context) {}
