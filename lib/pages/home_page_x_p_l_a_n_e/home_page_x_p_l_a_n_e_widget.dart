@@ -38377,14 +38377,14 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                               }(FFAppState().efbSimulatorTimeSeconds)} UTC)',
                                               onRunwaySelected:
                                                   (lat, lon, heading) async {
-                                                _model.elevationDataXplaneRWY =
+                                                _model.elevationDataXplaneRWY1 =
                                                     await GetElevationCall.call(
                                                   lat: FFAppState().radarLat,
                                                   lon: FFAppState().radarLon,
                                                 );
 
                                                 if (!(_model
-                                                        .elevationDataXplaneRWY
+                                                        .elevationDataXplaneRWY1
                                                         ?.succeeded ??
                                                     true)) {
                                                   ScaffoldMessenger.of(context)
@@ -38479,7 +38479,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                       .setXPlaneDataRef(
                                                     'sim/flightmodel/position/local_y',
                                                     getJsonField(
-                                                          (_model.elevationDataXplaneRWY
+                                                          (_model.elevationDataXplaneRWY1
                                                                   ?.jsonBody ??
                                                               ''),
                                                           r'''$.results[0].elevation''',
@@ -38979,7 +38979,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
-                                                      (_model.elevationDataXplaneRWY
+                                                      (_model.elevationDataXplaneRWY1
                                                               ?.jsonBody ??
                                                           ''),
                                                       r'''$.results[0].elevation''',
@@ -39102,7 +39102,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
-                                                      (_model.elevationDataXplaneRWY
+                                                      (_model.elevationDataXplaneRWY1
                                                               ?.jsonBody ??
                                                           ''),
                                                       r'''$.results[0].elevation''',
@@ -39225,7 +39225,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
-                                                      (_model.elevationDataXplaneRWY
+                                                      (_model.elevationDataXplaneRWY1
                                                               ?.jsonBody ??
                                                           ''),
                                                       r'''$.results[0].elevation''',
@@ -39343,7 +39343,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                       .setXPlaneDataRef(
                                                     'sim/flightmodel/position/local_y',
                                                     getJsonField(
-                                                          (_model.elevationDataXplaneRWY
+                                                          (_model.elevationDataXplaneRWY1
                                                                   ?.jsonBody ??
                                                               ''),
                                                           r'''$.results[0].elevation''',
@@ -39467,7 +39467,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
-                                                      (_model.elevationDataXplaneRWY
+                                                      (_model.elevationDataXplaneRWY1
                                                               ?.jsonBody ??
                                                           ''),
                                                       r'''$.results[0].elevation''',
@@ -39594,7 +39594,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
-                                                      (_model.elevationDataXplaneRWY
+                                                      (_model.elevationDataXplaneRWY1
                                                               ?.jsonBody ??
                                                           ''),
                                                       r'''$.results[0].elevation''',
@@ -39721,7 +39721,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
-                                                      (_model.elevationDataXplaneRWY
+                                                      (_model.elevationDataXplaneRWY1
                                                               ?.jsonBody ??
                                                           ''),
                                                       r'''$.results[0].elevation''',
@@ -39849,7 +39849,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
-                                                      (_model.elevationDataXplaneRWY
+                                                      (_model.elevationDataXplaneRWY1
                                                               ?.jsonBody ??
                                                           ''),
                                                       r'''$.results[0].elevation''',
@@ -39977,7 +39977,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
-                                                      (_model.elevationDataXplaneRWY
+                                                      (_model.elevationDataXplaneRWY1
                                                               ?.jsonBody ??
                                                           ''),
                                                       r'''$.results[0].elevation''',
