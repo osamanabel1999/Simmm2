@@ -44,12 +44,28 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   double? aLToutput;
   // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
   dynamic autoResult;
+  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
+  dynamic autoResultGate;
+  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
+  dynamic autoResultGateChart;
+  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
+  dynamic autoResultNVAIDS;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
-  dynamic threeNMfinall;
+  dynamic sevenNMfinall;
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  dynamic fiftenNMfinall;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic tenNMfinall;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  dynamic cuisingFinal;
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic zeroNMfinall;
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  dynamic gateselectedXplane;
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  dynamic chartGateselectedXplane;
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  dynamic nAVAIDSselectedXplane;
   // Stores action output result for [Custom Action - calculateBaseLegPosition] action in HomePageXPLANE widget.
   dynamic leftbase;
   // Stores action output result for [Custom Action - calculateRightBasePosition] action in HomePageXPLANE widget.
@@ -293,6 +309,16 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   bool mouseRegionHovered8 = false;
   // State field(s) for MouseRegion widget.
   bool mouseRegionHovered9 = false;
+  // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
+  ApiCallResponse? elevationDataXplaneRWY;
+  // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
+  ApiCallResponse? elevationDataXplaneGATE;
+  // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
+  ApiCallResponse? elevationDataXplaneNAVAIDS;
+  // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
+  ApiCallResponse? elevationDataXplaneChartGATE;
+  // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
+  ApiCallResponse? elevationDataXplaneRWY;
 
   @override
   void initState(BuildContext context) {}

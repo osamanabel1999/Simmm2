@@ -120,7 +120,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
             3,
           );
           FFAppState().currentHeading = _model.headingoutput!;
-          FFAppState().SIMspeed = _model.sliderspeedValue!.toString();
+          FFAppState().SIMspeed = FFAppState().efbGroundSpeed.toString();
           FFAppState().SIMtime = (double var1) {
             return '${(var1 / 3600).floor().toString().padLeft(2, '0')}:${((var1 % 3600) / 60).floor().toString().padLeft(2, '0')}';
           }(_model.sliderspeedValue!);
@@ -138,16 +138,34 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
             FFAppState().currentLON,
             FFAppState().currentX,
             FFAppState().currentZ,
-            getJsonField(
-              _model.selectedRunway,
-              r'''$.ends[0].lat''',
-            ),
-            getJsonField(
-              _model.selectedRunway,
-              r'''$.ends[0].lon''',
-            ),
+            FFAppState().radarLat,
+            FFAppState().radarLon,
           );
-          _model.threeNMfinall = await actions.moveAircraftBackward(
+          _model.autoResultGate = await actions.calculateXPlanePosition(
+            FFAppState().currentLAT,
+            FFAppState().currentLON,
+            FFAppState().currentX,
+            FFAppState().currentZ,
+            FFAppState().gateLat,
+            FFAppState().gateLon,
+          );
+          _model.autoResultGateChart = await actions.calculateXPlanePosition(
+            FFAppState().currentLAT,
+            FFAppState().currentLON,
+            FFAppState().currentX,
+            FFAppState().currentZ,
+            FFAppState().chartGateLat,
+            FFAppState().chartGateLon,
+          );
+          _model.autoResultNVAIDS = await actions.calculateXPlanePosition(
+            FFAppState().currentLAT,
+            FFAppState().currentLON,
+            FFAppState().currentX,
+            FFAppState().currentZ,
+            FFAppState().efbNavaidTeleportLat,
+            FFAppState().efbNavaidTeleportLon,
+          );
+          _model.sevenNMfinall = await actions.moveAircraftBackward(
             getJsonField(
               _model.autoResult,
               r'''$.x''',
@@ -156,11 +174,20 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
               _model.autoResult,
               r'''$.z''',
             ),
+            FFAppState().radarHdgRaw,
+            12900.0,
+          );
+          _model.fiftenNMfinall = await actions.moveAircraftBackward(
             getJsonField(
-              _model.selectedRunway,
-              r'''$.bearing''',
+              _model.autoResult,
+              r'''$.x''',
             ),
-            5556.0,
+            getJsonField(
+              _model.autoResult,
+              r'''$.z''',
+            ),
+            FFAppState().radarHdgRaw,
+            27000.0,
           );
           _model.tenNMfinall = await actions.moveAircraftBackward(
             getJsonField(
@@ -171,11 +198,20 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
               _model.autoResult,
               r'''$.z''',
             ),
-            getJsonField(
-              _model.selectedRunway,
-              r'''$.bearing''',
-            ),
+            FFAppState().radarHdgRaw,
             18520.0,
+          );
+          _model.cuisingFinal = await actions.moveAircraftBackward(
+            getJsonField(
+              _model.autoResult,
+              r'''$.x''',
+            ),
+            getJsonField(
+              _model.autoResult,
+              r'''$.z''',
+            ),
+            FFAppState().radarHdgRaw,
+            7000.0,
           );
           _model.zeroNMfinall = await actions.moveAircraftBackward(
             getJsonField(
@@ -186,10 +222,43 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
               _model.autoResult,
               r'''$.z''',
             ),
+            FFAppState().radarHdgRaw,
+            0.0,
+          );
+          _model.gateselectedXplane = await actions.moveAircraftBackward(
             getJsonField(
-              _model.selectedRunway,
-              r'''$.bearing''',
+              _model.autoResultGate,
+              r'''$.x''',
             ),
+            getJsonField(
+              _model.autoResultGate,
+              r'''$.z''',
+            ),
+            FFAppState().gateHdg,
+            0.0,
+          );
+          _model.chartGateselectedXplane = await actions.moveAircraftBackward(
+            getJsonField(
+              _model.chartGateselectedXplane,
+              r'''$.x''',
+            ),
+            getJsonField(
+              _model.chartGateselectedXplane,
+              r'''$.z''',
+            ),
+            FFAppState().chartGateHdg,
+            0.0,
+          );
+          _model.nAVAIDSselectedXplane = await actions.moveAircraftBackward(
+            getJsonField(
+              _model.nAVAIDSselectedXplane,
+              r'''$.x''',
+            ),
+            getJsonField(
+              _model.nAVAIDSselectedXplane,
+              r'''$.z''',
+            ),
+            FFAppState().efbNavaidTeleportHeading,
             0.0,
           );
           _model.leftbase = await actions.calculateBaseLegPosition(
@@ -201,10 +270,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
               _model.autoResult,
               r'''$.z''',
             ),
-            getJsonField(
-              _model.selectedRunway,
-              r'''$.bearing''',
-            ),
+            FFAppState().radarHdgRaw,
             7408.0,
             4000.0,
             true,
@@ -218,10 +284,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
               _model.autoResult,
               r'''$.z''',
             ),
-            getJsonField(
-              _model.selectedRunway,
-              r'''$.bearing''',
-            ),
+            FFAppState().radarHdgRaw,
             7408.0,
             4000.0,
           );
@@ -234,10 +297,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
               _model.autoResult,
               r'''$.z''',
             ),
-            getJsonField(
-              _model.selectedRunway,
-              r'''$.bearing''',
-            ),
+            FFAppState().radarHdgRaw,
             5000.0,
             4500.0,
           );
@@ -250,10 +310,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
               _model.autoResult,
               r'''$.z''',
             ),
-            getJsonField(
-              _model.selectedRunway,
-              r'''$.bearing''',
-            ),
+            FFAppState().radarHdgRaw,
             10000.0,
             4000.0,
             5000.0,
@@ -267,10 +324,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
               _model.autoResult,
               r'''$.z''',
             ),
-            getJsonField(
-              _model.selectedRunway,
-              r'''$.bearing''',
-            ),
+            FFAppState().radarHdgRaw,
             10000.0,
             4000.0,
             5000.0,
@@ -284,10 +338,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
               _model.autoResult,
               r'''$.z''',
             ),
-            getJsonField(
-              _model.selectedRunway,
-              r'''$.bearing''',
-            ),
+            FFAppState().radarHdgRaw,
             5000.0,
             4500.0,
           );
@@ -13085,7 +13136,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                       ],
                                     ),
                                   ),
-                                if ((FFAppState().TabNumber == 1) &&
+                                if ((FFAppState().TabNumber == 166886) &&
                                     responsiveVisibility(
                                       context: context,
                                       phone: false,
@@ -15491,7 +15542,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                                               await actions.setXPlaneDataRef(
                                                                                                 'sim/flightmodel/position/local_x',
                                                                                                 getJsonField(
-                                                                                                  _model.threeNMfinall,
+                                                                                                  _model.sevenNMfinall,
                                                                                                   r'''$.new_x''',
                                                                                                 ),
                                                                                                 FFAppState().ipPC,
@@ -15499,7 +15550,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                                               await actions.setXPlaneDataRef(
                                                                                                 'sim/flightmodel/position/local_z',
                                                                                                 getJsonField(
-                                                                                                  _model.threeNMfinall,
+                                                                                                  _model.sevenNMfinall,
                                                                                                   r'''$.new_z''',
                                                                                                 ),
                                                                                                 FFAppState().ipPC,
@@ -38303,6 +38354,1706 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                   ),
                                                 ),
                                             ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                if (FFAppState().TabNumber == 1)
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                            child: custom_widgets.Xplin(
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              simulatorTimeText:
+                                                  '(${(double var1) {
+                                                return '${(var1 / 3600).floor().toString().padLeft(2, '0')}:${((var1 % 3600) / 60).floor().toString().padLeft(2, '0')}';
+                                              }(FFAppState().efbSimulatorTimeSeconds)} UTC)',
+                                              onRunwaySelected:
+                                                  (lat, lon, heading) async {
+                                                _model.elevationDataXplaneRWY =
+                                                    await GetElevationCall.call(
+                                                  lat: FFAppState().radarLat,
+                                                  lon: FFAppState().radarLon,
+                                                );
+
+                                                if (!(_model
+                                                        .elevationDataXplaneRWY
+                                                        ?.succeeded ??
+                                                    true)) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Error to get Airport Elevation!',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          Color(0xFFDA2B2B),
+                                                    ),
+                                                  );
+                                                }
+
+                                                safeSetState(() {});
+                                              },
+                                              onGateSelected:
+                                                  (lat, lon, heading) async {
+                                                _model.elevationDataXplaneGATE =
+                                                    await GetElevationCall.call(
+                                                  lat: FFAppState().radarLat,
+                                                  lon: FFAppState().radarLon,
+                                                );
+
+                                                if (!(_model
+                                                        .elevationDataXplaneGATE
+                                                        ?.succeeded ??
+                                                    true)) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Error to get Airport Elevation!',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          Color(0xFFDA2B2B),
+                                                    ),
+                                                  );
+                                                }
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model.gateselectedXplane,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model.gateselectedXplane,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    getJsonField(
+                                                          (_model.elevationDataXplaneRWY
+                                                                  ?.jsonBody ??
+                                                              ''),
+                                                          r'''$.results[0].elevation''',
+                                                        ) *
+                                                        3.28084,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    FFAppState().gateHdg,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1500,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+
+                                                safeSetState(() {});
+                                              },
+                                              onChartGateSelected: (name, lat,
+                                                  lon, heading) async {
+                                                _model.elevationDataXplaneChartGATE =
+                                                    await GetElevationCall.call(
+                                                  lat: FFAppState().radarLat,
+                                                  lon: FFAppState().radarLon,
+                                                );
+
+                                                if (!(_model
+                                                        .elevationDataXplaneChartGATE
+                                                        ?.succeeded ??
+                                                    true)) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Error to get Airport Elevation!',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          Color(0xFFDA2B2B),
+                                                    ),
+                                                  );
+                                                }
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model
+                                                          .chartGateselectedXplane,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model
+                                                          .chartGateselectedXplane,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    getJsonField(
+                                                          (_model.elevationDataXplaneChartGATE
+                                                                  ?.jsonBody ??
+                                                              ''),
+                                                          r'''$.results[0].elevation''',
+                                                        ) *
+                                                        3.28084,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    FFAppState().chartGateHdg,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1500,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+
+                                                safeSetState(() {});
+                                              },
+                                              onSpeedSet: (speed) async {
+                                                FFAppState().PositionSpeedMSFS =
+                                                    speed;
+                                                safeSetState(() {});
+                                              },
+                                              onSimulatorTimeChanged:
+                                                  (simulatorTimeSeconds) async {
+                                                await actions.setXPlaneDataRef(
+                                                  'sim/time/zulu_time_sec',
+                                                  FFAppState()
+                                                      .efbSimulatorTimeSeconds,
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onGroundSpeedChanged:
+                                                  (groundSpeed) async {
+                                                await actions.setXPlaneDataRef(
+                                                  'sim/time/ground_speed_flt',
+                                                  FFAppState().efbGroundSpeed,
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onRunwayActionTap: () async {},
+                                              onGateActionTap: () async {},
+                                              onChartActionTap: () async {},
+                                              onMapTeleportTap: () async {},
+                                              onWorldTourTap: () async {},
+                                              onNavaidActionTap: () async {},
+                                              onNavaidTeleportTap: () async {
+                                                _model.elevationDataXplaneNAVAIDS =
+                                                    await GetElevationCall.call(
+                                                  lat: FFAppState().radarLat,
+                                                  lon: FFAppState().radarLon,
+                                                );
+
+                                                if (!(_model
+                                                        .elevationDataXplaneNAVAIDS
+                                                        ?.succeeded ??
+                                                    true)) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Error to get Airport Elevation!',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          Color(0xFFDA2B2B),
+                                                    ),
+                                                  );
+                                                }
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model
+                                                          .nAVAIDSselectedXplane,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model
+                                                          .nAVAIDSselectedXplane,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    getJsonField(
+                                                          (_model.elevationDataXplaneNAVAIDS
+                                                                  ?.jsonBody ??
+                                                              ''),
+                                                          r'''$.results[0].elevation''',
+                                                        ) *
+                                                        3.28084,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    FFAppState()
+                                                        .efbNavaidTeleportHeading,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1500,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+
+                                                safeSetState(() {});
+                                              },
+                                              onTakeoffConfigTap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'sim/lights/landing_lights_on',
+                                                  FFAppState().ipPC,
+                                                );
+                                                await actions.setXPlaneDataRef(
+                                                  'ckpt/gearHandle',
+                                                  1.0,
+                                                  FFAppState().ipPC,
+                                                );
+                                                await actions.setXPlaneDataRef(
+                                                  'sim/cockpit2/controls/flap_ratio',
+                                                  0.25,
+                                                  FFAppState().ipPC,
+                                                );
+                                                await actions.setXPlaneDataRef(
+                                                  'ckpt/speedbrake/anim',
+                                                  0.25,
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandingConfigTap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'sim/lights/landing_lights_on',
+                                                  FFAppState().ipPC,
+                                                );
+                                                await actions.setXPlaneDataRef(
+                                                  'ckpt/gearHandle',
+                                                  1.0,
+                                                  FFAppState().ipPC,
+                                                );
+                                                await actions.setXPlaneDataRef(
+                                                  'sim/cockpit2/controls/flap_ratio',
+                                                  1.0,
+                                                  FFAppState().ipPC,
+                                                );
+                                                await actions.setXPlaneDataRef(
+                                                  'ckpt/speedbrake/anim',
+                                                  0.25,
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onPlane15nmTap: () async {
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model.fiftenNMfinall,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model.fiftenNMfinall,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    ((double? elevation) {
+                                                      return elevation != null
+                                                          ? (elevation + 3000.0)
+                                                              .roundToDouble()
+                                                          : null;
+                                                    }(getJsonField(
+                                                      (_model.elevationDataXplaneRWY
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    FFAppState().radarHdgRaw,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1000,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              onPlane10nmTap: () async {
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model.tenNMfinall,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model.tenNMfinall,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    ((double? elevation) {
+                                                      return elevation != null
+                                                          ? (elevation + 2500.0)
+                                                              .roundToDouble()
+                                                          : null;
+                                                    }(getJsonField(
+                                                      (_model.elevationDataXplaneRWY
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    FFAppState().radarHdgRaw,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1000,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              onPlane7nmTap: () async {
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model.sevenNMfinall,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model.sevenNMfinall,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    ((double? elevation) {
+                                                      return elevation != null
+                                                          ? (elevation + 2300.0)
+                                                              .roundToDouble()
+                                                          : null;
+                                                    }(getJsonField(
+                                                      (_model.elevationDataXplaneRWY
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    FFAppState().radarHdgRaw,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1000,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              onPlane4nmTap: () async {
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model.zeroNMfinall,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model.zeroNMfinall,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    getJsonField(
+                                                          (_model.elevationDataXplaneRWY
+                                                                  ?.jsonBody ??
+                                                              ''),
+                                                          r'''$.results[0].elevation''',
+                                                        ) *
+                                                        3.28084,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    FFAppState().radarHdgRaw,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1500,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              onPlaneHoldLeftTap: () async {
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model.rightBase,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model.rightBase,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    ((double? elevation) {
+                                                      return elevation != null
+                                                          ? (elevation + 700.0)
+                                                              .roundToDouble()
+                                                          : null;
+                                                    }(getJsonField(
+                                                      (_model.elevationDataXplaneRWY
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    (((FFAppState().radarHdgRaw -
+                                                                    90) %
+                                                                360)
+                                                            .toInt())
+                                                        .toDouble(),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1000,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              onPlaneHoldRightTap: () async {
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model.leftbase,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model.leftbase,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    ((double? elevation) {
+                                                      return elevation != null
+                                                          ? (elevation + 700.0)
+                                                              .roundToDouble()
+                                                          : null;
+                                                    }(getJsonField(
+                                                      (_model.elevationDataXplaneRWY
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    (((FFAppState().radarHdgRaw +
+                                                                    90) %
+                                                                360)
+                                                            .toInt())
+                                                        .toDouble(),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1000,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              onPlaneLeftDownwindTap: () async {
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model.leftDownwind,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model.leftDownwind,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    ((double? elevation) {
+                                                      return elevation != null
+                                                          ? (elevation + 1000.0)
+                                                              .roundToDouble()
+                                                          : null;
+                                                    }(getJsonField(
+                                                      (_model.elevationDataXplaneRWY
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    (((FFAppState().radarHdgRaw -
+                                                                    180) %
+                                                                360)
+                                                            .toInt())
+                                                        .toDouble(),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]⁠',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]⁠',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]⁠',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]⁠',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1200,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              onPlaneRightDownwindTap:
+                                                  () async {
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model.rightDownwind,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model.rightDownwind,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    ((double? elevation) {
+                                                      return elevation != null
+                                                          ? (elevation + 1000.0)
+                                                              .roundToDouble()
+                                                          : null;
+                                                    }(getJsonField(
+                                                      (_model.elevationDataXplaneRWY
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    (((FFAppState().radarHdgRaw +
+                                                                    180) %
+                                                                360)
+                                                            .toInt())
+                                                        .toDouble(),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1500,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              onPlaneCruiseTap: () async {
+                                                if ((FFAppState().currentLAT != 0.0) &&
+                                                    (FFAppState().currentLON !=
+                                                        0.0) &&
+                                                    (FFAppState().currentX !=
+                                                        0.0) &&
+                                                    (FFAppState().currentZ !=
+                                                        0.0)) {
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    1.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/Q',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_x',
+                                                    getJsonField(
+                                                      _model.cuisingFinal,
+                                                      r'''$.new_x''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_z',
+                                                    getJsonField(
+                                                      _model.cuisingFinal,
+                                                      r'''$.new_z''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_y',
+                                                    ((double? elevation) {
+                                                      return elevation != null
+                                                          ? (elevation +
+                                                                  10000.0)
+                                                              .roundToDouble()
+                                                          : null;
+                                                    }(getJsonField(
+                                                      (_model.elevationDataXplaneRWY
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/psi',
+                                                    FFAppState().radarHdgRaw,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[1]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[2]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/q[3]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/theta',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await Future.delayed(
+                                                    Duration(
+                                                      milliseconds: 1000,
+                                                    ),
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/operation/override/override_planepath[0]',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Please Try again',
+                                                        style: TextStyle(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                        ),
+                                                      ),
+                                                      duration: Duration(
+                                                          milliseconds: 4000),
+                                                      backgroundColor:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                            ),
                                           ),
                                         ),
                                       ],

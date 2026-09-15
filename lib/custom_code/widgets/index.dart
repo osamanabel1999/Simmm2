@@ -31,3 +31,4 @@ export '/custom_code/widgets/elite_aviation_e_f_b.dart' show EliteAviationEFB;
 export '/custom_code/widgets/navaid_teleport_widget.dart'
     show NavaidTeleportWidget;
 export '/custom_code/widgets/e_f_b_radar_map.dart' show EFBRadarMap;
+export '/custom_code/widgets/xplin.dart' show Xplin;

@@ -485,6 +485,18 @@ class FFAppState extends ChangeNotifier {
   set msfsTeleportSpd(double value) {
     _msfsTeleportSpd = value;
   }
+
+  double _efbSimulatorTimeSeconds = 0.0;
+  double get efbSimulatorTimeSeconds => _efbSimulatorTimeSeconds;
+  set efbSimulatorTimeSeconds(double value) {
+    _efbSimulatorTimeSeconds = value;
+  }
+
+  double _efbGroundSpeed = 0.0;
+  double get efbGroundSpeed => _efbGroundSpeed;
+  set efbGroundSpeed(double value) {
+    _efbGroundSpeed = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

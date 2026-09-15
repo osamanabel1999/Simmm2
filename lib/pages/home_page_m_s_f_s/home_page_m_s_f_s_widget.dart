@@ -115,7 +115,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
             r'''$.longitude''',
           );
           safeSetState(() {});
-          _model.instantTimer?.cancel();
         },
         startImmediately: true,
       );
