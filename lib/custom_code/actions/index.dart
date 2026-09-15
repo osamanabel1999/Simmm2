@@ -149,3 +149,5 @@ export '/custom_code/actions/get_offline_high_airways.dart'
     show getOfflineHighAirways;
 export '/custom_code/actions/get_offline_low_airways.dart'
     show getOfflineLowAirways;
+export '/custom_code/actions/calculate_velocity_vectors_x_plane.dart'
+    show calculateVelocityVectorsXPlane;

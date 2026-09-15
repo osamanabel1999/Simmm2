@@ -38454,6 +38454,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         0.0) &&
                                                     (FFAppState().currentZ !=
                                                         0.0)) {
+                                                  _model.vectorsResultGate =
+                                                      await actions
+                                                          .calculateVelocityVectorsXPlane(
+                                                    FFAppState()
+                                                        .PositionSpeedMSFS,
+                                                    FFAppState().radarHdgRaw,
+                                                  );
                                                   await actions
                                                       .setXPlaneDataRef(
                                                     'sim/operation/override/override_planepath[0]',
@@ -38488,12 +38495,38 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                       .setXPlaneDataRef(
                                                     'sim/flightmodel/position/local_y',
                                                     getJsonField(
-                                                          (_model.elevationDataXplaneRWY1
-                                                                  ?.jsonBody ??
-                                                              ''),
-                                                          r'''$.results[0].elevation''',
-                                                        ) *
-                                                        3.28084,
+                                                      (_model.elevationDataXplaneRWY1
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    getJsonField(
+                                                      _model.vectorsResultGate,
+                                                      r'''$.vx''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    getJsonField(
+                                                      _model.vectorsResultGate,
+                                                      r'''$.vy''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    getJsonField(
+                                                      _model.vectorsResultGate,
+                                                      r'''$.vz''',
+                                                    ),
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -38604,6 +38637,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         0.0) &&
                                                     (FFAppState().currentZ !=
                                                         0.0)) {
+                                                  _model.vectorsResultGateChart =
+                                                      await actions
+                                                          .calculateVelocityVectorsXPlane(
+                                                    FFAppState()
+                                                        .PositionSpeedMSFS,
+                                                    FFAppState().radarHdgRaw,
+                                                  );
                                                   await actions
                                                       .setXPlaneDataRef(
                                                     'sim/operation/override/override_planepath[0]',
@@ -38640,12 +38680,41 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                       .setXPlaneDataRef(
                                                     'sim/flightmodel/position/local_y',
                                                     getJsonField(
-                                                          (_model.elevationDataXplaneChartGATE
-                                                                  ?.jsonBody ??
-                                                              ''),
-                                                          r'''$.results[0].elevation''',
-                                                        ) *
-                                                        3.28084,
+                                                      (_model.elevationDataXplaneChartGATE
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    getJsonField(
+                                                      _model
+                                                          .vectorsResultGateChart,
+                                                      r'''$.vx''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    getJsonField(
+                                                      _model
+                                                          .vectorsResultGateChart,
+                                                      r'''$.vy''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    getJsonField(
+                                                      _model
+                                                          .vectorsResultGateChart,
+                                                      r'''$.vz''',
+                                                    ),
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -38819,12 +38888,11 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                       .setXPlaneDataRef(
                                                     'sim/flightmodel/position/local_y',
                                                     getJsonField(
-                                                          (_model.elevationDataXplaneNAVAIDS
-                                                                  ?.jsonBody ??
-                                                              ''),
-                                                          r'''$.results[0].elevation''',
-                                                        ) *
-                                                        3.28084,
+                                                      (_model.elevationDataXplaneNAVAIDS
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    ),
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -38949,6 +39017,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         0.0) &&
                                                     (FFAppState().currentZ !=
                                                         0.0)) {
+                                                  _model.vectorsResult8 =
+                                                      await actions
+                                                          .calculateVelocityVectorsXPlane(
+                                                    FFAppState()
+                                                        .PositionSpeedMSFS,
+                                                    FFAppState().radarHdgRaw,
+                                                  );
                                                   await actions
                                                       .setXPlaneDataRef(
                                                     'sim/operation/override/override_planepath[0]',
@@ -38997,6 +39072,33 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                   );
                                                   await actions
                                                       .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    getJsonField(
+                                                      _model.vectorsResult8,
+                                                      r'''$.vx''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    getJsonField(
+                                                      _model.vectorsResult8,
+                                                      r'''$.vy''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    getJsonField(
+                                                      _model.vectorsResult8,
+                                                      r'''$.vz''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
                                                     'sim/flightmodel/position/psi',
                                                     FFAppState().radarHdgRaw,
                                                     FFAppState().ipPC,
@@ -39063,6 +39165,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     ),
                                                   );
                                                 }
+
+                                                safeSetState(() {});
                                               },
                                               onPlane10nmTap: () async {
                                                 if ((FFAppState().currentLAT != 0.0) &&
@@ -39072,6 +39176,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         0.0) &&
                                                     (FFAppState().currentZ !=
                                                         0.0)) {
+                                                  _model.vectorsResult7 =
+                                                      await actions
+                                                          .calculateVelocityVectorsXPlane(
+                                                    FFAppState()
+                                                        .PositionSpeedMSFS,
+                                                    FFAppState().radarHdgRaw,
+                                                  );
                                                   await actions
                                                       .setXPlaneDataRef(
                                                     'sim/operation/override/override_planepath[0]',
@@ -39107,7 +39218,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     'sim/flightmodel/position/local_y',
                                                     ((double? elevation) {
                                                       return elevation != null
-                                                          ? (elevation + 2500.0)
+                                                          ? (elevation + 762)
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
@@ -39116,6 +39227,33 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           ''),
                                                       r'''$.results[0].elevation''',
                                                     )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    getJsonField(
+                                                      _model.vectorsResult7,
+                                                      r'''$.vx''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    getJsonField(
+                                                      _model.vectorsResult7,
+                                                      r'''$.vy''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    getJsonField(
+                                                      _model.vectorsResult7,
+                                                      r'''$.vz''',
+                                                    ),
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -39186,6 +39324,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     ),
                                                   );
                                                 }
+
+                                                safeSetState(() {});
                                               },
                                               onPlane7nmTap: () async {
                                                 if ((FFAppState().currentLAT != 0.0) &&
@@ -39195,6 +39335,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         0.0) &&
                                                     (FFAppState().currentZ !=
                                                         0.0)) {
+                                                  _model.vectorsResult6 =
+                                                      await actions
+                                                          .calculateVelocityVectorsXPlane(
+                                                    FFAppState()
+                                                        .PositionSpeedMSFS,
+                                                    FFAppState().radarHdgRaw,
+                                                  );
                                                   await actions
                                                       .setXPlaneDataRef(
                                                     'sim/operation/override/override_planepath[0]',
@@ -39230,7 +39377,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     'sim/flightmodel/position/local_y',
                                                     ((double? elevation) {
                                                       return elevation != null
-                                                          ? (elevation + 2300.0)
+                                                          ? (elevation + 700)
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
@@ -39239,6 +39386,33 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           ''),
                                                       r'''$.results[0].elevation''',
                                                     )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    getJsonField(
+                                                      _model.vectorsResult6,
+                                                      r'''$.vx''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    getJsonField(
+                                                      _model.vectorsResult6,
+                                                      r'''$.vy''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    getJsonField(
+                                                      _model.vectorsResult6,
+                                                      r'''$.vz''',
+                                                    ),
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -39309,6 +39483,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     ),
                                                   );
                                                 }
+
+                                                safeSetState(() {});
                                               },
                                               onPlane4nmTap: () async {
                                                 if ((FFAppState().currentLAT != 0.0) &&
@@ -39352,12 +39528,29 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                       .setXPlaneDataRef(
                                                     'sim/flightmodel/position/local_y',
                                                     getJsonField(
-                                                          (_model.elevationDataXplaneRWY1
-                                                                  ?.jsonBody ??
-                                                              ''),
-                                                          r'''$.results[0].elevation''',
-                                                        ) *
-                                                        3.28084,
+                                                      (_model.elevationDataXplaneRWY1
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.results[0].elevation''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    0.0,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    0.0,
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -39437,6 +39630,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         0.0) &&
                                                     (FFAppState().currentZ !=
                                                         0.0)) {
+                                                  _model.vectorsResult5 =
+                                                      await actions
+                                                          .calculateVelocityVectorsXPlane(
+                                                    FFAppState()
+                                                        .PositionSpeedMSFS,
+                                                    FFAppState().radarHdgRaw,
+                                                  );
                                                   await actions
                                                       .setXPlaneDataRef(
                                                     'sim/operation/override/override_planepath[0]',
@@ -39472,7 +39672,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     'sim/flightmodel/position/local_y',
                                                     ((double? elevation) {
                                                       return elevation != null
-                                                          ? (elevation + 700.0)
+                                                          ? (elevation + 213)
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
@@ -39481,6 +39681,33 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           ''),
                                                       r'''$.results[0].elevation''',
                                                     )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    getJsonField(
+                                                      _model.vectorsResult5,
+                                                      r'''$.vx''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    getJsonField(
+                                                      _model.vectorsResult5,
+                                                      r'''$.vy''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    getJsonField(
+                                                      _model.vectorsResult5,
+                                                      r'''$.vz''',
+                                                    ),
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -39555,6 +39782,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     ),
                                                   );
                                                 }
+
+                                                safeSetState(() {});
                                               },
                                               onPlaneHoldRightTap: () async {
                                                 if ((FFAppState().currentLAT != 0.0) &&
@@ -39564,6 +39793,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         0.0) &&
                                                     (FFAppState().currentZ !=
                                                         0.0)) {
+                                                  _model.vectorsResult4 =
+                                                      await actions
+                                                          .calculateVelocityVectorsXPlane(
+                                                    FFAppState()
+                                                        .PositionSpeedMSFS,
+                                                    FFAppState().radarHdgRaw,
+                                                  );
                                                   await actions
                                                       .setXPlaneDataRef(
                                                     'sim/operation/override/override_planepath[0]',
@@ -39599,7 +39835,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     'sim/flightmodel/position/local_y',
                                                     ((double? elevation) {
                                                       return elevation != null
-                                                          ? (elevation + 700.0)
+                                                          ? (elevation + 213)
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
@@ -39608,6 +39844,33 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           ''),
                                                       r'''$.results[0].elevation''',
                                                     )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    getJsonField(
+                                                      _model.vectorsResult4,
+                                                      r'''$.vx''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    getJsonField(
+                                                      _model.vectorsResult4,
+                                                      r'''$.vy''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    getJsonField(
+                                                      _model.vectorsResult4,
+                                                      r'''$.vz''',
+                                                    ),
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -39682,6 +39945,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     ),
                                                   );
                                                 }
+
+                                                safeSetState(() {});
                                               },
                                               onPlaneLeftDownwindTap: () async {
                                                 if ((FFAppState().currentLAT != 0.0) &&
@@ -39691,6 +39956,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         0.0) &&
                                                     (FFAppState().currentZ !=
                                                         0.0)) {
+                                                  _model.vectorsResult3 =
+                                                      await actions
+                                                          .calculateVelocityVectorsXPlane(
+                                                    FFAppState()
+                                                        .PositionSpeedMSFS,
+                                                    FFAppState().radarHdgRaw,
+                                                  );
                                                   await actions
                                                       .setXPlaneDataRef(
                                                     'sim/operation/override/override_planepath[0]',
@@ -39726,7 +39998,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     'sim/flightmodel/position/local_y',
                                                     ((double? elevation) {
                                                       return elevation != null
-                                                          ? (elevation + 1000.0)
+                                                          ? (elevation + 304)
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
@@ -39735,6 +40007,33 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           ''),
                                                       r'''$.results[0].elevation''',
                                                     )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    getJsonField(
+                                                      _model.vectorsResult3,
+                                                      r'''$.vx''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    getJsonField(
+                                                      _model.vectorsResult3,
+                                                      r'''$.vy''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    getJsonField(
+                                                      _model.vectorsResult3,
+                                                      r'''$.vy''',
+                                                    ),
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -39809,6 +40108,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     ),
                                                   );
                                                 }
+
+                                                safeSetState(() {});
                                               },
                                               onPlaneRightDownwindTap:
                                                   () async {
@@ -39819,6 +40120,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         0.0) &&
                                                     (FFAppState().currentZ !=
                                                         0.0)) {
+                                                  _model.vectorsResult2 =
+                                                      await actions
+                                                          .calculateVelocityVectorsXPlane(
+                                                    FFAppState()
+                                                        .PositionSpeedMSFS,
+                                                    FFAppState().radarHdgRaw,
+                                                  );
                                                   await actions
                                                       .setXPlaneDataRef(
                                                     'sim/operation/override/override_planepath[0]',
@@ -39854,7 +40162,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     'sim/flightmodel/position/local_y',
                                                     ((double? elevation) {
                                                       return elevation != null
-                                                          ? (elevation + 1000.0)
+                                                          ? (elevation + 304)
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
@@ -39863,6 +40171,33 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           ''),
                                                       r'''$.results[0].elevation''',
                                                     )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    getJsonField(
+                                                      _model.vectorsResult2,
+                                                      r'''$.vx''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    getJsonField(
+                                                      _model.vectorsResult2,
+                                                      r'''$.vy''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    getJsonField(
+                                                      _model.vectorsResult2,
+                                                      r'''$.vz''',
+                                                    ),
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -39937,6 +40272,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     ),
                                                   );
                                                 }
+
+                                                safeSetState(() {});
                                               },
                                               onPlaneCruiseTap: () async {
                                                 if ((FFAppState().currentLAT != 0.0) &&
@@ -39946,6 +40283,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         0.0) &&
                                                     (FFAppState().currentZ !=
                                                         0.0)) {
+                                                  _model.vectorsResult1 =
+                                                      await actions
+                                                          .calculateVelocityVectorsXPlane(
+                                                    FFAppState()
+                                                        .PositionSpeedMSFS,
+                                                    FFAppState().radarHdgRaw,
+                                                  );
                                                   await actions
                                                       .setXPlaneDataRef(
                                                     'sim/operation/override/override_planepath[0]',
@@ -39981,8 +40325,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     'sim/flightmodel/position/local_y',
                                                     ((double? elevation) {
                                                       return elevation != null
-                                                          ? (elevation +
-                                                                  10000.0)
+                                                          ? (elevation + 3048)
                                                               .roundToDouble()
                                                           : null;
                                                     }(getJsonField(
@@ -39991,6 +40334,33 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           ''),
                                                       r'''$.results[0].elevation''',
                                                     )))!,
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vx',
+                                                    getJsonField(
+                                                      _model.vectorsResult1,
+                                                      r'''$.vx''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vy',
+                                                    getJsonField(
+                                                      _model.vectorsResult1,
+                                                      r'''$.vy''',
+                                                    ),
+                                                    FFAppState().ipPC,
+                                                  );
+                                                  await actions
+                                                      .setXPlaneDataRef(
+                                                    'sim/flightmodel/position/local_vz',
+                                                    getJsonField(
+                                                      _model.vectorsResult1,
+                                                      r'''$.vz''',
+                                                    ),
                                                     FFAppState().ipPC,
                                                   );
                                                   await actions
@@ -40061,6 +40431,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     ),
                                                   );
                                                 }
+
+                                                safeSetState(() {});
                                               },
                                             ),
                                           ),

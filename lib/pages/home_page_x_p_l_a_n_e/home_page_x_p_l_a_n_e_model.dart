@@ -310,16 +310,34 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   bool mouseRegionHovered8 = false;
   // State field(s) for MouseRegion widget.
   bool mouseRegionHovered9 = false;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
+  dynamic vectorsResult3;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
+  dynamic vectorsResult2;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
+  dynamic vectorsResult5;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
+  dynamic vectorsResult4;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
+  dynamic vectorsResult7;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneRWY1;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
+  dynamic vectorsResult8;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
+  dynamic vectorsResult6;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
+  dynamic vectorsResult1;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneGATE1;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
+  dynamic vectorsResultGate;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneNAVAIDS;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneChartGATE;
-  // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
-  ApiCallResponse? elevationDataXplaneRWY;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
+  dynamic vectorsResultGateChart;
 
   @override
   void initState(BuildContext context) {}
