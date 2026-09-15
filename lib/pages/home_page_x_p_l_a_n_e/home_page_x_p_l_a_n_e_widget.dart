@@ -123,7 +123,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
           FFAppState().SIMspeed = FFAppState().efbGroundSpeed.toString();
           FFAppState().SIMtime = (double var1) {
             return '${(var1 / 3600).floor().toString().padLeft(2, '0')}:${((var1 % 3600) / 60).floor().toString().padLeft(2, '0')}';
-          }(_model.sliderspeedValue!);
+          }(FFAppState().efbSimulatorTimeSeconds);
           FFAppState().currentX = _model.xoutput!;
           FFAppState().currentZ = _model.zoutput!;
           safeSetState(() {});
@@ -133,214 +133,223 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
           FFAppState().currentALT = _model.aLToutput!.toString();
           FFAppState().currentSPD = _model.sPDoutput!.toString();
           safeSetState(() {});
-          _model.autoResult = await actions.calculateXPlanePosition(
-            FFAppState().currentLAT,
-            FFAppState().currentLON,
-            FFAppState().currentX,
-            FFAppState().currentZ,
-            FFAppState().radarLat,
-            FFAppState().radarLon,
-          );
-          _model.autoResultGate = await actions.calculateXPlanePosition(
-            FFAppState().currentLAT,
-            FFAppState().currentLON,
-            FFAppState().currentX,
-            FFAppState().currentZ,
-            FFAppState().gateLat,
-            FFAppState().gateLon,
-          );
-          _model.autoResultGateChart = await actions.calculateXPlanePosition(
-            FFAppState().currentLAT,
-            FFAppState().currentLON,
-            FFAppState().currentX,
-            FFAppState().currentZ,
-            FFAppState().chartGateLat,
-            FFAppState().chartGateLon,
-          );
-          _model.autoResultNVAIDS = await actions.calculateXPlanePosition(
-            FFAppState().currentLAT,
-            FFAppState().currentLON,
-            FFAppState().currentX,
-            FFAppState().currentZ,
-            FFAppState().efbNavaidTeleportLat,
-            FFAppState().efbNavaidTeleportLon,
-          );
-          _model.sevenNMfinall = await actions.moveAircraftBackward(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            12900.0,
-          );
-          _model.fiftenNMfinall = await actions.moveAircraftBackward(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            27000.0,
-          );
-          _model.tenNMfinall = await actions.moveAircraftBackward(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            18520.0,
-          );
-          _model.cuisingFinal = await actions.moveAircraftBackward(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            7000.0,
-          );
-          _model.zeroNMfinall = await actions.moveAircraftBackward(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            0.0,
-          );
-          _model.gateselectedXplane = await actions.moveAircraftBackward(
-            getJsonField(
-              _model.autoResultGate,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResultGate,
-              r'''$.z''',
-            ),
-            FFAppState().gateHdg,
-            0.0,
-          );
-          _model.chartGateselectedXplane = await actions.moveAircraftBackward(
-            getJsonField(
-              _model.autoResultGateChart,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResultGateChart,
-              r'''$.z''',
-            ),
-            FFAppState().chartGateHdg,
-            0.0,
-          );
-          _model.nAVAIDSselectedXplane = await actions.moveAircraftBackward(
-            getJsonField(
-              _model.nAVAIDSselectedXplane,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.nAVAIDSselectedXplane,
-              r'''$.z''',
-            ),
-            FFAppState().efbNavaidTeleportHeading,
-            0.0,
-          );
-          _model.leftbase = await actions.calculateBaseLegPosition(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            7408.0,
-            4000.0,
-            true,
-          );
-          _model.rightBase = await actions.calculateRightBasePosition(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            7408.0,
-            4000.0,
-          );
-          _model.leftDownwind = await actions.calculateLeftDownwindPosition(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            5000.0,
-            4500.0,
-          );
-          _model.left45 = await actions.calculateLeft45EntryPosition(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            10000.0,
-            4000.0,
-            5000.0,
-          );
-          _model.right45 = await actions.calculateRight45EntryPosition(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            10000.0,
-            4000.0,
-            5000.0,
-          );
-          _model.rightDownwind = await actions.calculateRightDownwindPosition(
-            getJsonField(
-              _model.autoResult,
-              r'''$.x''',
-            ),
-            getJsonField(
-              _model.autoResult,
-              r'''$.z''',
-            ),
-            FFAppState().radarHdgRaw,
-            5000.0,
-            4500.0,
+          _model.instantTimer2 = InstantTimer.periodic(
+            duration: Duration(milliseconds: 1000),
+            callback: (timer) async {
+              _model.autoResult = await actions.calculateXPlanePosition(
+                FFAppState().currentLAT,
+                FFAppState().currentLON,
+                FFAppState().currentX,
+                FFAppState().currentZ,
+                FFAppState().radarLat,
+                FFAppState().radarLon,
+              );
+              _model.autoResultGate = await actions.calculateXPlanePosition(
+                FFAppState().currentLAT,
+                FFAppState().currentLON,
+                FFAppState().currentX,
+                FFAppState().currentZ,
+                FFAppState().gateLat,
+                FFAppState().gateLon,
+              );
+              _model.autoResultGateChart =
+                  await actions.calculateXPlanePosition(
+                FFAppState().currentLAT,
+                FFAppState().currentLON,
+                FFAppState().currentX,
+                FFAppState().currentZ,
+                FFAppState().chartGateLat,
+                FFAppState().chartGateLon,
+              );
+              _model.autoResultNVAIDS = await actions.calculateXPlanePosition(
+                FFAppState().currentLAT,
+                FFAppState().currentLON,
+                FFAppState().currentX,
+                FFAppState().currentZ,
+                FFAppState().efbNavaidTeleportLat,
+                FFAppState().efbNavaidTeleportLon,
+              );
+              _model.sevenNMfinall = await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                12900.0,
+              );
+              _model.fiftenNMfinall = await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                27000.0,
+              );
+              _model.tenNMfinall = await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                18520.0,
+              );
+              _model.cuisingFinal = await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                7000.0,
+              );
+              _model.zeroNMfinall = await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                0.0,
+              );
+              _model.gateselectedXplane = await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.autoResultGate,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResultGate,
+                  r'''$.z''',
+                ),
+                FFAppState().gateHdg,
+                0.0,
+              );
+              _model.chartGateselectedXplane =
+                  await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.autoResultGateChart,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResultGateChart,
+                  r'''$.z''',
+                ),
+                FFAppState().chartGateHdg,
+                0.0,
+              );
+              _model.nAVAIDSselectedXplane = await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.nAVAIDSselectedXplane,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.nAVAIDSselectedXplane,
+                  r'''$.z''',
+                ),
+                FFAppState().efbNavaidTeleportHeading,
+                0.0,
+              );
+              _model.leftbase = await actions.calculateBaseLegPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                7408.0,
+                4000.0,
+                true,
+              );
+              _model.rightBase = await actions.calculateRightBasePosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                7408.0,
+                4000.0,
+              );
+              _model.leftDownwind = await actions.calculateLeftDownwindPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                5000.0,
+                4500.0,
+              );
+              _model.left45 = await actions.calculateLeft45EntryPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                10000.0,
+                4000.0,
+                5000.0,
+              );
+              _model.right45 = await actions.calculateRight45EntryPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                10000.0,
+                4000.0,
+                5000.0,
+              );
+              _model.rightDownwind =
+                  await actions.calculateRightDownwindPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                5000.0,
+                4500.0,
+              );
+            },
+            startImmediately: true,
           );
         },
         startImmediately: true,

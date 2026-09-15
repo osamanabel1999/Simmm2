@@ -42,6 +42,7 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   double? sPDoutput;
   // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
   double? aLToutput;
+  InstantTimer? instantTimer2;
   // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
   dynamic autoResult;
   // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
@@ -326,6 +327,7 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   @override
   void dispose() {
     instantTimer?.cancel();
+    instantTimer2?.cancel();
     grossWeightFocusNode1?.dispose();
     grossWeightTextController1?.dispose();
 
