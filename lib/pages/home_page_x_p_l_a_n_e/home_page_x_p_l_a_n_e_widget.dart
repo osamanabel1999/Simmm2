@@ -38410,14 +38410,14 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                               },
                                               onGateSelected:
                                                   (lat, lon, heading) async {
-                                                _model.elevationDataXplaneGATE =
+                                                _model.elevationDataXplaneGATE1 =
                                                     await GetElevationCall.call(
                                                   lat: FFAppState().radarLat,
                                                   lon: FFAppState().radarLon,
                                                 );
 
                                                 if (!(_model
-                                                        .elevationDataXplaneGATE
+                                                        .elevationDataXplaneGATE1
                                                         ?.succeeded ??
                                                     true)) {
                                                   ScaffoldMessenger.of(context)

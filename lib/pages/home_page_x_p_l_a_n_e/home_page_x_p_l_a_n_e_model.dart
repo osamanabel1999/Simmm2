@@ -312,7 +312,7 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneRWY1;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
-  ApiCallResponse? elevationDataXplaneGATE;
+  ApiCallResponse? elevationDataXplaneGATE1;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneNAVAIDS;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
