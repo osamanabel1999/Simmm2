@@ -151,3 +151,5 @@ export '/custom_code/actions/get_offline_low_airways.dart'
     show getOfflineLowAirways;
 export '/custom_code/actions/calculate_velocity_vectors_x_plane.dart'
     show calculateVelocityVectorsXPlane;
+export '/custom_code/actions/calculate_exact_local_y.dart'
+    show calculateExactLocalY;

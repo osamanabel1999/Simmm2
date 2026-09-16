@@ -35,6 +35,8 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
   double? zoutput;
   // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
+  double? youtput;
+  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
   double? lAToutput;
   // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
   double? lONoutput;
@@ -51,6 +53,8 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   dynamic autoResultGateChart;
   // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
   dynamic autoResultNVAIDS;
+  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
+  dynamic autoResultTeleportonMap;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic sevenNMfinall;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
@@ -61,6 +65,7 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   dynamic cuisingFinal;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic zeroNMfinall;
+  InstantTimer? instantTimer3;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic gateselectedXplane;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
@@ -79,6 +84,8 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   dynamic right45;
   // Stores action output result for [Custom Action - calculateRightDownwindPosition] action in HomePageXPLANE widget.
   dynamic rightDownwind;
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  dynamic teleportOnMAP;
   // State field(s) for AircraftType widget.
   String? aircraftTypeValue1;
   FormFieldController<String>? aircraftTypeValueController1;
@@ -200,6 +207,8 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   String? Function(BuildContext, String?)? windSpeedTextController2Validator;
   // Stores action output result for [Custom Action - calculateA320Landing] action in Button widget.
   dynamic calculateA320Landing;
+  // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in EFBRadarMap widget.
+  dynamic vectorsResultTeleportonMAP;
   // State field(s) for TextFieldTOPhigh widget.
   FocusNode? textFieldTOPhighFocusNode;
   TextEditingController? textFieldTOPhighTextController;
@@ -314,6 +323,8 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   dynamic vectorsResult3;
   // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
   dynamic vectorsResult2;
+  // Stores action output result for [Custom Action - calculateExactLocalY] action in Xplin widget.
+  double? finalYtakeoff;
   // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
   dynamic vectorsResult5;
   // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
@@ -330,10 +341,14 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   dynamic vectorsResult1;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneGATE1;
+  // Stores action output result for [Custom Action - calculateExactLocalY] action in Xplin widget.
+  double? finalYgate;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneNAVAIDS;
   // Stores action output result for [Backend Call - API (GetElevation)] action in Xplin widget.
   ApiCallResponse? elevationDataXplaneChartGATE;
+  // Stores action output result for [Custom Action - calculateExactLocalY] action in Xplin widget.
+  double? finalYgateChart;
 
   @override
   void initState(BuildContext context) {}
@@ -342,6 +357,7 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   void dispose() {
     instantTimer?.cancel();
     instantTimer2?.cancel();
+    instantTimer3?.cancel();
     grossWeightFocusNode1?.dispose();
     grossWeightTextController1?.dispose();
 

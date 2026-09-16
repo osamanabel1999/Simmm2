@@ -497,6 +497,12 @@ class FFAppState extends ChangeNotifier {
   set efbGroundSpeed(double value) {
     _efbGroundSpeed = value;
   }
+
+  double _CurrentY = 0.0;
+  double get CurrentY => _CurrentY;
+  set CurrentY(double value) {
+    _CurrentY = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {
