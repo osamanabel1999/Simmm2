@@ -60,32 +60,31 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic fiftenNMfinall;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  dynamic gateselectedXplane;
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic tenNMfinall;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic cuisingFinal;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic zeroNMfinall;
-  InstantTimer? instantTimer3;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
-  dynamic gateselectedXplane;
+  dynamic teleportOnMAP;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic chartGateselectedXplane;
   // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
   dynamic nAVAIDSselectedXplane;
+  // Stores action output result for [Custom Action - calculateRightDownwindPosition] action in HomePageXPLANE widget.
+  dynamic rightDownwind;
   // Stores action output result for [Custom Action - calculateBaseLegPosition] action in HomePageXPLANE widget.
   dynamic leftbase;
-  // Stores action output result for [Custom Action - calculateRightBasePosition] action in HomePageXPLANE widget.
-  dynamic rightBase;
   // Stores action output result for [Custom Action - calculateLeftDownwindPosition] action in HomePageXPLANE widget.
   dynamic leftDownwind;
+  // Stores action output result for [Custom Action - calculateRightBasePosition] action in HomePageXPLANE widget.
+  dynamic rightBase;
   // Stores action output result for [Custom Action - calculateLeft45EntryPosition] action in HomePageXPLANE widget.
   dynamic left45;
   // Stores action output result for [Custom Action - calculateRight45EntryPosition] action in HomePageXPLANE widget.
   dynamic right45;
-  // Stores action output result for [Custom Action - calculateRightDownwindPosition] action in HomePageXPLANE widget.
-  dynamic rightDownwind;
-  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
-  dynamic teleportOnMAP;
   // State field(s) for AircraftType widget.
   String? aircraftTypeValue1;
   FormFieldController<String>? aircraftTypeValueController1;
@@ -357,7 +356,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   void dispose() {
     instantTimer?.cancel();
     instantTimer2?.cancel();
-    instantTimer3?.cancel();
     grossWeightFocusNode1?.dispose();
     grossWeightTextController1?.dispose();
 

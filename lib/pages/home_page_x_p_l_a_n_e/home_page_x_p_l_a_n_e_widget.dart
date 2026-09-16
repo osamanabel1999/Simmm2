@@ -207,6 +207,18 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                 FFAppState().radarHdgRaw,
                 27000.0,
               );
+              _model.gateselectedXplane = await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.autoResultGate,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResultGate,
+                  r'''$.z''',
+                ),
+                FFAppState().gateHdg,
+                0.0,
+              );
               _model.tenNMfinall = await actions.moveAircraftBackward(
                 getJsonField(
                   _model.autoResult,
@@ -243,145 +255,124 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                 FFAppState().radarHdgRaw,
                 0.0,
               );
-              _model.instantTimer3 = InstantTimer.periodic(
-                duration: Duration(milliseconds: 1000),
-                callback: (timer) async {
-                  _model.gateselectedXplane =
-                      await actions.moveAircraftBackward(
-                    getJsonField(
-                      _model.autoResultGate,
-                      r'''$.x''',
-                    ),
-                    getJsonField(
-                      _model.autoResultGate,
-                      r'''$.z''',
-                    ),
-                    FFAppState().gateHdg,
-                    0.0,
-                  );
-                  _model.chartGateselectedXplane =
-                      await actions.moveAircraftBackward(
-                    getJsonField(
-                      _model.autoResultGateChart,
-                      r'''$.x''',
-                    ),
-                    getJsonField(
-                      _model.autoResultGateChart,
-                      r'''$.z''',
-                    ),
-                    FFAppState().chartGateHdg,
-                    0.0,
-                  );
-                  _model.nAVAIDSselectedXplane =
-                      await actions.moveAircraftBackward(
-                    getJsonField(
-                      _model.nAVAIDSselectedXplane,
-                      r'''$.x''',
-                    ),
-                    getJsonField(
-                      _model.nAVAIDSselectedXplane,
-                      r'''$.z''',
-                    ),
-                    FFAppState().efbNavaidTeleportHeading,
-                    0.0,
-                  );
-                  _model.leftbase = await actions.calculateBaseLegPosition(
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.x''',
-                    ),
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.z''',
-                    ),
-                    FFAppState().radarHdgRaw,
-                    7408.0,
-                    4000.0,
-                    true,
-                  );
-                  _model.rightBase = await actions.calculateRightBasePosition(
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.x''',
-                    ),
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.z''',
-                    ),
-                    FFAppState().radarHdgRaw,
-                    7408.0,
-                    4000.0,
-                  );
-                  _model.leftDownwind =
-                      await actions.calculateLeftDownwindPosition(
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.x''',
-                    ),
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.z''',
-                    ),
-                    FFAppState().radarHdgRaw,
-                    5000.0,
-                    4500.0,
-                  );
-                  _model.left45 = await actions.calculateLeft45EntryPosition(
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.x''',
-                    ),
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.z''',
-                    ),
-                    FFAppState().radarHdgRaw,
-                    10000.0,
-                    4000.0,
-                    5000.0,
-                  );
-                  _model.right45 = await actions.calculateRight45EntryPosition(
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.x''',
-                    ),
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.z''',
-                    ),
-                    FFAppState().radarHdgRaw,
-                    10000.0,
-                    4000.0,
-                    5000.0,
-                  );
-                  _model.rightDownwind =
-                      await actions.calculateRightDownwindPosition(
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.x''',
-                    ),
-                    getJsonField(
-                      _model.autoResult,
-                      r'''$.z''',
-                    ),
-                    FFAppState().radarHdgRaw,
-                    5000.0,
-                    4500.0,
-                  );
-                  _model.teleportOnMAP = await actions.moveAircraftBackward(
-                    getJsonField(
-                      _model.autoResultTeleportonMap,
-                      r'''$.x''',
-                    ),
-                    getJsonField(
-                      _model.autoResultTeleportonMap,
-                      r'''$.z''',
-                    ),
-                    FFAppState().msfsTeleportHdg,
-                    0.0,
-                  );
-                },
-                startImmediately: true,
+              _model.teleportOnMAP = await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.autoResultTeleportonMap,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResultTeleportonMap,
+                  r'''$.z''',
+                ),
+                FFAppState().msfsTeleportHdg,
+                0.0,
+              );
+              _model.chartGateselectedXplane =
+                  await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.autoResultGateChart,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResultGateChart,
+                  r'''$.z''',
+                ),
+                FFAppState().chartGateHdg,
+                0.0,
+              );
+              _model.nAVAIDSselectedXplane = await actions.moveAircraftBackward(
+                getJsonField(
+                  _model.nAVAIDSselectedXplane,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.nAVAIDSselectedXplane,
+                  r'''$.z''',
+                ),
+                FFAppState().efbNavaidTeleportHeading,
+                0.0,
+              );
+              _model.rightDownwind =
+                  await actions.calculateRightDownwindPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                5000.0,
+                4500.0,
+              );
+              _model.leftbase = await actions.calculateBaseLegPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                7408.0,
+                4000.0,
+                true,
+              );
+              _model.leftDownwind = await actions.calculateLeftDownwindPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                5000.0,
+                4500.0,
+              );
+              _model.rightBase = await actions.calculateRightBasePosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                7408.0,
+                4000.0,
+              );
+              _model.left45 = await actions.calculateLeft45EntryPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                10000.0,
+                4000.0,
+                5000.0,
+              );
+              _model.right45 = await actions.calculateRight45EntryPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                10000.0,
+                4000.0,
+                5000.0,
               );
             },
             startImmediately: true,
@@ -6622,15 +6613,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                   FFAppState().msfsTeleportSpd,
                                                   FFAppState().msfsTeleportHdg,
                                                 );
-                                                await actions
-                                                    .sendTeleportRequest(
-                                                  FFAppState().ipPC,
-                                                  FFAppState().msfsTeleportLat,
-                                                  FFAppState().msfsTeleportLng,
-                                                  FFAppState().msfsTeleportAlt,
-                                                  FFAppState().msfsTeleportHdg,
-                                                  FFAppState().msfsTeleportSpd,
-                                                );
                                                 await actions.setXPlaneDataRef(
                                                   'sim/operation/override/override_planepath[0]',
                                                   1.0,
@@ -6646,7 +6628,12 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                 );
                                                 await actions.setXPlaneDataRef(
                                                   'sim/flightmodel/position/local_y',
-                                                  _model.finalYgate!,
+                                                  (double? elevation) {
+                                                    return elevation != null
+                                                        ? elevation * 0.3048
+                                                        : 0.0;
+                                                  }(FFAppState()
+                                                      .msfsTeleportAlt),
                                                   FFAppState().ipPC,
                                                 );
                                                 await actions.setXPlaneDataRef(
