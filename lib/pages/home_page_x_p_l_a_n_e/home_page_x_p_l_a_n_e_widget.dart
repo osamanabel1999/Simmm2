@@ -1168,15 +1168,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                               .toString()
                                               .padLeft(3, '0');
                                         }(FFAppState().currentHeading)}°',
-                                        simSpeedValue: (String? var1) {
-                                          return var1 == null
-                                              ? '---'
-                                              : (var1 == '0'
-                                                  ? 'FREEZE'
-                                                  : (var1 == '1'
-                                                      ? 'NORM'
-                                                      : var1));
-                                        }(FFAppState().currentSPD),
+                                        simSpeedValue: FFAppState()
+                                            .efbGroundSpeed
+                                            .toString(),
                                         connectionStatus:
                                             FFAppState().currentLAT > 0.0
                                                 ? 'Connected'
