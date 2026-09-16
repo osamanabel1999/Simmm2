@@ -18935,6 +18935,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                   initialLat: 20.0,
                                                   initialLng: 20.0,
                                                   initialZoom: 1.8,
+                                                  aircraftLatitude:
+                                                      _model.latitude,
+                                                  aircraftLongitude:
+                                                      _model.longitude,
                                                   onLocationSelected:
                                                       (selectedLatitude,
                                                           selectedLongitude,
@@ -43460,6 +43464,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                     .EliteAviationEFB(
                                                   width: double.infinity,
                                                   height: double.infinity,
+                                                  aircraftLatitude:
+                                                      _model.latitude,
+                                                  aircraftLongitude:
+                                                      _model.longitude,
                                                   onRunwaySelected: (lat, lon,
                                                       heading) async {
                                                     _model.elevationDataMSFSrwy =

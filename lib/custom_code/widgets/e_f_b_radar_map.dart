@@ -352,6 +352,8 @@ class EFBRadarMap extends StatefulWidget {
     this.initialLat,
     this.initialLng,
     this.initialZoom,
+    this.aircraftLatitude,
+    this.aircraftLongitude,
     this.onLocationSelected,
     this.onWaypointNavaidTeleport,
   }) : super(key: key);
@@ -365,6 +367,11 @@ class EFBRadarMap extends StatefulWidget {
   final double? initialLat;
   final double? initialLng;
   final double? initialZoom;
+
+  // Live simulator aircraft position. When either coordinate is missing,
+  // search-distance badges intentionally show XXX instead of a fake value.
+  final double? aircraftLatitude;
+  final double? aircraftLongitude;
 
   final Future Function(
     double? selectedLatitude,
@@ -526,9 +533,9 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
   bool showTeleportControls = false;
   double? manualLat;
   double? manualLng;
-  final TextEditingController _speedCtrl = TextEditingController(text: "450");
-  final TextEditingController _altCtrl = TextEditingController(text: "36000");
-  final TextEditingController _hdgCtrl = TextEditingController(text: "90");
+  final TextEditingController _speedCtrl = TextEditingController(text: "220");
+  final TextEditingController _altCtrl = TextEditingController(text: "5000");
+  final TextEditingController _hdgCtrl = TextEditingController(text: "050");
   bool showFlightPath = false;
   bool _routeCopied = false;
 
@@ -663,6 +670,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                         map.hasImage('ndb-icon') &&
                         map.hasImage('navaid-icon') &&
                         map.hasImage('waypoint-icon') &&
+                        map.hasImage('hold-arrow-icon') &&
                         map.hasImage('pirep-arrow-icon')) {
                       return;
                     }
@@ -682,6 +690,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                 var ndbSvg = '<svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" fill="none" stroke="#D946EF" stroke-width="1.8" stroke-dasharray="1.2 2.2"/><circle cx="12" cy="12" r="2" fill="#D946EF"/></svg>';
                 var navaidSvg = '<svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="none" stroke="#A78BFA" stroke-width="1.8"/><circle cx="12" cy="12" r="1.7" fill="#A78BFA"/></svg>';
                 var waypointSvg = '<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"12,2 22,21 2,21\" fill=\"#FFD166\" stroke=\"#111827\" stroke-width=\"1.5\"/></svg>';
+                var holdArrowSvg = '<svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"12,2 21,20 12,16 3,20\" fill=\"#14B8A6\" stroke=\"#061A18\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/></svg>';
 
                 var pirepArrowSvg = '<svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M12 2L18 18L12 15L6 18Z\" fill=\"#FF8A3D\" stroke=\"#081018\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/></svg>';
 
@@ -694,6 +703,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                   ['ndb-icon', ndbSvg],
                   ['navaid-icon', navaidSvg],
                   ['waypoint-icon', waypointSvg],
+                  ['hold-arrow-icon', holdArrowSvg],
                   ['pirep-arrow-icon', pirepArrowSvg]
                 ];
 
@@ -870,9 +880,33 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                  var sourceId = 'efb-holds-source';
                  var lineLayerId = 'efb-holds-layer';
                  var hitLayerId = 'efb-holds-hit-layer';
+                 var fixSourceId = 'efb-holds-fix-source';
+                 var fixLayerId = 'efb-holds-fix-layer';
+                 var arrowSourceId = 'efb-holds-arrow-source';
+                 var arrowLayerId = 'efb-holds-arrow-layer';
+                 var labelSourceId = 'efb-holds-label-source';
+                 var labelLayerId = 'efb-holds-label-layer';
 
                  if (!map.getSource(sourceId)) {
                    map.addSource(sourceId, {
+                     type: 'geojson',
+                     data: { type: 'FeatureCollection', features: [] }
+                   });
+                 }
+                 if (!map.getSource(fixSourceId)) {
+                   map.addSource(fixSourceId, {
+                     type: 'geojson',
+                     data: { type: 'FeatureCollection', features: [] }
+                   });
+                 }
+                 if (!map.getSource(arrowSourceId)) {
+                   map.addSource(arrowSourceId, {
+                     type: 'geojson',
+                     data: { type: 'FeatureCollection', features: [] }
+                   });
+                 }
+                 if (!map.getSource(labelSourceId)) {
+                   map.addSource(labelSourceId, {
                      type: 'geojson',
                      data: { type: 'FeatureCollection', features: [] }
                    });
@@ -915,7 +949,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                        'line-cap': 'round'
                      },
                      paint: {
-                       'line-color': '#D946EF',
+                       'line-color': '#14B8A6',
                        'line-width': 2.2,
                        'line-opacity': 0.92
                      }
@@ -937,7 +971,7 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                        'line-cap': 'round'
                      },
                      paint: {
-                       'line-color': '#D946EF',
+                       'line-color': '#14B8A6',
                        'line-width': 14,
                        'line-opacity': 0
                      }
@@ -974,6 +1008,57 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                    });
                  }
 
+                 if (!map.getLayer(fixLayerId)) {
+                   map.addLayer({
+                     id: fixLayerId,
+                     type: 'circle',
+                     source: fixSourceId,
+                     paint: {
+                       'circle-radius': ['interpolate', ['linear'], ['zoom'], 1.5, 2.5, 5, 3.2, 9, 4.2],
+                       'circle-color': '#14B8A6',
+                       'circle-opacity': 1.0,
+                       'circle-stroke-color': '#061A18',
+                       'circle-stroke-width': 1.2
+                     }
+                   });
+                 }
+                 if (!map.getLayer(arrowLayerId)) {
+                   map.addLayer({
+                     id: arrowLayerId,
+                     type: 'symbol',
+                     source: arrowSourceId,
+                     layout: {
+                       'icon-image': 'hold-arrow-icon',
+                       'icon-size': ['interpolate', ['linear'], ['zoom'], 1.5, 0.45, 5, 0.62, 9, 0.78],
+                       'icon-rotate': ['get', 'bearing'],
+                       'icon-rotation-alignment': 'map',
+                       'icon-allow-overlap': true,
+                       'icon-ignore-placement': true
+                     }
+                   });
+                 }
+                 if (!map.getLayer(labelLayerId)) {
+                   map.addLayer({
+                     id: labelLayerId,
+                     type: 'symbol',
+                     source: labelSourceId,
+                     layout: {
+                       'text-field': ['get', 'courseLabel'],
+                       'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                       'text-size': ['interpolate', ['linear'], ['zoom'], 1.5, 7, 5, 9, 9, 10],
+                       'text-offset': [0, 1.7],
+                       'text-anchor': 'top',
+                       'text-allow-overlap': true,
+                       'text-ignore-placement': true
+                     },
+                     paint: {
+                       'text-color': '#14B8A6',
+                       'text-halo-color': '#061A18',
+                       'text-halo-width': 2
+                     }
+                   });
+                 }
+
                  var features = Array.isArray(dataArr) ? dataArr : [];
                  var validFeatures = features.filter(function(feature) {
                    return feature &&
@@ -983,16 +1068,63 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                      feature.geometry.coordinates.length >= 2;
                  });
 
+                 var fixFeatures = [];
+                 var arrowFeatures = [];
+                 var labelFeatures = [];
+                 validFeatures.forEach(function(feature) {
+                   var coords = feature.geometry.coordinates || [];
+                   if (coords.length < 3) return;
+                   var props = feature.properties || {};
+                   var course = Number(props.course || 0);
+                   var turn = String(props.turn || 'R').toUpperCase();
+                   fixFeatures.push({
+                     type: 'Feature',
+                     geometry: { type: 'Point', coordinates: coords[0] },
+                     properties: props
+                   });
+                   labelFeatures.push({
+                     type: 'Feature',
+                     geometry: { type: 'Point', coordinates: coords[0] },
+                     properties: {
+                       courseLabel: 'INBOUND ' + String(Math.round(((course % 360) + 360) % 360)).padStart(3, '0') + '°'
+                     }
+                   });
+                   var outboundIndex = Math.max(1, Math.floor(coords.length * 0.32));
+                   var inboundIndex = Math.min(coords.length - 2, Math.floor(coords.length * 0.78));
+                   arrowFeatures.push({
+                     type: 'Feature',
+                     geometry: { type: 'Point', coordinates: coords[outboundIndex] },
+                     properties: { bearing: (course + 180) % 360, leg: 'OUTBOUND', turn: turn }
+                   });
+                   arrowFeatures.push({
+                     type: 'Feature',
+                     geometry: { type: 'Point', coordinates: coords[inboundIndex] },
+                     properties: { bearing: course, leg: 'INBOUND', turn: turn }
+                   });
+                 });
+
                  map.getSource(sourceId).setData({
                    type: 'FeatureCollection',
                    features: isVisible ? validFeatures : []
+                 });
+                 map.getSource(fixSourceId).setData({
+                   type: 'FeatureCollection',
+                   features: isVisible ? fixFeatures : []
+                 });
+                 map.getSource(arrowSourceId).setData({
+                   type: 'FeatureCollection',
+                   features: isVisible ? arrowFeatures : []
+                 });
+                 map.getSource(labelSourceId).setData({
+                   type: 'FeatureCollection',
+                   features: isVisible ? labelFeatures : []
                  });
 
                  try {
                    map.setPaintProperty(
                      lineLayerId,
                      'line-color',
-                     '#D946EF'
+                     '#14B8A6'
                    );
                    map.setPaintProperty(
                      lineLayerId,
@@ -1021,7 +1153,15 @@ class _EFBRadarMapState extends State<EFBRadarMap> {
                      isVisible ? 'visible' : 'none'
                    );
                  } catch (e) {}
+                 try { map.setLayoutProperty(fixLayerId, 'visibility', isVisible ? 'visible' : 'none'); } catch (e) {}
+                 try { map.setLayoutProperty(arrowLayerId, 'visibility', isVisible ? 'visible' : 'none'); } catch (e) {}
+                 try { map.setLayoutProperty(labelLayerId, 'visibility', isVisible ? 'visible' : 'none'); } catch (e) {}
                }
+
+               window.updateEfbHoldsOnly = function(payload) {
+                   if (!payload) return;
+                   updateEfbHolds(payload.holds || [], payload.holdsVisible);
+               };
 
                window.updateEfbWaypointsOnly = function(payload) {
                    if (!payload) return;
@@ -2571,9 +2711,9 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                         'line-cap': 'round'
                       },
                       paint: {
-                        'line-color': '#4A0B0B',
+                        'line-color': '#FF3B30',
                         'line-width': 8,
-                        'line-opacity': 0.78
+                        'line-opacity': 0.32
                       }
                     };
                     try {
@@ -2597,7 +2737,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                         'line-cap': 'round'
                       },
                       paint: {
-                        'line-color': '#FF2D2D',
+                        'line-color': '#FF3B30',
                         'line-width': 4.0,
                         'line-opacity': 1.0
                       }
@@ -2612,16 +2752,16 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       try { map.addLayer(mainDefinition); } catch (ignored) {}
                     }
                   } else {
-                    try { map.setPaintProperty(layerId, 'line-color', '#FF2D2D'); } catch (e) {}
+                    try { map.setPaintProperty(layerId, 'line-color', '#FF3B30'); } catch (e) {}
                     try { map.setPaintProperty(layerId, 'line-pattern', null); } catch (e) {}
                     try { map.setPaintProperty(layerId, 'line-width', 4.0); } catch (e) {}
                     try { map.setPaintProperty(layerId, 'line-opacity', 1.0); } catch (e) {}
                   }
 
-                  try { map.setPaintProperty(casingLayerId, 'line-color', '#4A0B0B'); } catch (e) {}
+                  try { map.setPaintProperty(casingLayerId, 'line-color', '#FF3B30'); } catch (e) {}
                   try { map.setPaintProperty(casingLayerId, 'line-pattern', null); } catch (e) {}
                   try { map.setPaintProperty(casingLayerId, 'line-width', 8); } catch (e) {}
-                  try { map.setPaintProperty(casingLayerId, 'line-opacity', 0.78); } catch (e) {}
+                  try { map.setPaintProperty(casingLayerId, 'line-opacity', 0.32); } catch (e) {}
 
                   try { map.setLayoutProperty(casingLayerId, 'visibility', 'visible'); } catch (e) {}
                   try { map.setLayoutProperty(layerId, 'visibility', 'visible'); } catch (e) {}
@@ -2664,11 +2804,11 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
               window.forceEfbOperationalLayerColors = function() {
                 if (typeof map === 'undefined' || !map || !map.isStyleLoaded()) return;
 
-                try { map.setPaintProperty('efb-flight-path-casing-v3', 'line-color', '#4A0B0B'); } catch (e) {}
+                try { map.setPaintProperty('efb-flight-path-casing-v3', 'line-color', '#FF3B30'); } catch (e) {}
                 try { map.setPaintProperty('efb-flight-path-casing-v3', 'line-width', 8); } catch (e) {}
-                try { map.setPaintProperty('efb-flight-path-casing-v3', 'line-opacity', 0.78); } catch (e) {}
+                try { map.setPaintProperty('efb-flight-path-casing-v3', 'line-opacity', 0.32); } catch (e) {}
                 try { map.setPaintProperty('efb-flight-path-casing-v3', 'line-pattern', null); } catch (e) {}
-                try { map.setPaintProperty('efb-flight-path-layer-v3', 'line-color', '#FF2D2D'); } catch (e) {}
+                try { map.setPaintProperty('efb-flight-path-layer-v3', 'line-color', '#FF3B30'); } catch (e) {}
                 try { map.setPaintProperty('efb-flight-path-layer-v3', 'line-width', 4); } catch (e) {}
                 try { map.setPaintProperty('efb-flight-path-layer-v3', 'line-opacity', 1); } catch (e) {}
                 try { map.setPaintProperty('efb-flight-path-layer-v3', 'line-pattern', null); } catch (e) {}
@@ -2772,6 +2912,12 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
 
                   if (window.lastPayload) {
                     try { await window.renderEFBData(window.lastPayload); } catch (e) {}
+                    setTimeout(function() {
+                      try { if (window.lastPayload) window.renderEFBData(window.lastPayload); } catch (e) {}
+                    }, 120);
+                    setTimeout(function() {
+                      try { if (window.lastPayload) window.renderEFBData(window.lastPayload); } catch (e) {}
+                    }, 600);
                   }
 
                   if (window.lastFlightPath &&
@@ -2813,6 +2959,20 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                       );
                     } catch (e) {}
                   }
+
+                  try {
+                    var persistedWeather = window.__efbMapState && window.__efbMapState.weather;
+                    if (persistedWeather && persistedWeather !== 'NONE' && window.setMapState) {
+                      window.setMapState('weather', persistedWeather);
+                      setTimeout(function() {
+                        try { if (window.setMapState) window.setMapState('weather', persistedWeather); } catch (e) {}
+                      }, 180);
+                      setTimeout(function() {
+                        try { if (window.setMapState) window.setMapState('weather', persistedWeather); } catch (e) {}
+                      }, 650);
+                    }
+                  } catch (e) {}
+
                 try { window.forceEfbOperationalLayerColors(); } catch (e) {}
 
                 });
@@ -2873,6 +3033,10 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 "if(window.updateEfbPireps) window.updateEfbPireps($pirepPayload);",
               );
             }
+            if (activeWeatherLayer != 'NONE' &&
+                activeWeatherLayer != 'PRECIPITATION') {
+              _sendMapState('weather', activeWeatherLayer);
+            }
             if (activeWeatherLayer == 'PRECIPITATION' &&
                 _precipitationTiles.isNotEmpty) {
               final precipitationPayload = jsonEncode(_precipitationTiles);
@@ -2898,6 +3062,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 if (centerLng is num) _mapCenterLng = centerLng.toDouble();
               });
               if (showWaypoints) _pushWaypointsOnly();
+              if (showHolds) _pushHoldsOnly();
             }
           } else {
             final data = parsed['data'];
@@ -3041,6 +3206,19 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     }
 
     return sampled.values.toList(growable: false);
+  }
+
+  void _pushHoldsOnly() {
+    if (!_isMapReady) return;
+
+    final json = jsonEncode({
+      'holdsVisible': showHolds,
+      'holds': _buildVisibleHoldFeatures(),
+    });
+
+    _webviewController.runJavaScript('''
+      if (window.updateEfbHoldsOnly) window.updateEfbHoldsOnly($json);
+    ''');
   }
 
   void _pushWaypointsOnly() {
@@ -3207,6 +3385,24 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
   List<Map<String, dynamic>> _buildVisibleHoldFeatures() {
     if (!showHolds) return <Map<String, dynamic>>[];
 
+    final double zoom = _mapZoom;
+    final double centerLat = _mapCenterLat;
+    final double centerLng = _mapCenterLng;
+    final double lonHalfSpan = (180.0 / math.pow(2.0, zoom.clamp(1.0, 12.0)))
+        .clamp(5.0, 180.0)
+        .toDouble();
+    final double latHalfSpan = (85.0 / math.pow(2.0, zoom.clamp(1.0, 12.0)))
+        .clamp(3.0, 85.0)
+        .toDouble();
+    bool inViewport(double lat, double lon) {
+      if (lat < centerLat - latHalfSpan || lat > centerLat + latHalfSpan)
+        return false;
+      double delta = lon - centerLng;
+      while (delta > 180.0) delta -= 360.0;
+      while (delta < -180.0) delta += 360.0;
+      return delta.abs() <= lonHalfSpan;
+    }
+
     final Map<String, Map<String, dynamic>> fixLookup =
         <String, Map<String, dynamic>>{};
 
@@ -3227,7 +3423,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
           lat != null &&
           lon != null &&
           lat.isFinite &&
-          lon.isFinite) {
+          lon.isFinite &&
+          inViewport(lat, lon)) {
         fixLookup[name] = <String, dynamic>{
           'lat': lat,
           'lon': lon,
@@ -3258,7 +3455,8 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
           lat != null &&
           lon != null &&
           lat.isFinite &&
-          lon.isFinite) {
+          lon.isFinite &&
+          inViewport(lat, lon)) {
         fixLookup[ident] = <String, dynamic>{
           'lat': lat,
           'lon': lon,
@@ -4454,6 +4652,12 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
 
       if (showFir) {
         _pushFirOnly();
+        Future.delayed(const Duration(milliseconds: 120), () {
+          if (mounted && showFir) _pushFirOnly();
+        });
+        Future.delayed(const Duration(milliseconds: 650), () {
+          if (mounted && showFir) _pushFirOnly();
+        });
       }
     } catch (_) {
       // Optional overlay: never break the navigation map if the feed fails.
@@ -4619,6 +4823,114 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     if (updated) _pushDataToMap();
   }
 
+  // Search-distance helpers. Distances are great-circle nautical miles and
+  // are calculated from the live simulator aircraft position to each result.
+  // Aircraft length/width are intentionally not mixed into geographic distance:
+  // dimensions describe the aircraft, while NM distance is purely positional.
+  double? _searchAircraftLatitude() {
+    final value = widget.aircraftLatitude;
+    if (value == null || !value.isFinite || value < -90 || value > 90) {
+      return null;
+    }
+    return value;
+  }
+
+  double? _searchAircraftLongitude() {
+    final value = widget.aircraftLongitude;
+    if (value == null || !value.isFinite || value < -180 || value > 180) {
+      return null;
+    }
+    return value;
+  }
+
+  double? _extractSearchLatitude(dynamic data) {
+    if (data is! Map) return null;
+    final candidates = [data['lat'], data['latitude']];
+    for (final value in candidates) {
+      final parsed = value is num
+          ? value.toDouble()
+          : double.tryParse(value?.toString() ?? '');
+      if (parsed != null && parsed.isFinite && parsed >= -90 && parsed <= 90) {
+        return parsed;
+      }
+    }
+    return null;
+  }
+
+  double? _extractSearchLongitude(dynamic data) {
+    if (data is! Map) return null;
+    final candidates = [data['lon'], data['lng'], data['longitude']];
+    for (final value in candidates) {
+      final parsed = value is num
+          ? value.toDouble()
+          : double.tryParse(value?.toString() ?? '');
+      if (parsed != null &&
+          parsed.isFinite &&
+          parsed >= -180 &&
+          parsed <= 180) {
+        return parsed;
+      }
+    }
+    return null;
+  }
+
+  double? _extractSearchResultLatitude(Map<String, dynamic> result) {
+    final data = result['data'];
+    if (result['type'] == 'PLANE' && result['isVatsim'] == true) {
+      return _extractSearchLatitude(data);
+    }
+    if (result['type'] == 'PLANE' && data is Map) {
+      final track = data['lastTrack'];
+      return _extractSearchLatitude(track);
+    }
+    return _extractSearchLatitude(data);
+  }
+
+  double? _extractSearchResultLongitude(Map<String, dynamic> result) {
+    final data = result['data'];
+    if (result['type'] == 'PLANE' && result['isVatsim'] == true) {
+      return _extractSearchLongitude(data);
+    }
+    if (result['type'] == 'PLANE' && data is Map) {
+      final track = data['lastTrack'];
+      return _extractSearchLongitude(track);
+    }
+    return _extractSearchLongitude(data);
+  }
+
+  double? _distanceNmToSearchResult(Map<String, dynamic> result) {
+    final aircraftLat = _searchAircraftLatitude();
+    final aircraftLon = _searchAircraftLongitude();
+    final resultLat = _extractSearchResultLatitude(result);
+    final resultLon = _extractSearchResultLongitude(result);
+    if (aircraftLat == null ||
+        aircraftLon == null ||
+        resultLat == null ||
+        resultLon == null) {
+      return null;
+    }
+
+    const earthRadiusNm = 3440.065;
+    final lat1 = aircraftLat * math.pi / 180.0;
+    final lat2 = resultLat * math.pi / 180.0;
+    final dLat = (resultLat - aircraftLat) * math.pi / 180.0;
+    final dLon = (resultLon - aircraftLon) * math.pi / 180.0;
+    final a = math.pow(math.sin(dLat / 2.0), 2) +
+        math.cos(lat1) * math.cos(lat2) * math.pow(math.sin(dLon / 2.0), 2);
+    final clampedA = a.clamp(0.0, 1.0).toDouble();
+    final c = 2.0 * math.atan2(math.sqrt(clampedA), math.sqrt(1.0 - clampedA));
+    final distance = earthRadiusNm * c;
+    return distance.isFinite ? distance : null;
+  }
+
+  String _formatSearchDistance(Map<String, dynamic> result) {
+    final distance = _distanceNmToSearchResult(result);
+    if (distance == null) return 'XXX';
+    if (distance >= 1000) return distance.toStringAsFixed(0);
+    if (distance >= 100) return distance.toStringAsFixed(1);
+    return distance.toStringAsFixed(1);
+  }
+
   void _onSearchChanged(String query) {
     if (query.isEmpty) {
       setState(() {
@@ -4699,9 +5011,15 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
       }
     }
 
+    final visibleResults = results.take(6).map((result) {
+      final enriched = Map<String, dynamic>.from(result);
+      enriched['distanceNm'] = _distanceNmToSearchResult(enriched);
+      return enriched;
+    }).toList();
+
     setState(() {
-      searchResults = results.take(6).toList();
-      showSearchDropdown = results.isNotEmpty;
+      searchResults = visibleResults;
+      showSearchDropdown = visibleResults.isNotEmpty;
     });
   }
 
@@ -4742,16 +5060,34 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
   }
 
   void _sendMapState(String key, dynamic value) {
-    String valStr = value is String ? "'$value'" : value.toString();
-    _webviewController.runJavaScript(
-        "if(window.setMapState) window.setMapState('$key', $valStr);");
+    final String valStr = value is String ? "'$value'" : value.toString();
+    _webviewController.runJavaScript("""
+      window.__efbMapState = window.__efbMapState || {};
+      window.__efbMapState['$key'] = $valStr;
+      if(window.setMapState) window.setMapState('$key', $valStr);
+    """);
+
+    if (key == 'weather') {
+      Future.delayed(const Duration(milliseconds: 180), () {
+        if (!mounted) return;
+        _webviewController.runJavaScript(
+          "if(window.setMapState) window.setMapState('$key', $valStr);",
+        );
+      });
+      Future.delayed(const Duration(milliseconds: 650), () {
+        if (!mounted) return;
+        _webviewController.runJavaScript(
+          "if(window.setMapState) window.setMapState('$key', $valStr);",
+        );
+      });
+    }
   }
 
   void _triggerTeleportAction() {
     if (manualLat != null && manualLng != null) {
-      double alt = double.tryParse(_altCtrl.text) ?? 36000.0;
-      double hdg = double.tryParse(_hdgCtrl.text) ?? 90.0;
-      double spd = double.tryParse(_speedCtrl.text) ?? 450.0;
+      double alt = double.tryParse(_altCtrl.text) ?? 5000.0;
+      double hdg = double.tryParse(_hdgCtrl.text) ?? 50.0;
+      double spd = double.tryParse(_speedCtrl.text) ?? 220.0;
 
       FFAppState().msfsTeleportLat = manualLat!;
       FFAppState().msfsTeleportLng = manualLng!;
@@ -4990,16 +5326,63 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                                 : (res['isVatsim'] == true
                                     ? Colors.amber
                                     : Colors.greenAccent));
+                        final distanceText = _formatSearchDistance(res);
+                        final distanceAvailable = distanceText != 'XXX';
                         return ListTile(
                           dense: true,
                           contentPadding:
                               const EdgeInsets.symmetric(horizontal: 12),
                           leading: Icon(icn, color: icnColor, size: 20),
                           title: Text(res['title'],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold)),
+                          trailing: Container(
+                            constraints: const BoxConstraints(minWidth: 70),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 9, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00B8D4).withOpacity(0.10),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color:
+                                    const Color(0xFF00D9FF).withOpacity(0.42),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                const Text(
+                                  'DISTANCE',
+                                  style: TextStyle(
+                                    color: Colors.white38,
+                                    fontSize: 7,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.7,
+                                  ),
+                                ),
+                                const SizedBox(height: 1),
+                                Text(
+                                  distanceAvailable
+                                      ? '$distanceText NM'
+                                      : 'XXX',
+                                  style: TextStyle(
+                                    color: distanceAvailable
+                                        ? const Color(0xFF39E6FF)
+                                        : Colors.white54,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w900,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           onTap: () => _onSearchResultSelected(res),
                         );
                       },
@@ -5043,28 +5426,6 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
               ),
             ),
           ),
-          if (teleportMode)
-            Positioned(
-              bottom: 6,
-              left: 15,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                      color: Colors.redAccent.withOpacity(0.4), width: 1),
-                ),
-                child: const Text(
-                  "* Teleport feature currently works with MSFS only",
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
           Positioned(
             top: 65,
             left: 15,
@@ -5247,7 +5608,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
               left: 15,
               child: FloatingActionButton(
                 mini: true,
-                backgroundColor: Colors.orangeAccent.withOpacity(0.8),
+                backgroundColor: Colors.redAccent.withOpacity(0.85),
                 onPressed: () => setState(() => showTeleportControls = true),
                 child: const Icon(Icons.settings, color: Colors.white),
               ),
@@ -5282,7 +5643,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         color: Colors.black87,
         borderRadius: BorderRadius.circular(12),
         border:
-            Border.all(color: Colors.orangeAccent.withOpacity(0.6), width: 1.5),
+            Border.all(color: Colors.redAccent.withOpacity(0.72), width: 1.5),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -5293,7 +5654,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
             children: [
               const Text("TELEPORT SETTINGS",
                   style: TextStyle(
-                      color: Colors.orangeAccent,
+                      color: Colors.redAccent,
                       fontSize: 10,
                       fontWeight: FontWeight.bold)),
               GestureDetector(
@@ -5309,7 +5670,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
           const SizedBox(height: 8),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orangeAccent,
+              backgroundColor: Colors.redAccent,
               minimumSize: const Size.fromHeight(28),
               padding: EdgeInsets.zero,
             ),
@@ -5359,7 +5720,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                   enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.white24)),
                   focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orangeAccent)),
+                      borderSide: BorderSide(color: Colors.redAccent)),
                 ),
               ),
             ),
@@ -6275,6 +6636,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                   double.tryParse(lon) ?? 0.0,
                   name,
                   "NAVAID",
+                  accentColor: navaidAccent,
                 ),
               ),
             ],
@@ -6289,7 +6651,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
         ? Map<String, dynamic>.from(holdData)
         : <String, dynamic>{};
 
-    const Color holdColor = Color(0xFFD946EF);
+    const Color holdColor = Color(0xFF14B8A6);
 
     final String fix =
         (data['fix'] ?? "UNKNOWN").toString().trim().toUpperCase();
@@ -6659,16 +7021,13 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
     double lat,
     double lon,
     String locationName,
-    String locationType,
-  ) async {
+    String locationType, {
+    Color? accentColor,
+  }) async {
     if (!lat.isFinite || !lon.isFinite) return;
 
     final String normalizedLocationType = locationType.toUpperCase();
-    final Color accent = normalizedLocationType == 'WAYPOINT'
-        ? const Color(0xFFFFD166)
-        : (normalizedLocationType == 'HOLD'
-            ? const Color(0xFFD946EF)
-            : const Color(0xFFD946EF));
+    const Color accent = Color(0xFFFF3B30);
 
     manualLat = lat;
     manualLng = lon;
@@ -6691,10 +7050,12 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                 color: const Color(0xFF0B1118),
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(22)),
-                border: Border.all(color: Colors.white12),
-                boxShadow: const [
+                border: Border.all(
+                  color: accent.withOpacity(0.32),
+                ),
+                boxShadow: [
                   BoxShadow(
-                    color: Colors.black54,
+                    color: accent.withOpacity(0.10),
                     blurRadius: 22,
                     spreadRadius: 2,
                   ),
@@ -6807,9 +7168,7 @@ function updateLineLayer(sourceId, layerId, dataArr, isVisible, color) {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: normalizedLocationType == 'HOLD'
-                              ? accent
-                              : Colors.orangeAccent,
+                          backgroundColor: accent,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(13),

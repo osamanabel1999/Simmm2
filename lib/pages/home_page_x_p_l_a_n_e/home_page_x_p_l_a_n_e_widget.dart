@@ -255,6 +255,20 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                 FFAppState().radarHdgRaw,
                 0.0,
               );
+              _model.rightDownwind =
+                  await actions.calculateRightDownwindPosition(
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.x''',
+                ),
+                getJsonField(
+                  _model.autoResult,
+                  r'''$.z''',
+                ),
+                FFAppState().radarHdgRaw,
+                5000.0,
+                4500.0,
+              );
               _model.teleportOnMAP = await actions.moveAircraftBackward(
                 getJsonField(
                   _model.autoResultTeleportonMap,
@@ -291,20 +305,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                 ),
                 FFAppState().efbNavaidTeleportHeading,
                 0.0,
-              );
-              _model.rightDownwind =
-                  await actions.calculateRightDownwindPosition(
-                getJsonField(
-                  _model.autoResult,
-                  r'''$.x''',
-                ),
-                getJsonField(
-                  _model.autoResult,
-                  r'''$.z''',
-                ),
-                FFAppState().radarHdgRaw,
-                5000.0,
-                4500.0,
               );
               _model.leftbase = await actions.calculateBaseLegPosition(
                 getJsonField(
@@ -6601,6 +6601,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                               initialLat: 20.0,
                                               initialLng: 20.0,
                                               initialZoom: 1.8,
+                                              aircraftLatitude:
+                                                  FFAppState().currentLAT,
+                                              aircraftLongitude:
+                                                  FFAppState().currentLON,
                                               onLocationSelected:
                                                   (selectedLatitude,
                                                       selectedLongitude,
@@ -38543,6 +38547,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                   '(${(double var1) {
                                                 return '${(var1 / 3600).floor().toString().padLeft(2, '0')}:${((var1 % 3600) / 60).floor().toString().padLeft(2, '0')}';
                                               }(FFAppState().efbSimulatorTimeSeconds)} UTC)',
+                                              aircraftLatitude:
+                                                  FFAppState().currentLAT,
+                                              aircraftLongitude:
+                                                  FFAppState().currentLON,
                                               onRunwaySelected:
                                                   (lat, lon, heading) async {
                                                 _model.elevationDataXplaneRWY1 =

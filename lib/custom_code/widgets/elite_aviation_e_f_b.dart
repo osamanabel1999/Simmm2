@@ -1449,7 +1449,17 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
 
 class NavaidTeleportWidget extends StatefulWidget {
   final Future Function()? onTeleportTap;
-  const NavaidTeleportWidget({Key? key, this.onTeleportTap}) : super(key: key);
+
+  // Live simulator aircraft position used for real-time Navaid distances.
+  final double? aircraftLatitude;
+  final double? aircraftLongitude;
+
+  const NavaidTeleportWidget({
+    Key? key,
+    this.onTeleportTap,
+    this.aircraftLatitude,
+    this.aircraftLongitude,
+  }) : super(key: key);
   @override
   _NavaidTeleportWidgetState createState() => _NavaidTeleportWidgetState();
 }
@@ -1480,6 +1490,82 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
     super.dispose();
   }
 
+  double? _aircraftDistanceToNavaid(NavaidModel model) {
+    final double? aircraftLat = widget.aircraftLatitude;
+    final double? aircraftLon = widget.aircraftLongitude;
+
+    // Simulator offline / not started / no valid coordinates.
+    if (aircraftLat == null ||
+        aircraftLon == null ||
+        !aircraftLat.isFinite ||
+        !aircraftLon.isFinite ||
+        aircraftLat < -90.0 ||
+        aircraftLat > 90.0 ||
+        aircraftLon < -180.0 ||
+        aircraftLon > 180.0) {
+      return null;
+    }
+
+    final double lat1 = aircraftLat * math.pi / 180.0;
+    final double lat2 = model.lat * math.pi / 180.0;
+    final double dLat = (model.lat - aircraftLat) * math.pi / 180.0;
+    final double dLon = (model.lon - aircraftLon) * math.pi / 180.0;
+
+    final double a = math.sin(dLat / 2.0) * math.sin(dLat / 2.0) +
+        math.cos(lat1) *
+            math.cos(lat2) *
+            math.sin(dLon / 2.0) *
+            math.sin(dLon / 2.0);
+
+    final double c = 2.0 *
+        math.atan2(
+          math.sqrt(a),
+          math.sqrt(math.max(0.0, 1.0 - a)),
+        );
+
+    return 3440.065 * c;
+  }
+
+  String _formatNavaidDistance(NavaidModel model) {
+    final double? distanceNm = _aircraftDistanceToNavaid(model);
+    if (distanceNm == null || !distanceNm.isFinite) {
+      return 'XXX';
+    }
+
+    if (distanceNm < 100.0) {
+      return '${distanceNm.toStringAsFixed(1)} NM';
+    }
+
+    return '${distanceNm.round()} NM';
+  }
+
+  Widget _buildNavaidDistanceBadge(NavaidModel model) {
+    final bool unavailable = _aircraftDistanceToNavaid(model) == null;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A121E),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color:
+              unavailable ? const Color(0xFF455A75) : const Color(0xFF1E324A),
+          width: 0.8,
+        ),
+      ),
+      child: Text(
+        _formatNavaidDistance(model),
+        style: const TextStyle(
+          color: Color(0xFF6B87A8),
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.4,
+        ),
+      ),
+    );
+  }
+
   void _onSearchChanged(String val) {
     if (val.length < 2) {
       setState(() => _searchResults = []);
@@ -1505,7 +1591,7 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
         }
       }
       setState(() {
-        _searchResults = [...exactMatches, ...nameMatches].take(8).toList();
+        _searchResults = [...exactMatches, ...nameMatches];
       });
     } catch (_) {
       setState(() => _searchResults = []);
@@ -2381,11 +2467,13 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
                                     Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(formatFrequency(nv.model.freq),
                                               style: const TextStyle(
                                                   color: Color(0xFF6B87A8),
-                                                  fontSize: 12))
+                                                  fontSize: 12)),
+                                          _buildNavaidDistanceBadge(nv.model),
                                         ])
                                   ])));
                         }))))
@@ -2396,6 +2484,11 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
 class EliteAviationEFB extends StatefulWidget {
   final double? width;
   final double? height;
+
+  // Live simulator aircraft position for Navaid search distance calculations.
+  final double? aircraftLatitude;
+  final double? aircraftLongitude;
+
   final Future Function(double lat, double lon, double heading)?
       onRunwaySelected;
   final Future Function(double lat, double lon, double heading)? onGateSelected;
@@ -2425,6 +2518,8 @@ class EliteAviationEFB extends StatefulWidget {
       {Key? key,
       this.width,
       this.height,
+      this.aircraftLatitude,
+      this.aircraftLongitude,
       this.onRunwaySelected,
       this.onGateSelected,
       this.onChartGateSelected,
@@ -2818,7 +2913,9 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                       Offstage(
                           offstage: _selectedMode != 5,
                           child: NavaidTeleportWidget(
-                              onTeleportTap: widget.onNavaidTeleportTap)),
+                              onTeleportTap: widget.onNavaidTeleportTap,
+                              aircraftLatitude: widget.aircraftLatitude,
+                              aircraftLongitude: widget.aircraftLongitude)),
                       if (_selectedMode == 3 || _selectedMode == 4)
                         const Center(
                             child: Text("SELECT A MODE",
