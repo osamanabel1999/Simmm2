@@ -88,14 +88,20 @@ class _FlightPlanPageWidgetState extends State<FlightPlanPageWidget>
   bool isDepNotamExpanded = false;
   bool isArrNotamExpanded = false;
 
-  // الألوان مطابقة للصورة باحترافية
-  final Color bgColor = const Color(0xFF0F1115);
-  final Color cardColor = const Color(0xFF15191E);
+  // ============================================================
+  // الألوان الموحدة الخاصة بتصميمنا (تم التعديل لتطابق image_8.png)
+  // ============================================================
+  final Color bgColor =
+      const Color(0xFF0B111A); // الخلفية اللي ورا خالص (الأغمق)
+  final Color cardColor =
+      const Color(0xFF101923); // خلفية الكونتينرات (أفتح سنة)
   final Color greenAccent = const Color(0xFF88C782);
   final Color blueAccent = const Color(0xFF639DF0);
   final Color labelColor = const Color(0xFF8B949E);
   final Color valueColor = const Color(0xFFE5E7EB);
-  final Color buttonBgColor = const Color(0xFF212C45);
+  final Color buttonBgColor = const Color(
+      0xFF0B111A); // خلفية الزراير (نفس لون الخلفية اللي بره عشان تبرز جوه الكارت)
+  final Color panelBorder = const Color(0xFF26364D); // حواف الكونتينر الموحدة
 
   // دالة النسخ مع السناك بار
   void _copyToClipboard(String text, String sectionName) {
@@ -110,12 +116,12 @@ class _FlightPlanPageWidgetState extends State<FlightPlanPageWidget>
               fontWeight: FontWeight.w600,
             ),
           ),
-          backgroundColor: cardColor, // تم تغييره للون الخلفية الغامق
+          backgroundColor: cardColor,
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
-            side: BorderSide(color: Colors.white.withOpacity(0.05)),
+            side: BorderSide(color: panelBorder),
           ),
         ),
       );
@@ -175,7 +181,7 @@ class _FlightPlanPageWidgetState extends State<FlightPlanPageWidget>
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: panelBorder, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,6 +212,7 @@ class _FlightPlanPageWidgetState extends State<FlightPlanPageWidget>
                   decoration: BoxDecoration(
                     color: buttonBgColor,
                     borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: panelBorder, width: 1.0),
                   ),
                   child: Text(
                     "COPY",
@@ -298,7 +305,7 @@ class _FlightPlanPageWidgetState extends State<FlightPlanPageWidget>
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.05)),
+                border: Border.all(color: panelBorder, width: 1.0),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -357,7 +364,7 @@ class _FlightPlanPageWidgetState extends State<FlightPlanPageWidget>
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.05)),
+                border: Border.all(color: panelBorder, width: 1.0),
               ),
               child: Row(
                 children: [
@@ -439,8 +446,7 @@ class _FlightPlanPageWidgetState extends State<FlightPlanPageWidget>
                       decoration: BoxDecoration(
                         color: buttonBgColor,
                         borderRadius: BorderRadius.circular(12),
-                        border:
-                            Border.all(color: Colors.white.withOpacity(0.05)),
+                        border: Border.all(color: panelBorder, width: 1.0),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -469,8 +475,7 @@ class _FlightPlanPageWidgetState extends State<FlightPlanPageWidget>
                       decoration: BoxDecoration(
                         color: buttonBgColor,
                         borderRadius: BorderRadius.circular(12),
-                        border:
-                            Border.all(color: Colors.white.withOpacity(0.05)),
+                        border: Border.all(color: panelBorder, width: 1.0),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

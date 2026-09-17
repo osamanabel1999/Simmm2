@@ -1,5 +1,4 @@
 import '/flutter_flow/flutter_flow_ad_banner.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import '/index.dart';
@@ -44,7 +43,7 @@ class _HomeMenuWidgetState extends State<HomeMenuWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: Color(0xFF0B111A),
         body: SafeArea(
           top: true,
           child: Column(

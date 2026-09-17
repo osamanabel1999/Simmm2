@@ -3261,6 +3261,53 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                                   color: Color(0xFF7AA5D2),
                                   fontWeight: FontWeight.bold))))
                 ]),
+                if (_runways.isNotEmpty) ...[
+                  const SizedBox(height: 7),
+                  SizedBox(
+                    height: 34,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _runways.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 5),
+                      itemBuilder: (context, index) {
+                        final rw = _runways[index];
+                        final isSel = _selectedRunway != null &&
+                            _selectedRunway!['name'] == rw['name'];
+                        return GestureDetector(
+                          onTap: () => _selectRunway(rw),
+                          child: Container(
+                            constraints: const BoxConstraints(minWidth: 58),
+                            padding: const EdgeInsets.symmetric(horizontal: 11),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: isSel
+                                  ? const Color(0xFF223E63)
+                                  : const Color(0xFF0A121E),
+                              border: Border.all(
+                                color: isSel
+                                    ? const Color(0xFF7AA5D2)
+                                    : const Color(0xFF1E2F45),
+                                width: isSel ? 1.2 : 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Text(
+                              rw['name'].toString(),
+                              style: TextStyle(
+                                color: isSel
+                                    ? Colors.white
+                                    : const Color(0xFF7A9BBF),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: .4,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 7),
                 Row(children: [
                   Expanded(
@@ -3866,6 +3913,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
       final double planeSize =
           mobile ? (constraints.maxWidth < 360 ? 104 : 116) : 200;
       if (mobile) {
+        final double mobilePlaneSize = constraints.maxWidth < 360 ? 132 : 142;
         return Stack(
             alignment: Alignment.center,
             clipBehavior: Clip.none,
@@ -3878,94 +3926,94 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                               : 'RWY'))),
               RadarPlane(
                   constraints: constraints,
-                  xPct: .12,
+                  xPct: .10,
                   yPct: .50,
                   text1: '15nm OUT',
                   text2: '3,000ft',
                   angle: math.pi / 2,
                   txtDy: 36,
                   onTap: widget.onPlane15nmTap,
-                  size: planeSize),
+                  size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
-                  xPct: .33,
+                  xPct: .36,
                   yPct: .50,
                   text1: '10nm OUT',
                   text2: '2,500ft',
                   angle: math.pi / 2,
                   txtDy: 36,
                   onTap: widget.onPlane10nmTap,
-                  size: planeSize),
+                  size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
-                  xPct: .54,
+                  xPct: .62,
                   yPct: .50,
                   text1: '7nm',
                   text2: '2,300ft',
                   angle: math.pi / 2,
                   txtDy: 36,
                   onTap: widget.onPlane7nmTap,
-                  size: planeSize),
+                  size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
-                  xPct: .75,
+                  xPct: .88,
                   yPct: .50,
                   text1: 'Takeoff',
                   text2: 'ON RWY',
                   angle: math.pi / 2,
                   txtDy: 36,
                   onTap: widget.onPlane4nmTap,
-                  size: planeSize),
+                  size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
-                  xPct: .28,
-                  yPct: .25,
+                  xPct: .25,
+                  yPct: .23,
                   text1: 'Cruise',
                   text2: '10,000ft',
                   angle: math.pi / 2,
                   txtDy: -28,
                   onTap: widget.onPlaneCruiseTap,
-                  size: planeSize),
+                  size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
                   xPct: .55,
-                  yPct: .25,
+                  yPct: .23,
                   text1: 'Left base',
                   text2: '7000ft',
                   angle: math.pi,
                   txtDy: -28,
                   onTap: widget.onPlaneHoldLeftTap,
-                  size: planeSize),
+                  size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
-                  xPct: .78,
-                  yPct: .25,
+                  xPct: .82,
+                  yPct: .23,
                   text1: 'Left Downwind',
                   text2: '1000ft',
                   angle: -math.pi / 2,
                   txtDy: -28,
                   onTap: widget.onPlaneLeftDownwindTap,
-                  size: planeSize),
+                  size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
                   xPct: .55,
-                  yPct: .75,
+                  yPct: .77,
                   text1: 'Right base',
                   text2: '7000ft',
                   angle: 0,
                   txtDy: 28,
                   onTap: widget.onPlaneHoldRightTap,
-                  size: planeSize),
+                  size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
-                  xPct: .78,
-                  yPct: .75,
+                  xPct: .82,
+                  yPct: .77,
                   text1: 'Right Downwind',
                   text2: '1,000ft',
                   angle: -math.pi / 2,
                   txtDy: 28,
                   onTap: widget.onPlaneRightDownwindTap,
-                  size: planeSize),
+                  size: mobilePlaneSize),
             ]);
       }
       return Stack(

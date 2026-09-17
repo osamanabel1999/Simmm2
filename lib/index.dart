@@ -2,7 +2,7 @@
 export '/pages/home_page_x_p_l_a_n_e/home_page_x_p_l_a_n_e_widget.dart'
     show HomePageXPLANEWidget;
 export '/t_o_calculation/t_o_calculation_widget.dart' show TOCalculationWidget;
-export '/l_d_g_calculation/l_d_g_calculation_widget.dart'
+export '/pages/l_d_g_calculation/l_d_g_calculation_widget.dart'
     show LDGCalculationWidget;
 export '/flightplanpage/flightplanpage_widget.dart' show FlightplanpageWidget;
 export '/pages/i_ppage_xplane/i_ppage_xplane_widget.dart'
