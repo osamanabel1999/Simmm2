@@ -34,3 +34,11 @@ export '/custom_code/widgets/e_f_b_radar_map.dart' show EFBRadarMap;
 export '/custom_code/widgets/xplin.dart' show Xplin;
 export '/custom_code/widgets/simulator_bottom_menu.dart'
     show SimulatorBottomMenu;
+export '/custom_code/widgets/pushback_control_panel.dart'
+    show PushbackControlPanel;
+export '/custom_code/widgets/to_performance_widget.dart'
+    show ToPerformanceWidget;
+export '/custom_code/widgets/lda_performance_widget.dart'
+    show LdaPerformanceWidget;
+export '/custom_code/widgets/simulator_bottom_menu_xplane.dart'
+    show SimulatorBottomMenuXplane;

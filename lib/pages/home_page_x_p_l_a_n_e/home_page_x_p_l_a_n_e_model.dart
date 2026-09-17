@@ -146,6 +146,8 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   String? Function(BuildContext, String?)? windSpeedTextController1Validator;
   // Stores action output result for [Custom Action - calculateA320SpeedsFull] action in Button widget.
   dynamic speedsResult;
+  // Stores action output result for [Custom Action - calculateA320SpeedsFull] action in ToPerformanceWidget widget.
+  dynamic speedsResult1;
   // State field(s) for AircraftType widget.
   String? aircraftTypeValue2;
   FormFieldController<String>? aircraftTypeValueController2;
@@ -206,6 +208,8 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   String? Function(BuildContext, String?)? windSpeedTextController2Validator;
   // Stores action output result for [Custom Action - calculateA320Landing] action in Button widget.
   dynamic calculateA320Landing;
+  // Stores action output result for [Custom Action - calculateA320Landing] action in LdaPerformanceWidget widget.
+  dynamic calculateA320LandingNew;
   // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in EFBRadarMap widget.
   dynamic vectorsResultTeleportonMAP;
   // State field(s) for TextFieldTOPhigh widget.
