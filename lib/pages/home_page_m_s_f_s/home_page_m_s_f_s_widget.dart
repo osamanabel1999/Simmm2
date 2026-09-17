@@ -44630,10 +44630,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                               Expanded(
                                 child: Container(
                                   width: double.infinity,
-                                  height: 180.0,
+                                  height:
+                                      MediaQuery.sizeOf(context).height * 0.11,
                                   child: custom_widgets.SimulatorBottomMenu(
                                     width: double.infinity,
-                                    height: 180.0,
+                                    height: MediaQuery.sizeOf(context).height *
+                                        0.11,
                                     positionAction: () async {
                                       FFAppState().TabNumber = 1;
                                       safeSetState(() {});
