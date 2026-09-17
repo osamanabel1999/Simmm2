@@ -963,8 +963,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                 height:
                                     MediaQuery.sizeOf(context).height * 0.75,
                                 decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
+                                  color: Color(0xFF0B111A),
                                 ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
@@ -30799,14 +30798,9 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                   width: 683.7,
                                                   height: 70.0,
                                                   decoration: BoxDecoration(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryBackground,
+                                                    color: Color(0xFF0B111A),
                                                     border: Border.all(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryText,
+                                                      color: Color(0xFF26364D),
                                                     ),
                                                   ),
                                                   child: Column(
@@ -30889,14 +30883,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -31006,14 +30998,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -31123,14 +31113,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -31195,13 +31183,9 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                               child: Container(
                                                 width: 683.7,
                                                 decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryBackground,
+                                                  color: Color(0xFF0B111A),
                                                   border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryText,
+                                                    color: Color(0xFF26364D),
                                                   ),
                                                 ),
                                                 child: Column(
@@ -31289,9 +31273,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -31409,9 +31392,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -31524,14 +31506,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -31599,9 +31579,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           context)
                                                       .secondaryBackground,
                                                   border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryText,
+                                                    color: Color(0xFF26364D),
                                                   ),
                                                 ),
                                                 child: Column(
@@ -31689,9 +31667,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -31809,9 +31786,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -31929,9 +31905,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -32055,9 +32030,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -32175,9 +32149,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -32295,9 +32268,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -32421,9 +32393,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -32541,9 +32512,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -32661,9 +32631,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -32787,9 +32756,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(

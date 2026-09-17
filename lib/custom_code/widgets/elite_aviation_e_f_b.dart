@@ -3261,7 +3261,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                                   color: Color(0xFF7AA5D2),
                                   fontWeight: FontWeight.bold))))
                 ]),
-                if (_runways.isNotEmpty) ...[
+                if (_selectedMode == 0 && _runways.isNotEmpty) ...[
                   const SizedBox(height: 7),
                   SizedBox(
                     height: 34,
@@ -3913,7 +3913,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
       final double planeSize =
           mobile ? (constraints.maxWidth < 360 ? 104 : 116) : 200;
       if (mobile) {
-        final double mobilePlaneSize = constraints.maxWidth < 360 ? 132 : 142;
+        final double mobilePlaneSize = constraints.maxWidth < 360 ? 138 : 148;
         return Stack(
             alignment: Alignment.center,
             clipBehavior: Clip.none,
@@ -3936,7 +3936,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
-                  xPct: .36,
+                  xPct: .25,
                   yPct: .50,
                   text1: '10nm OUT',
                   text2: '2,500ft',
@@ -3946,7 +3946,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
-                  xPct: .62,
+                  xPct: .40,
                   yPct: .50,
                   text1: '7nm',
                   text2: '2,300ft',
@@ -3956,7 +3956,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
-                  xPct: .88,
+                  xPct: .54,
                   yPct: .50,
                   text1: 'Takeoff',
                   text2: 'ON RWY',
