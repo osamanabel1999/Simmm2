@@ -49,7 +49,7 @@ class _SubscribeMSFSWidgetState extends State<SubscribeMSFSWidget> {
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         appBar: AppBar(
-          backgroundColor: Color(0xFF14181B),
+          backgroundColor: Color(0xFF0B111A),
           automaticallyImplyLeading: false,
           leading: FlutterFlowIconButton(
             borderColor: Colors.transparent,

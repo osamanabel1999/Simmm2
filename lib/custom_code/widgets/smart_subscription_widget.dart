@@ -37,6 +37,14 @@ class _SmartSubscriptionWidgetState extends State<SmartSubscriptionWidget> {
   bool _isLoading = true;
   List<Map<String, String>> _activeSubscriptions = [];
 
+  // ============================================================
+  // الألوان الموحدة الجديدة (EFB Dark Theme)
+  // ============================================================
+  final Color bgColor = const Color(0xFF0B111A); // تم التعديل
+  final Color cardColor = const Color(0xFF101923); // تم التعديل
+  final Color panelBorder = const Color(0xFF26364D); // تم التعديل
+  final Color blueAccent = const Color(0xFF639DF0); // تم التعديل
+
   @override
   void initState() {
     super.initState();
@@ -175,11 +183,12 @@ class _SmartSubscriptionWidgetState extends State<SmartSubscriptionWidget> {
     return Container(
       width: widget.width ?? double.infinity,
       height: widget.height,
-      color: const Color(0xFF14181B),
+      color: bgColor, // تم التعديل
       child: _isLoading
-          ? const Center(
+          ? Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4B39EF)),
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(blueAccent), // تم التعديل
               ),
             )
           : SingleChildScrollView(
@@ -278,8 +287,8 @@ class _SmartSubscriptionWidgetState extends State<SmartSubscriptionWidget> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 50),
-                      side: const BorderSide(
-                          color: Color(0xFF262D34), width: 1.5),
+                      side: BorderSide(
+                          color: panelBorder, width: 1.5), // تم التعديل
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -291,7 +300,7 @@ class _SmartSubscriptionWidgetState extends State<SmartSubscriptionWidget> {
                   ),
 
                   const SizedBox(height: 24),
-                  const Divider(color: Color(0xFF262D34)),
+                  Divider(color: panelBorder), // تم التعديل
 
                   // الدعم وسياسة الخصوصية
                   Row(
@@ -315,8 +324,8 @@ class _SmartSubscriptionWidgetState extends State<SmartSubscriptionWidget> {
                       ),
                       Container(
                           height: 14,
-                          child:
-                              const VerticalDivider(color: Color(0xFF262D34))),
+                          child: VerticalDivider(
+                              color: panelBorder)), // تم التعديل
                       TextButton.icon(
                         onPressed: () async {
                           if (widget.onPrivacyPolicyPressed != null) {
@@ -352,10 +361,10 @@ class _SmartSubscriptionWidgetState extends State<SmartSubscriptionWidget> {
       width: double.infinity,
       padding: const EdgeInsets.all(18.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF1D2429),
+        color: cardColor, // تم التعديل
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF262D34),
+          color: panelBorder, // تم التعديل
           width: 1.5,
         ),
         boxShadow: const [
@@ -394,17 +403,17 @@ class _SmartSubscriptionWidgetState extends State<SmartSubscriptionWidget> {
               ),
               Text(
                 priceText,
-                style: const TextStyle(
-                  color: Color(0xFF4B39EF),
+                style: TextStyle(
+                  color: blueAccent, // تم التعديل
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 14.0),
-            child: Divider(color: Color(0xFF262D34), height: 1),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14.0),
+            child: Divider(color: panelBorder, height: 1), // تم التعديل
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

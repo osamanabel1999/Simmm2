@@ -51,6 +51,14 @@ class XplaneMsfsPageStatusCard extends StatefulWidget {
 }
 
 class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
+  // ============================================================
+  // الألوان الموحدة الجديدة (EFB Dark Theme)
+  // ============================================================
+  final Color bgColor = const Color(0xFF0B111A); // تم التعديل
+  final Color cardColor = const Color(0xFF101923); // تم التعديل
+  final Color panelBorder = const Color(0xFF26364D); // تم التعديل
+  final Color blueAccent = const Color(0xFF639DF0); // تم التعديل
+
   bool _msfsCopied = false;
   bool _xplaneCopied = false;
 
@@ -92,7 +100,7 @@ class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
     return Container(
       width: widget.width ?? double.infinity,
       height: widget.height,
-      color: const Color(0xFF14181B),
+      color: bgColor, // تم التعديل
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -159,10 +167,10 @@ class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
               width: double.infinity,
               padding: const EdgeInsets.all(18.0),
               decoration: BoxDecoration(
-                color: const Color(0xFF1D2429),
+                color: cardColor, // تم التعديل
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFF262D34),
+                  color: panelBorder, // تم التعديل
                   width: 1.5,
                 ),
                 boxShadow: const [
@@ -202,17 +210,17 @@ class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
                       ),
                       Text(
                         widget.priceText,
-                        style: const TextStyle(
-                          color: Color(0xFF4B39EF),
+                        style: TextStyle(
+                          color: blueAccent, // تم التعديل
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 14.0),
-                    child: Divider(color: Color(0xFF262D34), height: 1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14.0),
+                    child: Divider(color: panelBorder, height: 1), // تم التعديل
                   ),
 
                   // MSFS License Key Copy Field
@@ -233,9 +241,9 @@ class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF14181B),
+                          color: bgColor, // تم التعديل
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFF262D34)),
+                          border: Border.all(color: panelBorder), // تم التعديل
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -295,9 +303,9 @@ class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF14181B),
+                          color: bgColor, // تم التعديل
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFF262D34)),
+                          border: Border.all(color: panelBorder), // تم التعديل
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -383,7 +391,7 @@ class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
               icon: const Icon(Icons.refresh_rounded, size: 20),
               label: const Text('Restore MSFS License'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4B39EF),
+                backgroundColor: blueAccent, // تم التعديل
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
@@ -409,7 +417,7 @@ class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
               icon: const Icon(Icons.refresh_rounded, size: 20),
               label: const Text('Restore X-Plane License'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4B39EF),
+                backgroundColor: blueAccent, // تم التعديل
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
@@ -437,7 +445,7 @@ class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
-                side: const BorderSide(color: Color(0xFF262D34), width: 1.5),
+                side: BorderSide(color: panelBorder, width: 1.5), // تم التعديل
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -449,7 +457,7 @@ class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
             ),
 
             const SizedBox(height: 24),
-            const Divider(color: Color(0xFF262D34)),
+            Divider(color: panelBorder), // تم التعديل
 
             // Support & Policy Links
             Row(
@@ -473,7 +481,7 @@ class _XplaneMsfsPageStatusCardState extends State<XplaneMsfsPageStatusCard> {
                 ),
                 Container(
                     height: 14,
-                    child: const VerticalDivider(color: Color(0xFF262D34))),
+                    child: VerticalDivider(color: panelBorder)), // تم التعديل
                 TextButton.icon(
                   onPressed: () async {
                     if (widget.onPrivacyPolicyPressed != null) {

@@ -44,6 +44,14 @@ class SubscriptionStatusCard extends StatefulWidget {
 }
 
 class _SubscriptionStatusCardState extends State<SubscriptionStatusCard> {
+  // ============================================================
+  // الألوان الموحدة الجديدة (EFB Dark Theme)
+  // ============================================================
+  final Color bgColor = const Color(0xFF0B111A); // تم التعديل
+  final Color cardColor = const Color(0xFF101923); // تم التعديل
+  final Color panelBorder = const Color(0xFF26364D); // تم التعديل
+  final Color blueAccent = const Color(0xFF639DF0); // تم التعديل
+
   @override
   Widget build(BuildContext context) {
     final bool isActive =
@@ -52,7 +60,7 @@ class _SubscriptionStatusCardState extends State<SubscriptionStatusCard> {
     return Container(
       width: widget.width ?? double.infinity,
       height: widget.height,
-      color: const Color(0xFF14181B),
+      color: bgColor, // تم التعديل
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -119,10 +127,10 @@ class _SubscriptionStatusCardState extends State<SubscriptionStatusCard> {
               width: double.infinity,
               padding: const EdgeInsets.all(18.0),
               decoration: BoxDecoration(
-                color: const Color(0xFF1D2429),
+                color: cardColor, // تم التعديل
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFF262D34),
+                  color: panelBorder, // تم التعديل
                   width: 1.5,
                 ),
                 boxShadow: const [
@@ -162,17 +170,17 @@ class _SubscriptionStatusCardState extends State<SubscriptionStatusCard> {
                       ),
                       Text(
                         widget.priceText,
-                        style: const TextStyle(
-                          color: Color(0xFF4B39EF),
+                        style: TextStyle(
+                          color: blueAccent, // تم التعديل
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 14.0),
-                    child: Divider(color: Color(0xFF262D34), height: 1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14.0),
+                    child: Divider(color: panelBorder, height: 1), // تم التعديل
                   ),
 
                   // Expiry Date Row
@@ -219,7 +227,7 @@ class _SubscriptionStatusCardState extends State<SubscriptionStatusCard> {
               icon: const Icon(Icons.refresh_rounded, size: 20),
               label: const Text('Restore License'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4B39EF),
+                backgroundColor: blueAccent, // تم التعديل
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
@@ -247,7 +255,7 @@ class _SubscriptionStatusCardState extends State<SubscriptionStatusCard> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
-                side: const BorderSide(color: Color(0xFF262D34), width: 1.5),
+                side: BorderSide(color: panelBorder, width: 1.5), // تم التعديل
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -259,7 +267,7 @@ class _SubscriptionStatusCardState extends State<SubscriptionStatusCard> {
             ),
 
             const SizedBox(height: 24),
-            const Divider(color: Color(0xFF262D34)),
+            Divider(color: panelBorder), // تم التعديل
 
             // Support & Policy Links
             Row(
@@ -283,7 +291,7 @@ class _SubscriptionStatusCardState extends State<SubscriptionStatusCard> {
                 ),
                 Container(
                     height: 14,
-                    child: const VerticalDivider(color: Color(0xFF262D34))),
+                    child: VerticalDivider(color: panelBorder)), // تم التعديل
                 TextButton.icon(
                   onPressed: () async {
                     if (widget.onPrivacyPolicyPressed != null) {

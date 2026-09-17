@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'dart:math' as math;
+import 'package:flutter_svg/flutter_svg.dart'; // ضروري لعرض الطيارة الجديدة
 
 class PushbackController extends StatefulWidget {
   const PushbackController({
@@ -38,15 +39,22 @@ class PushbackController extends StatefulWidget {
 }
 
 class _PushbackControllerState extends State<PushbackController> {
+  // ألوان التصميم الموحدة الجديدة
+  final Color bgColor = const Color(0xFF0B111A); // الخلفية اللي بره خالص
+  final Color cardColor =
+      const Color(0xFF101923); // خلفية الكروت والمنطقة اللي تحت
+  final Color panelBorder = const Color(0xFF26364D); // لون الحواف الموحد
+  final Color blueAccent = const Color(0xFF639DF0); // اللون الأزرق الشيك الجديد
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: widget.width ?? double.infinity,
       height: widget.height ?? double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF0B0F17),
+        color: bgColor, // تم توحيد اللون
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF1E293B), width: 2),
+        border: Border.all(color: panelBorder, width: 2), // تم توحيد الحواف
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.6),
@@ -58,17 +66,16 @@ class _PushbackControllerState extends State<PushbackController> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
         child: Padding(
-          padding:
-              const EdgeInsets.all(12.0), // تقليل الحواف قليلاً لزيادة المساحة
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
-              // الهيدر العلوي: الأزرار الرئيسية موزعة بالتساوي (لا يوجد Heading لتفادي الـ Overflow)
+              // الهيدر العلوي
               _buildTopBar(),
               const SizedBox(height: 12),
-              // أزرار التحكم بالتوجيه موزعة بالتساوي
+              // أزرار التحكم بالتوجيه موزعة بالتساوي (مع الإيفكت الجديد)
               _buildSteeringButtonsRow(),
               const SizedBox(height: 12),
-              // شاشة الملاحة ورسم الطائرات الثلاث والأسهم الخضراء
+              // شاشة الملاحة ورسم الطائرات الثلاث
               Expanded(
                 child: _buildInteractiveDeck(),
               ),
@@ -160,31 +167,31 @@ class _PushbackControllerState extends State<PushbackController> {
     return Row(
       children: [
         Expanded(
-          child: _buildSteerButton(
+          child: AnimatedSteerButton(
             title: "TAIL LEFT",
             subtitle: "FACE RIGHT",
             icon: Icons.turn_left,
-            color: const Color(0xFF00FF88),
+            color: blueAccent, // اللون الأزرق الموحد
             onTap: widget.onTailLeft,
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _buildSteerButton(
+          child: AnimatedSteerButton(
             title: "STRAIGHT",
             subtitle: "PUSHBACK",
             icon: Icons.arrow_downward,
-            color: const Color(0xFF00FF88),
+            color: blueAccent, // اللون الأزرق الموحد
             onTap: widget.onStraight,
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _buildSteerButton(
+          child: AnimatedSteerButton(
             title: "TAIL RIGHT",
             subtitle: "FACE LEFT",
             icon: Icons.turn_right,
-            color: const Color(0xFF00FF88),
+            color: blueAccent, // اللون الأزرق الموحد
             onTap: widget.onTailRight,
           ),
         ),
@@ -192,88 +199,24 @@ class _PushbackControllerState extends State<PushbackController> {
     );
   }
 
-  Widget _buildSteerButton({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-    required Future Function() onTap,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () async => await onTap(),
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-          decoration: BoxDecoration(
-            color: const Color(0xFF131C2E),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: color.withOpacity(0.5), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: color.withOpacity(0.1),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: 22),
-              const SizedBox(height: 4),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-              ),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildInteractiveDeck() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF070B12),
+        color: cardColor, // تم توحيد اللون
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF1E293B), width: 1.5),
+        border: Border.all(color: panelBorder, width: 1.5), // تم توحيد الحواف
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Stack(
           children: [
-            // شبكة خلفية رادار
-            Positioned.fill(
-              child: CustomPaint(
-                painter: RadarGridPainter(),
-              ),
-            ),
-            // خطوط التوجيه الخضراء المضيئة
+            // شبكة الرادار اتشالت بناءً على طلبك
+
+            // خطوط التوجيه المضيئة (باللون الأزرق الجديد)
             Positioned.fill(
               child: CustomPaint(
                 painter: GuidanceLinesPainter(
-                  lineGlowColor: const Color(0xFF00FF88),
+                  lineGlowColor: blueAccent,
                 ),
               ),
             ),
@@ -282,42 +225,45 @@ class _PushbackControllerState extends State<PushbackController> {
               builder: (context, constraints) {
                 final double w = constraints.maxWidth;
                 final double h = constraints.maxHeight;
-                // تكبير الطائرة قليلاً لتوضيح التفاصيل
+                // تظبيط حجم الطيارة عشان متخبطش في الخطوط أو في بعضها
                 final double planeSize =
-                    math.min(w * 0.28, h * 0.55).clamp(80.0, 150.0);
+                    math.min(w * 0.26, h * 0.50).clamp(70.0, 130.0);
 
                 return Stack(
                   children: [
-                    // الطائرة اليسرى
+                    // الطائرة اليسرى (باصة شوية للشمال)
                     Positioned(
                       left: w * 0.20 - planeSize / 2,
                       top: h * 0.72 - planeSize / 2,
-                      child: _buildPlaneItem(
-                        angle: -0.45,
+                      child: AnimatedPlaneItem(
+                        angle: -0.45, // الميل لليسار
                         size: planeSize,
                         label: "TAIL LEFT",
+                        color: blueAccent,
                         onTap: widget.onTailLeft,
                       ),
                     ),
-                    // الطائرة الوسطى
+                    // الطائرة الوسطى (استريت باصة لقدام)
                     Positioned(
                       left: w * 0.50 - planeSize / 2,
                       top: h * 0.72 - planeSize / 2,
-                      child: _buildPlaneItem(
-                        angle: 0.0,
+                      child: AnimatedPlaneItem(
+                        angle: 0.0, // استريت
                         size: planeSize,
                         label: "STRAIGHT",
+                        color: blueAccent,
                         onTap: widget.onStraight,
                       ),
                     ),
-                    // الطائرة اليمنى
+                    // الطائرة اليمنى (باصة شوية لليمين)
                     Positioned(
                       left: w * 0.80 - planeSize / 2,
                       top: h * 0.72 - planeSize / 2,
-                      child: _buildPlaneItem(
-                        angle: 0.45,
+                      child: AnimatedPlaneItem(
+                        angle: 0.45, // الميل لليمين
                         size: planeSize,
                         label: "TAIL RIGHT",
+                        color: blueAccent,
                         onTap: widget.onTailRight,
                       ),
                     ),
@@ -330,85 +276,206 @@ class _PushbackControllerState extends State<PushbackController> {
       ),
     );
   }
+}
 
-  Widget _buildPlaneItem({
-    required double angle,
-    required double size,
-    required String label,
-    required Future Function() onTap,
-  }) {
+// ============================================================
+// كلاس زرار التوجيه اللي بيعمل (Effect) عند الضغط
+// ============================================================
+class AnimatedSteerButton extends StatefulWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final Future Function() onTap;
+
+  const AnimatedSteerButton({
+    Key? key,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  _AnimatedSteerButtonState createState() => _AnimatedSteerButtonState();
+}
+
+class _AnimatedSteerButtonState extends State<AnimatedSteerButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async => await onTap(),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Transform.rotate(
-            angle: angle,
-            child: CustomPaint(
-              size: Size(size, size),
-              painter: AirlinerPainter(
-                // تم التغيير لمجسم الطائرة المدنية الجديد
-                bodyColor: const Color(0xFF0F172A),
-                glowColor: const Color(0xFF00FF88),
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) async {
+        setState(() => _isPressed = false);
+        await widget.onTap();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.92 : 1.0, // تصغير الزرار عند الضغط
+        duration: const Duration(milliseconds: 100),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+          decoration: BoxDecoration(
+            color: _isPressed
+                ? widget.color.withOpacity(0.2) // بينور خفيف عند الضغط
+                : const Color(0xFF0B111A), // لون خلفية الزرار
+            borderRadius: BorderRadius.circular(10),
+            border:
+                Border.all(color: widget.color.withOpacity(0.5), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: widget.color.withOpacity(_isPressed ? 0.4 : 0.1),
+                blurRadius: _isPressed ? 12 : 8,
               ),
-            ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: const Color(0xFF00FF88).withOpacity(0.15),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: const Color(0xFF00FF88).withOpacity(0.6),
-                width: 1,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(widget.icon, color: widget.color, size: 22),
+              const SizedBox(height: 4),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  widget.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.0,
+                  ),
+                ),
               ),
-            ),
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: Color(0xFF00FF88),
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.8,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  widget.subtitle,
+                  style: TextStyle(
+                    color: widget.color,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-// رسم شبكة الرادار الخلفية
-class RadarGridPainter extends CustomPainter {
+// ============================================================
+// كلاس الطيارة الـ SVG اللي بتعمل (Effect) عند الضغط مع ظبط الزوايا
+// ============================================================
+class AnimatedPlaneItem extends StatefulWidget {
+  final double angle;
+  final double size;
+  final String label;
+  final Color color;
+  final Future Function() onTap;
+
+  const AnimatedPlaneItem({
+    Key? key,
+    required this.angle,
+    required this.size,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  }) : super(key: key);
+
   @override
-  void paint(Canvas canvas, Size size) {
-    final gridPaint = Paint()
-      ..color = const Color(0xFF1E293B).withOpacity(0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
-
-    final double stepY = size.height / 8;
-    for (double y = stepY; y < size.height; y += stepY) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
-    }
-
-    final double stepX = size.width / 8;
-    for (double x = stepX; x < size.width; x += stepX) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  _AnimatedPlaneItemState createState() => _AnimatedPlaneItemState();
 }
 
-// رسم خطوط المسار الفسفورية المضيئة والأسهم
+class _AnimatedPlaneItemState extends State<AnimatedPlaneItem> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) async {
+        setState(() => _isPressed = false);
+        await widget.onTap();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.85 : 1.0, // تصغير الطيارة خفيف عند الضغط
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOutBack,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: _isPressed
+                    ? [
+                        BoxShadow(
+                          color: widget.color
+                              .withOpacity(0.5), // هالة مضيئة عند الضغط
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                        )
+                      ]
+                    : [],
+              ),
+              child: Transform.rotate(
+                // 🚀 السر هنا: بنضيف 180 درجة (math.pi) عشان نعدل الشقلبة بتاعة اللينك الأصلي
+                angle: widget.angle + math.pi,
+                child: SvgPicture.network(
+                  'https://upload.wikimedia.org/wikipedia/commons/7/7e/Boeing_737-800_silhouette.svg',
+                  width: widget.size * 0.65, // تصغير النسبة عشان متخبطش في الخط
+                  height: widget.size * 0.65,
+                  colorFilter: ColorFilter.mode(
+                    widget.color,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: widget.color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: widget.color.withOpacity(0.6),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                widget.label,
+                style: TextStyle(
+                  color: widget.color,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// رسم خطوط المسار المضيئة (تم تعديل اللون ليتطابق مع الأزرق الشيك)
+// ============================================================
 class GuidanceLinesPainter extends CustomPainter {
   final Color lineGlowColor;
 
-  GuidanceLinesPainter({this.lineGlowColor = const Color(0xFF00FF88)});
+  GuidanceLinesPainter({required this.lineGlowColor});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -466,134 +533,6 @@ class GuidanceLinesPainter extends CustomPainter {
 
     canvas.drawPath(arrowPath, glowPaint);
     canvas.drawPath(arrowPath, arrowFill);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// رسم مجسم طائرة A320/B737 الدقيق جداً
-class AirlinerPainter extends CustomPainter {
-  final Color bodyColor;
-  final Color glowColor;
-
-  AirlinerPainter({
-    this.bodyColor = const Color(0xFF0F172A),
-    this.glowColor = const Color(0xFF00FF88),
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double w = size.width;
-    final double h = size.height;
-    final double cx = w / 2;
-
-    final fillPaint = Paint()
-      ..color = bodyColor
-      ..style = PaintingStyle.fill;
-
-    final outlinePaint = Paint()
-      ..color = glowColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8;
-
-    final glowLinePaint = Paint()
-      ..color = glowColor.withOpacity(0.35)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.0
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
-
-    // 1. الأجنحة (Swept Wings)
-    final wingsPath = Path();
-    // الجناح الأيمن
-    wingsPath.moveTo(cx + w * 0.05, h * 0.38); // بداية الجناح من الجسم
-    wingsPath.lineTo(cx + w * 0.48, h * 0.62); // طرف الجناح الأمامي (عوجة)
-    wingsPath.lineTo(cx + w * 0.45, h * 0.68); // طرف الجناح الخلفي
-    wingsPath.lineTo(cx + w * 0.05, h * 0.58); // عودة للجسم
-    // الجناح الأيسر
-    wingsPath.moveTo(cx - w * 0.05, h * 0.38);
-    wingsPath.lineTo(cx - w * 0.48, h * 0.62);
-    wingsPath.lineTo(cx - w * 0.45, h * 0.68);
-    wingsPath.lineTo(cx - w * 0.05, h * 0.58);
-
-    _drawShape(canvas, wingsPath, fillPaint, outlinePaint, glowLinePaint);
-
-    // 2. الجناح الخلفي (Horizontal Stabilizer)
-    final tailWingsPath = Path();
-    // الأيمن
-    tailWingsPath.moveTo(cx + w * 0.03, h * 0.86);
-    tailWingsPath.lineTo(cx + w * 0.22, h * 0.94);
-    tailWingsPath.lineTo(cx + w * 0.20, h * 0.98);
-    tailWingsPath.lineTo(cx + w * 0.02, h * 0.94);
-    // الأيسر
-    tailWingsPath.moveTo(cx - w * 0.03, h * 0.86);
-    tailWingsPath.lineTo(cx - w * 0.22, h * 0.94);
-    tailWingsPath.lineTo(cx - w * 0.20, h * 0.98);
-    tailWingsPath.lineTo(cx - w * 0.02, h * 0.94);
-
-    _drawShape(canvas, tailWingsPath, fillPaint, outlinePaint, glowLinePaint);
-
-    // 3. المحركات (Engines) - بارزة أسفل الجناحين بلمسة واقعية
-    final rightEngine = RRect.fromLTRBR(
-      cx + w * 0.15,
-      h * 0.38,
-      cx + w * 0.21,
-      h * 0.50,
-      const Radius.circular(4),
-    );
-    final leftEngine = RRect.fromLTRBR(
-      cx - w * 0.21,
-      h * 0.38,
-      cx - w * 0.15,
-      h * 0.50,
-      const Radius.circular(4),
-    );
-
-    canvas.drawRRect(rightEngine, glowLinePaint);
-    canvas.drawRRect(rightEngine, fillPaint);
-    canvas.drawRRect(rightEngine, outlinePaint);
-
-    canvas.drawRRect(leftEngine, glowLinePaint);
-    canvas.drawRRect(leftEngine, fillPaint);
-    canvas.drawRRect(leftEngine, outlinePaint);
-
-    // 4. هيكل الطائرة الرئيسي (Fuselage)
-    final bodyPath = Path();
-    bodyPath.moveTo(cx, h * 0.05); // مقدمة الطائرة (Radome)
-    bodyPath.cubicTo(cx + w * 0.08, h * 0.06, cx + w * 0.10, h * 0.15,
-        cx + w * 0.09, h * 0.25); // انحناء المقدمة الأيمن
-    bodyPath.lineTo(cx + w * 0.09, h * 0.80); // خط الجسم الأيمن المستقيم
-    bodyPath.cubicTo(cx + w * 0.09, h * 0.92, cx + w * 0.03, h * 0.98, cx,
-        h * 1.0); // ذيل الطائرة الأيمن (APU cone)
-
-    bodyPath.cubicTo(cx - w * 0.03, h * 0.98, cx - w * 0.09, h * 0.92,
-        cx - w * 0.09, h * 0.80); // ذيل الطائرة الأيسر
-    bodyPath.lineTo(cx - w * 0.09, h * 0.25); // خط الجسم الأيسر المستقيم
-    bodyPath.cubicTo(cx - w * 0.10, h * 0.15, cx - w * 0.08, h * 0.06, cx,
-        h * 0.05); // انحناء المقدمة الأيسر
-    bodyPath.close();
-
-    _drawShape(canvas, bodyPath, fillPaint, outlinePaint, glowLinePaint);
-
-    // 5. زجاج قمرة القيادة (Cockpit Windows)
-    final cockpitPath = Path();
-    cockpitPath.moveTo(cx - w * 0.05, h * 0.14);
-    cockpitPath.quadraticBezierTo(cx, h * 0.10, cx + w * 0.05, h * 0.14);
-    cockpitPath.lineTo(cx + w * 0.03, h * 0.17);
-    cockpitPath.quadraticBezierTo(cx, h * 0.14, cx - w * 0.03, h * 0.17);
-    cockpitPath.close();
-
-    final cockpitPaint = Paint()
-      ..color = glowColor
-      ..style = PaintingStyle.fill;
-    canvas.drawPath(cockpitPath, cockpitPaint);
-  }
-
-  void _drawShape(
-      Canvas canvas, Path path, Paint fill, Paint outline, Paint glow) {
-    canvas.drawPath(path, glow);
-    canvas.drawPath(path, fill);
-    canvas.drawPath(path, outline);
   }
 
   @override

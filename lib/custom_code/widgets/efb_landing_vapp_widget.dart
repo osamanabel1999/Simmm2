@@ -35,7 +35,7 @@ class _EfbLandingVappWidgetState extends State<EfbLandingVappWidget> {
     return Container(
       width: widget.width ?? double.infinity,
       height: widget.height ?? 180, // قللنا الارتفاع شوية لإن مفيش مستويات كتير
-      color: const Color(0xFF14181B), // نفس لون الخلفية الموحد
+      color: const Color(0xFF0B111A), // نفس لون الخلفية الموحد
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: CustomPaint(

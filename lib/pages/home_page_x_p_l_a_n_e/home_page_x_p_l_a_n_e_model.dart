@@ -268,14 +268,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   double? sliderTemperatureValue;
   // State field(s) for SliderWindDir widget.
   double? sliderWindDirValue;
-  // State field(s) for CODE widget.
-  FocusNode? codeFocusNode;
-  TextEditingController? codeTextController;
-  String? Function(BuildContext, String?)? codeTextControllerValidator;
-  // Stores action output result for [Backend Call - API (CheckLicense)] action in Button widget.
-  ApiCallResponse? checkResult;
-  // Stores action output result for [Backend Call - API (AddLicense)] action in Button widget.
-  ApiCallResponse? apiResult631;
   // State field(s) for airportICAO widget.
   FocusNode? airportICAOFocusNode;
   TextEditingController? airportICAOTextController;
@@ -320,8 +312,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   bool mouseRegionHovered7 = false;
   // State field(s) for MouseRegion widget.
   bool mouseRegionHovered8 = false;
-  // State field(s) for MouseRegion widget.
-  bool mouseRegionHovered9 = false;
   // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
   dynamic vectorsResult3;
   // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in Xplin widget.
@@ -434,9 +424,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
 
     textFieldBottomLOWFocusNode?.dispose();
     textFieldBottomLOWTextController?.dispose();
-
-    codeFocusNode?.dispose();
-    codeTextController?.dispose();
 
     airportICAOFocusNode?.dispose();
     airportICAOTextController?.dispose();

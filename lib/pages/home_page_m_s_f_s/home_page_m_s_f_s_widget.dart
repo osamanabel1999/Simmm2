@@ -212,7 +212,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+        backgroundColor: Color(0xFF0B111A),
         body: Stack(
           children: [
             Stack(
@@ -965,9 +965,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                 decoration: BoxDecoration(
                                   color: FlutterFlowTheme.of(context)
                                       .secondaryBackground,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                  ),
                                 ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
@@ -40328,9 +40325,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                 width: double.infinity,
                                                 height: 350.0,
                                                 decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryBackground,
+                                                  color: Color(0xFF0B111A),
                                                 ),
                                                 child: Column(
                                                   mainAxisSize:
@@ -40347,9 +40342,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           width: 300.0,
                                                           decoration:
                                                               BoxDecoration(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .secondaryBackground,
+                                                            color: Color(
+                                                                0xFF0B111A),
                                                             boxShadow: [
                                                               BoxShadow(
                                                                 blurRadius: 4.0,
@@ -40406,7 +40400,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                 FlutterFlowTheme.of(context).labelMedium.fontStyle,
                                                                           ),
                                                                           color:
-                                                                              Color(0xFF57636C),
+                                                                              Color(0xFF8B949E),
                                                                           fontSize:
                                                                               14.0,
                                                                           letterSpacing:
@@ -40442,9 +40436,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .infinity,
                                                                     decoration:
                                                                         BoxDecoration(
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primaryBackground,
+                                                                      color: Color(
+                                                                          0xFF101923),
                                                                       border:
                                                                           Border
                                                                               .all(
@@ -40512,6 +40505,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                       fontWeight: FontWeight.w500,
                                                                                       fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                     ),
+                                                                                    color: Color(0xFF639DF0),
                                                                                     fontSize: 15.0,
                                                                                     letterSpacing: 0.0,
                                                                                     fontWeight: FontWeight.w500,
@@ -40561,8 +40555,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           .infinity,
                                                                       decoration:
                                                                           BoxDecoration(
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .primaryBackground,
+                                                                        color: Color(
+                                                                            0xFF101923),
                                                                         border:
                                                                             Border.all(
                                                                           color:
@@ -40618,6 +40612,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                         fontWeight: FontWeight.w500,
                                                                                         fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                       ),
+                                                                                      color: Color(0xFF639DF0),
                                                                                       fontSize: 15.0,
                                                                                       letterSpacing: 0.0,
                                                                                       fontWeight: FontWeight.w500,
@@ -40660,9 +40655,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .infinity,
                                                                     decoration:
                                                                         BoxDecoration(
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primaryBackground,
+                                                                      color: Color(
+                                                                          0xFF101923),
                                                                       border:
                                                                           Border
                                                                               .all(
@@ -40730,6 +40724,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                       fontWeight: FontWeight.w500,
                                                                                       fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                     ),
+                                                                                    color: Color(0xFF639DF0),
                                                                                     fontSize: 15.0,
                                                                                     letterSpacing: 0.0,
                                                                                     fontWeight: FontWeight.w500,
@@ -40775,9 +40770,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .infinity,
                                                                     decoration:
                                                                         BoxDecoration(
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primaryBackground,
+                                                                      color: Color(
+                                                                          0xFF101923),
                                                                       border:
                                                                           Border
                                                                               .all(
@@ -40874,9 +40868,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .infinity,
                                                                     decoration:
                                                                         BoxDecoration(
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primaryBackground,
+                                                                      color: Color(
+                                                                          0xFF101923),
                                                                       border:
                                                                           Border
                                                                               .all(
@@ -40960,7 +40953,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                   thickness:
                                                                       1.0,
                                                                   color: Color(
-                                                                      0xFFE0E3E7),
+                                                                      0xFF26364D),
                                                                 ),
                                                                 Padding(
                                                                   padding: EdgeInsetsDirectional
@@ -40986,7 +40979,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                 FlutterFlowTheme.of(context).labelMedium.fontStyle,
                                                                           ),
                                                                           color:
-                                                                              Color(0xFF57636C),
+                                                                              Color(0xFF8B949E),
                                                                           fontSize:
                                                                               14.0,
                                                                           letterSpacing:
@@ -41036,8 +41029,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           .infinity,
                                                                       decoration:
                                                                           BoxDecoration(
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .primaryBackground,
+                                                                        color: Color(
+                                                                            0xFF101923),
                                                                         border:
                                                                             Border.all(
                                                                           color:
@@ -41138,8 +41131,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           .infinity,
                                                                       decoration:
                                                                           BoxDecoration(
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .primaryBackground,
+                                                                        color: Color(
+                                                                            0xFF101923),
                                                                         border:
                                                                             Border.all(
                                                                           color:
@@ -41244,8 +41237,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           .infinity,
                                                                       decoration:
                                                                           BoxDecoration(
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .primaryBackground,
+                                                                        color: Color(
+                                                                            0xFF101923),
                                                                         border:
                                                                             Border.all(
                                                                           color:
@@ -41346,8 +41339,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           .infinity,
                                                                       decoration:
                                                                           BoxDecoration(
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .primaryBackground,
+                                                                        color: Color(
+                                                                            0xFF101923),
                                                                         border:
                                                                             Border.all(
                                                                           color:
@@ -41415,7 +41408,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                   thickness:
                                                                       1.0,
                                                                   color: Color(
-                                                                      0xFFE0E3E7),
+                                                                      0xFF26364D),
                                                                 ),
                                                               ],
                                                             ),
@@ -43232,10 +43225,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                     .EliteAviationEFB(
                                                   width: double.infinity,
                                                   height: double.infinity,
-                                                  aircraftLatitude:
-                                                      _model.latitude,
-                                                  aircraftLongitude:
-                                                      _model.longitude,
                                                   onRunwaySelected: (lat, lon,
                                                       heading) async {
                                                     _model.elevationDataMSFSrwy =

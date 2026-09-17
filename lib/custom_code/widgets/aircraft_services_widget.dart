@@ -36,14 +36,14 @@ class AircraftServicesWidget extends StatefulWidget {
 }
 
 class _AircraftServicesWidgetState extends State<AircraftServicesWidget> {
-  // ألوان الثيم الاحترافي (Dark Aerospace Theme)
-  final Color bgColor = const Color(0xFF14181B);
-  final Color cardBgColor = const Color(0xFF111827);
-  final Color borderColor = const Color(0xFF1E293B);
-
-  final Color cyanAccent = const Color(0xFF00E5FF); // للأبواب الفردية
-  final Color orangeAccent = const Color(0xFFFF9100); // لكل الأبواب
-  final Color emeraldAccent = const Color(0xFF00E676); // لخرطوم المطار (Jetway)
+  // ============================================================
+  // ألوان الثيم الاحترافي الموحدة (EFB Dark Theme)
+  // ============================================================
+  final Color bgColor = const Color(0xFF0B111A); // الخلفية اللي بره خالص
+  final Color cardBgColor = const Color(0xFF101923); // خلفية الكونتينر والزراير
+  final Color borderColor = const Color(0xFF26364D); // لون الحواف الموحد
+  final Color blueAccent =
+      const Color(0xFF639DF0); // اللون الأزرق الشيك لكل الأيقونات والتوهج
 
   @override
   Widget build(BuildContext context) {
@@ -73,22 +73,24 @@ class _AircraftServicesWidgetState extends State<AircraftServicesWidget> {
               _buildHeaderTitle("AIRCRAFT DOORS CONTROL", Icons.door_sliding),
               const SizedBox(height: 16),
 
-              // شبكة زراير الأبواب
+              // شبكة زراير الأبواب (تم استخدام الزرار التفاعلي الموحد)
               Row(
                 children: [
-                  _buildServiceButton(
+                  AnimatedServiceButton(
                     title: "MAIN DOOR",
                     subtitle: "Passenger Entry",
                     icon: Icons.meeting_room,
-                    color: cyanAccent,
+                    color: blueAccent,
+                    cardBgColor: cardBgColor,
                     onTap: widget.onMainDoorToggle,
                   ),
                   const SizedBox(width: 16),
-                  _buildServiceButton(
+                  AnimatedServiceButton(
                     title: "CARGO DOOR",
                     subtitle: "Baggage Hold",
                     icon: Icons.inventory_2_outlined,
-                    color: cyanAccent,
+                    color: blueAccent,
+                    cardBgColor: cardBgColor,
                     onTap: widget.onCargoDoorToggle,
                   ),
                 ],
@@ -96,19 +98,21 @@ class _AircraftServicesWidgetState extends State<AircraftServicesWidget> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  _buildServiceButton(
+                  AnimatedServiceButton(
                     title: "SERVICE DOOR",
                     subtitle: "Catering & Supply",
                     icon: Icons.local_dining,
-                    color: cyanAccent,
+                    color: blueAccent,
+                    cardBgColor: cardBgColor,
                     onTap: widget.onServiceDoorToggle,
                   ),
                   const SizedBox(width: 16),
-                  _buildServiceButton(
+                  AnimatedServiceButton(
                     title: "ALL DOORS",
                     subtitle: "Open / Close All",
                     icon: Icons.sync,
-                    color: orangeAccent,
+                    color: blueAccent,
+                    cardBgColor: cardBgColor,
                     onTap: widget.onToggleAllDoors,
                   ),
                 ],
@@ -119,14 +123,15 @@ class _AircraftServicesWidgetState extends State<AircraftServicesWidget> {
               _buildHeaderTitle("GROUND EQUIPMENT", Icons.settings_ethernet),
               const SizedBox(height: 16),
 
-              // زرار الـ Jetway بعرض الشاشة لشكل أفخم
+              // زرار الـ Jetway بعرض الشاشة
               Row(
                 children: [
-                  _buildServiceButton(
+                  AnimatedServiceButton(
                     title: "JETWAY BRIDGE",
                     subtitle: "Connect / Disconnect",
-                    icon: Icons.link, // أيقونة آمنة وممتازة للتعبير عن الربط
-                    color: emeraldAccent,
+                    icon: Icons.link,
+                    color: blueAccent,
+                    cardBgColor: cardBgColor,
                     onTap: widget.onJetwayToggle,
                   ),
                 ],
@@ -138,16 +143,16 @@ class _AircraftServicesWidgetState extends State<AircraftServicesWidget> {
     );
   }
 
-  // ويدجت عنوان السكشن (Sections Header)
+  // ويدجت عنوان السكشن
   Widget _buildHeaderTitle(String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, color: Colors.grey[400], size: 20),
+        Icon(icon, color: blueAccent, size: 20), // تم توحيد اللون
         const SizedBox(width: 12),
         Text(
           title,
           style: TextStyle(
-            color: Colors.grey[300],
+            color: blueAccent, // تم توحيد اللون
             fontSize: 14,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
@@ -163,39 +168,69 @@ class _AircraftServicesWidgetState extends State<AircraftServicesWidget> {
       ],
     );
   }
+}
 
-  // ويدجت الزرار الاحترافي مع تأثير الـ Glow
-  Widget _buildServiceButton({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-    required Future Function()? onTap,
-  }) {
+// ============================================================
+// كلاس منفصل للزرار لعمل الـ Animation والـ Glow Effect عند الضغط
+// ============================================================
+class AnimatedServiceButton extends StatefulWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final Color cardBgColor;
+  final Future Function()? onTap;
+
+  const AnimatedServiceButton({
+    Key? key,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.cardBgColor,
+    this.onTap,
+  }) : super(key: key);
+
+  @override
+  _AnimatedServiceButtonState createState() => _AnimatedServiceButtonState();
+}
+
+class _AnimatedServiceButtonState extends State<AnimatedServiceButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () async {
-            if (onTap != null) {
-              await onTap();
-            }
-          },
-          borderRadius: BorderRadius.circular(12),
-          hoverColor: color.withOpacity(0.05),
-          splashColor: color.withOpacity(0.1),
-          child: Container(
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) async {
+          setState(() => _isPressed = false);
+          if (widget.onTap != null) {
+            await widget.onTap!();
+          }
+        },
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedScale(
+          scale: _isPressed ? 0.96 : 1.0, // تصغير الزرار عند الضغط
+          duration: const Duration(milliseconds: 100),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 100),
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
             decoration: BoxDecoration(
-              color: cardBgColor,
+              color: _isPressed
+                  ? widget.color
+                      .withOpacity(0.05) // تغيير بسيط في الخلفية عند الضغط
+                  : widget.cardBgColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+              border: Border.all(
+                color: widget.color.withOpacity(_isPressed ? 0.6 : 0.3),
+                width: 1.5,
+              ),
               boxShadow: [
-                // توهج خفيف (Glow Effect) ورا الزرار
                 BoxShadow(
-                  color: color.withOpacity(0.08),
-                  blurRadius: 12,
-                  spreadRadius: 1,
+                  color: widget.color.withOpacity(_isPressed ? 0.2 : 0.08),
+                  blurRadius: _isPressed ? 18 : 12,
+                  spreadRadius: _isPressed ? 2 : 1,
                 ),
               ],
             ),
@@ -203,19 +238,20 @@ class _AircraftServicesWidgetState extends State<AircraftServicesWidget> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 100),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: widget.color.withOpacity(_isPressed ? 0.25 : 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: color, size: 28),
+                  child: Icon(widget.icon, color: widget.color, size: 28),
                 ),
                 const SizedBox(height: 16),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    title,
+                    widget.title,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 13,
@@ -228,7 +264,7 @@ class _AircraftServicesWidgetState extends State<AircraftServicesWidget> {
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    subtitle,
+                    widget.subtitle,
                     style: TextStyle(
                       color: Colors.grey[500],
                       fontSize: 10,

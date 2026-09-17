@@ -940,7 +940,9 @@ class _ChartAirplaneWidgetState extends State<ChartAirplaneWidget> {
 class EFBConfigButton extends StatefulWidget {
   final String title;
   final Future Function()? onTap;
-  const EFBConfigButton({required this.title, required this.onTap});
+  final double size;
+  const EFBConfigButton(
+      {required this.title, required this.onTap, this.size = 140});
   @override
   _EFBConfigButtonState createState() => _EFBConfigButtonState();
 }
@@ -962,7 +964,7 @@ class _EFBConfigButtonState extends State<EFBConfigButton> {
       onTapCancel: () => setState(() => _isPressed = false),
       child: AnimatedContainer(
           duration: const Duration(milliseconds: 100),
-          width: 140,
+          width: widget.size,
           padding: const EdgeInsets.symmetric(vertical: 8),
           alignment: Alignment.center,
           decoration: BoxDecoration(
@@ -997,6 +999,7 @@ class RadarPlane extends StatefulWidget {
   final String text1, text2;
   final double angle, txtDy;
   final Future Function()? onTap;
+  final double size;
   const RadarPlane(
       {required this.constraints,
       required this.xPct,
@@ -1005,7 +1008,8 @@ class RadarPlane extends StatefulWidget {
       required this.text2,
       required this.angle,
       required this.txtDy,
-      required this.onTap});
+      required this.onTap,
+      this.size = 200});
   @override
   _RadarPlaneState createState() => _RadarPlaneState();
 }
@@ -1014,38 +1018,39 @@ class _RadarPlaneState extends State<RadarPlane> {
   bool _isHovered = false;
   @override
   Widget build(BuildContext context) {
+    final double k = widget.size / 200.0;
     return Positioned(
-      left: widget.constraints.maxWidth * widget.xPct - 100,
-      top: widget.constraints.maxHeight * widget.yPct - 100,
-      width: 200,
-      height: 200,
+      left: widget.constraints.maxWidth * widget.xPct - widget.size / 2,
+      top: widget.constraints.maxHeight * widget.yPct - widget.size / 2,
+      width: widget.size,
+      height: widget.size,
       child: Stack(
           clipBehavior: Clip.none,
           alignment: Alignment.center,
           children: [
             IgnorePointer(
                 child: CustomPaint(
-                    size: const Size(200, 200),
-                    painter: StraightPointerPainter(dy: widget.txtDy))),
+                    size: Size(widget.size, widget.size),
+                    painter: StraightPointerPainter(dy: widget.txtDy * k))),
             IgnorePointer(
                 child: Transform.translate(
-                    offset:
-                        Offset(0, widget.txtDy + (widget.txtDy > 0 ? 28 : -28)),
+                    offset: Offset(
+                        0, (widget.txtDy + (widget.txtDy > 0 ? 28 : -28)) * k),
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                       if (widget.text1.isNotEmpty)
                         Text(widget.text1,
-                            style: const TextStyle(
-                                color: Color(0xFF7AA5D2),
-                                fontSize: 13,
+                            style: TextStyle(
+                                color: const Color(0xFF7AA5D2),
+                                fontSize: 13 * k,
                                 fontWeight: FontWeight.bold,
                                 shadows: [
                                   Shadow(color: Colors.black, blurRadius: 3)
                                 ])),
                       if (widget.text2.isNotEmpty)
                         Text(widget.text2,
-                            style: const TextStyle(
-                                color: Color(0xFFE5B064),
-                                fontSize: 12,
+                            style: TextStyle(
+                                color: const Color(0xFFE5B064),
+                                fontSize: 12 * k,
                                 fontWeight: FontWeight.bold,
                                 shadows: [
                                   Shadow(color: Colors.black, blurRadius: 3)
@@ -1074,7 +1079,7 @@ class _RadarPlaneState extends State<RadarPlane> {
                           color: _isHovered
                               ? Colors.white
                               : const Color(0xFF7AA5D2),
-                          size: 50,
+                          size: 50 * k,
                           shadows: [
                             Shadow(
                                 color: const Color(0xFF7AA5D2).withOpacity(0.6),
@@ -1449,17 +1454,7 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
 
 class NavaidTeleportWidget extends StatefulWidget {
   final Future Function()? onTeleportTap;
-
-  // Live simulator aircraft position used for real-time Navaid distances.
-  final double? aircraftLatitude;
-  final double? aircraftLongitude;
-
-  const NavaidTeleportWidget({
-    Key? key,
-    this.onTeleportTap,
-    this.aircraftLatitude,
-    this.aircraftLongitude,
-  }) : super(key: key);
+  const NavaidTeleportWidget({Key? key, this.onTeleportTap}) : super(key: key);
   @override
   _NavaidTeleportWidgetState createState() => _NavaidTeleportWidgetState();
 }
@@ -1490,82 +1485,6 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
     super.dispose();
   }
 
-  double? _aircraftDistanceToNavaid(NavaidModel model) {
-    final double? aircraftLat = widget.aircraftLatitude;
-    final double? aircraftLon = widget.aircraftLongitude;
-
-    // Simulator offline / not started / no valid coordinates.
-    if (aircraftLat == null ||
-        aircraftLon == null ||
-        !aircraftLat.isFinite ||
-        !aircraftLon.isFinite ||
-        aircraftLat < -90.0 ||
-        aircraftLat > 90.0 ||
-        aircraftLon < -180.0 ||
-        aircraftLon > 180.0) {
-      return null;
-    }
-
-    final double lat1 = aircraftLat * math.pi / 180.0;
-    final double lat2 = model.lat * math.pi / 180.0;
-    final double dLat = (model.lat - aircraftLat) * math.pi / 180.0;
-    final double dLon = (model.lon - aircraftLon) * math.pi / 180.0;
-
-    final double a = math.sin(dLat / 2.0) * math.sin(dLat / 2.0) +
-        math.cos(lat1) *
-            math.cos(lat2) *
-            math.sin(dLon / 2.0) *
-            math.sin(dLon / 2.0);
-
-    final double c = 2.0 *
-        math.atan2(
-          math.sqrt(a),
-          math.sqrt(math.max(0.0, 1.0 - a)),
-        );
-
-    return 3440.065 * c;
-  }
-
-  String _formatNavaidDistance(NavaidModel model) {
-    final double? distanceNm = _aircraftDistanceToNavaid(model);
-    if (distanceNm == null || !distanceNm.isFinite) {
-      return 'XXX';
-    }
-
-    if (distanceNm < 100.0) {
-      return '${distanceNm.toStringAsFixed(1)} NM';
-    }
-
-    return '${distanceNm.round()} NM';
-  }
-
-  Widget _buildNavaidDistanceBadge(NavaidModel model) {
-    final bool unavailable = _aircraftDistanceToNavaid(model) == null;
-
-    return Container(
-      margin: const EdgeInsets.only(top: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0A121E),
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(
-          color:
-              unavailable ? const Color(0xFF455A75) : const Color(0xFF1E324A),
-          width: 0.8,
-        ),
-      ),
-      child: Text(
-        _formatNavaidDistance(model),
-        style: const TextStyle(
-          color: Color(0xFF6B87A8),
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.4,
-        ),
-      ),
-    );
-  }
-
   void _onSearchChanged(String val) {
     if (val.length < 2) {
       setState(() => _searchResults = []);
@@ -1591,7 +1510,7 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
         }
       }
       setState(() {
-        _searchResults = [...exactMatches, ...nameMatches];
+        _searchResults = [...exactMatches, ...nameMatches].take(8).toList();
       });
     } catch (_) {
       setState(() => _searchResults = []);
@@ -1667,8 +1586,409 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
     if (widget.onTeleportTap != null) widget.onTeleportTap!();
   }
 
+  bool _isMobileNavaid(BuildContext context) =>
+      MediaQuery.sizeOf(context).width < 600;
+
+  Widget _buildMobileView(BuildContext context) {
+    final double w = MediaQuery.sizeOf(context).width;
+    final double side = w < 360 ? 10 : 14;
+    final bool compact = w < 380;
+    final bool isVor = _selectedNavaid?.model.type.contains('VOR') ?? false;
+    final Color accent =
+        isVor ? const Color(0xFF4A90E2) : const Color(0xFFE5B064);
+    final double dialSize = compact ? 150 : 170;
+
+    Widget field(String label, IconData icon, TextEditingController controller,
+        String suffix,
+        {ValueChanged<String>? onChanged}) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Icon(icon, color: accent, size: 13),
+          const SizedBox(width: 5),
+          Flexible(
+              child: Text(label,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold)))
+        ]),
+        const SizedBox(height: 5),
+        SizedBox(
+            height: 38,
+            child: TextField(
+                controller: controller,
+                onChanged: onChanged,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+                decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color(0xFF08111D),
+                    suffixText: suffix,
+                    suffixStyle:
+                        const TextStyle(color: Color(0xFF6B87A8), fontSize: 9),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 9, vertical: 0),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(7),
+                        borderSide: const BorderSide(color: Color(0xFF1E324A))),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(7),
+                        borderSide:
+                            const BorderSide(color: Color(0xFF1E324A))))))
+      ]);
+    }
+
+    return Stack(clipBehavior: Clip.none, children: [
+      SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(side, 12, side, 18),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const Text('Navigational Aids (Navaids) Teleport',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 3),
+            const Text(
+                'Quickly jump to any VOR / NDB and set your radial and distance.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Color(0xFF6B87A8), fontSize: 9)),
+            const SizedBox(height: 13),
+            SizedBox(
+                height: 44,
+                child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: _onSearchChanged,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600),
+                    decoration: InputDecoration(
+                        hintText: 'SEARCH NAVAID IDENT OR NAME',
+                        hintStyle: const TextStyle(
+                            color: Color(0xFF455A75), fontSize: 10),
+                        prefixIcon: Icon(Icons.search, color: accent, size: 19),
+                        suffixIcon: IconButton(
+                            icon: const Icon(Icons.cancel,
+                                color: Color(0xFF455A75), size: 18),
+                            onPressed: () {
+                              _searchCtrl.clear();
+                              setState(() => _searchResults = []);
+                            }),
+                        filled: true,
+                        fillColor: const Color(0xFF08111D),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 8),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide:
+                                const BorderSide(color: Color(0xFF1E324A))),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide:
+                                const BorderSide(color: Color(0xFF1E324A))),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide:
+                                BorderSide(color: accent, width: 1.3))))),
+            if (_selectedNavaid != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                  padding: EdgeInsets.all(compact ? 10 : 12),
+                  decoration: BoxDecoration(
+                      color: const Color(0xFF0C1627),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFF1A2C42))),
+                  child: Column(children: [
+                    Row(children: [
+                      Container(
+                          width: compact ? 86 : 96,
+                          height: compact ? 86 : 96,
+                          decoration: BoxDecoration(
+                              color: const Color(0xFF070D18),
+                              borderRadius: BorderRadius.circular(9),
+                              border:
+                                  Border.all(color: const Color(0xFF1A2C42))),
+                          child: Stack(alignment: Alignment.center, children: [
+                            CustomPaint(
+                                size: const Size(58, 58),
+                                painter: isVor
+                                    ? GlowingVORPainter()
+                                    : GlowingNDBPainter()),
+                            Positioned(
+                                bottom: 8,
+                                child: Text(_selectedNavaid!.model.type,
+                                    style: TextStyle(
+                                        color: accent,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1.1)))
+                          ])),
+                      const SizedBox(width: 10),
+                      Expanded(
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                            Text(_selectedNavaid!.ident,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 1.5)),
+                            const SizedBox(height: 2),
+                            Text(
+                                '${_selectedNavaid!.model.name} ${_selectedNavaid!.model.type.split('-')[0]}',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Color(0xFF6B87A8), fontSize: 10)),
+                            const SizedBox(height: 5),
+                            Text(
+                                '${_selectedNavaid!.model.airport.isNotEmpty ? _selectedNavaid!.model.airport : _selectedNavaid!.model.country}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Color(0xFF6B87A8),
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold))
+                          ]))
+                    ]),
+                    const SizedBox(height: 10),
+                    Wrap(spacing: 8, runSpacing: 7, children: [
+                      _mobileNavaidInfo('Frequency',
+                          formatFrequency(_selectedNavaid!.model.freq)),
+                      _mobileNavaidInfo('Elevation',
+                          '${_selectedNavaid!.model.elev.toInt()} ft'),
+                      _mobileNavaidInfo('Coordinates',
+                          '${toDMS(_selectedNavaid!.model.lat, true)}  ${toDMS(_selectedNavaid!.model.lon, false)}')
+                    ])
+                  ])),
+              const SizedBox(height: 12),
+              Container(
+                  padding: EdgeInsets.all(compact ? 10 : 12),
+                  decoration: BoxDecoration(
+                      color: const Color(0xFF0C1627),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFF1A2C42))),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(children: [
+                          Icon(Icons.gps_fixed, color: accent, size: 17),
+                          const SizedBox(width: 7),
+                          const Expanded(
+                              child: Text('Teleport Configuration',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold)))
+                        ]),
+                        const SizedBox(height: 2),
+                        const Text(
+                            'Set the radial, heading, distance, altitude, and speed.',
+                            style: TextStyle(
+                                color: Color(0xFF6B87A8), fontSize: 9)),
+                        const SizedBox(height: 12),
+                        Center(
+                            child: GestureDetector(
+                                onPanUpdate: (d) => _updateDialFromPan(
+                                    d.localPosition, Size(dialSize, dialSize)),
+                                child: SizedBox(
+                                    width: dialSize,
+                                    height: dialSize,
+                                    child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          CustomPaint(
+                                              size: Size(dialSize, dialSize),
+                                              painter:
+                                                  AdvancedCompassDialPainter(
+                                                      angle: _dialAngle)),
+                                          Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                    '${_dialAngle.round().toString().padLeft(3, '0')}°',
+                                                    style: TextStyle(
+                                                        color: const Color(
+                                                            0xFFF09819),
+                                                        fontSize:
+                                                            compact ? 21 : 23,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                const Text('RADIAL',
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xFF6B87A8),
+                                                        fontSize: 8,
+                                                        letterSpacing: 1.5))
+                                              ])
+                                        ])))),
+                        const SizedBox(height: 8),
+                        Center(
+                            child: Text(
+                                'Drag to rotate  •  Heading bug: ${_dialAngle.round().toString().padLeft(3, '0')}°',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    color: Color(0xFF6B87A8), fontSize: 9))),
+                        const SizedBox(height: 12),
+                        GridView.count(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 9,
+                            childAspectRatio: compact ? 2.25 : 2.5,
+                            children: [
+                              field('Radial (°)', Icons.satellite_alt,
+                                  _radialCtrl, '°',
+                                  onChanged: _updateDialFromText),
+                              field(
+                                  'Heading (°)', Icons.explore, _hdgCtrl, '°'),
+                              field('Distance', Icons.radar, _distCtrl, 'NM',
+                                  onChanged: (_) => _recalcTarget()),
+                              field(
+                                  'Altitude', Icons.landscape, _altCtrl, 'FT'),
+                              field('Speed', Icons.speed, _spdCtrl, 'KT')
+                            ]),
+                        const SizedBox(height: 11),
+                        Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                                color: const Color(0xFF08111D),
+                                borderRadius: BorderRadius.circular(7),
+                                border:
+                                    Border.all(color: const Color(0xFF1E324A))),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Teleport Position',
+                                      style: TextStyle(
+                                          color: Color(0xFF6B87A8),
+                                          fontSize: 9)),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                      '${toDMS(_targetLat, true)}  ${toDMS(_targetLon, false)}',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                      'HDG ${_hdgCtrl.text}°   •   ${_distCtrl.text} NM   •   ${_spdCtrl.text} KT',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          color: Color(0xFF6B87A8),
+                                          fontSize: 9))
+                                ])),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                            height: 42,
+                            child: ElevatedButton.icon(
+                                onPressed: _teleport,
+                                icon: Icon(Icons.flight_takeoff,
+                                    color: accent, size: 18),
+                                label: Text('TELEPORT',
+                                    style: TextStyle(
+                                        color: accent,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1)),
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF161F2C),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        side: BorderSide(
+                                            color: accent, width: 1.3)))))
+                      ]))
+            ]
+          ])),
+      if (_searchResults.isNotEmpty)
+        Positioned(
+            top: 70,
+            left: side,
+            right: side,
+            child: Material(
+                color: Colors.transparent,
+                elevation: 20,
+                child: Container(
+                    constraints: const BoxConstraints(maxHeight: 240),
+                    decoration: BoxDecoration(
+                        color: const Color(0xFF0C1627),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Color(0xFF4A90E2))),
+                    child: ListView.separated(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        itemCount: _searchResults.length,
+                        separatorBuilder: (ctx, i) =>
+                            const Divider(color: Color(0xFF1A2C42), height: 1),
+                        itemBuilder: (ctx, i) {
+                          final nv = _searchResults[i];
+                          return InkWell(
+                              onTap: () => _selectNavaid(nv),
+                              child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 9),
+                                  child: Row(children: [
+                                    Icon(
+                                        nv.model.type.contains('VOR')
+                                            ? Icons.radar
+                                            : Icons.adjust,
+                                        color: accent,
+                                        size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                          Text(nv.ident,
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold)),
+                                          Text(
+                                              '${nv.model.name} • ${nv.model.type}',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                  color: Color(0xFF6B87A8),
+                                                  fontSize: 9))
+                                        ])),
+                                    Text(formatFrequency(nv.model.freq),
+                                        style: const TextStyle(
+                                            color: Color(0xFF6B87A8),
+                                            fontSize: 9))
+                                  ])));
+                        }))))
+    ]);
+  }
+
+  Widget _mobileNavaidInfo(String label, String value) => SizedBox(
+      width: (MediaQuery.sizeOf(context).width - 55) / 2,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label,
+            style: const TextStyle(color: Color(0xFF6B87A8), fontSize: 8)),
+        const SizedBox(height: 2),
+        Text(value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+                color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold))
+      ]));
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => _isMobileNavaid(context)
+      ? _buildMobileView(context)
+      : _buildDesktopView(context);
+
+  Widget _buildDesktopView(BuildContext context) {
     return Stack(clipBehavior: Clip.none, children: [
       SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -2467,13 +2787,11 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
                                     Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
-                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(formatFrequency(nv.model.freq),
                                               style: const TextStyle(
                                                   color: Color(0xFF6B87A8),
-                                                  fontSize: 12)),
-                                          _buildNavaidDistanceBadge(nv.model),
+                                                  fontSize: 12))
                                         ])
                                   ])));
                         }))))
@@ -2484,11 +2802,6 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
 class EliteAviationEFB extends StatefulWidget {
   final double? width;
   final double? height;
-
-  // Live simulator aircraft position for Navaid search distance calculations.
-  final double? aircraftLatitude;
-  final double? aircraftLongitude;
-
   final Future Function(double lat, double lon, double heading)?
       onRunwaySelected;
   final Future Function(double lat, double lon, double heading)? onGateSelected;
@@ -2518,8 +2831,6 @@ class EliteAviationEFB extends StatefulWidget {
       {Key? key,
       this.width,
       this.height,
-      this.aircraftLatitude,
-      this.aircraftLongitude,
       this.onRunwaySelected,
       this.onGateSelected,
       this.onChartGateSelected,
@@ -2837,8 +3148,232 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
         child: child);
   }
 
+  bool _isMobile(BuildContext context) =>
+      MediaQuery.sizeOf(context).width < 600;
+
+  Widget _buildMobileView(BuildContext context) {
+    final double w = MediaQuery.sizeOf(context).width;
+    final double side = w < 360 ? 8 : 10;
+    final double buttonW = w < 360 ? 112 : 126;
+    return Container(
+        width: widget.width,
+        height: widget.height,
+        decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF0C1421), Color(0xFF030508)])),
+        padding: EdgeInsets.fromLTRB(side, 7, side, 8),
+        child: Column(children: [
+          Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF070B14),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF1E324A))),
+              child: Column(children: [
+                Row(children: [
+                  Expanded(
+                      child: SizedBox(
+                          height: 29,
+                          child: TextField(
+                              controller: _icaoController,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold),
+                              decoration: const InputDecoration(
+                                  hintText: 'ICAO',
+                                  hintStyle: TextStyle(
+                                      color: Colors.white30, fontSize: 10),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 8),
+                                  filled: true,
+                                  fillColor: Color(0xFF0A121E),
+                                  border: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xFF1E2F45))),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Color(0xFF1E2F45))))))),
+                  const SizedBox(width: 5),
+                  SizedBox(
+                      width: 42,
+                      height: 29,
+                      child: ElevatedButton(
+                          onPressed: (_isLoadingRunways || _isLoadingGates)
+                              ? null
+                              : _handleSearch,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF16263B),
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4))),
+                          child: (_isLoadingRunways || _isLoadingGates)
+                              ? const SizedBox(
+                                  width: 11,
+                                  height: 11,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 1.5))
+                              : const Icon(Icons.search,
+                                  size: 15, color: Color(0xFF7AA5D2))))
+                ]),
+                const SizedBox(height: 6),
+                Row(children: [
+                  Expanded(
+                      child: SizedBox(
+                          height: 28,
+                          child: TextField(
+                              controller: _speedController,
+                              keyboardType: TextInputType.number,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold),
+                              decoration: const InputDecoration(
+                                  prefixText: 'SPD ',
+                                  prefixStyle: TextStyle(
+                                      color: Colors.white30, fontSize: 9),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 7),
+                                  filled: true,
+                                  fillColor: Color(0xFF0A121E),
+                                  border: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xFF1E2F45))),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Color(0xFF1E2F45))))))),
+                  const SizedBox(width: 5),
+                  SizedBox(
+                      width: 42,
+                      height: 28,
+                      child: ElevatedButton(
+                          onPressed: _setSpeed,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF16263B),
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4))),
+                          child: const Text('SET',
+                              style: TextStyle(
+                                  fontSize: 9,
+                                  color: Color(0xFF7AA5D2),
+                                  fontWeight: FontWeight.bold))))
+                ]),
+                const SizedBox(height: 7),
+                Row(children: [
+                  Expanded(
+                      child: EFBConfigButton(
+                          title: 'TAKEOFF CONFIG',
+                          onTap: widget.onTakeoffConfigTap,
+                          size: buttonW)),
+                  const SizedBox(width: 6),
+                  Expanded(
+                      child: EFBConfigButton(
+                          title: 'LANDING CONFIG',
+                          onTap: widget.onLandingConfigTap,
+                          size: buttonW))
+                ]),
+                const SizedBox(height: 6),
+                SizedBox(
+                    height: 27,
+                    child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(children: _buildMobileModeButtons())))
+              ])),
+          const SizedBox(height: 8),
+          Expanded(
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: const Color(0xFF070B14),
+                      borderRadius: BorderRadius.circular(9),
+                      border: Border.all(color: const Color(0xFF1E324A))),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(9),
+                      child: Stack(children: [
+                        Offstage(
+                            offstage: _selectedMode != 0,
+                            child: _buildRunwayRadarArea()),
+                        Offstage(
+                            offstage: _selectedMode != 1,
+                            child: _buildGatesArea()),
+                        Offstage(
+                            offstage: _selectedMode != 2,
+                            child: _buildAirportChartArea()),
+                        Offstage(
+                            offstage: _selectedMode != 5,
+                            child: NavaidTeleportWidget(
+                                onTeleportTap: widget.onNavaidTeleportTap)),
+                        if (_selectedMode == 3 || _selectedMode == 4)
+                          const Center(
+                              child: Text('SELECT A MODE',
+                                  style: TextStyle(
+                                      color: Colors.white24, fontSize: 12)))
+                      ]))))
+        ]));
+  }
+
+  List<Widget> _buildMobileModeButtons() {
+    final modes = [
+      ['RUNWAY', 0],
+      ['GATE', 1],
+      ['AIRPORT CHART', 2],
+      ['NAVAIDS', 5],
+      ['MAP TELEPORT', 3],
+      ['WORLD TOUR', 4]
+    ];
+    return modes.map((m) {
+      final int mode = m[1] as int;
+      return GestureDetector(
+          onTap: () {
+            setState(() => _selectedMode = mode);
+            if (mode == 0 && widget.onRunwayActionTap != null)
+              widget.onRunwayActionTap!();
+            if (mode == 1 && widget.onGateActionTap != null)
+              widget.onGateActionTap!();
+            if (mode == 2 && widget.onChartActionTap != null)
+              widget.onChartActionTap!();
+            if (mode == 3 && widget.onMapTeleportTap != null)
+              widget.onMapTeleportTap!();
+            if (mode == 4 && widget.onWorldTourTap != null)
+              widget.onWorldTourTap!();
+            if (mode == 5 && widget.onNavaidActionTap != null)
+              widget.onNavaidActionTap!();
+          },
+          child: Container(
+              margin: const EdgeInsets.only(right: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              height: 25,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  color: mode == _selectedMode
+                      ? const Color(0xFF223E63)
+                      : const Color(0xFF0A121E),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                      color: mode == _selectedMode
+                          ? const Color(0xFF7AA5D2)
+                          : const Color(0xFF1E2F45))),
+              child: Text(m[0] as String,
+                  style: TextStyle(
+                      color: mode == _selectedMode
+                          ? Colors.white
+                          : const Color(0xFF537396),
+                      fontSize: 8,
+                      fontWeight: mode == _selectedMode
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      letterSpacing: .3))));
+    }).toList();
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => _isMobile(context)
+      ? _buildMobileView(context)
+      : _buildDesktopView(context);
+
+  Widget _buildDesktopView(BuildContext context) {
     return Container(
       width: widget.width,
       height: widget.height,
@@ -2913,9 +3448,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                       Offstage(
                           offstage: _selectedMode != 5,
                           child: NavaidTeleportWidget(
-                              onTeleportTap: widget.onNavaidTeleportTap,
-                              aircraftLatitude: widget.aircraftLatitude,
-                              aircraftLongitude: widget.aircraftLongitude)),
+                              onTeleportTap: widget.onNavaidTeleportTap)),
                       if (_selectedMode == 3 || _selectedMode == 4)
                         const Center(
                             child: Text("SELECT A MODE",
@@ -3329,6 +3862,112 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
 
   Widget _buildRunwayRadarArea() {
     return LayoutBuilder(builder: (context, constraints) {
+      final bool mobile = constraints.maxWidth < 600;
+      final double planeSize =
+          mobile ? (constraints.maxWidth < 360 ? 104 : 116) : 200;
+      if (mobile) {
+        return Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                  child: CustomPaint(
+                      painter: MasterILSPainter(
+                          runwayName: _selectedRunway != null
+                              ? _selectedRunway!['name']
+                              : 'RWY'))),
+              RadarPlane(
+                  constraints: constraints,
+                  xPct: .12,
+                  yPct: .50,
+                  text1: '15nm OUT',
+                  text2: '3,000ft',
+                  angle: math.pi / 2,
+                  txtDy: 36,
+                  onTap: widget.onPlane15nmTap,
+                  size: planeSize),
+              RadarPlane(
+                  constraints: constraints,
+                  xPct: .33,
+                  yPct: .50,
+                  text1: '10nm OUT',
+                  text2: '2,500ft',
+                  angle: math.pi / 2,
+                  txtDy: 36,
+                  onTap: widget.onPlane10nmTap,
+                  size: planeSize),
+              RadarPlane(
+                  constraints: constraints,
+                  xPct: .54,
+                  yPct: .50,
+                  text1: '7nm',
+                  text2: '2,300ft',
+                  angle: math.pi / 2,
+                  txtDy: 36,
+                  onTap: widget.onPlane7nmTap,
+                  size: planeSize),
+              RadarPlane(
+                  constraints: constraints,
+                  xPct: .75,
+                  yPct: .50,
+                  text1: 'Takeoff',
+                  text2: 'ON RWY',
+                  angle: math.pi / 2,
+                  txtDy: 36,
+                  onTap: widget.onPlane4nmTap,
+                  size: planeSize),
+              RadarPlane(
+                  constraints: constraints,
+                  xPct: .28,
+                  yPct: .25,
+                  text1: 'Cruise',
+                  text2: '10,000ft',
+                  angle: math.pi / 2,
+                  txtDy: -28,
+                  onTap: widget.onPlaneCruiseTap,
+                  size: planeSize),
+              RadarPlane(
+                  constraints: constraints,
+                  xPct: .55,
+                  yPct: .25,
+                  text1: 'Left base',
+                  text2: '7000ft',
+                  angle: math.pi,
+                  txtDy: -28,
+                  onTap: widget.onPlaneHoldLeftTap,
+                  size: planeSize),
+              RadarPlane(
+                  constraints: constraints,
+                  xPct: .78,
+                  yPct: .25,
+                  text1: 'Left Downwind',
+                  text2: '1000ft',
+                  angle: -math.pi / 2,
+                  txtDy: -28,
+                  onTap: widget.onPlaneLeftDownwindTap,
+                  size: planeSize),
+              RadarPlane(
+                  constraints: constraints,
+                  xPct: .55,
+                  yPct: .75,
+                  text1: 'Right base',
+                  text2: '7000ft',
+                  angle: 0,
+                  txtDy: 28,
+                  onTap: widget.onPlaneHoldRightTap,
+                  size: planeSize),
+              RadarPlane(
+                  constraints: constraints,
+                  xPct: .78,
+                  yPct: .75,
+                  text1: 'Right Downwind',
+                  text2: '1,000ft',
+                  angle: -math.pi / 2,
+                  txtDy: 28,
+                  onTap: widget.onPlaneRightDownwindTap,
+                  size: planeSize),
+            ]);
+      }
       return Stack(
           alignment: Alignment.center,
           clipBehavior: Clip.none,
@@ -3456,14 +4095,15 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   color: Colors.white24,
                   fontWeight: FontWeight.bold,
                   fontSize: 16)));
+    final bool mobile = MediaQuery.sizeOf(context).width < 600;
     return Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(mobile ? 9.0 : 16.0),
         child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 110,
-                childAspectRatio: 1.4,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12),
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: mobile ? 100 : 110,
+                childAspectRatio: mobile ? 1.55 : 1.4,
+                crossAxisSpacing: mobile ? 7 : 12,
+                mainAxisSpacing: mobile ? 7 : 12),
             itemCount: _gatesList.length,
             itemBuilder: (context, index) {
               final gate = _gatesList[index];

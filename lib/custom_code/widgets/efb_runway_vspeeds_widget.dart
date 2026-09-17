@@ -39,7 +39,7 @@ class _EfbRunwayVspeedsWidgetState extends State<EfbRunwayVspeedsWidget> {
     return Container(
       width: widget.width ?? double.infinity,
       height: widget.height ?? 300, // زودنا الارتفاع لاستيعاب الخطوط المكسورة
-      color: const Color(0xFF14181B),
+      color: const Color(0xFF0B111A),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: CustomPaint(

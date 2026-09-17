@@ -78,9 +78,9 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: Color(0xFF0B111A),
         appBar: AppBar(
-          backgroundColor: Color(0xFF2081FF),
+          backgroundColor: Color(0xFF0B111A),
           automaticallyImplyLeading: false,
           leading: FlutterFlowIconButton(
             borderColor: Colors.transparent,
@@ -137,8 +137,7 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                             width: double.infinity,
                             height: MediaQuery.sizeOf(context).height * 1.0,
                             decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
+                              color: Color(0xFF0B111A),
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.max,
@@ -157,6 +156,9 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                         image: Image.asset(
                                           'assets/images/image_E503CE36-2B8C-4B9D-9A9B-5BD338810189_1775467281.jpeg',
                                         ).image,
+                                      ),
+                                      border: Border.all(
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -664,7 +666,10 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                         MediaQuery.sizeOf(context).width * 0.6,
                                     height: 50.0,
                                     decoration: BoxDecoration(
-                                      color: Color(0xFFCB0000),
+                                      color: Color(0xFF101923),
+                                      border: Border.all(
+                                        color: Color(0xFFE53935),
+                                      ),
                                     ),
                                     child: Align(
                                       alignment: AlignmentDirectional(0.0, 0.0),
@@ -681,6 +686,7 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                                         .titleSmall
                                                         .fontStyle,
                                               ),
+                                              color: Color(0xFFE53935),
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
@@ -730,8 +736,7 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                         MediaQuery.sizeOf(context).width * 0.95,
                                     height: 100.0,
                                     decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
+                                      color: Color(0xFF0B111A),
                                     ),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,
@@ -747,9 +752,9 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                                   0.3,
                                               height: 35.0,
                                               decoration: BoxDecoration(
-                                                color: Color(0xFF2081FF),
+                                                color: Color(0xFF101923),
                                                 border: Border.all(
-                                                  color: Colors.white,
+                                                  color: Color(0xFF26364D),
                                                 ),
                                               ),
                                               child: Align(
@@ -770,6 +775,8 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                                                   .bodyMedium
                                                                   .fontStyle,
                                                         ),
+                                                        color:
+                                                            Color(0xFF639DF0),
                                                         fontSize: 15.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -789,10 +796,7 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                                   0.3,
                                               height: 35.0,
                                               decoration: BoxDecoration(
-                                                color: Color(0xFF2081FF),
-                                                border: Border.all(
-                                                  color: Colors.white,
-                                                ),
+                                                color: Color(0xFF101923),
                                               ),
                                               child: Opacity(
                                                 opacity: 0.9,
@@ -816,6 +820,8 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                                                     .bodyMedium
                                                                     .fontStyle,
                                                           ),
+                                                          color:
+                                                              Color(0xFF639DF0),
                                                           fontSize: 14.0,
                                                           letterSpacing: 0.0,
                                                           fontWeight:
@@ -836,9 +842,9 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                                   0.3,
                                               height: 35.0,
                                               decoration: BoxDecoration(
-                                                color: Color(0xFF2081FF),
+                                                color: Color(0xFF101923),
                                                 border: Border.all(
-                                                  color: Colors.white,
+                                                  color: Color(0xFF26364D),
                                                 ),
                                               ),
                                               child: Align(
@@ -860,6 +866,8 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                                                   .bodyMedium
                                                                   .fontStyle,
                                                         ),
+                                                        color:
+                                                            Color(0xFF639DF0),
                                                         fontSize: 13.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -890,7 +898,7 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .secondaryBackground,
                                                 border: Border.all(
-                                                  color: Colors.white,
+                                                  color: Color(0xFF26364D),
                                                 ),
                                               ),
                                               child: Align(
@@ -941,7 +949,7 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .secondaryBackground,
                                                 border: Border.all(
-                                                  color: Colors.white,
+                                                  color: Color(0xFF26364D),
                                                 ),
                                               ),
                                               child: Align(
@@ -992,7 +1000,7 @@ class _LDGCalculationWidgetState extends State<LDGCalculationWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .secondaryBackground,
                                                 border: Border.all(
-                                                  color: Colors.white,
+                                                  color: Color(0xFF26364D),
                                                 ),
                                               ),
                                               child: Align(

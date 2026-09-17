@@ -71,9 +71,9 @@ class _TOCalculationWidgetState extends State<TOCalculationWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: Color(0xFF0B111A),
         appBar: AppBar(
-          backgroundColor: Color(0xFF2081FF),
+          backgroundColor: Color(0xFF0B111A),
           automaticallyImplyLeading: false,
           leading: FlutterFlowIconButton(
             borderColor: Colors.transparent,
@@ -127,8 +127,7 @@ class _TOCalculationWidgetState extends State<TOCalculationWidget> {
                             width: double.infinity,
                             height: MediaQuery.sizeOf(context).height * 0.8,
                             decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
+                              color: Color(0xFF0B111A),
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.max,
@@ -147,6 +146,9 @@ class _TOCalculationWidgetState extends State<TOCalculationWidget> {
                                         image: Image.asset(
                                           'assets/images/image_2EE56A65-45D0-42DC-9A6C-D2E99DFEE5EB_1775420293.jpeg',
                                         ).image,
+                                      ),
+                                      border: Border.all(
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -666,7 +668,10 @@ class _TOCalculationWidgetState extends State<TOCalculationWidget> {
                                         MediaQuery.sizeOf(context).width * 0.6,
                                     height: 50.0,
                                     decoration: BoxDecoration(
-                                      color: Color(0xFFCB0000),
+                                      color: Color(0xFF101923),
+                                      border: Border.all(
+                                        color: Color(0xFFE53935),
+                                      ),
                                     ),
                                     child: Align(
                                       alignment: AlignmentDirectional(0.0, 0.0),
@@ -683,6 +688,7 @@ class _TOCalculationWidgetState extends State<TOCalculationWidget> {
                                                         .titleSmall
                                                         .fontStyle,
                                               ),
+                                              color: Color(0xFFE53935),
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.w500,
                                               fontStyle:

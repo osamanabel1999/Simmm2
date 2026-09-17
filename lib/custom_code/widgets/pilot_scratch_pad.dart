@@ -30,9 +30,15 @@ class _PilotScratchPadState extends State<PilotScratchPad> {
   final TextEditingController _notesController = TextEditingController();
   List<Offset?> _points = [];
 
-  final Color bgColor = const Color(0xFF1D2428);
-  final Color panelColor = const Color(0xFF2A3136);
-  final Color strokeColor = const Color(0xFF42C0FB);
+  // ============================================================
+  // الألوان الموحدة الجديدة (EFB Dark Theme)
+  // ============================================================
+  final Color bgColor = const Color(0xFF0B111A); // الخلفية الخارجية
+  final Color panelColor = const Color(0xFF101923); // خلفية الكونتينر
+  final Color panelBorder = const Color(0xFF26364D); // حواف الكونتينر الموحدة
+  final Color strokeColor =
+      const Color(0xFF639DF0); // لون القلم الموحد مع زرار الـ ATIS
+  final Color buttonBgColor = const Color(0xFF0B111A); // خلفية الزرار
 
   @override
   void initState() {
@@ -116,7 +122,8 @@ class _PilotScratchPadState extends State<PilotScratchPad> {
               decoration: BoxDecoration(
                 color: panelColor,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white24),
+                border:
+                    Border.all(color: panelBorder, width: 1.0), // توحيد الحواف
               ),
               child: TextField(
                 controller: _notesController,
@@ -141,7 +148,8 @@ class _PilotScratchPadState extends State<PilotScratchPad> {
                 decoration: BoxDecoration(
                   color: panelColor,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white24),
+                  border: Border.all(
+                      color: panelBorder, width: 1.0), // توحيد الحواف
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
@@ -192,14 +200,18 @@ class _PilotScratchPadState extends State<PilotScratchPad> {
         ElevatedButton(
           onPressed: onClear,
           style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white24,
-              foregroundColor: Colors.white,
+              backgroundColor: buttonBgColor, // توحيد الخلفية
+              foregroundColor: strokeColor, // توحيد لون النص
               elevation: 0,
               minimumSize: const Size(80, 36),
               padding: const EdgeInsets.symmetric(horizontal: 16),
+              side: BorderSide(color: panelBorder, width: 1.0), // توحيد الحواف
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6))),
-          child: const Text("Clear"),
+          child: const Text(
+            "Clear",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         )
       ],
     );

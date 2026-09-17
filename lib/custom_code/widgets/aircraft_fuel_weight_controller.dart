@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import 'dart:math' as math;
+
 class AircraftFuelWeightController extends StatefulWidget {
   const AircraftFuelWeightController({
     Key? key,
@@ -86,11 +88,16 @@ class _AircraftFuelWeightControllerState
   final TextEditingController baggageCtrl = TextEditingController();
   final TextEditingController extraCargoCtrl = TextEditingController();
 
-  final Color bgColor = const Color(0xFF1D2428);
-  final Color borderColor = const Color(0xFF2E3841);
-  final Color accentColor = const Color(0xFF2081FF);
-  final Color iconBgColor = const Color(0xFF242B3A);
-  final Color inputBgColor = const Color(0xFF161C20);
+  // ============================================================
+  // الألوان الموحدة الخاصة بتصميمنا (EFB Dark Theme)
+  // ============================================================
+  final Color bgColor = const Color(0xFF0B111A); // الخلفية اللي بره خالص
+  final Color cardColor = const Color(0xFF101923); // خلفية الكونتينرات
+  final Color borderColor = const Color(0xFF26364D); // لون الحواف الموحد
+  final Color accentColor =
+      const Color(0xFF639DF0); // اللون الأزرق الموحد للسلايدر والأيقونات
+  final Color iconBgColor = const Color(0xFF0B111A); // خلفية الأيقونات والحقول
+  final Color inputBgColor = const Color(0xFF0B111A); // خلفية الـ TextField
 
   @override
   void dispose() {
@@ -124,7 +131,7 @@ class _AircraftFuelWeightControllerState
   }
 
   // ==========================================
-  // تصميم الآيباد الأصلي (لم يتم المساس به تماماً)
+  // تصميم الآيباد الأصلي
   // ==========================================
   Widget _buildTabletLayout() {
     return SingleChildScrollView(
@@ -136,6 +143,7 @@ class _AircraftFuelWeightControllerState
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
+              color: cardColor, // تم إضافة لون الخلفية للكونتينر
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: borderColor),
             ),
@@ -228,6 +236,7 @@ class _AircraftFuelWeightControllerState
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
+              color: cardColor, // تم إضافة لون الخلفية للكونتينر
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: borderColor),
             ),
@@ -272,7 +281,7 @@ class _AircraftFuelWeightControllerState
   }
 
   // ==========================================
-  // التصميم الجديد المخصص للموبايل فقط
+  // التصميم المخصص للموبايل
   // ==========================================
   Widget _buildMobileLayout() {
     return SingleChildScrollView(
@@ -285,6 +294,7 @@ class _AircraftFuelWeightControllerState
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
+              color: cardColor, // تم إضافة لون الخلفية للكونتينر
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: borderColor),
             ),
@@ -366,6 +376,7 @@ class _AircraftFuelWeightControllerState
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
+              color: cardColor, // تم إضافة لون الخلفية للكونتينر
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: borderColor),
             ),
@@ -403,8 +414,8 @@ class _AircraftFuelWeightControllerState
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
-        color: Color(0xFF5A66E9),
+      style: TextStyle(
+        color: accentColor, // تم توحيد لون العنوان مع باقي الأزرق
         fontSize: 14,
         fontWeight: FontWeight.bold,
         letterSpacing: 1.2,
@@ -412,7 +423,7 @@ class _AircraftFuelWeightControllerState
     );
   }
 
-  // الفاصل الطولي للآيباد (الأصلي)
+  // الفاصل الطولي للآيباد
   Widget _buildVerticalDivider() {
     return Container(
       height: 150,
@@ -432,7 +443,7 @@ class _AircraftFuelWeightControllerState
     );
   }
 
-  // Tank الآيباد (الأصلي)
+  // Tank الآيباد
   Widget _buildFuelTank({
     required String title,
     required double currentVal,
@@ -488,7 +499,7 @@ class _AircraftFuelWeightControllerState
         SliderTheme(
           data: SliderThemeData(
             activeTrackColor: accentColor,
-            inactiveTrackColor: iconBgColor,
+            inactiveTrackColor: iconBgColor, // الخلفية الغامقة للسلايدر
             thumbColor: accentColor,
             trackHeight: 6,
             tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 3),
@@ -519,7 +530,7 @@ class _AircraftFuelWeightControllerState
     );
   }
 
-  // Tank الموبايل (احترافي عشان ميحصلش Overflow في الزراير)
+  // Tank الموبايل
   Widget _buildMobileFuelTank({
     required String title,
     required double currentVal,
@@ -546,7 +557,6 @@ class _AircraftFuelWeightControllerState
           ],
         ),
         const SizedBox(height: 16),
-        // استخدمت Wrap هنا عشان لو الشاشة صغيرة جداً الأزرار تنزل سطر جديد بشياكة
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -583,7 +593,7 @@ class _AircraftFuelWeightControllerState
         SliderTheme(
           data: SliderThemeData(
             activeTrackColor: accentColor,
-            inactiveTrackColor: iconBgColor,
+            inactiveTrackColor: iconBgColor, // الخلفية الغامقة للسلايدر
             thumbColor: accentColor,
             trackHeight: 6,
             tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 3),
@@ -602,7 +612,7 @@ class _AircraftFuelWeightControllerState
     );
   }
 
-  // Weight Row الآيباد (الأصلي)
+  // Weight Row الآيباد
   Widget _buildWeightRow(
       IconData icon,
       String title,

@@ -45,13 +45,17 @@ class TopBannerWidget extends StatefulWidget {
 }
 
 class _TopBannerWidgetState extends State<TopBannerWidget> {
-  // الألوان مطابقة للصورة تماماً
-  final Color bgColor = const Color(0xFF0F1115);
-  final Color cardColor = const Color(0xFF15191E);
-  final Color borderColor = const Color(0xFF2A2E35);
-  final Color labelColor = const Color(0xFF8B949E);
-  final Color valueColor = const Color(0xFF3B82F6);
-  final Color dangerColor = const Color(0xFFE53935);
+  // ============================================================
+  // الألوان الموحدة المتطابقة مع الـ EFB Dark Theme
+  // ============================================================
+  final Color bgColor = const Color(0xFF0B111A); // الخلفية اللي ورا خالص
+  final Color cardColor = const Color(0xFF101923); // خلفية الكونتينرات
+  final Color borderColor = const Color(0xFF26364D); // حواف الكونتينر الموحدة
+  final Color labelColor =
+      const Color(0xFF8B949E); // لون النصوص الثابتة (LAT, LON...)
+  final Color valueColor =
+      const Color(0xFF639DF0); // اللون الأزرق الموحد للقيم والأيقونات
+  final Color dangerColor = const Color(0xFFE53935); // لون حالة الانقطاع
 
   // تصميم صف الداتا الصغير (مثلاً LAT و 0.0)
   Widget _buildDataRow(String label, String value) {

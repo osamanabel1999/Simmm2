@@ -457,9 +457,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
     _model.textFieldBottomLOWTextController ??= TextEditingController();
     _model.textFieldBottomLOWFocusNode ??= FocusNode();
 
-    _model.codeTextController ??= TextEditingController();
-    _model.codeFocusNode ??= FocusNode();
-
     _model.airportICAOTextController ??= TextEditingController(text: 'HECA');
     _model.airportICAOFocusNode ??= FocusNode();
 
@@ -484,7 +481,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Color(0xFF0E1724),
+        backgroundColor: Color(0xFF0B111A),
         body: Stack(
           children: [
             Stack(
@@ -493,7 +490,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                   width: double.infinity,
                   height: double.infinity,
                   decoration: BoxDecoration(
-                    color: FlutterFlowTheme.of(context).secondaryBackground,
+                    color: Color(0xFF0B111A),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
@@ -6625,241 +6622,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                       ],
                                     ),
                                   ),
-                                if (FFAppState().TabNumber == 3000000)
-                                  Expanded(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            width: double.infinity,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Align(
-                                                  alignment:
-                                                      AlignmentDirectional(
-                                                          -1.0, 0.0),
-                                                  child: Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(5.0, 7.0,
-                                                                0.0, 0.0),
-                                                    child: Text(
-                                                      'CURRENT METAR:',
-                                                      style: FlutterFlowTheme
-                                                              .of(context)
-                                                          .bodyMedium
-                                                          .override(
-                                                            font: GoogleFonts
-                                                                .inter(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                              fontStyle:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                            ),
-                                                            letterSpacing: 0.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 5.0, 0.0, 0.0),
-                                                  child: Container(
-                                                    width: MediaQuery.sizeOf(
-                                                                context)
-                                                            .width *
-                                                        0.95,
-                                                    decoration: BoxDecoration(
-                                                      color: FlutterFlowTheme
-                                                              .of(context)
-                                                          .secondaryBackground,
-                                                      border: Border.all(
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                    child: Align(
-                                                      alignment:
-                                                          AlignmentDirectional(
-                                                              -1.0, -1.0),
-                                                      child: Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    5.0,
-                                                                    5.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                        child: Text(
-                                                          (_model.metarResult
-                                                                  ?.bodyText ??
-                                                              ''),
-                                                          textAlign:
-                                                              TextAlign.start,
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontWeight,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Align(
-                                                  alignment:
-                                                      AlignmentDirectional(
-                                                          -1.0, 0.0),
-                                                  child: Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(5.0, 10.0,
-                                                                0.0, 0.0),
-                                                    child: Text(
-                                                      'CURRENT TAF:',
-                                                      style: FlutterFlowTheme
-                                                              .of(context)
-                                                          .bodyMedium
-                                                          .override(
-                                                            font: GoogleFonts
-                                                                .inter(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                              fontStyle:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                            ),
-                                                            letterSpacing: 0.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 5.0, 0.0, 0.0),
-                                                  child: Container(
-                                                    width: MediaQuery.sizeOf(
-                                                                context)
-                                                            .width *
-                                                        0.95,
-                                                    decoration: BoxDecoration(
-                                                      color: FlutterFlowTheme
-                                                              .of(context)
-                                                          .secondaryBackground,
-                                                      border: Border.all(
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                    child: Align(
-                                                      alignment:
-                                                          AlignmentDirectional(
-                                                              -1.0, -1.0),
-                                                      child: Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    5.0,
-                                                                    5.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                        child: Text(
-                                                          (_model.tafResult
-                                                                  ?.bodyText ??
-                                                              ''),
-                                                          textAlign:
-                                                              TextAlign.start,
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontWeight,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 if ((FFAppState().FailureSubTab == 31) &&
                                     (FFAppState().TabNumber == 3))
                                   Expanded(
@@ -6875,9 +6637,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                             child: Container(
                                               width: double.infinity,
                                               decoration: BoxDecoration(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .secondaryBackground,
+                                                color: Color(0xFF0B111A),
                                               ),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.max,
@@ -6902,7 +6662,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           decoration:
                                                               BoxDecoration(
                                                             color: Color(
-                                                                0xCD52555A),
+                                                                0xFF101923),
                                                           ),
                                                         ),
                                                       ],
@@ -6932,7 +6692,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .fontStyle,
                                                               ),
                                                               color: Color(
-                                                                  0xFF97A700),
+                                                                  0xFF639DF0),
                                                               fontSize: 17.0,
                                                               letterSpacing:
                                                                   0.0,
@@ -7007,13 +6767,16 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             height: 40.0,
                                                             decoration:
                                                                 BoxDecoration(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryBackground,
+                                                              color: Color(
+                                                                  0xFF101923),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8.0),
                                                               border:
                                                                   Border.all(
-                                                                color: Colors
-                                                                    .white,
+                                                                color: Color(
+                                                                    0xFF26364D),
                                                               ),
                                                             ),
                                                             child: Container(
@@ -7094,7 +6857,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     borderSide:
                                                                         BorderSide(
                                                                       color: Color(
-                                                                          0x00000000),
+                                                                          0xFF26364D),
                                                                       width:
                                                                           1.0,
                                                                     ),
@@ -7144,9 +6907,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                             8.0),
                                                                   ),
                                                                   filled: true,
-                                                                  fillColor: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryBackground,
+                                                                  fillColor: Color(
+                                                                      0xFF101923),
                                                                 ),
                                                                 style: FlutterFlowTheme.of(
                                                                         context)
@@ -7309,12 +7071,11 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .secondaryText,
                                                                 size: 24.0,
                                                               ),
-                                                              fillColor: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryBackground,
+                                                              fillColor: Color(
+                                                                  0xFF101923),
                                                               elevation: 2.0,
-                                                              borderColor: Colors
-                                                                  .transparent,
+                                                              borderColor: Color(
+                                                                  0xFF26364D),
                                                               borderWidth: 0.0,
                                                               borderRadius: 8.0,
                                                               margin:
@@ -7393,9 +7154,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             color: FlutterFlowTheme
                                                                     .of(context)
                                                                 .secondaryBackground,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8.0),
                                                             border: Border.all(
-                                                              color:
-                                                                  Colors.white,
+                                                              color: Color(
+                                                                  0xFF26364D),
                                                             ),
                                                           ),
                                                           child: Container(
@@ -7481,7 +7246,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                   borderSide:
                                                                       BorderSide(
                                                                     color: Color(
-                                                                        0x00000000),
+                                                                        0xFF26364D),
                                                                     width: 1.0,
                                                                   ),
                                                                   borderRadius:
@@ -7531,9 +7296,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                               8.0),
                                                                 ),
                                                                 filled: true,
-                                                                fillColor: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondaryBackground,
+                                                                fillColor: Color(
+                                                                    0xFF101923),
                                                               ),
                                                               style: FlutterFlowTheme
                                                                       .of(context)
@@ -7735,7 +7499,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           decoration:
                                                               BoxDecoration(
                                                             color: Color(
-                                                                0xCD52555A),
+                                                                0xFF101923),
                                                           ),
                                                         ),
                                                       ],
@@ -7765,7 +7529,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .fontStyle,
                                                               ),
                                                               color: Color(
-                                                                  0xFF97A700),
+                                                                  0xFF639DF0),
                                                               fontSize: 17.0,
                                                               letterSpacing:
                                                                   0.0,
@@ -7843,10 +7607,14 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               color: FlutterFlowTheme
                                                                       .of(context)
                                                                   .secondaryBackground,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8.0),
                                                               border:
                                                                   Border.all(
-                                                                color: Colors
-                                                                    .white,
+                                                                color: Color(
+                                                                    0xFF26364D),
                                                               ),
                                                             ),
                                                             child: Container(
@@ -7927,7 +7695,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     borderSide:
                                                                         BorderSide(
                                                                       color: Color(
-                                                                          0x00000000),
+                                                                          0xFF26364D),
                                                                       width:
                                                                           1.0,
                                                                     ),
@@ -7977,9 +7745,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                             8.0),
                                                                   ),
                                                                   filled: true,
-                                                                  fillColor: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryBackground,
+                                                                  fillColor: Color(
+                                                                      0xFF101923),
                                                                 ),
                                                                 style: FlutterFlowTheme.of(
                                                                         context)
@@ -8142,12 +7909,11 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .secondaryText,
                                                                 size: 24.0,
                                                               ),
-                                                              fillColor: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryBackground,
+                                                              fillColor: Color(
+                                                                  0xFF101923),
                                                               elevation: 2.0,
-                                                              borderColor: Colors
-                                                                  .transparent,
+                                                              borderColor: Color(
+                                                                  0xFF26364D),
                                                               borderWidth: 0.0,
                                                               borderRadius: 8.0,
                                                               margin:
@@ -8226,9 +7992,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             color: FlutterFlowTheme
                                                                     .of(context)
                                                                 .secondaryBackground,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8.0),
                                                             border: Border.all(
-                                                              color:
-                                                                  Colors.white,
+                                                              color: Color(
+                                                                  0xFF26364D),
                                                             ),
                                                           ),
                                                           child: Container(
@@ -8314,7 +8084,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                   borderSide:
                                                                       BorderSide(
                                                                     color: Color(
-                                                                        0x00000000),
+                                                                        0xFF26364D),
                                                                     width: 1.0,
                                                                   ),
                                                                   borderRadius:
@@ -8364,9 +8134,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                               8.0),
                                                                 ),
                                                                 filled: true,
-                                                                fillColor: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondaryBackground,
+                                                                fillColor: Color(
+                                                                    0xFF101923),
                                                               ),
                                                               style: FlutterFlowTheme
                                                                       .of(context)
@@ -8576,7 +8345,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           decoration:
                                                               BoxDecoration(
                                                             color: Color(
-                                                                0xCD52555A),
+                                                                0xFF101923),
                                                           ),
                                                         ),
                                                       ],
@@ -8606,7 +8375,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .fontStyle,
                                                               ),
                                                               color: Color(
-                                                                  0xFF97A700),
+                                                                  0xFF639DF0),
                                                               fontSize: 17.0,
                                                               letterSpacing:
                                                                   0.0,
@@ -8684,10 +8453,14 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               color: FlutterFlowTheme
                                                                       .of(context)
                                                                   .secondaryBackground,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8.0),
                                                               border:
                                                                   Border.all(
-                                                                color: Colors
-                                                                    .white,
+                                                                color: Color(
+                                                                    0xFF26364D),
                                                               ),
                                                             ),
                                                             child: Container(
@@ -8770,7 +8543,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     borderSide:
                                                                         BorderSide(
                                                                       color: Color(
-                                                                          0x00000000),
+                                                                          0xFF26364D),
                                                                       width:
                                                                           1.0,
                                                                     ),
@@ -8820,9 +8593,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                             8.0),
                                                                   ),
                                                                   filled: true,
-                                                                  fillColor: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryBackground,
+                                                                  fillColor: Color(
+                                                                      0xFF101923),
                                                                 ),
                                                                 style: FlutterFlowTheme.of(
                                                                         context)
@@ -8985,12 +8757,11 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .secondaryText,
                                                                 size: 24.0,
                                                               ),
-                                                              fillColor: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryBackground,
+                                                              fillColor: Color(
+                                                                  0xFF101923),
                                                               elevation: 2.0,
-                                                              borderColor: Colors
-                                                                  .transparent,
+                                                              borderColor: Color(
+                                                                  0xFF26364D),
                                                               borderWidth: 0.0,
                                                               borderRadius: 8.0,
                                                               margin:
@@ -9069,9 +8840,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             color: FlutterFlowTheme
                                                                     .of(context)
                                                                 .secondaryBackground,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8.0),
                                                             border: Border.all(
-                                                              color:
-                                                                  Colors.white,
+                                                              color: Color(
+                                                                  0xFF26364D),
                                                             ),
                                                           ),
                                                           child: Container(
@@ -9158,7 +8933,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                   borderSide:
                                                                       BorderSide(
                                                                     color: Color(
-                                                                        0x00000000),
+                                                                        0xFF26364D),
                                                                     width: 1.0,
                                                                   ),
                                                                   borderRadius:
@@ -9208,9 +8983,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                               8.0),
                                                                 ),
                                                                 filled: true,
-                                                                fillColor: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondaryBackground,
+                                                                fillColor: Color(
+                                                                    0xFF101923),
                                                               ),
                                                               style: FlutterFlowTheme
                                                                       .of(context)
@@ -9425,9 +9199,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                             child: Container(
                                               width: double.infinity,
                                               decoration: BoxDecoration(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .secondaryBackground,
+                                                color: Color(0xFF0B111A),
                                               ),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.max,
@@ -9505,7 +9277,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .fontStyle,
                                                                 ),
                                                                 color: Color(
-                                                                    0xFF0F7DAD),
+                                                                    0xFF639DF0),
                                                                 fontSize: 18.0,
                                                                 letterSpacing:
                                                                     0.0,
@@ -9531,13 +9303,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                       Expanded(
                                                         child: Slider(
                                                           activeColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .primary,
+                                                              Color(0xFF639DF0),
                                                           inactiveColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .alternate,
+                                                              Color(0xFF26364D),
                                                           min: 0.1,
                                                           max: 160.9,
                                                           value: _model
@@ -9636,7 +9404,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .fontStyle,
                                                                 ),
                                                                 color: Color(
-                                                                    0xFF0F7DAD),
+                                                                    0xFF639DF0),
                                                                 fontSize: 18.0,
                                                                 letterSpacing:
                                                                     0.0,
@@ -9662,13 +9430,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                       Expanded(
                                                         child: Slider(
                                                           activeColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .primary,
+                                                              Color(0xFF639DF0),
                                                           inactiveColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .alternate,
+                                                              Color(0xFF26364D),
                                                           min: 982.0,
                                                           max: 1084.0,
                                                           value: _model
@@ -9768,7 +9532,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .fontStyle,
                                                                 ),
                                                                 color: Color(
-                                                                    0xFF0F7DAD),
+                                                                    0xFF639DF0),
                                                                 fontSize: 18.0,
                                                                 letterSpacing:
                                                                     0.0,
@@ -9794,13 +9558,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                       Expanded(
                                                         child: Slider(
                                                           activeColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .primary,
+                                                              Color(0xFF639DF0),
                                                           inactiveColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .alternate,
+                                                              Color(0xFF26364D),
                                                           min: -23.3,
                                                           max: 51.7,
                                                           value: _model
@@ -9897,7 +9657,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .fontStyle,
                                                                 ),
                                                                 color: Color(
-                                                                    0xFF0F7DAD),
+                                                                    0xFF639DF0),
                                                                 fontSize: 18.0,
                                                                 letterSpacing:
                                                                     0.0,
@@ -9923,13 +9683,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                       Expanded(
                                                         child: Slider(
                                                           activeColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .primary,
+                                                              Color(0xFF639DF0),
                                                           inactiveColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .alternate,
+                                                              Color(0xFF26364D),
                                                           min: 0.0,
                                                           max: 360.0,
                                                           value: _model
@@ -10043,8 +9799,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .secondaryBackground,
                                                                   border: Border
                                                                       .all(
-                                                                    color: Colors
-                                                                        .white,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Align(
@@ -10120,8 +9876,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .secondaryBackground,
                                                                   border: Border
                                                                       .all(
-                                                                    color: Colors
-                                                                        .white,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Align(
@@ -10197,8 +9953,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .secondaryBackground,
                                                                   border: Border
                                                                       .all(
-                                                                    color: Colors
-                                                                        .white,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Align(
@@ -10274,8 +10030,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .secondaryBackground,
                                                                   border: Border
                                                                       .all(
-                                                                    color: Colors
-                                                                        .white,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Align(
@@ -10351,8 +10107,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .secondaryBackground,
                                                                   border: Border
                                                                       .all(
-                                                                    color: Colors
-                                                                        .white,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Align(
@@ -12656,546 +12412,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ),
-                                if (FFAppState().TabNumber == 2)
-                                  Expanded(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            width: double.infinity,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Container(
-                                                  width: 200.0,
-                                                  child: TextFormField(
-                                                    controller: _model
-                                                        .codeTextController,
-                                                    focusNode:
-                                                        _model.codeFocusNode,
-                                                    autofocus: false,
-                                                    enabled: true,
-                                                    obscureText: false,
-                                                    decoration: InputDecoration(
-                                                      isDense: true,
-                                                      labelStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .labelMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .labelMedium
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .labelMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelMedium
-                                                                    .fontWeight,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                      hintText: 'TextField',
-                                                      hintStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .labelMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .labelMedium
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .labelMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelMedium
-                                                                    .fontWeight,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                          color:
-                                                              Color(0x00000000),
-                                                          width: 1.0,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                      ),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                          color:
-                                                              Color(0x00000000),
-                                                          width: 1.0,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                      ),
-                                                      errorBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .error,
-                                                          width: 1.0,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                      ),
-                                                      focusedErrorBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .error,
-                                                          width: 1.0,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                      ),
-                                                      filled: true,
-                                                      fillColor: FlutterFlowTheme
-                                                              .of(context)
-                                                          .secondaryBackground,
-                                                    ),
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          font:
-                                                              GoogleFonts.inter(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                    cursorColor:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .primaryText,
-                                                    enableInteractiveSelection:
-                                                        true,
-                                                    validator: _model
-                                                        .codeTextControllerValidator
-                                                        .asValidator(context),
-                                                  ),
-                                                ),
-                                                FFButtonWidget(
-                                                  onPressed: () async {
-                                                    _model.checkResult =
-                                                        await CheckLicenseCall
-                                                            .call(
-                                                      licenseKey: _model
-                                                          .codeTextController
-                                                          .text,
-                                                    );
-
-                                                    if (getJsonField(
-                                                      (_model.checkResult
-                                                              ?.jsonBody ??
-                                                          ''),
-                                                      r'''$.records[0].fields.LicenseKey''',
-                                                    )) {
-                                                      if (getJsonField(
-                                                            (_model.checkResult
-                                                                    ?.jsonBody ??
-                                                                ''),
-                                                            r'''$.records[0].fields.LicenseKey''',
-                                                          ) ==
-                                                          true) {
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                          SnackBar(
-                                                            content: Text(
-                                                              'true code',
-                                                              style: TextStyle(
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .primaryText,
-                                                              ),
-                                                            ),
-                                                            duration: Duration(
-                                                                milliseconds:
-                                                                    4000),
-                                                            backgroundColor:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondary,
-                                                          ),
-                                                        );
-                                                      } else {
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                          SnackBar(
-                                                            content: Text(
-                                                              'الكود غلط',
-                                                              style: TextStyle(
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .primaryText,
-                                                              ),
-                                                            ),
-                                                            duration: Duration(
-                                                                milliseconds:
-                                                                    4000),
-                                                            backgroundColor:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondary,
-                                                          ),
-                                                        );
-                                                      }
-                                                    } else {
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                            'enta ehh',
-                                                            style: TextStyle(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .primaryText,
-                                                            ),
-                                                          ),
-                                                          duration: Duration(
-                                                              milliseconds:
-                                                                  4000),
-                                                          backgroundColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .secondary,
-                                                        ),
-                                                      );
-                                                    }
-
-                                                    safeSetState(() {});
-                                                  },
-                                                  text: 'Activation',
-                                                  options: FFButtonOptions(
-                                                    height: 40.0,
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(16.0, 0.0,
-                                                                16.0, 0.0),
-                                                    iconPadding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(0.0, 0.0,
-                                                                0.0, 0.0),
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primary,
-                                                    textStyle: FlutterFlowTheme
-                                                            .of(context)
-                                                        .titleSmall
-                                                        .override(
-                                                          font: GoogleFonts
-                                                              .interTight(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: Colors.white,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmall
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmall
-                                                                  .fontStyle,
-                                                        ),
-                                                    elevation: 0.0,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.0),
-                                                  ),
-                                                ),
-                                                FFButtonWidget(
-                                                  onPressed: () async {
-                                                    _model.generatedKey =
-                                                        functions
-                                                            .createLicenseKey();
-                                                    safeSetState(() {});
-                                                    _model.apiResult631 =
-                                                        await AddLicenseCall
-                                                            .call(
-                                                      newKey:
-                                                          _model.generatedKey,
-                                                    );
-
-                                                    if ((_model.apiResult631
-                                                            ?.succeeded ??
-                                                        true)) {
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                            _model.generatedKey,
-                                                            style: TextStyle(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .primaryText,
-                                                            ),
-                                                          ),
-                                                          duration: Duration(
-                                                              milliseconds:
-                                                                  4000),
-                                                          backgroundColor:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .secondary,
-                                                        ),
-                                                      );
-                                                    }
-
-                                                    safeSetState(() {});
-                                                  },
-                                                  text: 'Get Code',
-                                                  options: FFButtonOptions(
-                                                    height: 40.0,
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(16.0, 0.0,
-                                                                16.0, 0.0),
-                                                    iconPadding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(0.0, 0.0,
-                                                                0.0, 0.0),
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primary,
-                                                    textStyle: FlutterFlowTheme
-                                                            .of(context)
-                                                        .titleSmall
-                                                        .override(
-                                                          font: GoogleFonts
-                                                              .interTight(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: Colors.white,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmall
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmall
-                                                                  .fontStyle,
-                                                        ),
-                                                    elevation: 0.0,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.0),
-                                                  ),
-                                                ),
-                                                Text(
-                                                  _model.generatedKey,
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                                Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    FFButtonWidget(
-                                                      onPressed: () async {
-                                                        await Clipboard.setData(
-                                                            ClipboardData(
-                                                                text: _model
-                                                                    .generatedKey));
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                          SnackBar(
-                                                            content: Text(
-                                                              'CODE Copied',
-                                                              style: TextStyle(
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .primaryText,
-                                                              ),
-                                                            ),
-                                                            duration: Duration(
-                                                                milliseconds:
-                                                                    1300),
-                                                            backgroundColor:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondaryBackground,
-                                                          ),
-                                                        );
-                                                      },
-                                                      text: 'Button',
-                                                      options: FFButtonOptions(
-                                                        height: 40.0,
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    16.0,
-                                                                    0.0,
-                                                                    16.0,
-                                                                    0.0),
-                                                        iconPadding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    0.0,
-                                                                    0.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primary,
-                                                        textStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleSmall
-                                                                .override(
-                                                                  font: GoogleFonts
-                                                                      .interTight(
-                                                                    fontWeight: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleSmall
-                                                                        .fontWeight,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleSmall
-                                                                        .fontStyle,
-                                                                  ),
-                                                                  color: Colors
-                                                                      .white,
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmall
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmall
-                                                                      .fontStyle,
-                                                                ),
-                                                        elevation: 0.0,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
                                     ),
                                   ),
                                 if ((FFAppState().TabNumber == 166886) &&
@@ -16223,6 +15439,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                 if ((FFAppState().TabNumber == 1) &&
                                     responsiveVisibility(
                                       context: context,
+                                      phone: false,
                                       tablet: false,
                                       tabletLandscape: false,
                                       desktop: false,
@@ -32004,7 +31221,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .fontStyle,
                                                             ),
                                                             color: Color(
-                                                                0xFF1A55B3),
+                                                                0xFF639DF0),
                                                             fontSize: 25.0,
                                                             letterSpacing: 0.0,
                                                             fontWeight:
@@ -32107,7 +31324,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .fontStyle,
                                                               ),
                                                               color: Color(
-                                                                  0xFF1A55B3),
+                                                                  0xFF639DF0),
                                                               fontSize: 25.0,
                                                               letterSpacing:
                                                                   0.0,
@@ -32157,7 +31374,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .fontStyle,
                                                               ),
                                                               color: Color(
-                                                                  0xFF1A55B3),
+                                                                  0xFF639DF0),
                                                               fontSize: 25.0,
                                                               letterSpacing:
                                                                   0.0,
@@ -32307,7 +31524,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .fontStyle,
                                                             ),
                                                             color: Color(
-                                                                0xFF1A55B3),
+                                                                0xFF639DF0),
                                                             fontSize: 25.0,
                                                             letterSpacing: 0.0,
                                                             fontWeight:
@@ -32440,7 +31657,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .fontStyle,
                                                             ),
                                                             color: Color(
-                                                                0xFF1A55B3),
+                                                                0xFF639DF0),
                                                             fontSize: 25.0,
                                                             letterSpacing: 0.0,
                                                             fontWeight:
@@ -32479,7 +31696,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .fontStyle,
                                                             ),
                                                             color: Color(
-                                                                0xFF1A55B3),
+                                                                0xFF639DF0),
                                                             fontSize: 25.0,
                                                             letterSpacing: 0.0,
                                                             fontWeight:
@@ -32690,9 +31907,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                         child:
                                                                             Slider(
                                                                           activeColor:
-                                                                              FlutterFlowTheme.of(context).primary,
+                                                                              Color(0xFF639DF0),
                                                                           inactiveColor:
-                                                                              FlutterFlowTheme.of(context).alternate,
+                                                                              Color(0xFF26364D),
                                                                           min:
                                                                               0.0,
                                                                           max:
@@ -32759,9 +31976,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                         child:
                                                                             Slider(
                                                                           activeColor:
-                                                                              FlutterFlowTheme.of(context).primary,
+                                                                              Color(0xFF639DF0),
                                                                           inactiveColor:
-                                                                              FlutterFlowTheme.of(context).alternate,
+                                                                              Color(0xFF26364D),
                                                                           min:
                                                                               0.0,
                                                                           max:
@@ -32828,9 +32045,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                         child:
                                                                             Slider(
                                                                           activeColor:
-                                                                              FlutterFlowTheme.of(context).primary,
+                                                                              Color(0xFF639DF0),
                                                                           inactiveColor:
-                                                                              FlutterFlowTheme.of(context).alternate,
+                                                                              Color(0xFF26364D),
                                                                           min:
                                                                               0.0,
                                                                           max:
@@ -33043,9 +32260,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                         child:
                                                                             Slider(
                                                                           activeColor:
-                                                                              FlutterFlowTheme.of(context).primary,
+                                                                              Color(0xFF639DF0),
                                                                           inactiveColor:
-                                                                              FlutterFlowTheme.of(context).alternate,
+                                                                              Color(0xFF26364D),
                                                                           min:
                                                                               0.0,
                                                                           max:
@@ -33112,9 +32329,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                         child:
                                                                             Slider(
                                                                           activeColor:
-                                                                              FlutterFlowTheme.of(context).primary,
+                                                                              Color(0xFF639DF0),
                                                                           inactiveColor:
-                                                                              FlutterFlowTheme.of(context).alternate,
+                                                                              Color(0xFF26364D),
                                                                           min:
                                                                               0.0,
                                                                           max:
@@ -33181,9 +32398,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                         child:
                                                                             Slider(
                                                                           activeColor:
-                                                                              FlutterFlowTheme.of(context).primary,
+                                                                              Color(0xFF639DF0),
                                                                           inactiveColor:
-                                                                              FlutterFlowTheme.of(context).alternate,
+                                                                              Color(0xFF26364D),
                                                                           min:
                                                                               0.0,
                                                                           max:
@@ -33238,9 +32455,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                             width: double.infinity,
                                             height: 350.0,
                                             decoration: BoxDecoration(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
+                                              color: Color(0xFF0B111A),
                                             ),
                                             child: Column(
                                               mainAxisSize: MainAxisSize.max,
@@ -33254,9 +32469,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                     child: Container(
                                                       width: 300.0,
                                                       decoration: BoxDecoration(
-                                                        color: FlutterFlowTheme
-                                                                .of(context)
-                                                            .secondaryBackground,
+                                                        color:
+                                                            Color(0xFF0B111A),
                                                         boxShadow: [
                                                           BoxShadow(
                                                             blurRadius: 4.0,
@@ -33313,7 +32527,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                             .fontStyle,
                                                                       ),
                                                                       color: Color(
-                                                                          0xFF57636C),
+                                                                          0xFF8B949E),
                                                                       fontSize:
                                                                           14.0,
                                                                       letterSpacing:
@@ -33348,9 +32562,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .infinity,
                                                                 decoration:
                                                                     BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryBackground,
+                                                                  color: Color(
+                                                                      0xFF101923),
                                                                   border: Border
                                                                       .all(
                                                                     color: Color(
@@ -33429,6 +32642,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                                   fontWeight: FontWeight.w500,
                                                                                   fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                 ),
+                                                                                color: Color(0xFF639DF0),
                                                                                 fontSize: 15.0,
                                                                                 letterSpacing: 0.0,
                                                                                 fontWeight: FontWeight.w500,
@@ -33474,9 +32688,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .infinity,
                                                                   decoration:
                                                                       BoxDecoration(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
+                                                                    color: Color(
+                                                                        0xFF101923),
                                                                     border:
                                                                         Border
                                                                             .all(
@@ -33553,6 +32766,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                                     fontWeight: FontWeight.w500,
                                                                                     fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                   ),
+                                                                                  color: Color(0xFF639DF0),
                                                                                   fontSize: 15.0,
                                                                                   letterSpacing: 0.0,
                                                                                   fontWeight: FontWeight.w500,
@@ -33595,9 +32809,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .infinity,
                                                                 decoration:
                                                                     BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryBackground,
+                                                                  color: Color(
+                                                                      0xFF101923),
                                                                   border: Border
                                                                       .all(
                                                                     color: Color(
@@ -33677,6 +32890,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                                   fontWeight: FontWeight.w500,
                                                                                   fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                 ),
+                                                                                color: Color(0xFF639DF0),
                                                                                 fontSize: 15.0,
                                                                                 letterSpacing: 0.0,
                                                                                 fontWeight: FontWeight.w500,
@@ -33722,9 +32936,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .infinity,
                                                                 decoration:
                                                                     BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryBackground,
+                                                                  color: Color(
+                                                                      0xFF101923),
                                                                   border: Border
                                                                       .all(
                                                                     color: Color(
@@ -33838,9 +33051,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .infinity,
                                                                 decoration:
                                                                     BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryBackground,
+                                                                  color: Color(
+                                                                      0xFF101923),
                                                                   border: Border
                                                                       .all(
                                                                     color: Color(
@@ -33939,7 +33151,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Divider(
                                                               thickness: 1.0,
                                                               color: Color(
-                                                                  0xFFE0E3E7),
+                                                                  0xFF26364D),
                                                             ),
                                                             Padding(
                                                               padding:
@@ -33967,7 +33179,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                             .fontStyle,
                                                                       ),
                                                                       color: Color(
-                                                                          0xFF57636C),
+                                                                          0xFF8B949E),
                                                                       fontSize:
                                                                           14.0,
                                                                       letterSpacing:
@@ -34015,9 +33227,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .infinity,
                                                                   decoration:
                                                                       BoxDecoration(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
+                                                                    color: Color(
+                                                                        0xFF101923),
                                                                     border:
                                                                         Border
                                                                             .all(
@@ -34129,9 +33340,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .infinity,
                                                                   decoration:
                                                                       BoxDecoration(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
+                                                                    color: Color(
+                                                                        0xFF101923),
                                                                     border:
                                                                         Border
                                                                             .all(
@@ -34247,9 +33457,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .infinity,
                                                                   decoration:
                                                                       BoxDecoration(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
+                                                                    color: Color(
+                                                                        0xFF101923),
                                                                     border:
                                                                         Border
                                                                             .all(
@@ -34361,9 +33570,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                       .infinity,
                                                                   decoration:
                                                                       BoxDecoration(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
+                                                                    color: Color(
+                                                                        0xFF101923),
                                                                     border:
                                                                         Border
                                                                             .all(
@@ -34445,47 +33653,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Divider(
                                                               thickness: 1.0,
                                                               color: Color(
-                                                                  0xFFE0E3E7),
-                                                            ),
-                                                            MouseRegion(
-                                                              opaque: false,
-                                                              cursor: SystemMouseCursors
-                                                                      .basic ??
-                                                                  MouseCursor
-                                                                      .defer,
-                                                              child:
-                                                                  AnimatedContainer(
-                                                                duration: Duration(
-                                                                    milliseconds:
-                                                                        150),
-                                                                curve: Curves
-                                                                    .easeInOut,
-                                                                width: double
-                                                                    .infinity,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryBackground,
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: Color(
-                                                                        0xFF1C1111),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              onEnter:
-                                                                  ((event) async {
-                                                                safeSetState(() =>
-                                                                    _model.mouseRegionHovered9 =
-                                                                        true);
-                                                              }),
-                                                              onExit:
-                                                                  ((event) async {
-                                                                safeSetState(() =>
-                                                                    _model.mouseRegionHovered9 =
-                                                                        false);
-                                                              }),
+                                                                  0xFF26364D),
                                                             ),
                                                           ],
                                                         ),
@@ -40729,36 +39897,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          if (responsiveVisibility(
-                            context: context,
-                            phone: false,
-                            tablet: false,
-                            tabletLandscape: false,
-                            desktop: false,
-                          ))
-                            Container(
-                              width: double.infinity,
-                              height: 11.0,
-                              child: custom_widgets.SimulatorBottomMenuXplane(
-                                width: double.infinity,
-                                height: 11.0,
-                                positionAction: () async {},
-                                pauseAction: () async {},
-                                freezeAction: () async {},
-                                flightPlanAction: () async {},
-                                weatherAction: () async {},
-                                pushbackAction: () async {},
-                                mapAction: () async {},
-                                toPerfAction: () async {},
-                                ldgPerfAction: () async {},
-                                checklistAction: () async {},
-                                briefingAction: () async {},
-                                fmcAction: () async {},
-                                loadAction: () async {},
-                                failuresAction: () async {},
-                                settingsAction: () async {},
-                              ),
-                            ),
                           Expanded(
                             child: Container(
                               width: double.infinity,
@@ -41663,11 +40801,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                 height: 100.0,
                                 decoration: BoxDecoration(
                                   color: FFAppState().FailureSubTab == 30
-                                      ? Color(0xA00EE300)
-                                      : FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
+                                      ? Color(0xFF639DF0)
+                                      : Color(0xFF101923),
                                   border: Border.all(
-                                    color: Colors.white,
+                                    color: Color(0xFF26364D),
                                   ),
                                 ),
                                 child: Align(
@@ -41712,11 +40849,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                 height: 100.0,
                                 decoration: BoxDecoration(
                                   color: FFAppState().FailureSubTab == 31
-                                      ? Color(0xA00EE300)
-                                      : FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
+                                      ? Color(0xFF639DF0)
+                                      : Color(0xFF101923),
                                   border: Border.all(
-                                    color: Colors.white,
+                                    color: Color(0xFF26364D),
                                   ),
                                 ),
                                 child: Align(

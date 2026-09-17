@@ -76,9 +76,9 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Color(0xFF14181B),
+        backgroundColor: Color(0xFF0B111A),
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+          backgroundColor: Color(0xFF0B111A),
           automaticallyImplyLeading: false,
           leading: FlutterFlowIconButton(
             borderColor: Colors.transparent,
@@ -150,6 +150,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
+                                    color: Color(0xFF8B949E),
                                     fontSize: 14.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FlutterFlowTheme.of(context)
@@ -161,29 +162,28 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                   ),
                           alignLabelWithHint: false,
                           hintText: '192.168.1.100',
-                          hintStyle: FlutterFlowTheme.of(context)
-                              .labelMedium
-                              .override(
-                                font: GoogleFonts.inter(
-                                  fontWeight: FlutterFlowTheme.of(context)
-                                      .labelMedium
-                                      .fontWeight,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .labelMedium
-                                      .fontStyle,
-                                ),
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                letterSpacing: 0.0,
-                                fontWeight: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .fontStyle,
-                              ),
+                          hintStyle:
+                              FlutterFlowTheme.of(context).labelMedium.override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: FlutterFlowTheme.of(context)
+                                          .labelMedium
+                                          .fontWeight,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .labelMedium
+                                          .fontStyle,
+                                    ),
+                                    color: Color(0xFF8B949E),
+                                    letterSpacing: 0.0,
+                                    fontWeight: FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .fontWeight,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .fontStyle,
+                                  ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: FlutterFlowTheme.of(context).primaryText,
+                              color: Color(0xFF26364D),
                               width: 1.0,
                             ),
                             borderRadius: BorderRadius.circular(0.0),
@@ -210,8 +210,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                             borderRadius: BorderRadius.circular(0.0),
                           ),
                           filled: true,
-                          fillColor:
-                              FlutterFlowTheme.of(context).secondaryBackground,
+                          fillColor: Color(0xFF101923),
                         ),
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               font: GoogleFonts.inter(
@@ -222,6 +221,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                     .bodyMedium
                                     .fontStyle,
                               ),
+                              color: Color(0xFF639DF0),
                               letterSpacing: 0.0,
                               fontWeight: FlutterFlowTheme.of(context)
                                   .bodyMedium
@@ -263,6 +263,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                         .bodyMedium
                                         .fontStyle,
                                   ),
+                                  color: Color(0xFF8B949E),
                                   fontSize: 14.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FlutterFlowTheme.of(context)
@@ -285,8 +286,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                         .labelMedium
                                         .fontStyle,
                                   ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
+                                  color: Color(0xFF8B949E),
                                   letterSpacing: 0.0,
                                   fontWeight: FlutterFlowTheme.of(context)
                                       .labelMedium
@@ -297,7 +297,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                 ),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
-                                color: FlutterFlowTheme.of(context).primaryText,
+                                color: Color(0xFF26364D),
                                 width: 1.0,
                               ),
                               borderRadius: BorderRadius.circular(0.0),
@@ -324,8 +324,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                               borderRadius: BorderRadius.circular(0.0),
                             ),
                             filled: true,
-                            fillColor: FlutterFlowTheme.of(context)
-                                .secondaryBackground,
+                            fillColor: Color(0xFF101923),
                           ),
                           style:
                               FlutterFlowTheme.of(context).bodyMedium.override(
@@ -337,6 +336,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
+                                    color: Color(0xFF639DF0),
                                     letterSpacing: 0.0,
                                     fontWeight: FlutterFlowTheme.of(context)
                                         .bodyMedium
@@ -375,6 +375,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
+                                    color: Color(0xFF8B949E),
                                     fontSize: 14.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FlutterFlowTheme.of(context)
@@ -386,29 +387,28 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                   ),
                           alignLabelWithHint: false,
                           hintText: '1849314',
-                          hintStyle: FlutterFlowTheme.of(context)
-                              .labelMedium
-                              .override(
-                                font: GoogleFonts.inter(
-                                  fontWeight: FlutterFlowTheme.of(context)
-                                      .labelMedium
-                                      .fontWeight,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .labelMedium
-                                      .fontStyle,
-                                ),
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                letterSpacing: 0.0,
-                                fontWeight: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .labelMedium
-                                    .fontStyle,
-                              ),
+                          hintStyle:
+                              FlutterFlowTheme.of(context).labelMedium.override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: FlutterFlowTheme.of(context)
+                                          .labelMedium
+                                          .fontWeight,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .labelMedium
+                                          .fontStyle,
+                                    ),
+                                    color: Color(0xF8B949EFFFFF),
+                                    letterSpacing: 0.0,
+                                    fontWeight: FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .fontWeight,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .fontStyle,
+                                  ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: FlutterFlowTheme.of(context).primaryText,
+                              color: Color(0xFF26364D),
                               width: 1.0,
                             ),
                             borderRadius: BorderRadius.circular(0.0),
@@ -435,8 +435,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                             borderRadius: BorderRadius.circular(0.0),
                           ),
                           filled: true,
-                          fillColor:
-                              FlutterFlowTheme.of(context).secondaryBackground,
+                          fillColor: Color(0xFF101923),
                         ),
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               font: GoogleFonts.inter(
@@ -447,6 +446,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                     .bodyMedium
                                     .fontStyle,
                               ),
+                              color: Color(0xFF639DF0),
                               letterSpacing: 0.0,
                               fontWeight: FlutterFlowTheme.of(context)
                                   .bodyMedium
@@ -485,8 +485,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                 16.0, 0.0, 16.0, 0.0),
                             iconPadding: EdgeInsetsDirectional.fromSTEB(
                                 0.0, 0.0, 0.0, 0.0),
-                            color:
-                                FlutterFlowTheme.of(context).primaryBackground,
+                            color: Color(0xFF101923),
                             textStyle: FlutterFlowTheme.of(context)
                                 .titleSmall
                                 .override(
@@ -498,7 +497,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                         .titleSmall
                                         .fontStyle,
                                   ),
-                                  color: Colors.white,
+                                  color: Color(0xFF639DF0),
                                   letterSpacing: 0.0,
                                   fontWeight: FlutterFlowTheme.of(context)
                                       .titleSmall
@@ -509,7 +508,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(
-                              color: FlutterFlowTheme.of(context).primaryText,
+                              color: Color(0xFF639DF0),
                             ),
                             borderRadius: BorderRadius.circular(8.0),
                           ),

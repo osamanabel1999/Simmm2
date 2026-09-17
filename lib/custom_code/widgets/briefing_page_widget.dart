@@ -72,7 +72,7 @@ class BriefingPageWidget extends StatefulWidget {
   final String? arrivalElw;
   final String? arrivalMlw;
 
-  // المتغيرات الجديدة الخاصة بالضغط على الزراير
+  // المتغيرات الخاصة بالضغط على الزراير (محفوظة بالكامل)
   final Future Function()? onStartDepartureBriefing;
   final Future Function()? onStartArrivalBriefing;
 
@@ -81,15 +81,20 @@ class BriefingPageWidget extends StatefulWidget {
 }
 
 class _BriefingPageWidgetState extends State<BriefingPageWidget> {
-  // ألوان التصميم الجديد
-  final Color bgColor = const Color(0xFF14181B);
-  final Color cardColor = const Color(0xFF1D2429);
-  final Color blockColor = const Color(0xFF262F36);
-  final Color accentColor = const Color(0xFF00E5FF); // السماوي الشيك
-  final Color textLabelColor = const Color(0xFF8B9EB7);
-  final Color textValueColor = Colors.white;
+  // ============================================================
+  // ألوان التصميم الموحدة الجديدة (نفس الكود اللي فات بالمللي)
+  // ============================================================
+  final Color bgColor = const Color(0xFF0B111A); // الخلفية اللي ورا خالص
+  final Color cardColor = const Color(0xFF101923); // خلفية الكونتينرات الكبيرة
+  final Color blockColor =
+      const Color(0xFF0B111A); // خلفية المربعات الصغيرة والزراير
+  final Color accentColor =
+      const Color(0xFF639DF0); // لون زرار الـ ATIS الأزرق الشيك
+  final Color textLabelColor = const Color(0xFF8B949E); // لون النصوص الرمادية
+  final Color textValueColor = const Color(0xFFE5E7EB); // لون النصوص البيضاء
+  final Color panelBorder = const Color(0xFF26364D); // حواف الكونتينر الموحدة
 
-  // تصميم مربع البيانات (شكل شاشات الطيارات)
+  // تصميم مربع البيانات (تم توحيد الحواف والخلفية)
   Widget _buildDataBlock(String label, String? value) {
     final displayValue = (value != null && value.isNotEmpty) ? value : "---";
 
@@ -100,9 +105,7 @@ class _BriefingPageWidgetState extends State<BriefingPageWidget> {
         decoration: BoxDecoration(
           color: blockColor,
           borderRadius: BorderRadius.circular(8.0),
-          border: Border(
-            bottom: BorderSide(color: accentColor.withOpacity(0.5), width: 2),
-          ),
+          border: Border.all(color: panelBorder, width: 1.0), // حواف موحدة
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -137,7 +140,7 @@ class _BriefingPageWidgetState extends State<BriefingPageWidget> {
     );
   }
 
-  // تصميم زرار الصوت الجديد
+  // تصميم زرار الصوت الجديد (تم توحيده مع تصميم زرار الـ ATIS)
   Widget _buildActionButton(
       String title, IconData icon, Future Function()? action) {
     return InkWell(
@@ -151,29 +154,22 @@ class _BriefingPageWidgetState extends State<BriefingPageWidget> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: accentColor.withOpacity(0.1),
+          color: blockColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: accentColor.withOpacity(0.8), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: accentColor.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(color: panelBorder, width: 1.0), // حواف موحدة
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: accentColor, size: 24),
-            const SizedBox(width: 12),
+            Icon(icon, color: accentColor, size: 20),
+            const SizedBox(width: 8),
             Text(
               title,
               style: TextStyle(
                 color: accentColor,
-                fontSize: 16,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
+                letterSpacing: 1.0,
               ),
             ),
           ],
@@ -186,22 +182,22 @@ class _BriefingPageWidgetState extends State<BriefingPageWidget> {
   Widget _buildSectionHeader(String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, color: accentColor, size: 22),
+        Icon(icon, color: accentColor, size: 20),
         const SizedBox(width: 10),
         Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
+          style: TextStyle(
+            color: accentColor,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
+            letterSpacing: 1.2,
           ),
         ),
         const SizedBox(width: 15),
         Expanded(
           child: Container(
             height: 1,
-            color: textLabelColor.withOpacity(0.3),
+            color: panelBorder,
           ),
         ),
       ],
@@ -224,16 +220,11 @@ class _BriefingPageWidgetState extends State<BriefingPageWidget> {
             Container(
               decoration: BoxDecoration(
                 color: cardColor,
-                borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(12.0),
+                border:
+                    Border.all(color: panelBorder, width: 1.0), // حواف موحدة
               ),
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
                   _buildSectionHeader(
@@ -267,7 +258,7 @@ class _BriefingPageWidgetState extends State<BriefingPageWidget> {
                   // زر الأكشن للمغادرة
                   _buildActionButton(
                     "START DEPARTURE AUDIO",
-                    Icons.multitrack_audio_rounded,
+                    Icons.volume_up,
                     widget.onStartDepartureBriefing,
                   ),
                 ],
@@ -282,16 +273,11 @@ class _BriefingPageWidgetState extends State<BriefingPageWidget> {
             Container(
               decoration: BoxDecoration(
                 color: cardColor,
-                borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(12.0),
+                border:
+                    Border.all(color: panelBorder, width: 1.0), // حواف موحدة
               ),
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
                   _buildSectionHeader(
@@ -325,7 +311,7 @@ class _BriefingPageWidgetState extends State<BriefingPageWidget> {
                   // زر الأكشن للوصول
                   _buildActionButton(
                     "START ARRIVAL AUDIO",
-                    Icons.multitrack_audio_rounded,
+                    Icons.volume_up,
                     widget.onStartArrivalBriefing,
                   ),
                 ],

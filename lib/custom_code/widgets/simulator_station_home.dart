@@ -44,100 +44,118 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
     return formattedUrl;
   }
 
+  // ============================================================
+  // الألوان الموحدة (EFB Dark Theme)
+  // ============================================================
+  final Color bgColor = const Color(0xFF0B111A); // تم توحيد لون الخلفية
+  final Color borderColor = const Color(0xFF26364D); // لون الحواف الموحد
+  final Color blueAccent =
+      const Color(0xFF639DF0); // الأزرق الشيك الموحد للخطوط المضيئة
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: widget.width ?? double.infinity,
       height: widget.height ?? double.infinity,
-      color: const Color(0xFF14181B), // لون الخلفية المطلوب
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 50.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // العنوان العلوي (SIMULATOR)
-              Text(
-                'S I M U L A T O R',
-                style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 16,
-                  letterSpacing: 10.0,
-                  fontWeight: FontWeight.w500,
-                ),
+      color: bgColor,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // العنوان العلوي (SIMULATOR)
+            const SizedBox(height: 10),
+            Text(
+              'S I M U L A T O R',
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 16,
+                letterSpacing: 10.0,
+                fontWeight: FontWeight.w500,
               ),
-              // العنوان الرئيسي (STATION) بتأثير معدني
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Colors.white, Color(0xFF8C95A0), Colors.white],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ).createShader(bounds),
-                child: const Text(
-                  'STATION',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // الخط الأزرق المضيء
-              _buildGlowingLine(),
-
-              const SizedBox(height: 24),
-
-              // النص الوصفي
-              Text(
-                'CONNECT YOUR FAVORITE FLIGHT SIMULATOR\nAND TAKE FULL CONTROL.',
-                textAlign: TextAlign.center,
+            ),
+            // العنوان الرئيسي (STATION) بتأثير معدني
+            ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [Colors.white, Color(0xFF8C95A0), Colors.white],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ).createShader(bounds),
+              child: const Text(
+                'STATION',
                 style: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 12,
+                  color: Colors.white,
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
                   letterSpacing: 2.0,
-                  height: 1.8,
                 ),
               ),
+            ),
 
-              const SizedBox(height: 40),
+            const Spacer(flex: 1), // مسافة مرنة
 
-              // الكونتينر الأول
-              _buildImageContainer(widget.image1, widget.action1),
+            // الخط الأزرق المضيء
+            _buildGlowingLine(),
 
-              const SizedBox(height: 32),
+            const Spacer(flex: 1), // مسافة مرنة
 
-              // الكونتينر الثاني
-              _buildImageContainer(widget.image2, widget.action2),
+            // النص الوصفي
+            Text(
+              'CONNECT YOUR FAVORITE FLIGHT SIMULATOR\nAND TAKE FULL CONTROL.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 12,
+                letterSpacing: 2.0,
+                height: 1.8,
+              ),
+            ),
 
-              const SizedBox(height: 50),
+            const Spacer(flex: 2), // مسافة مرنة
 
-              // النص السفلي
-              Text(
+            // الكونتينر الأول
+            Expanded(
+              flex: 8,
+              child: _buildImageContainer(widget.image1, widget.action1),
+            ),
+
+            const SizedBox(height: 20),
+
+            // الكونتينر الثاني
+            Expanded(
+              flex: 8,
+              child: _buildImageContainer(widget.image2, widget.action2),
+            ),
+
+            const Spacer(flex: 2), // مسافة مرنة
+
+            // النص السفلي (محمي من النزول لسطر تاني)
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
                 'C O N T R O L .  C O N N E C T .  F L Y .',
+                maxLines: 1, // إجباره على سطر واحد
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: 10,
                   letterSpacing: 6.0,
                 ),
               ),
+            ),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-              // الخط الأزرق المضيء السفلي
-              _buildGlowingLine(),
+            // الخط الأزرق المضيء السفلي
+            _buildGlowingLine(),
 
-              const SizedBox(height: 30),
-            ],
-          ),
+            const SizedBox(height: 10),
+          ],
         ),
       ),
     );
   }
 
-  // ويدجت رسم الخط الأزرق المضيء
+  // ويدجت رسم الخط الأزرق المضيء الموحد
   Widget _buildGlowingLine() {
     return SizedBox(
       width: 280,
@@ -152,7 +170,7 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
               gradient: LinearGradient(
                 colors: [
                   Colors.transparent,
-                  Colors.blueAccent.withOpacity(0.6),
+                  blueAccent.withOpacity(0.6), // توحيد اللون
                   Colors.transparent,
                 ],
               ),
@@ -162,11 +180,11 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
             height: 5,
             width: 5,
             decoration: BoxDecoration(
-              color: Colors.lightBlueAccent,
+              color: blueAccent, // توحيد اللون
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.blueAccent.withOpacity(0.9),
+                  color: blueAccent.withOpacity(0.9), // توحيد اللون
                   blurRadius: 10,
                   spreadRadius: 3,
                 ),
@@ -178,7 +196,7 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
     );
   }
 
-  // ويدجت عرض الصور بمقاسات الكونتينر بالظبط وبدون أي فوارق
+  // ويدجت عرض الصور
   Widget _buildImageContainer(String imageUrl, Future Function()? onTapAction) {
     final cleanUrl = _formattedImageUrl(imageUrl);
 
@@ -190,8 +208,8 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.white.withOpacity(0.15),
-            width: 1,
+            color: borderColor, // توحيد الحواف
+            width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
@@ -202,43 +220,39 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: AspectRatio(
-            aspectRatio: 1.6, // نسبة العرض للارتفاع المتناسقة مع تصميم البطاقات
-            child: Image.network(
-              cleanUrl,
-              fit: BoxFit
-                  .fill, // يملأ كامل أبعاد الإطار بالظبط بدون أي مساحات فارغة
-              width: double.infinity,
-              height: double.infinity,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Container(
-                  color: const Color(0xFF1E2429),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.blueAccent,
+          borderRadius: BorderRadius.circular(14),
+          child: Image.network(
+            cleanUrl,
+            fit: BoxFit.cover, // يملأ الإطار بالكامل مهما اختلف الحجم
+            width: double.infinity,
+            height: double.infinity,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                color: const Color(0xFF101923), // خلفية موحدة أثناء التحميل
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: blueAccent, // توحيد اللون
+                  ),
+                ),
+              );
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: const Color(0xFF101923), // خلفية موحدة عند الخطأ
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.broken_image, color: Colors.grey, size: 40),
+                    SizedBox(height: 8),
+                    Text(
+                      'Failed to load image',
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
                     ),
-                  ),
-                );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: const Color(0xFF1E2429),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.broken_image, color: Colors.grey, size: 40),
-                      SizedBox(height: 8),
-                      Text(
-                        'Failed to load image',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
