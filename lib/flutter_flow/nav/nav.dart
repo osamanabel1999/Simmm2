@@ -218,11 +218,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => RefundWidget(),
         ),
         FFRoute(
-          name: MsfsWidget.routeName,
-          path: MsfsWidget.routePath,
-          builder: (context, params) => MsfsWidget(),
-        ),
-        FFRoute(
           name: HomePageMSFSWidget.routeName,
           path: HomePageMSFSWidget.routePath,
           builder: (context, params) => HomePageMSFSWidget(),
@@ -298,11 +293,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: SubscriptionManageForALLWidget.routeName,
           path: SubscriptionManageForALLWidget.routePath,
           builder: (context, params) => SubscriptionManageForALLWidget(),
-        ),
-        FFRoute(
-          name: PdfmsfsquideWidget.routeName,
-          path: PdfmsfsquideWidget.routePath,
-          builder: (context, params) => PdfmsfsquideWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

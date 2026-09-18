@@ -108,6 +108,7 @@ class _AbouttWidgetState extends State<AbouttWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
+                                    color: Color(0xFFE5E7EB),
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.bold,
                                     fontStyle: FlutterFlowTheme.of(context)

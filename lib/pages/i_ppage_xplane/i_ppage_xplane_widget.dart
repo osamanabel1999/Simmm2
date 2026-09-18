@@ -527,6 +527,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                     .bodyMedium
                                     .fontStyle,
                               ),
+                              color: Color(0xFFE5E7EB),
                               letterSpacing: 0.0,
                               fontWeight: FlutterFlowTheme.of(context)
                                   .bodyMedium
@@ -611,6 +612,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                                     .titleSmall
                                                     .fontStyle,
                                           ),
+                                          color: Color(0xFFE5E7EB),
                                           fontSize: 18.0,
                                           letterSpacing: 0.0,
                                           fontWeight:
@@ -650,6 +652,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
+                                      color: Color(0xFFE5E7EB),
                                       letterSpacing: 0.0,
                                       fontWeight: FlutterFlowTheme.of(context)
                                           .bodyMedium
@@ -662,6 +665,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                               TextSpan(
                                 text: 'Restore Purchases',
                                 style: TextStyle(
+                                  color: Color(0xFFE5E7EB),
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.underline,
                                 ),
@@ -715,6 +719,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                         .bodyMedium
                                         .fontStyle,
                                   ),
+                                  color: Color(0xFFE5E7EB),
                                   letterSpacing: 0.0,
                                   fontWeight: FlutterFlowTheme.of(context)
                                       .bodyMedium
@@ -744,6 +749,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
+                                    color: Color(0xFFE5E7EB),
                                     fontSize: 13.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w300,
@@ -788,6 +794,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
+                                    color: Color(0xFFE5E7EB),
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w300,
                                     fontStyle: FlutterFlowTheme.of(context)

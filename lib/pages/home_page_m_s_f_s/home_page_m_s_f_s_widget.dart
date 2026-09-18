@@ -16202,2418 +16202,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                           ],
                                         ),
                                       ),
-                                    if (FFAppState().TabNumber == 8)
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                InkWell(
-                                                  splashColor:
-                                                      Colors.transparent,
-                                                  focusColor:
-                                                      Colors.transparent,
-                                                  hoverColor:
-                                                      Colors.transparent,
-                                                  highlightColor:
-                                                      Colors.transparent,
-                                                  onTap: () async {
-                                                    FFAppState().Checklist =
-                                                        1.0;
-                                                    safeSetState(() {});
-                                                  },
-                                                  child: Container(
-                                                    width: MediaQuery.sizeOf(
-                                                                context)
-                                                            .width *
-                                                        0.5,
-                                                    height: 40.0,
-                                                    decoration: BoxDecoration(
-                                                      color: Color(0xFF0F2942),
-                                                      border: Border.all(
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                      ),
-                                                    ),
-                                                    child: InkWell(
-                                                      splashColor:
-                                                          Colors.transparent,
-                                                      focusColor:
-                                                          Colors.transparent,
-                                                      hoverColor:
-                                                          Colors.transparent,
-                                                      highlightColor:
-                                                          Colors.transparent,
-                                                      onTap: () async {
-                                                        FFAppState().Checklist =
-                                                            1.0;
-                                                        safeSetState(() {});
-                                                      },
-                                                      child: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Text(
-                                                              'A320',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                InkWell(
-                                                  splashColor:
-                                                      Colors.transparent,
-                                                  focusColor:
-                                                      Colors.transparent,
-                                                  hoverColor:
-                                                      Colors.transparent,
-                                                  highlightColor:
-                                                      Colors.transparent,
-                                                  onTap: () async {
-                                                    FFAppState().Checklist =
-                                                        2.0;
-                                                    safeSetState(() {});
-                                                  },
-                                                  child: Container(
-                                                    width: MediaQuery.sizeOf(
-                                                                context)
-                                                            .width *
-                                                        0.5,
-                                                    height: 40.0,
-                                                    decoration: BoxDecoration(
-                                                      color: Color(0xFF1C2B46),
-                                                      border: Border.all(
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                      ),
-                                                    ),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.max,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Align(
-                                                          alignment:
-                                                              AlignmentDirectional(
-                                                                  0.0, 0.0),
-                                                          child: Text(
-                                                            'B737',
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            style: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  font:
-                                                                      GoogleFonts
-                                                                          .inter(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.max,
-                                                children: [
-                                                  if (FFAppState().Checklist ==
-                                                      1.0)
-                                                    Expanded(
-                                                      child: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        children: [
-                                                          Expanded(
-                                                            child: InkWell(
-                                                              splashColor: Colors
-                                                                  .transparent,
-                                                              focusColor: Colors
-                                                                  .transparent,
-                                                              hoverColor: Colors
-                                                                  .transparent,
-                                                              highlightColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              onTap: () async {
-                                                                await Navigator
-                                                                    .push(
-                                                                  context,
-                                                                  PageTransition(
-                                                                    type: PageTransitionType
-                                                                        .fade,
-                                                                    child:
-                                                                        FlutterFlowExpandedImageView(
-                                                                      image: Image
-                                                                          .asset(
-                                                                        'assets/images/image_17F2E6B2-4184-4248-BEB0-E8132126464A_1777239049.png',
-                                                                        fit: BoxFit
-                                                                            .contain,
-                                                                      ),
-                                                                      allowRotation:
-                                                                          false,
-                                                                      tag:
-                                                                          'imageTag56',
-                                                                      useHeroAnimation:
-                                                                          true,
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                              child: Hero(
-                                                                tag:
-                                                                    'imageTag56',
-                                                                transitionOnUserGestures:
-                                                                    true,
-                                                                child:
-                                                                    ClipRRect(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8.0),
-                                                                  child: Image
-                                                                      .asset(
-                                                                    'assets/images/image_17F2E6B2-4184-4248-BEB0-E8132126464A_1777239049.png',
-                                                                    width: double
-                                                                        .infinity,
-                                                                    height: MediaQuery.sizeOf(context)
-                                                                            .height *
-                                                                        0.512,
-                                                                    fit: BoxFit
-                                                                        .fill,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .max,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            0.0,
-                                                                            3.0,
-                                                                            0.0,
-                                                                            0.0),
-                                                                child: Row(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .max,
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child:
-                                                                          InkWell(
-                                                                        splashColor:
-                                                                            Colors.transparent,
-                                                                        focusColor:
-                                                                            Colors.transparent,
-                                                                        hoverColor:
-                                                                            Colors.transparent,
-                                                                        highlightColor:
-                                                                            Colors.transparent,
-                                                                        onTap:
-                                                                            () async {
-                                                                          await actions
-                                                                              .runCockpitPreparation();
-                                                                        },
-                                                                        child:
-                                                                            Container(
-                                                                          width:
-                                                                              MediaQuery.sizeOf(context).width * 0.329,
-                                                                          height:
-                                                                              40.0,
-                                                                          decoration:
-                                                                              BoxDecoration(
-                                                                            color:
-                                                                                Color(0xFF0A192F),
-                                                                            border:
-                                                                                Border.all(
-                                                                              color: Color(0xFF1E3A8A),
-                                                                            ),
-                                                                          ),
-                                                                          child:
-                                                                              Align(
-                                                                            alignment:
-                                                                                AlignmentDirectional(0.0, 0.0),
-                                                                            child:
-                                                                                Text(
-                                                                              'COCKPIT PREPARATION',
-                                                                              textAlign: TextAlign.center,
-                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                    font: GoogleFonts.inter(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                    ),
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                      child:
-                                                                          InkWell(
-                                                                        splashColor:
-                                                                            Colors.transparent,
-                                                                        focusColor:
-                                                                            Colors.transparent,
-                                                                        hoverColor:
-                                                                            Colors.transparent,
-                                                                        highlightColor:
-                                                                            Colors.transparent,
-                                                                        onTap:
-                                                                            () async {
-                                                                          await actions
-                                                                              .runBeforeStartChecklist();
-                                                                        },
-                                                                        child:
-                                                                            Container(
-                                                                          width:
-                                                                              MediaQuery.sizeOf(context).width * 0.329,
-                                                                          height:
-                                                                              40.0,
-                                                                          decoration:
-                                                                              BoxDecoration(
-                                                                            color:
-                                                                                Color(0xFF0A192F),
-                                                                            border:
-                                                                                Border.all(
-                                                                              color: Color(0xFF1E3A8A),
-                                                                            ),
-                                                                          ),
-                                                                          child:
-                                                                              Align(
-                                                                            alignment:
-                                                                                AlignmentDirectional(0.0, 0.0),
-                                                                            child:
-                                                                                Text(
-                                                                              'BEFORE START',
-                                                                              textAlign: TextAlign.center,
-                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                    font: GoogleFonts.inter(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                    ),
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                      child:
-                                                                          InkWell(
-                                                                        splashColor:
-                                                                            Colors.transparent,
-                                                                        focusColor:
-                                                                            Colors.transparent,
-                                                                        hoverColor:
-                                                                            Colors.transparent,
-                                                                        highlightColor:
-                                                                            Colors.transparent,
-                                                                        onTap:
-                                                                            () async {
-                                                                          await actions
-                                                                              .runAfterStartChecklist();
-                                                                        },
-                                                                        child:
-                                                                            Container(
-                                                                          width:
-                                                                              MediaQuery.sizeOf(context).width * 0.329,
-                                                                          height:
-                                                                              40.0,
-                                                                          decoration:
-                                                                              BoxDecoration(
-                                                                            color:
-                                                                                Color(0xFF0A192F),
-                                                                            border:
-                                                                                Border.all(
-                                                                              color: Color(0xFF1E3A8A),
-                                                                            ),
-                                                                          ),
-                                                                          child:
-                                                                              Align(
-                                                                            alignment:
-                                                                                AlignmentDirectional(0.0, 0.0),
-                                                                            child:
-                                                                                Text(
-                                                                              'AFTER START',
-                                                                              textAlign: TextAlign.center,
-                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                    font: GoogleFonts.inter(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                    ),
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Row(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .max,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runTaxiChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'TAXI',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runLineUpChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'LINE UP',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runDepartureChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'DEPARTURE CHANGE',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              Row(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .max,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .spaceAround,
-                                                                children: [
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runApproachChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'APPROACH',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runLandingChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'LANDING',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runAfterLandingChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'AFTER LANDING',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              Row(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .max,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runParkingChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.495,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'PARKING',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runSecuringChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.495,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'SECURING THE AIRCRAFT',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  if (FFAppState().Checklist ==
-                                                      2.0)
-                                                    Expanded(
-                                                      child: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Expanded(
-                                                            child: InkWell(
-                                                              splashColor: Colors
-                                                                  .transparent,
-                                                              focusColor: Colors
-                                                                  .transparent,
-                                                              hoverColor: Colors
-                                                                  .transparent,
-                                                              highlightColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              onTap: () async {
-                                                                await Navigator
-                                                                    .push(
-                                                                  context,
-                                                                  PageTransition(
-                                                                    type: PageTransitionType
-                                                                        .fade,
-                                                                    child:
-                                                                        FlutterFlowExpandedImageView(
-                                                                      image: Image
-                                                                          .asset(
-                                                                        'assets/images/image_8C8F0EC4-07E8-44FB-BE79-63DEAC88BA6E_1787556988.png',
-                                                                        fit: BoxFit
-                                                                            .contain,
-                                                                      ),
-                                                                      allowRotation:
-                                                                          false,
-                                                                      tag:
-                                                                          'imageTag57',
-                                                                      useHeroAnimation:
-                                                                          true,
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                              child: Hero(
-                                                                tag:
-                                                                    'imageTag57',
-                                                                transitionOnUserGestures:
-                                                                    true,
-                                                                child:
-                                                                    ClipRRect(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8.0),
-                                                                  child: Image
-                                                                      .asset(
-                                                                    'assets/images/image_8C8F0EC4-07E8-44FB-BE79-63DEAC88BA6E_1787556988.png',
-                                                                    width: double
-                                                                        .infinity,
-                                                                    height: MediaQuery.sizeOf(context)
-                                                                            .height *
-                                                                        0.55,
-                                                                    fit: BoxFit
-                                                                        .fill,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .max,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            0.0,
-                                                                            3.0,
-                                                                            0.0,
-                                                                            0.0),
-                                                                child: Row(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .max,
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child:
-                                                                          InkWell(
-                                                                        splashColor:
-                                                                            Colors.transparent,
-                                                                        focusColor:
-                                                                            Colors.transparent,
-                                                                        hoverColor:
-                                                                            Colors.transparent,
-                                                                        highlightColor:
-                                                                            Colors.transparent,
-                                                                        onTap:
-                                                                            () async {
-                                                                          await actions
-                                                                              .runB737PreflightChecklist();
-                                                                        },
-                                                                        child:
-                                                                            Container(
-                                                                          width:
-                                                                              MediaQuery.sizeOf(context).width * 0.329,
-                                                                          height:
-                                                                              40.0,
-                                                                          decoration:
-                                                                              BoxDecoration(
-                                                                            color:
-                                                                                Color(0xFF0A192F),
-                                                                            border:
-                                                                                Border.all(
-                                                                              color: Color(0xFF1E3A8A),
-                                                                            ),
-                                                                          ),
-                                                                          child:
-                                                                              Align(
-                                                                            alignment:
-                                                                                AlignmentDirectional(0.0, 0.0),
-                                                                            child:
-                                                                                Text(
-                                                                              'PREFLIGHT',
-                                                                              textAlign: TextAlign.center,
-                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                    font: GoogleFonts.inter(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                    ),
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                      child:
-                                                                          InkWell(
-                                                                        splashColor:
-                                                                            Colors.transparent,
-                                                                        focusColor:
-                                                                            Colors.transparent,
-                                                                        hoverColor:
-                                                                            Colors.transparent,
-                                                                        highlightColor:
-                                                                            Colors.transparent,
-                                                                        onTap:
-                                                                            () async {
-                                                                          await actions
-                                                                              .runB737BeforeStartChecklist();
-                                                                        },
-                                                                        child:
-                                                                            Container(
-                                                                          width:
-                                                                              MediaQuery.sizeOf(context).width * 0.329,
-                                                                          height:
-                                                                              40.0,
-                                                                          decoration:
-                                                                              BoxDecoration(
-                                                                            color:
-                                                                                Color(0xFF0A192F),
-                                                                            border:
-                                                                                Border.all(
-                                                                              color: Color(0xFF1E3A8A),
-                                                                            ),
-                                                                          ),
-                                                                          child:
-                                                                              Align(
-                                                                            alignment:
-                                                                                AlignmentDirectional(0.0, 0.0),
-                                                                            child:
-                                                                                Text(
-                                                                              'BEFORE START',
-                                                                              textAlign: TextAlign.center,
-                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                    font: GoogleFonts.inter(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                    ),
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                      child:
-                                                                          InkWell(
-                                                                        splashColor:
-                                                                            Colors.transparent,
-                                                                        focusColor:
-                                                                            Colors.transparent,
-                                                                        hoverColor:
-                                                                            Colors.transparent,
-                                                                        highlightColor:
-                                                                            Colors.transparent,
-                                                                        onTap:
-                                                                            () async {
-                                                                          await actions
-                                                                              .runB737BeforeTaxiChecklist();
-                                                                        },
-                                                                        child:
-                                                                            Container(
-                                                                          width:
-                                                                              MediaQuery.sizeOf(context).width * 0.329,
-                                                                          height:
-                                                                              40.0,
-                                                                          decoration:
-                                                                              BoxDecoration(
-                                                                            color:
-                                                                                Color(0xFF0A192F),
-                                                                            border:
-                                                                                Border.all(
-                                                                              color: Color(0xFF1E3A8A),
-                                                                            ),
-                                                                          ),
-                                                                          child:
-                                                                              Align(
-                                                                            alignment:
-                                                                                AlignmentDirectional(0.0, 0.0),
-                                                                            child:
-                                                                                Text(
-                                                                              'BEFORE TAXI',
-                                                                              textAlign: TextAlign.center,
-                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                    font: GoogleFonts.inter(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                    ),
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Row(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .max,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runB737BeforeTakeoffChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'BEFORE TAKEOFF',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runB737AfterTakeoffChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'AFTER TAKEOFF',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runB737DescentChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'DESCENT',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              Row(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .max,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .spaceAround,
-                                                                children: [
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runB737ApproachChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'APPROACH',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runB737LandingChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'LANDING',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    child:
-                                                                        InkWell(
-                                                                      splashColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      focusColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      hoverColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      highlightColor:
-                                                                          Colors
-                                                                              .transparent,
-                                                                      onTap:
-                                                                          () async {
-                                                                        await actions
-                                                                            .runB737ParkingChecklist();
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        width: MediaQuery.sizeOf(context).width *
-                                                                            0.329,
-                                                                        height:
-                                                                            40.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              Color(0xFF0A192F),
-                                                                          border:
-                                                                              Border.all(
-                                                                            color:
-                                                                                Color(0xFF1E3A8A),
-                                                                          ),
-                                                                        ),
-                                                                        child:
-                                                                            Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Text(
-                                                                            'PARKING',
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                  font: GoogleFonts.inter(
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    if (FFAppState().TabNumber == 55)
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Container(
-                                                  width:
-                                                      MediaQuery.sizeOf(context)
-                                                              .width *
-                                                          0.5,
-                                                  height: 40.0,
-                                                  decoration: BoxDecoration(
-                                                    color: Color(0xFF0F2942),
-                                                    border: Border.all(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryText,
-                                                    ),
-                                                  ),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Align(
-                                                        alignment:
-                                                            AlignmentDirectional(
-                                                                0.0, 0.0),
-                                                        child: Text(
-                                                          'A320',
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Container(
-                                                  width:
-                                                      MediaQuery.sizeOf(context)
-                                                              .width *
-                                                          0.5,
-                                                  height: 40.0,
-                                                  decoration: BoxDecoration(
-                                                    color: Color(0xFF1C2B46),
-                                                    border: Border.all(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryText,
-                                                    ),
-                                                  ),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Align(
-                                                        alignment:
-                                                            AlignmentDirectional(
-                                                                0.0, 0.0),
-                                                        child: Text(
-                                                          'B737',
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Expanded(
-                                              child: InkWell(
-                                                splashColor: Colors.transparent,
-                                                focusColor: Colors.transparent,
-                                                hoverColor: Colors.transparent,
-                                                highlightColor:
-                                                    Colors.transparent,
-                                                onTap: () async {
-                                                  await Navigator.push(
-                                                    context,
-                                                    PageTransition(
-                                                      type: PageTransitionType
-                                                          .fade,
-                                                      child:
-                                                          FlutterFlowExpandedImageView(
-                                                        image: Image.asset(
-                                                          'assets/images/image_8C8F0EC4-07E8-44FB-BE79-63DEAC88BA6E_1787556988.png',
-                                                          fit: BoxFit.contain,
-                                                        ),
-                                                        allowRotation: false,
-                                                        tag: 'imageTag58',
-                                                        useHeroAnimation: true,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Hero(
-                                                  tag: 'imageTag58',
-                                                  transitionOnUserGestures:
-                                                      true,
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.0),
-                                                    child: Image.asset(
-                                                      'assets/images/image_8C8F0EC4-07E8-44FB-BE79-63DEAC88BA6E_1787556988.png',
-                                                      width: double.infinity,
-                                                      height: MediaQuery.sizeOf(
-                                                                  context)
-                                                              .height *
-                                                          0.512,
-                                                      fit: BoxFit.fill,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 3.0, 0.0, 0.0),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Expanded(
-                                                        child: InkWell(
-                                                          splashColor: Colors
-                                                              .transparent,
-                                                          focusColor: Colors
-                                                              .transparent,
-                                                          hoverColor: Colors
-                                                              .transparent,
-                                                          highlightColor: Colors
-                                                              .transparent,
-                                                          onTap: () async {
-                                                            await actions
-                                                                .runB737PreflightChecklist();
-                                                          },
-                                                          child: Container(
-                                                            width: MediaQuery
-                                                                        .sizeOf(
-                                                                            context)
-                                                                    .width *
-                                                                0.329,
-                                                            height: 40.0,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Color(
-                                                                  0xFF0A192F),
-                                                              border:
-                                                                  Border.all(
-                                                                color: Color(
-                                                                    0xFF1E3A8A),
-                                                              ),
-                                                            ),
-                                                            child: Align(
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      0.0, 0.0),
-                                                              child: Text(
-                                                                'PREFLIGHT',
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      font: GoogleFonts
-                                                                          .inter(
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                        fontStyle: FlutterFlowTheme.of(context)
-                                                                            .bodyMedium
-                                                                            .fontStyle,
-                                                                      ),
-                                                                      letterSpacing:
-                                                                          0.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: InkWell(
-                                                          splashColor: Colors
-                                                              .transparent,
-                                                          focusColor: Colors
-                                                              .transparent,
-                                                          hoverColor: Colors
-                                                              .transparent,
-                                                          highlightColor: Colors
-                                                              .transparent,
-                                                          onTap: () async {
-                                                            await actions
-                                                                .runB737BeforeStartChecklist();
-                                                          },
-                                                          child: Container(
-                                                            width: MediaQuery
-                                                                        .sizeOf(
-                                                                            context)
-                                                                    .width *
-                                                                0.329,
-                                                            height: 40.0,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Color(
-                                                                  0xFF0A192F),
-                                                              border:
-                                                                  Border.all(
-                                                                color: Color(
-                                                                    0xFF1E3A8A),
-                                                              ),
-                                                            ),
-                                                            child: Align(
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      0.0, 0.0),
-                                                              child: Text(
-                                                                'BEFORE START',
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      font: GoogleFonts
-                                                                          .inter(
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                        fontStyle: FlutterFlowTheme.of(context)
-                                                                            .bodyMedium
-                                                                            .fontStyle,
-                                                                      ),
-                                                                      letterSpacing:
-                                                                          0.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: InkWell(
-                                                          splashColor: Colors
-                                                              .transparent,
-                                                          focusColor: Colors
-                                                              .transparent,
-                                                          hoverColor: Colors
-                                                              .transparent,
-                                                          highlightColor: Colors
-                                                              .transparent,
-                                                          onTap: () async {
-                                                            await actions
-                                                                .runB737BeforeTaxiChecklist();
-                                                          },
-                                                          child: Container(
-                                                            width: MediaQuery
-                                                                        .sizeOf(
-                                                                            context)
-                                                                    .width *
-                                                                0.329,
-                                                            height: 40.0,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Color(
-                                                                  0xFF0A192F),
-                                                              border:
-                                                                  Border.all(
-                                                                color: Color(
-                                                                    0xFF1E3A8A),
-                                                              ),
-                                                            ),
-                                                            child: Align(
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      0.0, 0.0),
-                                                              child: Text(
-                                                                'BEFORE TAXI',
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      font: GoogleFonts
-                                                                          .inter(
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                        fontStyle: FlutterFlowTheme.of(context)
-                                                                            .bodyMedium
-                                                                            .fontStyle,
-                                                                      ),
-                                                                      letterSpacing:
-                                                                          0.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Expanded(
-                                                      child: InkWell(
-                                                        splashColor:
-                                                            Colors.transparent,
-                                                        focusColor:
-                                                            Colors.transparent,
-                                                        hoverColor:
-                                                            Colors.transparent,
-                                                        highlightColor:
-                                                            Colors.transparent,
-                                                        onTap: () async {
-                                                          await actions
-                                                              .runB737BeforeTakeoffChecklist();
-                                                        },
-                                                        child: Container(
-                                                          width:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  0.329,
-                                                          height: 40.0,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Color(
-                                                                0xFF0A192F),
-                                                          ),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Text(
-                                                              'BEFORE TAKEOFF',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: InkWell(
-                                                        splashColor:
-                                                            Colors.transparent,
-                                                        focusColor:
-                                                            Colors.transparent,
-                                                        hoverColor:
-                                                            Colors.transparent,
-                                                        highlightColor:
-                                                            Colors.transparent,
-                                                        onTap: () async {
-                                                          await actions
-                                                              .runB737AfterTakeoffChecklist();
-                                                        },
-                                                        child: Container(
-                                                          width:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  0.329,
-                                                          height: 40.0,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Color(
-                                                                0xFF0A192F),
-                                                            border: Border.all(
-                                                              color: Color(
-                                                                  0xFF1E3A8A),
-                                                            ),
-                                                          ),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Text(
-                                                              'AFTER TAKEOFF',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: InkWell(
-                                                        splashColor:
-                                                            Colors.transparent,
-                                                        focusColor:
-                                                            Colors.transparent,
-                                                        hoverColor:
-                                                            Colors.transparent,
-                                                        highlightColor:
-                                                            Colors.transparent,
-                                                        onTap: () async {
-                                                          await actions
-                                                              .runB737DescentChecklist();
-                                                        },
-                                                        child: Container(
-                                                          width:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  0.329,
-                                                          height: 40.0,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Color(
-                                                                0xFF0A192F),
-                                                            border: Border.all(
-                                                              color: Color(
-                                                                  0xFF1E3A8A),
-                                                            ),
-                                                          ),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Text(
-                                                              'DESCENT',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceAround,
-                                                  children: [
-                                                    Expanded(
-                                                      child: InkWell(
-                                                        splashColor:
-                                                            Colors.transparent,
-                                                        focusColor:
-                                                            Colors.transparent,
-                                                        hoverColor:
-                                                            Colors.transparent,
-                                                        highlightColor:
-                                                            Colors.transparent,
-                                                        onTap: () async {
-                                                          await actions
-                                                              .runB737ApproachChecklist();
-                                                        },
-                                                        child: Container(
-                                                          width:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  0.329,
-                                                          height: 40.0,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Color(
-                                                                0xFF0A192F),
-                                                            border: Border.all(
-                                                              color: Color(
-                                                                  0xFF1E3A8A),
-                                                            ),
-                                                          ),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Text(
-                                                              'APPROACH',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: InkWell(
-                                                        splashColor:
-                                                            Colors.transparent,
-                                                        focusColor:
-                                                            Colors.transparent,
-                                                        hoverColor:
-                                                            Colors.transparent,
-                                                        highlightColor:
-                                                            Colors.transparent,
-                                                        onTap: () async {
-                                                          await actions
-                                                              .runB737LandingChecklist();
-                                                        },
-                                                        child: Container(
-                                                          width:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  0.329,
-                                                          height: 40.0,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Color(
-                                                                0xFF0A192F),
-                                                            border: Border.all(
-                                                              color: Color(
-                                                                  0xFF1E3A8A),
-                                                            ),
-                                                          ),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Text(
-                                                              'LANDING',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: InkWell(
-                                                        splashColor:
-                                                            Colors.transparent,
-                                                        focusColor:
-                                                            Colors.transparent,
-                                                        hoverColor:
-                                                            Colors.transparent,
-                                                        highlightColor:
-                                                            Colors.transparent,
-                                                        onTap: () async {
-                                                          await actions
-                                                              .runB737ParkingChecklist();
-                                                        },
-                                                        child: Container(
-                                                          width:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  0.329,
-                                                          height: 40.0,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Color(
-                                                                0xFF0A192F),
-                                                            border: Border.all(
-                                                              color: Color(
-                                                                  0xFF1E3A8A),
-                                                            ),
-                                                          ),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0.0, 0.0),
-                                                            child: Text(
-                                                              'PARKING',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
                                     if (FFAppState().TabNumber == 5)
                                       Expanded(
                                         child: Column(
@@ -19082,14 +16670,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                 width: 683.7,
                                                 height: 755.9,
                                                 decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryBackground,
-                                                  border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryText,
-                                                  ),
+                                                  color: Color(0xFF0B111A),
                                                 ),
                                                 child: Column(
                                                   mainAxisSize:
@@ -19175,14 +16756,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -19209,6 +16788,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -19306,14 +16887,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -19338,6 +16917,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -19428,14 +17009,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -19462,6 +17041,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -19554,14 +17135,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -19588,6 +17167,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -19682,14 +17263,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -19714,6 +17293,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -19800,14 +17381,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -19834,6 +17413,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -19926,14 +17507,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -19960,6 +17539,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           fontSize:
                                                                               14.0,
                                                                           letterSpacing:
@@ -20056,14 +17637,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -20088,6 +17667,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             fontSize:
                                                                                 14.0,
                                                                             letterSpacing:
@@ -20176,14 +17757,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -20210,6 +17789,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -20302,14 +17883,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -20336,6 +17915,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -20430,14 +18011,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -20462,6 +18041,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -20548,14 +18129,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -20582,6 +18161,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -20674,14 +18255,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -20708,6 +18287,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -20802,14 +18383,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -20834,6 +18413,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -20920,14 +18501,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -20954,6 +18533,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -21046,14 +18627,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -21080,6 +18659,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -21166,14 +18747,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -21200,6 +18779,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -21286,14 +18867,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -21320,6 +18899,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -30913,6 +28494,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -31028,6 +28611,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -31143,6 +28728,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             fontSize:
                                                                                 14.0,
                                                                             letterSpacing:
@@ -31268,9 +28855,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -31301,6 +28887,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -31387,9 +28975,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -31420,6 +29007,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -31538,6 +29127,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -31662,9 +29253,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -31695,6 +29285,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -31781,9 +29373,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -31814,6 +29405,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -31900,9 +29493,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -31933,6 +29525,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -32025,9 +29619,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -32058,6 +29651,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -32144,9 +29739,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -32177,6 +29771,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -32263,9 +29859,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -32296,6 +29891,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -32388,9 +29985,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -32421,6 +30017,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -32507,9 +30105,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -32540,6 +30137,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -32626,9 +30225,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -32659,6 +30257,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -32751,9 +30351,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
                                                                   color: Color(
@@ -32784,6 +30383,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -32825,9 +30426,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           context)
                                                       .secondaryBackground,
                                                   border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryText,
+                                                    color: Color(0xFF26364D),
                                                   ),
                                                 ),
                                                 child: Column(
@@ -32910,14 +30509,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -32944,6 +30541,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -33030,14 +30629,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -33064,6 +30661,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -33150,14 +30749,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -33184,6 +30781,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -33276,14 +30875,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -33310,6 +30907,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -33396,14 +30995,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -33430,6 +31027,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -33516,14 +31115,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -33550,6 +31147,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -33642,14 +31241,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -33676,6 +31273,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -33762,14 +31361,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -33796,6 +31393,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -33882,14 +31481,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -33916,6 +31513,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -34008,14 +31607,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -34042,6 +31639,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -34128,14 +31727,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -34162,6 +31759,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -34248,14 +31847,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -34282,6 +31879,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -34374,14 +31973,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -34408,6 +32005,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -34494,14 +32093,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -34528,6 +32125,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -34614,14 +32213,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -34648,6 +32245,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -34690,9 +32289,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           context)
                                                       .secondaryBackground,
                                                   border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryText,
+                                                    color: Color(0xFF26364D),
                                                   ),
                                                 ),
                                                 child: Column(
@@ -34775,14 +32372,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -34809,6 +32404,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -34895,14 +32492,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -34929,6 +32524,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -35015,14 +32612,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -35049,6 +32644,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -35141,14 +32738,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -35175,6 +32770,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -35261,14 +32858,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -35295,6 +32890,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -35386,9 +32983,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         .secondaryBackground,
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -35415,6 +33011,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -35507,14 +33105,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -35541,6 +33137,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -35583,9 +33181,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           context)
                                                       .secondaryBackground,
                                                   border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryText,
+                                                    color: Color(0xFF26364D),
                                                   ),
                                                 ),
                                                 child: Column(
@@ -35668,14 +33264,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -35702,6 +33296,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -35788,14 +33384,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -35822,6 +33416,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -35908,14 +33504,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -35942,6 +33536,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -35982,9 +33578,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                   width: 100.0,
                                                   height: 100.0,
                                                   decoration: BoxDecoration(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryBackground,
+                                                    color: Color(0xFF0B111A),
+                                                    border: Border.all(
+                                                      color: Color(0xFF26364D),
+                                                    ),
                                                   ),
                                                   child: Column(
                                                     mainAxisSize:
@@ -36066,14 +33663,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -36098,6 +33693,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -36183,14 +33780,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -36215,6 +33810,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -36300,14 +33897,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -36332,6 +33927,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -36423,14 +34020,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -36455,6 +34050,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -36540,14 +34137,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -36572,6 +34167,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -36657,14 +34254,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -36689,6 +34284,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -36780,14 +34377,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                           true
                                                                       ? Color(
                                                                           0xFFE90000)
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
+                                                                      : Color(
+                                                                          0xFF101923),
                                                                   border: Border
                                                                       .all(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
+                                                                    color: Color(
+                                                                        0xFF26364D),
                                                                   ),
                                                                 ),
                                                                 child: Column(
@@ -36812,6 +34407,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               fontWeight: FontWeight.bold,
                                                                               fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                             ),
+                                                                            color:
+                                                                                Color(0xFFE5E7EB),
                                                                             letterSpacing:
                                                                                 0.0,
                                                                             fontWeight:
@@ -36854,9 +34451,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           context)
                                                       .secondaryBackground,
                                                   border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryText,
+                                                    color: Color(0xFF101923),
                                                   ),
                                                 ),
                                                 child: Column(
@@ -36939,14 +34534,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -36973,6 +34566,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -37059,14 +34654,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -37093,6 +34686,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -37179,14 +34774,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -37213,6 +34806,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -37305,14 +34900,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -37339,6 +34932,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -37425,14 +35020,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -37459,6 +35052,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -37545,14 +35140,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -37579,6 +35172,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -37671,14 +35266,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -37705,6 +35298,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -37791,14 +35386,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -37825,6 +35418,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -37911,14 +35506,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -37945,6 +35538,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -38037,14 +35632,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -38071,6 +35664,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -38109,13 +35704,9 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                               Container(
                                                 width: 683.7,
                                                 decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryBackground,
+                                                  color: Color(0xFF101923),
                                                   border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryText,
+                                                    color: Color(0xFF26364D),
                                                   ),
                                                 ),
                                                 child: Column(
@@ -38198,14 +35789,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -38232,6 +35821,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -38318,14 +35909,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -38352,6 +35941,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
+                                                                          fontSize:
+                                                                              13.0,
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -38438,14 +36031,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -38472,6 +36063,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           fontSize:
                                                                               13.0,
                                                                           letterSpacing:
@@ -38566,14 +36159,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -38600,6 +36191,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -38686,14 +36279,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -38720,6 +36311,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -38806,14 +36399,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -38840,6 +36431,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           fontSize:
                                                                               13.0,
                                                                           letterSpacing:
@@ -38934,14 +36527,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -38968,6 +36559,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -39054,14 +36647,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -39088,6 +36679,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -39174,14 +36767,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -39208,6 +36799,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -39300,14 +36893,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -39334,6 +36925,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -39420,14 +37013,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -39454,6 +37045,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -39540,14 +37133,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -39574,6 +37165,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -39666,14 +37259,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -39700,6 +37291,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -39786,14 +37379,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -39820,6 +37411,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -39906,14 +37499,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -39940,6 +37531,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -40434,7 +38027,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             child:
                                                                                 Icon(
                                                                               Icons.phonelink_sharp,
-                                                                              color: FlutterFlowTheme.of(context).primaryText,
+                                                                              color: Color(0xFFE5E7EB),
                                                                               size: 20.0,
                                                                             ),
                                                                           ),
@@ -40449,7 +38042,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                         fontWeight: FontWeight.w500,
                                                                                         fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                       ),
-                                                                                      color: FlutterFlowTheme.of(context).primaryText,
+                                                                                      color: Color(0xFFE5E7EB),
                                                                                       fontSize: 14.0,
                                                                                       letterSpacing: 0.0,
                                                                                       fontWeight: FontWeight.w500,
@@ -40547,7 +38140,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
                                                                               child: FaIcon(
                                                                                 FontAwesomeIcons.newspaper,
-                                                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                                                color: Color(0xFFE5E7EB),
                                                                                 size: 20.0,
                                                                               ),
                                                                             ),
@@ -40561,7 +38154,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                           fontWeight: FontWeight.w500,
                                                                                           fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                         ),
-                                                                                        color: FlutterFlowTheme.of(context).primaryText,
+                                                                                        color: Color(0xFFE5E7EB),
                                                                                         fontSize: 14.0,
                                                                                         letterSpacing: 0.0,
                                                                                         fontWeight: FontWeight.w500,
@@ -40653,7 +38246,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             child:
                                                                                 FaIcon(
                                                                               FontAwesomeIcons.mapPin,
-                                                                              color: FlutterFlowTheme.of(context).primaryText,
+                                                                              color: Color(0xFFE5E7EB),
                                                                               size: 20.0,
                                                                             ),
                                                                           ),
@@ -40668,7 +38261,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                         fontWeight: FontWeight.w500,
                                                                                         fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                       ),
-                                                                                      color: FlutterFlowTheme.of(context).primaryText,
+                                                                                      color: Color(0xFFE5E7EB),
                                                                                       fontSize: 14.0,
                                                                                       letterSpacing: 0.0,
                                                                                       fontWeight: FontWeight.w500,
@@ -40778,7 +38371,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
                                                                               child: Icon(
                                                                                 Icons.monetization_on_rounded,
-                                                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                                                color: Color(0xFFE5E7EB),
                                                                                 size: 20.0,
                                                                               ),
                                                                             ),
@@ -40792,7 +38385,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                           fontWeight: FontWeight.w500,
                                                                                           fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                         ),
-                                                                                        color: FlutterFlowTheme.of(context).primaryText,
+                                                                                        color: Color(0xFFE5E7EB),
                                                                                         fontSize: 14.0,
                                                                                         letterSpacing: 0.0,
                                                                                         fontWeight: FontWeight.w500,
@@ -40876,7 +38469,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
                                                                               child: Icon(
                                                                                 Icons.help_outline,
-                                                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                                                color: Color(0xFFE5E7EB),
                                                                                 size: 20.0,
                                                                               ),
                                                                             ),
@@ -40890,7 +38483,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                           fontWeight: FontWeight.w500,
                                                                                           fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                         ),
-                                                                                        color: FlutterFlowTheme.of(context).primaryText,
+                                                                                        color: Color(0xFFE5E7EB),
                                                                                         fontSize: 14.0,
                                                                                         letterSpacing: 0.0,
                                                                                         fontWeight: FontWeight.w500,
@@ -41021,7 +38614,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
                                                                               child: Icon(
                                                                                 Icons.privacy_tip_outlined,
-                                                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                                                color: Color(0xFFE5E7EB),
                                                                                 size: 20.0,
                                                                               ),
                                                                             ),
@@ -41035,7 +38628,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                           fontWeight: FontWeight.w500,
                                                                                           fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                         ),
-                                                                                        color: FlutterFlowTheme.of(context).primaryText,
+                                                                                        color: Color(0xFFE5E7EB),
                                                                                         fontSize: 14.0,
                                                                                         letterSpacing: 0.0,
                                                                                         fontWeight: FontWeight.w500,
@@ -41123,7 +38716,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
                                                                               child: Icon(
                                                                                 Icons.privacy_tip_outlined,
-                                                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                                                color: Color(0xFFE5E7EB),
                                                                                 size: 20.0,
                                                                               ),
                                                                             ),
@@ -41137,7 +38730,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                           fontWeight: FontWeight.w500,
                                                                                           fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                         ),
-                                                                                        color: FlutterFlowTheme.of(context).primaryText,
+                                                                                        color: Color(0xFFE5E7EB),
                                                                                         fontSize: 14.0,
                                                                                         letterSpacing: 0.0,
                                                                                         fontWeight: FontWeight.w500,
@@ -41229,7 +38822,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
                                                                               child: Icon(
                                                                                 Icons.support_agent,
-                                                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                                                color: Color(0xFFE5E7EB),
                                                                                 size: 20.0,
                                                                               ),
                                                                             ),
@@ -41243,7 +38836,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                           fontWeight: FontWeight.w500,
                                                                                           fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                         ),
-                                                                                        color: FlutterFlowTheme.of(context).primaryText,
+                                                                                        color: Color(0xFFE5E7EB),
                                                                                         fontSize: 14.0,
                                                                                         letterSpacing: 0.0,
                                                                                         fontWeight: FontWeight.w500,
@@ -41331,7 +38924,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                               padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
                                                                               child: Icon(
                                                                                 Icons.boy,
-                                                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                                                color: Color(0xFFE5E7EB),
                                                                                 size: 20.0,
                                                                               ),
                                                                             ),
@@ -41345,7 +38938,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                                           fontWeight: FontWeight.w500,
                                                                                           fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                         ),
-                                                                                        color: FlutterFlowTheme.of(context).primaryText,
+                                                                                        color: Color(0xFFE5E7EB),
                                                                                         fontSize: 14.0,
                                                                                         letterSpacing: 0.0,
                                                                                         fontWeight: FontWeight.w500,
@@ -41452,9 +39045,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           context)
                                                       .secondaryBackground,
                                                   border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryText,
+                                                    color: Color(0xFF26364D),
                                                   ),
                                                 ),
                                                 child: Column(
@@ -41537,14 +39128,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -41571,6 +39160,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -41657,14 +39248,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -41691,6 +39280,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -41777,14 +39368,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -41811,6 +39400,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -41903,14 +39494,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -41937,6 +39526,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -42023,14 +39614,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -42057,6 +39646,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -42143,14 +39734,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -42177,6 +39766,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -42269,14 +39860,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -42303,6 +39892,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -42389,14 +39980,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -42423,6 +40012,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -42509,14 +40100,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -42543,6 +40132,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -42635,14 +40226,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -42669,6 +40258,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -42755,14 +40346,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -42789,6 +40378,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -42875,14 +40466,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -42909,6 +40498,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -43001,14 +40592,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -43035,6 +40624,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -43121,14 +40712,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                         true
                                                                     ? Color(
                                                                         0xFFE90000)
-                                                                    : FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
+                                                                    : Color(
+                                                                        0xFF101923),
                                                                 border:
                                                                     Border.all(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
+                                                                  color: Color(
+                                                                      0xFF26364D),
                                                                 ),
                                                               ),
                                                               child: Column(
@@ -43155,6 +40744,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             fontStyle:
                                                                                 FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                           ),
+                                                                          color:
+                                                                              Color(0xFFE5E7EB),
                                                                           letterSpacing:
                                                                               0.0,
                                                                           fontWeight:
@@ -43661,6 +41252,1620 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                     );
                                                   },
                                                 ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    if (FFAppState().TabNumber == 8)
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                InkWell(
+                                                  splashColor:
+                                                      Colors.transparent,
+                                                  focusColor:
+                                                      Colors.transparent,
+                                                  hoverColor:
+                                                      Colors.transparent,
+                                                  highlightColor:
+                                                      Colors.transparent,
+                                                  onTap: () async {
+                                                    FFAppState().Checklist =
+                                                        1.0;
+                                                    safeSetState(() {});
+                                                  },
+                                                  child: Container(
+                                                    width: MediaQuery.sizeOf(
+                                                                context)
+                                                            .width *
+                                                        0.5,
+                                                    height: 40.0,
+                                                    decoration: BoxDecoration(
+                                                      color: Color(0xFF101923),
+                                                      border: Border.all(
+                                                        color:
+                                                            Color(0xFF26364D),
+                                                      ),
+                                                    ),
+                                                    child: InkWell(
+                                                      splashColor:
+                                                          Colors.transparent,
+                                                      focusColor:
+                                                          Colors.transparent,
+                                                      hoverColor:
+                                                          Colors.transparent,
+                                                      highlightColor:
+                                                          Colors.transparent,
+                                                      onTap: () async {
+                                                        FFAppState().Checklist =
+                                                            1.0;
+                                                        safeSetState(() {});
+                                                      },
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Align(
+                                                            alignment:
+                                                                AlignmentDirectional(
+                                                                    0.0, 0.0),
+                                                            child: Text(
+                                                              'A320',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    font: GoogleFonts
+                                                                        .inter(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontStyle: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMedium
+                                                                          .fontStyle,
+                                                                    ),
+                                                                    color: Color(
+                                                                        0xFFE5E7EB),
+                                                                    letterSpacing:
+                                                                        0.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontStyle: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .fontStyle,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                InkWell(
+                                                  splashColor:
+                                                      Colors.transparent,
+                                                  focusColor:
+                                                      Colors.transparent,
+                                                  hoverColor:
+                                                      Colors.transparent,
+                                                  highlightColor:
+                                                      Colors.transparent,
+                                                  onTap: () async {
+                                                    FFAppState().Checklist =
+                                                        2.0;
+                                                    safeSetState(() {});
+                                                  },
+                                                  child: Container(
+                                                    width: MediaQuery.sizeOf(
+                                                                context)
+                                                            .width *
+                                                        0.5,
+                                                    height: 40.0,
+                                                    decoration: BoxDecoration(
+                                                      color: Color(0xFF101923),
+                                                      border: Border.all(
+                                                        color:
+                                                            Color(0xFF26364D),
+                                                      ),
+                                                    ),
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Align(
+                                                          alignment:
+                                                              AlignmentDirectional(
+                                                                  0.0, 0.0),
+                                                          child: Text(
+                                                            'B737',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  font:
+                                                                      GoogleFonts
+                                                                          .inter(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontStyle: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .fontStyle,
+                                                                  ),
+                                                                  color: Color(
+                                                                      0xFFE5E7EB),
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontStyle,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Expanded(
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: [
+                                                  if (FFAppState().Checklist ==
+                                                      1.0)
+                                                    Expanded(
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        children: [
+                                                          Expanded(
+                                                            child: InkWell(
+                                                              splashColor: Colors
+                                                                  .transparent,
+                                                              focusColor: Colors
+                                                                  .transparent,
+                                                              hoverColor: Colors
+                                                                  .transparent,
+                                                              highlightColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              onTap: () async {
+                                                                await Navigator
+                                                                    .push(
+                                                                  context,
+                                                                  PageTransition(
+                                                                    type: PageTransitionType
+                                                                        .fade,
+                                                                    child:
+                                                                        FlutterFlowExpandedImageView(
+                                                                      image: Image
+                                                                          .asset(
+                                                                        'assets/images/image_17F2E6B2-4184-4248-BEB0-E8132126464A_1777239049.png',
+                                                                        fit: BoxFit
+                                                                            .contain,
+                                                                      ),
+                                                                      allowRotation:
+                                                                          false,
+                                                                      tag:
+                                                                          'imageTag56',
+                                                                      useHeroAnimation:
+                                                                          true,
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                              child: Hero(
+                                                                tag:
+                                                                    'imageTag56',
+                                                                transitionOnUserGestures:
+                                                                    true,
+                                                                child:
+                                                                    ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              8.0),
+                                                                  child: Image
+                                                                      .asset(
+                                                                    'assets/images/image_17F2E6B2-4184-4248-BEB0-E8132126464A_1777239049.png',
+                                                                    width: double
+                                                                        .infinity,
+                                                                    height: MediaQuery.sizeOf(context)
+                                                                            .height *
+                                                                        0.512,
+                                                                    fit: BoxFit
+                                                                        .fill,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .max,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            0.0,
+                                                                            3.0,
+                                                                            0.0,
+                                                                            0.0),
+                                                                child: Row(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .max,
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          InkWell(
+                                                                        splashColor:
+                                                                            Colors.transparent,
+                                                                        focusColor:
+                                                                            Colors.transparent,
+                                                                        hoverColor:
+                                                                            Colors.transparent,
+                                                                        highlightColor:
+                                                                            Colors.transparent,
+                                                                        onTap:
+                                                                            () async {
+                                                                          await actions
+                                                                              .runCockpitPreparation();
+                                                                        },
+                                                                        child:
+                                                                            Container(
+                                                                          width:
+                                                                              MediaQuery.sizeOf(context).width * 0.329,
+                                                                          height:
+                                                                              40.0,
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            color:
+                                                                                Color(0xFF101923),
+                                                                            border:
+                                                                                Border.all(
+                                                                              color: Color(0xFF26364D),
+                                                                            ),
+                                                                          ),
+                                                                          child:
+                                                                              Align(
+                                                                            alignment:
+                                                                                AlignmentDirectional(0.0, 0.0),
+                                                                            child:
+                                                                                Text(
+                                                                              'COCKPIT PREPARATION',
+                                                                              textAlign: TextAlign.center,
+                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                    font: GoogleFonts.inter(
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                    ),
+                                                                                    color: Color(0xFFE5E7EB),
+                                                                                    letterSpacing: 0.0,
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                      child:
+                                                                          InkWell(
+                                                                        splashColor:
+                                                                            Colors.transparent,
+                                                                        focusColor:
+                                                                            Colors.transparent,
+                                                                        hoverColor:
+                                                                            Colors.transparent,
+                                                                        highlightColor:
+                                                                            Colors.transparent,
+                                                                        onTap:
+                                                                            () async {
+                                                                          await actions
+                                                                              .runBeforeStartChecklist();
+                                                                        },
+                                                                        child:
+                                                                            Container(
+                                                                          width:
+                                                                              MediaQuery.sizeOf(context).width * 0.329,
+                                                                          height:
+                                                                              40.0,
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            color:
+                                                                                Color(0xFF101923),
+                                                                            border:
+                                                                                Border.all(
+                                                                              color: Color(0xFF26364D),
+                                                                            ),
+                                                                          ),
+                                                                          child:
+                                                                              Align(
+                                                                            alignment:
+                                                                                AlignmentDirectional(0.0, 0.0),
+                                                                            child:
+                                                                                Text(
+                                                                              'BEFORE START',
+                                                                              textAlign: TextAlign.center,
+                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                    font: GoogleFonts.inter(
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                    ),
+                                                                                    color: Color(0xFFE5E7EB),
+                                                                                    letterSpacing: 0.0,
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                      child:
+                                                                          InkWell(
+                                                                        splashColor:
+                                                                            Colors.transparent,
+                                                                        focusColor:
+                                                                            Colors.transparent,
+                                                                        hoverColor:
+                                                                            Colors.transparent,
+                                                                        highlightColor:
+                                                                            Colors.transparent,
+                                                                        onTap:
+                                                                            () async {
+                                                                          await actions
+                                                                              .runAfterStartChecklist();
+                                                                        },
+                                                                        child:
+                                                                            Container(
+                                                                          width:
+                                                                              MediaQuery.sizeOf(context).width * 0.329,
+                                                                          height:
+                                                                              40.0,
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            color:
+                                                                                Color(0xFF101923),
+                                                                            border:
+                                                                                Border.all(
+                                                                              color: Color(0xFF26364D),
+                                                                            ),
+                                                                          ),
+                                                                          child:
+                                                                              Align(
+                                                                            alignment:
+                                                                                AlignmentDirectional(0.0, 0.0),
+                                                                            child:
+                                                                                Text(
+                                                                              'AFTER START',
+                                                                              textAlign: TextAlign.center,
+                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                    font: GoogleFonts.inter(
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                    ),
+                                                                                    color: Color(0xFFE5E7EB),
+                                                                                    letterSpacing: 0.0,
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .max,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runTaxiChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'TAXI',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runLineUpChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'LINE UP',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runDepartureChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'DEPARTURE CHANGE',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .max,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceAround,
+                                                                children: [
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runApproachChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'APPROACH',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runLandingChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'LANDING',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runAfterLandingChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'AFTER LANDING',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .max,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runParkingChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.495,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'PARKING',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runSecuringChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.495,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'SECURING THE AIRCRAFT',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  if (FFAppState().Checklist ==
+                                                      2.0)
+                                                    Expanded(
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Expanded(
+                                                            child: InkWell(
+                                                              splashColor: Colors
+                                                                  .transparent,
+                                                              focusColor: Colors
+                                                                  .transparent,
+                                                              hoverColor: Colors
+                                                                  .transparent,
+                                                              highlightColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              onTap: () async {
+                                                                await Navigator
+                                                                    .push(
+                                                                  context,
+                                                                  PageTransition(
+                                                                    type: PageTransitionType
+                                                                        .fade,
+                                                                    child:
+                                                                        FlutterFlowExpandedImageView(
+                                                                      image: Image
+                                                                          .asset(
+                                                                        'assets/images/image_8C8F0EC4-07E8-44FB-BE79-63DEAC88BA6E_1787556988.png',
+                                                                        fit: BoxFit
+                                                                            .contain,
+                                                                      ),
+                                                                      allowRotation:
+                                                                          false,
+                                                                      tag:
+                                                                          'imageTag57',
+                                                                      useHeroAnimation:
+                                                                          true,
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                              child: Hero(
+                                                                tag:
+                                                                    'imageTag57',
+                                                                transitionOnUserGestures:
+                                                                    true,
+                                                                child:
+                                                                    ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              8.0),
+                                                                  child: Image
+                                                                      .asset(
+                                                                    'assets/images/image_8C8F0EC4-07E8-44FB-BE79-63DEAC88BA6E_1787556988.png',
+                                                                    width: double
+                                                                        .infinity,
+                                                                    height: MediaQuery.sizeOf(context)
+                                                                            .height *
+                                                                        0.55,
+                                                                    fit: BoxFit
+                                                                        .fill,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .max,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            0.0,
+                                                                            3.0,
+                                                                            0.0,
+                                                                            0.0),
+                                                                child: Row(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .max,
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          InkWell(
+                                                                        splashColor:
+                                                                            Colors.transparent,
+                                                                        focusColor:
+                                                                            Colors.transparent,
+                                                                        hoverColor:
+                                                                            Colors.transparent,
+                                                                        highlightColor:
+                                                                            Colors.transparent,
+                                                                        onTap:
+                                                                            () async {
+                                                                          await actions
+                                                                              .runB737PreflightChecklist();
+                                                                        },
+                                                                        child:
+                                                                            Container(
+                                                                          width:
+                                                                              MediaQuery.sizeOf(context).width * 0.329,
+                                                                          height:
+                                                                              40.0,
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            color:
+                                                                                Color(0xFF101923),
+                                                                            border:
+                                                                                Border.all(
+                                                                              color: Color(0xFF26364D),
+                                                                            ),
+                                                                          ),
+                                                                          child:
+                                                                              Align(
+                                                                            alignment:
+                                                                                AlignmentDirectional(0.0, 0.0),
+                                                                            child:
+                                                                                Text(
+                                                                              'PREFLIGHT',
+                                                                              textAlign: TextAlign.center,
+                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                    font: GoogleFonts.inter(
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                    ),
+                                                                                    color: Color(0xFFE5E7EB),
+                                                                                    letterSpacing: 0.0,
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                      child:
+                                                                          InkWell(
+                                                                        splashColor:
+                                                                            Colors.transparent,
+                                                                        focusColor:
+                                                                            Colors.transparent,
+                                                                        hoverColor:
+                                                                            Colors.transparent,
+                                                                        highlightColor:
+                                                                            Colors.transparent,
+                                                                        onTap:
+                                                                            () async {
+                                                                          await actions
+                                                                              .runB737BeforeStartChecklist();
+                                                                        },
+                                                                        child:
+                                                                            Container(
+                                                                          width:
+                                                                              MediaQuery.sizeOf(context).width * 0.329,
+                                                                          height:
+                                                                              40.0,
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            color:
+                                                                                Color(0xFF101923),
+                                                                            border:
+                                                                                Border.all(
+                                                                              color: Color(0xFF26364D),
+                                                                            ),
+                                                                          ),
+                                                                          child:
+                                                                              Align(
+                                                                            alignment:
+                                                                                AlignmentDirectional(0.0, 0.0),
+                                                                            child:
+                                                                                Text(
+                                                                              'BEFORE START',
+                                                                              textAlign: TextAlign.center,
+                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                    font: GoogleFonts.inter(
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                    ),
+                                                                                    color: Color(0xFFE5E7EB),
+                                                                                    letterSpacing: 0.0,
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                      child:
+                                                                          InkWell(
+                                                                        splashColor:
+                                                                            Colors.transparent,
+                                                                        focusColor:
+                                                                            Colors.transparent,
+                                                                        hoverColor:
+                                                                            Colors.transparent,
+                                                                        highlightColor:
+                                                                            Colors.transparent,
+                                                                        onTap:
+                                                                            () async {
+                                                                          await actions
+                                                                              .runB737BeforeTaxiChecklist();
+                                                                        },
+                                                                        child:
+                                                                            Container(
+                                                                          width:
+                                                                              MediaQuery.sizeOf(context).width * 0.329,
+                                                                          height:
+                                                                              40.0,
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            color:
+                                                                                Color(0xFF101923),
+                                                                            border:
+                                                                                Border.all(
+                                                                              color: Color(0xFF26364D),
+                                                                            ),
+                                                                          ),
+                                                                          child:
+                                                                              Align(
+                                                                            alignment:
+                                                                                AlignmentDirectional(0.0, 0.0),
+                                                                            child:
+                                                                                Text(
+                                                                              'BEFORE TAXI',
+                                                                              textAlign: TextAlign.center,
+                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                    font: GoogleFonts.inter(
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                    ),
+                                                                                    color: Color(0xFFE5E7EB),
+                                                                                    letterSpacing: 0.0,
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .max,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runB737BeforeTakeoffChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'BEFORE TAKEOFF',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runB737AfterTakeoffChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'AFTER TAKEOFF',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runB737DescentChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'DESCENT',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .max,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceAround,
+                                                                children: [
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runB737ApproachChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'APPROACH',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runB737LandingChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'LANDING',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        await actions
+                                                                            .runB737ParkingChecklist();
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.sizeOf(context).width *
+                                                                            0.329,
+                                                                        height:
+                                                                            40.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Color(0xFF101923),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Color(0xFF26364D),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Align(
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Text(
+                                                                            'PARKING',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  font: GoogleFonts.inter(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                  ),
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  letterSpacing: 0.0,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
                                             ),
                                           ],
@@ -44708,12 +43913,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                       height: 40.0,
                                       decoration: BoxDecoration(
                                         color: FFAppState().FailureSubTab == 1
-                                            ? Color(0xA00EE300)
-                                            : FlutterFlowTheme.of(context)
-                                                .secondaryBackground,
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
                                         border: Border.all(
-                                          color: FlutterFlowTheme.of(context)
-                                              .primaryText,
+                                          color: Color(0xFF26364D),
                                         ),
                                       ),
                                       child: Column(
@@ -44739,6 +43942,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                             .titleLarge
                                                             .fontStyle,
                                                   ),
+                                                  color: Color(0xFFE5E7EB),
                                                   letterSpacing: 0.0,
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
@@ -44773,12 +43977,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         height: 40.0,
                                         decoration: BoxDecoration(
                                           color: FFAppState().FailureSubTab == 2
-                                              ? Color(0xA00EE300)
-                                              : FlutterFlowTheme.of(context)
-                                                  .secondaryBackground,
+                                              ? Color(0xFF639DF0)
+                                              : Color(0xFF101923),
                                           border: Border.all(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Color(0xFF26364D),
                                           ),
                                         ),
                                         child: Column(
@@ -44806,6 +44008,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               .titleLarge
                                                               .fontStyle,
                                                     ),
+                                                    color: Color(0xFFE5E7EB),
                                                     letterSpacing: 0.0,
                                                     fontWeight:
                                                         FlutterFlowTheme.of(
@@ -44841,12 +44044,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         height: 40.0,
                                         decoration: BoxDecoration(
                                           color: FFAppState().FailureSubTab == 3
-                                              ? Color(0xA00EE300)
-                                              : FlutterFlowTheme.of(context)
-                                                  .secondaryBackground,
+                                              ? Color(0xFF639DF0)
+                                              : Color(0xFF101923),
                                           border: Border.all(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Color(0xFF26364D),
                                           ),
                                         ),
                                         child: Column(
@@ -44874,6 +44075,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               .titleLarge
                                                               .fontStyle,
                                                     ),
+                                                    color: Color(0xFFE5E7EB),
                                                     letterSpacing: 0.0,
                                                     fontWeight:
                                                         FlutterFlowTheme.of(
@@ -44909,12 +44111,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         height: 40.0,
                                         decoration: BoxDecoration(
                                           color: FFAppState().FailureSubTab == 4
-                                              ? Color(0xA00EE300)
-                                              : FlutterFlowTheme.of(context)
-                                                  .secondaryBackground,
+                                              ? Color(0xFF639DF0)
+                                              : Color(0xFF101923),
                                           border: Border.all(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Color(0xFF26364D),
                                           ),
                                         ),
                                         child: Column(
@@ -44942,6 +44142,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               .titleLarge
                                                               .fontStyle,
                                                     ),
+                                                    color: Color(0xFFE5E7EB),
                                                     letterSpacing: 0.0,
                                                     fontWeight:
                                                         FlutterFlowTheme.of(
@@ -44974,12 +44175,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                       height: 40.0,
                                       decoration: BoxDecoration(
                                         color: FFAppState().FailureSubTab == 5
-                                            ? Color(0xA00EE300)
-                                            : FlutterFlowTheme.of(context)
-                                                .secondaryBackground,
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
                                         border: Border.all(
-                                          color: FlutterFlowTheme.of(context)
-                                              .primaryText,
+                                          color: Color(0xFF26364D),
                                         ),
                                       ),
                                       child: Column(
@@ -45005,6 +44204,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                             .titleLarge
                                                             .fontStyle,
                                                   ),
+                                                  color: Color(0xFFE5E7EB),
                                                   letterSpacing: 0.0,
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
@@ -45039,12 +44239,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         height: 40.0,
                                         decoration: BoxDecoration(
                                           color: FFAppState().FailureSubTab == 6
-                                              ? Color(0xA00EE300)
-                                              : FlutterFlowTheme.of(context)
-                                                  .secondaryBackground,
+                                              ? Color(0xFF639DF0)
+                                              : Color(0xFF101923),
                                           border: Border.all(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Color(0xFF26364D),
                                           ),
                                         ),
                                         child: Column(
@@ -45072,6 +44270,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               .titleLarge
                                                               .fontStyle,
                                                     ),
+                                                    color: Color(0xFFE5E7EB),
                                                     fontSize: 16.0,
                                                     letterSpacing: 0.0,
                                                     fontWeight:
@@ -45108,12 +44307,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         height: 40.0,
                                         decoration: BoxDecoration(
                                           color: FFAppState().FailureSubTab == 8
-                                              ? Color(0xA00EE300)
-                                              : FlutterFlowTheme.of(context)
-                                                  .secondaryBackground,
+                                              ? Color(0xFF639DF0)
+                                              : Color(0xFF101923),
                                           border: Border.all(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Color(0xFF26364D),
                                           ),
                                         ),
                                         child: Column(
@@ -45141,6 +44338,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               .titleLarge
                                                               .fontStyle,
                                                     ),
+                                                    color: Color(0xFFE5E7EB),
                                                     fontSize: 17.0,
                                                     letterSpacing: 0.0,
                                                     fontWeight:
@@ -45178,12 +44376,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         decoration: BoxDecoration(
                                           color:
                                               FFAppState().FailureSubTab == 10
-                                                  ? Color(0xA00EE300)
-                                                  : FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
+                                                  ? Color(0xFF639DF0)
+                                                  : Color(0xFF101923),
                                           border: Border.all(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Color(0xFF26364D),
                                           ),
                                         ),
                                         child: Column(
@@ -45211,6 +44407,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               .titleLarge
                                                               .fontStyle,
                                                     ),
+                                                    color: Color(0xFFE5E7EB),
                                                     fontSize: 17.0,
                                                     letterSpacing: 0.0,
                                                     fontWeight:
@@ -45248,12 +44445,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         decoration: BoxDecoration(
                                           color:
                                               FFAppState().FailureSubTab == 11
-                                                  ? Color(0xA00EE300)
-                                                  : FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
+                                                  ? Color(0xFF639DF0)
+                                                  : Color(0xFF101923),
                                           border: Border.all(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Color(0xFF26364D),
                                           ),
                                         ),
                                         child: Column(
@@ -45281,6 +44476,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               .titleLarge
                                                               .fontStyle,
                                                     ),
+                                                    color: Color(0xFFE5E7EB),
                                                     fontSize: 18.0,
                                                     letterSpacing: 0.0,
                                                     fontWeight:
@@ -45318,12 +44514,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         decoration: BoxDecoration(
                                           color:
                                               FFAppState().FailureSubTab == 13
-                                                  ? Color(0xA00EE300)
-                                                  : FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
+                                                  ? Color(0xFF639DF0)
+                                                  : Color(0xFF101923),
                                           border: Border.all(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Color(0xFF26364D),
                                           ),
                                         ),
                                         child: Column(
@@ -45351,6 +44545,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               .titleLarge
                                                               .fontStyle,
                                                     ),
+                                                    color: Color(0xFFE5E7EB),
                                                     fontSize: 14.8,
                                                     letterSpacing: 0.0,
                                                     fontWeight:
@@ -45388,12 +44583,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         decoration: BoxDecoration(
                                           color:
                                               FFAppState().FailureSubTab == 14
-                                                  ? Color(0xA00EE300)
-                                                  : FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
+                                                  ? Color(0xFF639DF0)
+                                                  : Color(0xFF101923),
                                           border: Border.all(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Color(0xFF26364D),
                                           ),
                                         ),
                                         child: Column(
@@ -45421,6 +44614,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               .titleLarge
                                                               .fontStyle,
                                                     ),
+                                                    color: Color(0xFFE5E7EB),
                                                     letterSpacing: 0.0,
                                                     fontWeight:
                                                         FlutterFlowTheme.of(
@@ -45461,11 +44655,9 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         width: 100.0,
                                         height: 40.0,
                                         decoration: BoxDecoration(
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                          color: Color(0xFF101923),
                                           border: Border.all(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
+                                            color: Color(0xFF26364D),
                                           ),
                                         ),
                                         child: Column(
@@ -45493,6 +44685,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                               .titleLarge
                                                               .fontStyle,
                                                     ),
+                                                    color: Color(0xFF639DF0),
                                                     letterSpacing: 0.0,
                                                     fontWeight:
                                                         FlutterFlowTheme.of(

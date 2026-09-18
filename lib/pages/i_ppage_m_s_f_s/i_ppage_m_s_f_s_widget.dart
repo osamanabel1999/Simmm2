@@ -544,6 +544,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                                     .bodyMedium
                                                     .fontStyle,
                                           ),
+                                          color: Color(0xFFE5E7EB),
                                           letterSpacing: 0.0,
                                           fontWeight:
                                               FlutterFlowTheme.of(context)
@@ -636,6 +637,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                                     .titleSmall
                                                     .fontStyle,
                                           ),
+                                          color: Color(0xFFE5E7EB),
                                           fontSize: 18.0,
                                           letterSpacing: 0.0,
                                           fontWeight:
@@ -675,6 +677,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
+                                      color: Color(0xFFE5E7EB),
                                       letterSpacing: 0.0,
                                       fontWeight: FlutterFlowTheme.of(context)
                                           .bodyMedium
@@ -687,6 +690,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                               TextSpan(
                                 text: 'Restore Purchases',
                                 style: TextStyle(
+                                  color: Color(0xFFE5E7EB),
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.underline,
                                 ),
@@ -740,6 +744,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                         .bodyMedium
                                         .fontStyle,
                                   ),
+                                  color: Color(0xFFE5E7EB),
                                   letterSpacing: 0.0,
                                   fontWeight: FlutterFlowTheme.of(context)
                                       .bodyMedium
@@ -831,6 +836,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
+                                    color: Color(0xFFE5E7EB),
                                     fontSize: 13.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w300,
@@ -875,6 +881,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
+                                    color: Color(0xFFE5E7EB),
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w300,
                                     fontStyle: FlutterFlowTheme.of(context)

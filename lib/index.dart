@@ -15,7 +15,6 @@ export '/subscribe_xplane/subscribe_xplane_widget.dart'
     show SubscribeXplaneWidget;
 export '/aboutt/aboutt_widget.dart' show AbouttWidget;
 export '/refund/refund_widget.dart' show RefundWidget;
-export '/msfs/msfs_widget.dart' show MsfsWidget;
 export '/pages/home_page_m_s_f_s/home_page_m_s_f_s_widget.dart'
     show HomePageMSFSWidget;
 export '/home_menu/home_menu_widget.dart' show HomeMenuWidget;
@@ -43,4 +42,3 @@ export '/subscription_managepage_allsim_yearly/subscription_managepage_allsim_ye
     show SubscriptionManagepageAllsimYearlyWidget;
 export '/subscription_manage_for_a_l_l/subscription_manage_for_a_l_l_widget.dart'
     show SubscriptionManageForALLWidget;
-export '/pdfmsfsquide/pdfmsfsquide_widget.dart' show PdfmsfsquideWidget;
