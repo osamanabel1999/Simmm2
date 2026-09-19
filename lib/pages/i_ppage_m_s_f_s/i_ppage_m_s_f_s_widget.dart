@@ -826,7 +826,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Connection Tutorial:',
+                              text: 'Connection Guide & Documentation',
                               style: FlutterFlowTheme.of(context)
                                   .bodySmall
                                   .override(
@@ -836,7 +836,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFFE5E7EB),
+                                    color: Color(0xFF639DF0),
                                     fontSize: 13.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w300,
@@ -844,32 +844,10 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                         .bodySmall
                                         .fontStyle,
                                   ),
-                            ),
-                            TextSpan(
-                              text: ' Click here',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodySmall
-                                  .override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodySmall
-                                          .fontStyle,
-                                    ),
-                                    color: Color(0xFF1C03FF),
-                                    fontSize: 13.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodySmall
-                                        .fontStyle,
-                                    decoration: TextDecoration.underline,
-                                  ),
                               mouseCursor: SystemMouseCursors.click,
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () async {
-                                  await launchURL(
-                                      'https://drive.google.com/file/d/13S8EGP7eU6V6-sOWKmko6e1al8YxRJPy/view?usp=sharing');
+                                  context.pushNamed(DocsMSFSWidget.routeName);
                                 },
                             )
                           ],

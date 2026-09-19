@@ -1202,14 +1202,23 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                             color: FlutterFlowTheme.of(context)
                                 .secondaryBackground,
                           ),
-                          child: FlutterFlowAdBanner(
-                            width: MediaQuery.sizeOf(context).width * 1.0,
-                            height: 50.0,
-                            showsTestAd: false,
-                            iOSAdUnitID:
-                                'ca-app-pub-7880697829268273/6177072322',
-                            androidAdUnitID:
-                                'ca-app-pub-7880697829268273/5581116466',
+                          child: Visibility(
+                            visible: responsiveVisibility(
+                              context: context,
+                              phone: false,
+                              tablet: false,
+                              tabletLandscape: false,
+                              desktop: false,
+                            ),
+                            child: FlutterFlowAdBanner(
+                              width: MediaQuery.sizeOf(context).width * 1.0,
+                              height: 50.0,
+                              showsTestAd: false,
+                              iOSAdUnitID:
+                                  'ca-app-pub-7880697829268273/6177072322',
+                              androidAdUnitID:
+                                  'ca-app-pub-7880697829268273/5581116466',
+                            ),
                           ),
                         ),
                       ),

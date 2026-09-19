@@ -303,6 +303,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: EFBxplaneWidget.routeName,
           path: EFBxplaneWidget.routePath,
           builder: (context, params) => EFBxplaneWidget(),
+        ),
+        FFRoute(
+          name: DocsMSFSWidget.routeName,
+          path: DocsMSFSWidget.routePath,
+          builder: (context, params) => DocsMSFSWidget(),
+        ),
+        FFRoute(
+          name: DocsXplaneWidget.routeName,
+          path: DocsXplaneWidget.routePath,
+          builder: (context, params) => DocsXplaneWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

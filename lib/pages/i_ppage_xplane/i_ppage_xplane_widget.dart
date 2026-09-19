@@ -739,7 +739,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Connection Tutorial:',
+                              text: 'Connection Guide & Documentation',
                               style: FlutterFlowTheme.of(context)
                                   .bodySmall
                                   .override(
@@ -749,7 +749,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFFE5E7EB),
+                                    color: Color(0xFF639DF0),
                                     fontSize: 13.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w300,
@@ -757,32 +757,10 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                         .bodySmall
                                         .fontStyle,
                                   ),
-                            ),
-                            TextSpan(
-                              text: ' Click here',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodySmall
-                                  .override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodySmall
-                                          .fontStyle,
-                                    ),
-                                    color: Color(0xFF1C03FF),
-                                    fontSize: 13.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodySmall
-                                        .fontStyle,
-                                    decoration: TextDecoration.underline,
-                                  ),
                               mouseCursor: SystemMouseCursors.click,
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () async {
-                                  await launchURL(
-                                      'https://youtu.be/ySdnK7DPZPU?si=74oNvfVnR9qX3gkO');
+                                  context.pushNamed(DocsXplaneWidget.routeName);
                                 },
                             )
                           ],
