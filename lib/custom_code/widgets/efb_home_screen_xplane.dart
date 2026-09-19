@@ -163,25 +163,32 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
                                 const EdgeInsets.symmetric(horizontal: 20.0),
                             child: isTablet
                                 ? Center(
-                                    child: Row(
+                                    child: Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        _buildAppIcon("Airport WX",
-                                            widget.iconAirportWx, iconSize),
-                                        const SizedBox(width: 35.0),
-                                        _buildAppIcon("WX Charts",
-                                            widget.iconWxCharts, iconSize),
-                                        const SizedBox(width: 35.0),
-                                        _buildAppIcon("NOTAMs",
-                                            widget.iconNotams, iconSize),
-                                        const SizedBox(width: 35.0),
-                                        _buildAppIcon("Scratchpad",
-                                            widget.iconScratchpad, iconSize),
-                                        const SizedBox(width: 35.0),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            _buildAppIcon("Airport WX",
+                                                widget.iconAirportWx, iconSize),
+                                            const SizedBox(width: 35.0),
+                                            _buildAppIcon("WX Charts",
+                                                widget.iconWxCharts, iconSize),
+                                            const SizedBox(width: 35.0),
+                                            _buildAppIcon("NOTAMs",
+                                                widget.iconNotams, iconSize),
+                                            const SizedBox(width: 35.0),
+                                            _buildAppIcon(
+                                                "Scratchpad",
+                                                widget.iconScratchpad,
+                                                iconSize),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 30.0),
                                         _buildSettingsAppIcon(iconSize),
                                       ],
                                     ),
@@ -206,7 +213,8 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
                                         ],
                                       ),
                                       const SizedBox(height: 30.0),
-                                      Center(
+                                      Align(
+                                        alignment: Alignment.centerLeft,
                                         child: _buildSettingsAppIcon(iconSize),
                                       ),
                                     ],
