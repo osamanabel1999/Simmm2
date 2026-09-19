@@ -162,33 +162,29 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 20.0),
                             child: isTablet
-                                ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _buildAppIcon("Airport WX",
-                                          widget.iconAirportWx, iconSize),
-                                      const SizedBox(width: 35.0),
-                                      _buildAppIcon("WX Charts",
-                                          widget.iconWxCharts, iconSize),
-                                      const SizedBox(width: 35.0),
-                                      _buildAppIcon("NOTAMs", widget.iconNotams,
-                                          iconSize),
-                                      const SizedBox(width: 35.0),
-                                      _buildAppIcon("Scratchpad",
-                                          widget.iconScratchpad, iconSize),
-                                      const SizedBox(width: 35.0),
-                                      _buildAppIcon(
-                                          "Settings",
-                                          widget.iconSettings,
-                                          iconSize, onTap: () {
-                                        if (widget.onSettingsAction != null) {
-                                          widget.onSettingsAction!();
-                                        }
-                                      }),
-                                    ],
+                                ? Center(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _buildAppIcon("Airport WX",
+                                            widget.iconAirportWx, iconSize),
+                                        const SizedBox(width: 35.0),
+                                        _buildAppIcon("WX Charts",
+                                            widget.iconWxCharts, iconSize),
+                                        const SizedBox(width: 35.0),
+                                        _buildAppIcon("NOTAMs",
+                                            widget.iconNotams, iconSize),
+                                        const SizedBox(width: 35.0),
+                                        _buildAppIcon("Scratchpad",
+                                            widget.iconScratchpad, iconSize),
+                                        const SizedBox(width: 35.0),
+                                        _buildSettingsAppIcon(iconSize),
+                                      ],
+                                    ),
                                   )
                                 : Column(
                                     mainAxisSize: MainAxisSize.min,
@@ -210,14 +206,9 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
                                         ],
                                       ),
                                       const SizedBox(height: 30.0),
-                                      _buildAppIcon(
-                                          "Settings",
-                                          widget.iconSettings,
-                                          iconSize, onTap: () {
-                                        if (widget.onSettingsAction != null) {
-                                          widget.onSettingsAction!();
-                                        }
-                                      }),
+                                      Center(
+                                        child: _buildSettingsAppIcon(iconSize),
+                                      ),
                                     ],
                                   ),
                           ),
@@ -314,6 +305,82 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
             color: Colors.white.withOpacity(0.8),
             borderRadius: BorderRadius.circular(10),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsAppIcon(double size) {
+    final String settingsImageUrl = widget.iconSettings.trim();
+    return GestureDetector(
+      onTap: () {
+        if (widget.onSettingsAction != null) {
+          widget.onSettingsAction!();
+        }
+      },
+      child: SizedBox(
+        width: size + 10,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(size * 0.22),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(size * 0.22),
+                child: settingsImageUrl.isNotEmpty
+                    ? Image.network(
+                        settingsImageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: const Color(0xFF101923),
+                          child: const Icon(
+                            Icons.settings_rounded,
+                            color: Color(0xFF639DF0),
+                            size: 34,
+                          ),
+                        ),
+                      )
+                    : Container(
+                        color: const Color(0xFF101923),
+                        child: const Icon(
+                          Icons.settings_rounded,
+                          color: Color(0xFF639DF0),
+                          size: 34,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Settings",
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                shadows: [
+                  Shadow(
+                    color: Colors.black87,
+                    blurRadius: 4,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
