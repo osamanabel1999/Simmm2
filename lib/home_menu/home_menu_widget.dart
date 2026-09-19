@@ -1,8 +1,10 @@
 import '/flutter_flow/flutter_flow_ad_banner.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/custom_code/actions/index.dart' as actions;
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import '/index.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'home_menu_model.dart';
 export 'home_menu_model.dart';
 
@@ -25,6 +27,11 @@ class _HomeMenuWidgetState extends State<HomeMenuWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => HomeMenuModel());
+
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      await actions.enableImmersiveMode();
+    });
   }
 
   @override

@@ -1144,7 +1144,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                     borderSide:
                                                                         BorderSide(
                                                                       color: Color(
-                                                                          0xFF2081FF),
+                                                                          0x00000000),
                                                                       width:
                                                                           1.0,
                                                                     ),
@@ -39005,21 +39005,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                 child: Column(
                                                   mainAxisSize:
                                                       MainAxisSize.max,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Container(
-                                                        width: double.infinity,
-                                                        height: double.infinity,
-                                                        child: custom_widgets
-                                                            .PilotScratchPad(
-                                                          width:
-                                                              double.infinity,
-                                                          height:
-                                                              double.infinity,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
+                                                  children: [],
                                                 ),
                                               ),
                                             ),
@@ -43847,8 +43833,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                       safeSetState(() {});
                                     },
                                     scratchAction: () async {
-                                      FFAppState().TabNumber = 10;
-                                      safeSetState(() {});
+                                      context.pushNamed(EfbWidget.routeName);
                                     },
                                     loadAction: () async {
                                       FFAppState().TabNumber = 15;

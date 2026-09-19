@@ -40081,12 +40081,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                   height: 40.0,
                                   decoration: BoxDecoration(
                                     color: FFAppState().FailureSubTab == 1
-                                        ? Color(0xA00EE300)
-                                        : FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
+                                        ? Color(0xFF639DF0)
+                                        : Color(0xFF101923),
                                     border: Border.all(
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryText,
+                                      color: Color(0xFF26364D),
                                     ),
                                   ),
                                   child: Column(
@@ -40109,6 +40107,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         .titleLarge
                                                         .fontStyle,
                                               ),
+                                              color: Color(0xFFE5E7EB),
                                               letterSpacing: 0.0,
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
@@ -40141,12 +40140,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     height: 40.0,
                                     decoration: BoxDecoration(
                                       color: FFAppState().FailureSubTab == 2
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                          ? Color(0xFF639DF0)
+                                          : Color(0xFF101923),
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -40172,6 +40169,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
+                                                color: Color(0xFFE5E7EB),
                                                 letterSpacing: 0.0,
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
@@ -40205,12 +40203,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     height: 40.0,
                                     decoration: BoxDecoration(
                                       color: FFAppState().FailureSubTab == 3
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                          ? Color(0xFF639DF0)
+                                          : Color(0xFF101923),
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -40236,6 +40232,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
+                                                color: Color(0xFFE5E7EB),
                                                 letterSpacing: 0.0,
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
@@ -40269,12 +40266,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     height: 40.0,
                                     decoration: BoxDecoration(
                                       color: FFAppState().FailureSubTab == 4
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                          ? Color(0xFF639DF0)
+                                          : Color(0xFF101923),
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -40300,6 +40295,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
+                                                color: Color(0xFFE5E7EB),
                                                 letterSpacing: 0.0,
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
@@ -40330,12 +40326,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                   height: 40.0,
                                   decoration: BoxDecoration(
                                     color: FFAppState().FailureSubTab == 5
-                                        ? Color(0xA00EE300)
-                                        : FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
+                                        ? Color(0xFF639DF0)
+                                        : Color(0xFF101923),
                                     border: Border.all(
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryText,
+                                      color: Color(0xFF26364D),
                                     ),
                                   ),
                                   child: Column(
@@ -40358,6 +40352,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         .titleLarge
                                                         .fontStyle,
                                               ),
+                                              color: Color(0xFFE5E7EB),
                                               letterSpacing: 0.0,
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
@@ -40390,12 +40385,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     height: 40.0,
                                     decoration: BoxDecoration(
                                       color: FFAppState().FailureSubTab == 6
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                          ? Color(0xFF639DF0)
+                                          : Color(0xFF101923),
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -40421,6 +40414,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
+                                                color: Color(0xFFE5E7EB),
                                                 fontSize: 16.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight:
@@ -40455,12 +40449,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     height: 40.0,
                                     decoration: BoxDecoration(
                                       color: FFAppState().FailureSubTab == 8
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                          ? Color(0xFF639DF0)
+                                          : Color(0xFF101923),
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -40486,6 +40478,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
+                                                color: Color(0xFFE5E7EB),
                                                 fontSize: 17.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight:
@@ -40520,12 +40513,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     height: 40.0,
                                     decoration: BoxDecoration(
                                       color: FFAppState().FailureSubTab == 10
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                          ? Color(0xFF639DF0)
+                                          : Color(0xFF101923),
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -40551,6 +40542,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
+                                                color: Color(0xFFE5E7EB),
                                                 fontSize: 17.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight:
@@ -40585,12 +40577,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     height: 40.0,
                                     decoration: BoxDecoration(
                                       color: FFAppState().FailureSubTab == 11
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                          ? Color(0xFF639DF0)
+                                          : Color(0xFF101923),
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -40616,6 +40606,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
+                                                color: Color(0xFFE5E7EB),
                                                 fontSize: 18.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight:
@@ -40650,12 +40641,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     height: 40.0,
                                     decoration: BoxDecoration(
                                       color: FFAppState().FailureSubTab == 13
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                          ? Color(0xFF639DF0)
+                                          : Color(0xFF101923),
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -40681,6 +40670,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
+                                                color: Color(0xFFE5E7EB),
                                                 fontSize: 14.8,
                                                 letterSpacing: 0.0,
                                                 fontWeight:
@@ -40715,12 +40705,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     height: 40.0,
                                     decoration: BoxDecoration(
                                       color: FFAppState().FailureSubTab == 14
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
+                                          ? Color(0xFF639DF0)
+                                          : Color(0xFF101923),
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -40746,6 +40734,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
+                                                color: Color(0xFFE5E7EB),
                                                 letterSpacing: 0.0,
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
@@ -40784,11 +40773,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     width: 100.0,
                                     height: 40.0,
                                     decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
+                                      color: Color(0xFF101923),
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
+                                        color: Color(0xFF26364D),
                                       ),
                                     ),
                                     child: Column(
@@ -40814,6 +40801,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
+                                                color: Color(0xFF639DF0),
                                                 letterSpacing: 0.0,
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)

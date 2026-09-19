@@ -273,7 +273,7 @@ class _FailureWidgetState extends State<FailureWidget> {
             ),
           ),
           Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(5.0, 5.0, 5.0, 0.0),
+            padding: EdgeInsetsDirectional.fromSTEB(5.0, 7.0, 5.0, 0.0),
             child: FFButtonWidget(
               onPressed: () async {
                 await actions.setXPlaneFailure(

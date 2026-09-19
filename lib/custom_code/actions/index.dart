@@ -153,3 +153,5 @@ export '/custom_code/actions/calculate_velocity_vectors_x_plane.dart'
     show calculateVelocityVectorsXPlane;
 export '/custom_code/actions/calculate_exact_local_y.dart'
     show calculateExactLocalY;
+export '/custom_code/actions/enable_immersive_mode.dart'
+    show enableImmersiveMode;

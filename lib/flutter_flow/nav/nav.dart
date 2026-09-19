@@ -293,6 +293,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: SubscriptionManageForALLWidget.routeName,
           path: SubscriptionManageForALLWidget.routePath,
           builder: (context, params) => SubscriptionManageForALLWidget(),
+        ),
+        FFRoute(
+          name: EfbWidget.routeName,
+          path: EfbWidget.routePath,
+          builder: (context, params) => EfbWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

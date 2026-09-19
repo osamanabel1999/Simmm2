@@ -3,7 +3,7 @@ export '/custom_code/widgets/custom_f_m_c_web_view.dart' show CustomFMCWebView;
 export '/custom_code/widgets/aircraft_fuel_weight_controller.dart'
     show AircraftFuelWeightController;
 export '/custom_code/widgets/bfmccheckout.dart' show Bfmccheckout;
-export '/custom_code/widgets/pilot_scratch_pad.dart' show PilotScratchPad;
+export '/custom_code/widgets/efb_home_screen.dart' show EfbHomeScreen;
 export '/custom_code/widgets/pushback_controller.dart' show PushbackController;
 export '/custom_code/widgets/aircraft_services_widget.dart'
     show AircraftServicesWidget;

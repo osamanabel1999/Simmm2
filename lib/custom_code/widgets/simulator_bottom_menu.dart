@@ -82,7 +82,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
     'LDG PERF',
     'CHECKLIST',
     'BRIEFING',
-    'SCRATCH',
+    'EFB',
     'LOAD',
     'FAILURES',
     'SETTINGS',
