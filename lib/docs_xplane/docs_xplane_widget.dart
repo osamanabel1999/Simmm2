@@ -50,7 +50,7 @@ class _DocsXplaneWidgetState extends State<DocsXplaneWidget> {
             children: [
               Expanded(
                 child: FlutterFlowWebView(
-                  content: 'https://flutter.dev',
+                  content: 'https://osamanabel1999.github.io/Docs-web-Xplane/',
                   bypass: false,
                   width: MediaQuery.sizeOf(context).width * 1.0,
                   height: MediaQuery.sizeOf(context).height * 1.0,

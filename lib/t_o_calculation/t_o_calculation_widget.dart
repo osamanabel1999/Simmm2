@@ -732,24 +732,16 @@ class _TOCalculationWidgetState extends State<TOCalculationWidget> {
                       ],
                     ),
                   ),
-                  if (responsiveVisibility(
-                    context: context,
-                    phone: false,
-                    tablet: false,
-                    tabletLandscape: false,
-                    desktop: false,
-                  ))
-                    Align(
-                      alignment: AlignmentDirectional(0.0, 1.0),
-                      child: FlutterFlowAdBanner(
-                        width: MediaQuery.sizeOf(context).width * 1.0,
-                        height: 50.0,
-                        showsTestAd: false,
-                        iOSAdUnitID: 'ca-app-pub-7880697829268273/6177072322',
-                        androidAdUnitID:
-                            'ca-app-pub-7880697829268273/5581116466',
-                      ),
+                  Align(
+                    alignment: AlignmentDirectional(0.0, 1.0),
+                    child: FlutterFlowAdBanner(
+                      width: MediaQuery.sizeOf(context).width * 1.0,
+                      height: 50.0,
+                      showsTestAd: false,
+                      iOSAdUnitID: 'ca-app-pub-7880697829268273/6177072322',
+                      androidAdUnitID: 'ca-app-pub-7880697829268273/5581116466',
                     ),
+                  ),
                 ],
               ),
             ],
