@@ -2,28 +2,28 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import '/index.dart';
 import 'package:flutter/material.dart';
-import 'efb_model.dart';
-export 'efb_model.dart';
+import 'e_f_bxplane_model.dart';
+export 'e_f_bxplane_model.dart';
 
-class EfbWidget extends StatefulWidget {
-  const EfbWidget({super.key});
+class EFBxplaneWidget extends StatefulWidget {
+  const EFBxplaneWidget({super.key});
 
-  static String routeName = 'EFB';
-  static String routePath = '/efb';
+  static String routeName = 'EFBxplane';
+  static String routePath = '/eFBxplane';
 
   @override
-  State<EfbWidget> createState() => _EfbWidgetState();
+  State<EFBxplaneWidget> createState() => _EFBxplaneWidgetState();
 }
 
-class _EfbWidgetState extends State<EfbWidget> {
-  late EfbModel _model;
+class _EFBxplaneWidgetState extends State<EFBxplaneWidget> {
+  late EFBxplaneModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => EfbModel());
+    _model = createModel(context, () => EFBxplaneModel());
   }
 
   @override
@@ -48,7 +48,7 @@ class _EfbWidgetState extends State<EfbWidget> {
           child: Container(
             width: double.infinity,
             height: double.infinity,
-            child: custom_widgets.EfbHomeScreen(
+            child: custom_widgets.EfbHomeScreenXplane(
               width: double.infinity,
               height: double.infinity,
               wallpaperUrl:
@@ -61,8 +61,16 @@ class _EfbWidgetState extends State<EfbWidget> {
                   'https://raw.githubusercontent.com/osamanabel1999/App-assets/refs/heads/main/46AB4E4F-D38B-435F-9730-D3C5EFCB39BD.png',
               iconScratchpad:
                   'https://raw.githubusercontent.com/osamanabel1999/App-assets/refs/heads/main/8B4CF9FB-FB3B-4E14-94F9-8433F4161703.png',
+              iconSettings:
+                  'https://raw.githubusercontent.com/osamanabel1999/App-assets/refs/heads/main/IMG_2364.jpeg',
               onExitAction: () async {
-                context.pushNamed(HomePageMSFSWidget.routeName);
+                context.pushNamed(HomePageXPLANEWidget.routeName);
+              },
+              onSettingsAction: () async {
+                FFAppState().TabNumber = 13;
+                safeSetState(() {});
+
+                context.pushNamed(HomePageXPLANEWidget.routeName);
               },
             ),
           ),

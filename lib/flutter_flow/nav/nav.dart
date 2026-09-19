@@ -298,6 +298,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: EfbWidget.routeName,
           path: EfbWidget.routePath,
           builder: (context, params) => EfbWidget(),
+        ),
+        FFRoute(
+          name: EFBxplaneWidget.routeName,
+          path: EFBxplaneWidget.routePath,
+          builder: (context, params) => EFBxplaneWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

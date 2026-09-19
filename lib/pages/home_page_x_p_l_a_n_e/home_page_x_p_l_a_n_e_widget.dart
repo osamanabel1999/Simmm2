@@ -40044,8 +40044,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                   safeSetState(() {});
                                 },
                                 settingsAction: () async {
-                                  FFAppState().TabNumber = 13;
-                                  safeSetState(() {});
+                                  context.pushNamed(EfbWidget.routeName);
                                 },
                               ),
                             ),

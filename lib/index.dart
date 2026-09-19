@@ -43,3 +43,4 @@ export '/subscription_managepage_allsim_yearly/subscription_managepage_allsim_ye
 export '/subscription_manage_for_a_l_l/subscription_manage_for_a_l_l_widget.dart'
     show SubscriptionManageForALLWidget;
 export '/efb/efb_widget.dart' show EfbWidget;
+export '/e_f_bxplane/e_f_bxplane_widget.dart' show EFBxplaneWidget;

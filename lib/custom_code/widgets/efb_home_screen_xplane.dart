@@ -18,7 +18,7 @@ import 'dart:ui' as ui;
 import 'dart:math' as math;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class EfbHomeScreen extends StatefulWidget {
+class EfbHomeScreenXplane extends StatefulWidget {
   final double? width;
   final double? height;
   final String wallpaperUrl;
@@ -26,8 +26,10 @@ class EfbHomeScreen extends StatefulWidget {
   final String iconWxCharts;
   final String iconNotams;
   final String iconScratchpad;
+  final String iconSettings;
   final Future<dynamic> Function()? onExitAction;
-  const EfbHomeScreen({
+  final Future<dynamic> Function()? onSettingsAction;
+  const EfbHomeScreenXplane({
     Key? key,
     this.width,
     this.height,
@@ -40,13 +42,16 @@ class EfbHomeScreen extends StatefulWidget {
         'https://dummyimage.com/256x256/101923/639DF0&text=NOTAMs',
     this.iconScratchpad =
         'https://dummyimage.com/256x256/101923/639DF0&text=Pad',
+    this.iconSettings =
+        'https://dummyimage.com/256x256/101923/639DF0&text=Settings',
     this.onExitAction,
+    this.onSettingsAction,
   }) : super(key: key);
   @override
-  State<EfbHomeScreen> createState() => _EfbHomeScreenState();
+  State<EfbHomeScreenXplane> createState() => _EfbHomeScreenXplaneState();
 }
 
-class _EfbHomeScreenState extends State<EfbHomeScreen> {
+class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
   bool _isAppOpen = false;
   String _openedAppName = '';
   String get _currentTime {
@@ -174,22 +179,45 @@ class _EfbHomeScreenState extends State<EfbHomeScreen> {
                                       const SizedBox(width: 35.0),
                                       _buildAppIcon("Scratchpad",
                                           widget.iconScratchpad, iconSize),
+                                      const SizedBox(width: 35.0),
+                                      _buildAppIcon(
+                                          "Settings",
+                                          widget.iconSettings,
+                                          iconSize, onTap: () {
+                                        if (widget.onSettingsAction != null) {
+                                          widget.onSettingsAction!();
+                                        }
+                                      }),
                                     ],
                                   )
-                                : Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                : Column(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      _buildAppIcon("Airport WX",
-                                          widget.iconAirportWx, iconSize),
-                                      _buildAppIcon("WX Charts",
-                                          widget.iconWxCharts, iconSize),
-                                      _buildAppIcon("NOTAMs", widget.iconNotams,
-                                          iconSize),
-                                      _buildAppIcon("Scratchpad",
-                                          widget.iconScratchpad, iconSize),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _buildAppIcon("Airport WX",
+                                              widget.iconAirportWx, iconSize),
+                                          _buildAppIcon("WX Charts",
+                                              widget.iconWxCharts, iconSize),
+                                          _buildAppIcon("NOTAMs",
+                                              widget.iconNotams, iconSize),
+                                          _buildAppIcon("Scratchpad",
+                                              widget.iconScratchpad, iconSize),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 30.0),
+                                      _buildAppIcon(
+                                          "Settings",
+                                          widget.iconSettings,
+                                          iconSize, onTap: () {
+                                        if (widget.onSettingsAction != null) {
+                                          widget.onSettingsAction!();
+                                        }
+                                      }),
                                     ],
                                   ),
                           ),
@@ -291,9 +319,10 @@ class _EfbHomeScreenState extends State<EfbHomeScreen> {
     );
   }
 
-  Widget _buildAppIcon(String name, String imageUrl, double size) {
+  Widget _buildAppIcon(String name, String imageUrl, double size,
+      {VoidCallback? onTap}) {
     return GestureDetector(
-      onTap: () => _openApp(name),
+      onTap: onTap ?? () => _openApp(name),
       child: SizedBox(
         width: size + 10,
         child: Column(

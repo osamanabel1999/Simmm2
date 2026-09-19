@@ -42,3 +42,5 @@ export '/custom_code/widgets/lda_performance_widget.dart'
     show LdaPerformanceWidget;
 export '/custom_code/widgets/simulator_bottom_menu_xplane.dart'
     show SimulatorBottomMenuXplane;
+export '/custom_code/widgets/efb_home_screen_xplane.dart'
+    show EfbHomeScreenXplane;

@@ -86,7 +86,7 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
     'FMC',
     'LOAD',
     'FAILURES',
-    'SETTINGS',
+    'EFB',
   ];
 
   bool _isMomentaryButton(int index) {
