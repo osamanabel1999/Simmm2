@@ -40044,7 +40044,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                   safeSetState(() {});
                                 },
                                 settingsAction: () async {
-                                  context.pushNamed(EfbWidget.routeName);
+                                  context.pushNamed(EFBxplaneWidget.routeName);
                                 },
                               ),
                             ),
