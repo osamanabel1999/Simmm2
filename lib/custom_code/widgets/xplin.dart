@@ -2503,7 +2503,8 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isTablet = constraints.shortestSide >= 600;
+        final bool isTablet =
+            math.min(constraints.maxWidth, constraints.maxHeight) >= 600;
         final bool isLandscape = constraints.maxWidth > constraints.maxHeight;
         if (isTablet && isLandscape) {
           return _buildLandscapeLayout();
