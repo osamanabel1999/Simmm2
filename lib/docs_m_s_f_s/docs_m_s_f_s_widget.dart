@@ -1,3 +1,4 @@
+import '/flutter_flow/flutter_flow_ad_banner.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_web_view.dart';
@@ -58,6 +59,12 @@ class _DocsMSFSWidgetState extends State<DocsMSFSWidget> {
                   verticalScroll: false,
                   horizontalScroll: false,
                 ),
+              ),
+              FlutterFlowAdBanner(
+                width: MediaQuery.sizeOf(context).width * 1.0,
+                height: 50.0,
+                showsTestAd: false,
+                iOSAdUnitID: 'ca-app-pub-7880697829268273/3797451760',
               ),
             ],
           ),
