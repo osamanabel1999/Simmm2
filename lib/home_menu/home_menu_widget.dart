@@ -31,6 +31,9 @@ class _HomeMenuWidgetState extends State<HomeMenuWidget> {
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       await actions.enableImmersiveMode();
+      await actions.checkAppNotification(
+        context,
+      );
     });
   }
 

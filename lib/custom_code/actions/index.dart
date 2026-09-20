@@ -155,3 +155,5 @@ export '/custom_code/actions/calculate_exact_local_y.dart'
     show calculateExactLocalY;
 export '/custom_code/actions/enable_immersive_mode.dart'
     show enableImmersiveMode;
+export '/custom_code/actions/check_app_notification.dart'
+    show checkAppNotification;
