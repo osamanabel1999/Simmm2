@@ -295,9 +295,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => SubscriptionManageForALLWidget(),
         ),
         FFRoute(
-          name: EfbWidget.routeName,
-          path: EfbWidget.routePath,
-          builder: (context, params) => EfbWidget(),
+          name: EFBmsfsWidget.routeName,
+          path: EFBmsfsWidget.routePath,
+          builder: (context, params) => EFBmsfsWidget(),
         ),
         FFRoute(
           name: EFBxplaneWidget.routeName,

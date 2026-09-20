@@ -43833,7 +43833,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                       safeSetState(() {});
                                     },
                                     scratchAction: () async {
-                                      context.pushNamed(EfbWidget.routeName);
+                                      context
+                                          .pushNamed(EFBmsfsWidget.routeName);
                                     },
                                     loadAction: () async {
                                       FFAppState().TabNumber = 15;

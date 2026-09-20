@@ -3765,25 +3765,17 @@ class _AviationWeatherChartsState extends State<AviationWeatherCharts> {
     'e',
   ];
   static const List<String> _sigwxMidAreas = [
+    'nat',
     'eur',
-    'nam',
-    'sam',
-    'af',
-    'aus',
-    'pac',
+    'mea',
+    'seas',
   ];
   static const List<String> _sigwxLowAreas = [
     'us',
-    'ca',
-    'eur',
-    'asia',
-    'af',
-    'aus',
-    'sam',
   ];
   static const List<String> _gfaTypes = [
     'cldwx',
-    'icg',
+    'icetb',
   ];
   static const List<String> _gfaTimes = [
     '00',
@@ -3795,7 +3787,7 @@ class _AviationWeatherChartsState extends State<AviationWeatherCharts> {
     'pr',
     'oq',
     'at',
-    'yt',
+    'nw',
     'nu',
     'ar',
   ];
@@ -3849,20 +3841,22 @@ class _AviationWeatherChartsState extends State<AviationWeatherCharts> {
       'j': 'South Pole',
       'm': 'Pacific',
       'b': 'Europe-South America',
+      'nat': 'North Atlantic',
       'eur': 'Europe',
-      'nam': 'North America',
+      'mea': 'Middle East',
+      'seas': 'Asia South',
       'sam': 'South America',
       'af': 'Africa',
       'aus': 'Australia',
       'pac': 'Pacific',
-      'us': 'United States',
+      'us': 'Contiguous United States',
       'ca': 'Canada',
       'asia': 'Asia',
       'pa': 'Pacific',
       'pr': 'Prairie',
       'oq': 'Ontario/Quebec',
       'at': 'Atlantic',
-      'yt': 'Yukon/NWT',
+      'nw': 'Yukon/NWT',
       'nu': 'Nunavut',
       'ar': 'Arctic',
     };
@@ -3923,7 +3917,7 @@ class _AviationWeatherChartsState extends State<AviationWeatherCharts> {
       _selectedArea = null;
       _selectedFlightLevel = null;
       _selectedWindTime = null;
-      _selectedGfaType = null;
+      _selectedGfaType = category == _categoryCanadianGfa ? 'cldwx' : null;
       _selectedGfaTime = null;
       _chartUrl = null;
       _showChart = false;
@@ -4355,9 +4349,9 @@ class _AviationWeatherChartsState extends State<AviationWeatherCharts> {
             'CLOUDS / WEATHER',
             'ICING / TURBULENCE',
           ],
-          selectedIndex: _selectedGfaType == 'icg' ? 1 : 0,
+          selectedIndex: _selectedGfaType == 'icetb' ? 1 : 0,
           onChanged: (index) {
-            _selectGfaType(index == 0 ? 'cldwx' : 'icg');
+            _selectGfaType(index == 0 ? 'cldwx' : 'icetb');
           },
         ),
         const SizedBox(height: 17),
@@ -5080,7 +5074,6 @@ class _AviationWeatherChartsState extends State<AviationWeatherCharts> {
             if (_category == _categoryCanadianGfa) _buildGfaParameters(),
             const SizedBox(height: 22),
             _buildSelectionSummary(),
-            _buildUrlPreview(),
             const SizedBox(height: 15),
             _buildViewButton(),
           ],

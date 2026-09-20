@@ -74,6 +74,6 @@
     <key>NSSpeechRecognitionUsageDescription</key>
     <string>The app requests microphone access to allow you to interact with the interactive cockpit checklists.</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>The app requests microphone access to allow you to interact with the interactive cockpit checklists..</string>
+    <string>This app requires access to the photo library to allow you to upload profile pictures or save simulator screenshots.</string>
   </dict>
 </plist>

@@ -1672,8 +1672,848 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
     if (widget.onTeleportTap != null) widget.onTeleportTap!();
   }
 
+  Widget _fitText(String text, TextStyle style,
+      {TextAlign textAlign = TextAlign.left}) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: textAlign == TextAlign.right
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: Text(text, style: style, textAlign: textAlign, maxLines: 1),
+    );
+  }
+
+  Widget _buildResponsiveSearch() {
+    return SizedBox(
+      height: 48,
+      child: TextField(
+        controller: _searchCtrl,
+        onChanged: _onSearchChanged,
+        style: const TextStyle(
+            color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+        decoration: InputDecoration(
+          hintText: 'SEARCH NAVAID IDENT OR NAME (e.g. CVO, CAIRO)',
+          hintStyle: const TextStyle(color: Color(0xFF455A75), fontSize: 11),
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF4A90E2)),
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.cancel, color: Color(0xFF455A75), size: 20),
+            onPressed: () {
+              _searchCtrl.clear();
+              setState(() => _searchResults = []);
+            },
+          ),
+          filled: true,
+          fillColor: const Color(0xFF08111D),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFF1E324A)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFF1E324A)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFF4A90E2), width: 1.5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResponsiveNavaidCard(BoxConstraints constraints) {
+    final bool mobile = constraints.maxWidth < 600;
+    final double iconBox = mobile ? 96 : 118;
+    final double iconSize = mobile ? 64 : 80;
+    final String coordinates =
+        '${toDMS(_selectedNavaid!.model.lat, true)}   ${toDMS(_selectedNavaid!.model.lon, false)}';
+    final String elevation =
+        '${_selectedNavaid!.model.elev.toInt()} ft (${(_selectedNavaid!.model.elev * 0.3048).toInt()} m)';
+
+    Widget infoRow(IconData icon, String label, String value) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(icon, color: const Color(0xFF455A75), size: 16),
+            const SizedBox(width: 8),
+            SizedBox(
+              width: mobile ? 72 : 82,
+              child: Text(label,
+                  style:
+                      const TextStyle(color: Color(0xFF6B87A8), fontSize: 12)),
+            ),
+            Expanded(
+              child: _fitText(
+                value,
+                const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    Widget details = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A2C42).withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                      color: const Color(0xFF4A90E2).withOpacity(0.5)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.wifi_tethering,
+                        color: Color(0xFF4A90E2), size: 12),
+                    const SizedBox(width: 5),
+                    Flexible(
+                        child: _fitText(
+                            _selectedNavaid!.model.type,
+                            const TextStyle(
+                                color: Color(0xFF4A90E2),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold))),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            if (_selectedNavaid!.model.airport.isNotEmpty ||
+                _selectedNavaid!.model.country.isNotEmpty)
+              Expanded(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A2C42).withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.flight,
+                          color: Color(0xFF6B87A8), size: 12),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: _fitText(
+                          '${_selectedNavaid!.model.airport} | ${_selectedNavaid!.model.country}'
+                              .trim()
+                              .replaceAll(RegExp(r'^\|\s*|\s*\|\s*$'), ''),
+                          const TextStyle(
+                              color: Color(0xFF6B87A8),
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        _fitText(
+          _selectedNavaid!.ident,
+          const TextStyle(
+              color: Colors.white,
+              fontSize: 30,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2.0),
+        ),
+        const SizedBox(height: 2),
+        _fitText(
+          '${_selectedNavaid!.model.name} ${_selectedNavaid!.model.type.split('-')[0]}',
+          const TextStyle(color: Color(0xFF6B87A8), fontSize: 13),
+        ),
+        const SizedBox(height: 14),
+        infoRow(Icons.graphic_eq, 'Frequency',
+            formatFrequency(_selectedNavaid!.model.freq)),
+        infoRow(Icons.landscape, 'Elevation', elevation),
+        infoRow(Icons.location_on, 'Coordinates', coordinates),
+      ],
+    );
+
+    return Container(
+      padding: EdgeInsets.all(mobile ? 14 : 18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0C1627),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF1A2C42)),
+      ),
+      child: mobile
+          ? Column(
+              children: [
+                Container(
+                  width: iconBox,
+                  height: iconBox,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF070D18),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF1A2C42)),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CustomPaint(
+                        size: Size(iconSize, iconSize),
+                        painter: _selectedNavaid!.model.type.contains('VOR')
+                            ? GlowingVORPainter()
+                            : GlowingNDBPainter(),
+                      ),
+                      Positioned(
+                        bottom: 8,
+                        child: Text(_selectedNavaid!.model.type,
+                            style: const TextStyle(
+                                color: Color(0xFF4A90E2),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2)),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                details,
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: iconBox,
+                  height: iconBox,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF070D18),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF1A2C42)),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CustomPaint(
+                        size: Size(iconSize, iconSize),
+                        painter: _selectedNavaid!.model.type.contains('VOR')
+                            ? GlowingVORPainter()
+                            : GlowingNDBPainter(),
+                      ),
+                      Positioned(
+                        bottom: 10,
+                        child: Text(_selectedNavaid!.model.type,
+                            style: const TextStyle(
+                                color: Color(0xFF4A90E2),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2)),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 18),
+                Expanded(child: details),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildResponsiveField({
+    required IconData icon,
+    required String label,
+    required TextEditingController controller,
+    String? suffix,
+    ValueChanged<String>? onChanged,
+  }) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: const Color(0xFF4A90E2), size: 14),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 7),
+          SizedBox(
+            height: 44,
+            child: TextField(
+              controller: controller,
+              onChanged: onChanged,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600),
+              decoration: InputDecoration(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                filled: true,
+                fillColor: const Color(0xFF08111D),
+                suffixText: suffix,
+                suffixStyle:
+                    const TextStyle(color: Color(0xFF6B87A8), fontSize: 10),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFF1E324A))),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFF1E324A))),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFF4A90E2))),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResponsiveConfig(BoxConstraints constraints) {
+    final bool mobile = constraints.maxWidth < 600;
+    final double compassSize = mobile
+        ? math.min(170.0, constraints.maxWidth * 0.46)
+        : math.min(205.0, constraints.maxWidth * 0.30);
+    final double horizontalGap = mobile ? 8 : 12;
+
+    return Container(
+      padding: EdgeInsets.all(mobile ? 14 : 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0C1627),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF1A2C42)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.gps_fixed, color: Color(0xFF6B87A8), size: 20),
+              SizedBox(width: 10),
+              Expanded(
+                  child: Text('Teleport Configuration',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold))),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.only(left: 30, top: 4),
+            child: Text(
+                'Set the radial, heading, distance, altitude, and speed.',
+                style: TextStyle(color: Color(0xFF6B87A8), fontSize: 11)),
+          ),
+          const SizedBox(height: 22),
+          if (mobile) ...[
+            Center(
+              child: GestureDetector(
+                onPanUpdate: (d) => _updateDialFromPan(
+                    d.localPosition, Size(compassSize, compassSize)),
+                child: SizedBox(
+                  width: compassSize,
+                  height: compassSize,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CustomPaint(
+                          size: Size(compassSize, compassSize),
+                          painter:
+                              AdvancedCompassDialPainter(angle: _dialAngle)),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                              '${_dialAngle.round().toString().padLeft(3, '0')}°',
+                              style: TextStyle(
+                                  color: const Color(0xFFF09819),
+                                  fontSize: mobile ? 23 : 28,
+                                  fontWeight: FontWeight.bold)),
+                          const Text('RADIAL',
+                              style: TextStyle(
+                                  color: Color(0xFF6B87A8),
+                                  fontSize: 9,
+                                  letterSpacing: 1.5)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.sync, color: Color(0xFF6B87A8), size: 14),
+                    const SizedBox(width: 6),
+                    Text(
+                        'Drag to rotate  •  Heading bug: ${_dialAngle.round().toString().padLeft(3, '0')}°',
+                        style: const TextStyle(
+                            color: Color(0xFF6B87A8), fontSize: 10)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+          ] else ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: GestureDetector(
+                      onPanUpdate: (d) => _updateDialFromPan(
+                          d.localPosition, Size(compassSize, compassSize)),
+                      child: SizedBox(
+                        width: compassSize,
+                        height: compassSize,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            CustomPaint(
+                                size: Size(compassSize, compassSize),
+                                painter: AdvancedCompassDialPainter(
+                                    angle: _dialAngle)),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                    '${_dialAngle.round().toString().padLeft(3, '0')}°',
+                                    style: const TextStyle(
+                                        color: Color(0xFFF09819),
+                                        fontSize: 26,
+                                        fontWeight: FontWeight.bold)),
+                                const Text('RADIAL',
+                                    style: TextStyle(
+                                        color: Color(0xFF6B87A8),
+                                        fontSize: 9,
+                                        letterSpacing: 1.5)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                    width: 1,
+                    height: compassSize + 25,
+                    color: const Color(0xFF1E324A)),
+                Expanded(
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 18),
+                    child: Column(
+                      children: [
+                        Row(children: [
+                          _buildResponsiveField(
+                              icon: Icons.satellite_alt,
+                              label: 'Radial (°)',
+                              controller: _radialCtrl,
+                              suffix: '°',
+                              onChanged: _updateDialFromText),
+                          SizedBox(width: horizontalGap),
+                          _buildResponsiveField(
+                              icon: Icons.explore,
+                              label: 'Heading (°)',
+                              controller: _hdgCtrl,
+                              suffix: '°'),
+                        ]),
+                        const SizedBox(height: 14),
+                        Row(children: [
+                          _buildResponsiveField(
+                              icon: Icons.straighten,
+                              label: 'Distance',
+                              controller: _distCtrl,
+                              suffix: 'NM',
+                              onChanged: (_) => _recalcTarget()),
+                          SizedBox(width: horizontalGap),
+                          _buildResponsiveField(
+                              icon: Icons.landscape,
+                              label: 'Altitude',
+                              controller: _altCtrl,
+                              suffix: 'FT'),
+                          SizedBox(width: horizontalGap),
+                          _buildResponsiveField(
+                              icon: Icons.speed,
+                              label: 'Speed',
+                              controller: _spdCtrl,
+                              suffix: 'KT'),
+                        ]),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (mobile) ...[
+            Row(children: [
+              _buildResponsiveField(
+                  icon: Icons.satellite_alt,
+                  label: 'Radial (°)',
+                  controller: _radialCtrl,
+                  suffix: '°',
+                  onChanged: _updateDialFromText),
+              SizedBox(width: horizontalGap),
+              _buildResponsiveField(
+                  icon: Icons.explore,
+                  label: 'Heading (°)',
+                  controller: _hdgCtrl,
+                  suffix: '°'),
+            ]),
+            const SizedBox(height: 14),
+            Row(children: [
+              _buildResponsiveField(
+                  icon: Icons.straighten,
+                  label: 'Distance',
+                  controller: _distCtrl,
+                  suffix: 'NM',
+                  onChanged: (_) => _recalcTarget()),
+              SizedBox(width: horizontalGap),
+              _buildResponsiveField(
+                  icon: Icons.landscape,
+                  label: 'Altitude',
+                  controller: _altCtrl,
+                  suffix: 'FT'),
+              SizedBox(width: horizontalGap),
+              _buildResponsiveField(
+                  icon: Icons.speed,
+                  label: 'Speed',
+                  controller: _spdCtrl,
+                  suffix: 'KT'),
+            ]),
+          ],
+          const SizedBox(height: 18),
+          Container(
+            padding: EdgeInsets.all(mobile ? 11 : 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF08111D),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFF1E324A)),
+            ),
+            child: mobile
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: const [
+                          Icon(Icons.my_location,
+                              color: Color(0xFF455A75), size: 20),
+                          SizedBox(width: 10),
+                          Text('Teleport Position',
+                              style: TextStyle(
+                                  color: Color(0xFF6B87A8), fontSize: 11)),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 30),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '${toDMS(_targetLat, true)}   ${toDMS(_targetLon, false)}',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 9),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: _fitText(
+                                  'Hdg  ${_hdgCtrl.text}°',
+                                  const TextStyle(
+                                      color: Color(0xFF6B87A8),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600))),
+                          const SizedBox(width: 10),
+                          Expanded(
+                              child: _fitText(
+                                  'Dist  ${_distCtrl.text} NM',
+                                  const TextStyle(
+                                      color: Color(0xFF6B87A8),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600))),
+                          const SizedBox(width: 10),
+                          Expanded(
+                              child: _fitText(
+                                  'Spd  ${_spdCtrl.text} KT',
+                                  const TextStyle(
+                                      color: Color(0xFF6B87A8),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600),
+                                  textAlign: TextAlign.right)),
+                        ],
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      const Icon(Icons.my_location,
+                          color: Color(0xFF455A75), size: 24),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Teleport Position',
+                                style: TextStyle(
+                                    color: Color(0xFF6B87A8), fontSize: 11)),
+                            const SizedBox(height: 4),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                  '${toDMS(_targetLat, true)}   ${toDMS(_targetLon, false)}',
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold),
+                                  maxLines: 1),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            _fitText(
+                                'Hdg  ${_hdgCtrl.text}°',
+                                const TextStyle(
+                                    color: Color(0xFF6B87A8),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600),
+                                textAlign: TextAlign.right),
+                            const SizedBox(height: 4),
+                            _fitText(
+                                'Dist  ${_distCtrl.text} NM  •  Spd  ${_spdCtrl.text} KT',
+                                const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.right),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            height: 45,
+            child: ElevatedButton.icon(
+              onPressed: _teleport,
+              icon: const Icon(Icons.flight_takeoff, color: Color(0xFFF09819)),
+              label: const Text('Teleport',
+                  style: TextStyle(
+                      color: Color(0xFFF09819),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF161F2C),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side:
+                        const BorderSide(color: Color(0xFFF09819), width: 1.5)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResponsiveSearchResults(BoxConstraints constraints) {
+    final double horizontal = constraints.maxWidth < 600 ? 12 : 18;
+    return Positioned(
+      top: 92,
+      left: horizontal,
+      right: horizontal,
+      child: Material(
+        color: Colors.transparent,
+        elevation: 20,
+        child: Container(
+          constraints: const BoxConstraints(maxHeight: 300),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0C1627),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFF4A90E2)),
+          ),
+          child: ListView.separated(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            itemCount: _searchResults.length,
+            separatorBuilder: (ctx, i) =>
+                const Divider(color: Color(0xFF1A2C42), height: 1),
+            itemBuilder: (ctx, i) {
+              final nv = _searchResults[i];
+              return InkWell(
+                onTap: () => _selectNavaid(nv),
+                hoverColor: const Color(0xFF1E324A),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Row(
+                    children: [
+                      Icon(
+                          nv.model.type.contains('VOR')
+                              ? Icons.radar
+                              : Icons.adjust,
+                          color: const Color(0xFF4A90E2),
+                          size: 22),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(nv.ident,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold)),
+                                const SizedBox(width: 7),
+                                Expanded(
+                                    child: _fitText(
+                                        nv.model.name,
+                                        const TextStyle(
+                                            color: Color(0xFF6B87A8),
+                                            fontSize: 11))),
+                              ],
+                            ),
+                            const SizedBox(height: 3),
+                            _fitText(
+                                '${nv.model.airport.isNotEmpty ? nv.model.airport : nv.model.country}  •  ${nv.model.type}',
+                                const TextStyle(
+                                    color: Color(0xFF6B87A8), fontSize: 10)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _fitText(
+                              formatFrequency(nv.model.freq),
+                              const TextStyle(
+                                  color: Color(0xFF6B87A8), fontSize: 11)),
+                          _buildNavaidDistanceBadge(nv.model),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResponsiveLayout(BoxConstraints constraints) {
+    final bool mobile = constraints.maxWidth < 600;
+    final double padding = mobile ? 12 : 18;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        SingleChildScrollView(
+          padding: EdgeInsets.all(padding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Center(
+                child: Column(
+                  children: [
+                    Text('Navigational Aids (Navaids) Teleport',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center),
+                    SizedBox(height: 4),
+                    Text(
+                        'Quickly jump to any VOR / NDB and set your radial and distance.',
+                        style:
+                            TextStyle(color: Color(0xFF6B87A8), fontSize: 11),
+                        textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              _buildResponsiveSearch(),
+              const SizedBox(height: 18),
+              if (_selectedNavaid != null) ...[
+                _buildResponsiveNavaidCard(constraints),
+                const SizedBox(height: 18),
+                _buildResponsiveConfig(constraints),
+              ],
+              if (_selectedNavaid == null) const SizedBox(height: 8),
+            ],
+          ),
+        ),
+        if (_searchResults.isNotEmpty)
+          _buildResponsiveSearchResults(constraints),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isTablet = constraints.shortestSide >= 600;
+        final bool isLandscape = constraints.maxWidth > constraints.maxHeight;
+        if (isTablet && isLandscape) {
+          return _buildLandscapeLayout();
+        }
+        return _buildResponsiveLayout(constraints);
+      },
+    );
+  }
+
+  Widget _buildLandscapeLayout() {
     return Stack(clipBehavior: Clip.none, children: [
       SingleChildScrollView(
           padding: const EdgeInsets.all(24),

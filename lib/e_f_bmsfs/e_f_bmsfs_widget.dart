@@ -2,28 +2,28 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import '/index.dart';
 import 'package:flutter/material.dart';
-import 'efb_model.dart';
-export 'efb_model.dart';
+import 'e_f_bmsfs_model.dart';
+export 'e_f_bmsfs_model.dart';
 
-class EfbWidget extends StatefulWidget {
-  const EfbWidget({super.key});
+class EFBmsfsWidget extends StatefulWidget {
+  const EFBmsfsWidget({super.key});
 
-  static String routeName = 'EFB';
-  static String routePath = '/efb';
+  static String routeName = 'EFBmsfs';
+  static String routePath = '/eFBmsfs';
 
   @override
-  State<EfbWidget> createState() => _EfbWidgetState();
+  State<EFBmsfsWidget> createState() => _EFBmsfsWidgetState();
 }
 
-class _EfbWidgetState extends State<EfbWidget> {
-  late EfbModel _model;
+class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
+  late EFBmsfsModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => EfbModel());
+    _model = createModel(context, () => EFBmsfsModel());
   }
 
   @override

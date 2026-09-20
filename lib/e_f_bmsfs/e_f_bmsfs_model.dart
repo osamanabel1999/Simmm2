@@ -1,9 +1,9 @@
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
-import 'efb_widget.dart' show EfbWidget;
+import 'e_f_bmsfs_widget.dart' show EFBmsfsWidget;
 import 'package:flutter/material.dart';
 
-class EfbModel extends FlutterFlowModel<EfbWidget> {
+class EFBmsfsModel extends FlutterFlowModel<EFBmsfsWidget> {
   @override
   void initState(BuildContext context) {}
 

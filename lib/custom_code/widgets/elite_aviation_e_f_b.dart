@@ -1596,7 +1596,7 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
     final bool isVor = _selectedNavaid?.model.type.contains('VOR') ?? false;
     final Color accent =
         isVor ? const Color(0xFF4A90E2) : const Color(0xFFE5B064);
-    final double dialSize = compact ? 150 : 170;
+    final double dialSize = compact ? 132 : 148;
 
     Widget field(String label, IconData icon, TextEditingController controller,
         String suffix,
@@ -1615,12 +1615,12 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
         ]),
         const SizedBox(height: 5),
         SizedBox(
-            height: 38,
+            height: 44,
             child: TextField(
                 controller: controller,
                 onChanged: onChanged,
                 keyboardType: TextInputType.number,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
                     filled: true,
                     fillColor: const Color(0xFF08111D),
@@ -1628,7 +1628,7 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
                     suffixStyle:
                         const TextStyle(color: Color(0xFF6B87A8), fontSize: 9),
                     contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 9, vertical: 0),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(7),
                         borderSide: const BorderSide(color: Color(0xFF1E324A))),
@@ -1756,14 +1756,25 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
                           ]))
                     ]),
                     const SizedBox(height: 10),
-                    Wrap(spacing: 8, runSpacing: 7, children: [
-                      _mobileNavaidInfo('Frequency',
-                          formatFrequency(_selectedNavaid!.model.freq)),
-                      _mobileNavaidInfo('Elevation',
-                          '${_selectedNavaid!.model.elev.toInt()} ft'),
-                      _mobileNavaidInfo('Coordinates',
-                          '${toDMS(_selectedNavaid!.model.lat, true)}  ${toDMS(_selectedNavaid!.model.lon, false)}')
-                    ])
+                    LayoutBuilder(builder: (context, constraints) {
+                      final double gap = 8;
+                      final double half = (constraints.maxWidth - gap) / 2;
+                      return Wrap(spacing: gap, runSpacing: 8, children: [
+                        SizedBox(
+                            width: half,
+                            child: _mobileNavaidInfo('Frequency',
+                                formatFrequency(_selectedNavaid!.model.freq))),
+                        SizedBox(
+                            width: half,
+                            child: _mobileNavaidInfo('Elevation',
+                                '${_selectedNavaid!.model.elev.toInt()} ft')),
+                        SizedBox(
+                            width: constraints.maxWidth,
+                            child: _mobileNavaidInfo('Coordinates',
+                                '${toDMS(_selectedNavaid!.model.lat, true)}  ${toDMS(_selectedNavaid!.model.lon, false)}',
+                                allowWrap: true))
+                      ]);
+                    })
                   ])),
               const SizedBox(height: 12),
               Container(
@@ -1834,25 +1845,38 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
                                 style: const TextStyle(
                                     color: Color(0xFF6B87A8), fontSize: 9))),
                         const SizedBox(height: 12),
-                        GridView.count(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 9,
-                            childAspectRatio: compact ? 2.25 : 2.5,
-                            children: [
-                              field('Radial (°)', Icons.satellite_alt,
-                                  _radialCtrl, '°',
-                                  onChanged: _updateDialFromText),
-                              field(
-                                  'Heading (°)', Icons.explore, _hdgCtrl, '°'),
-                              field('Distance', Icons.radar, _distCtrl, 'NM',
-                                  onChanged: (_) => _recalcTarget()),
-                              field(
-                                  'Altitude', Icons.landscape, _altCtrl, 'FT'),
-                              field('Speed', Icons.speed, _spdCtrl, 'KT')
-                            ]),
+                        Column(children: [
+                          Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                    child: field('Radial (°)',
+                                        Icons.satellite_alt, _radialCtrl, '°',
+                                        onChanged: _updateDialFromText)),
+                                const SizedBox(width: 9),
+                                Expanded(
+                                    child: field('Heading (°)', Icons.explore,
+                                        _hdgCtrl, '°')),
+                              ]),
+                          const SizedBox(height: 10),
+                          Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                    child: field('Distance', Icons.radar,
+                                        _distCtrl, 'NM',
+                                        onChanged: (_) => _recalcTarget())),
+                                const SizedBox(width: 9),
+                                Expanded(
+                                    child: field('Altitude', Icons.landscape,
+                                        _altCtrl, 'FT')),
+                              ]),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                              width: double.infinity,
+                              child:
+                                  field('Speed', Icons.speed, _spdCtrl, 'KT')),
+                        ]),
                         const SizedBox(height: 11),
                         Container(
                             padding: const EdgeInsets.all(10),
@@ -1869,14 +1893,18 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
                                           color: Color(0xFF6B87A8),
                                           fontSize: 9)),
                                   const SizedBox(height: 3),
-                                  Text(
-                                      '${toDMS(_targetLat, true)}  ${toDMS(_targetLon, false)}',
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold)),
+                                  LayoutBuilder(
+                                      builder: (context, constraints) {
+                                    return FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                            '${toDMS(_targetLat, true)}  ${toDMS(_targetLon, false)}',
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold)));
+                                  }),
                                   const SizedBox(height: 5),
                                   Text(
                                       'HDG ${_hdgCtrl.text}°   •   ${_distCtrl.text} NM   •   ${_spdCtrl.text} KT',
@@ -1970,18 +1998,29 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
     ]);
   }
 
-  Widget _mobileNavaidInfo(String label, String value) => SizedBox(
-      width: (MediaQuery.sizeOf(context).width - 55) / 2,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _mobileNavaidInfo(String label, String value,
+          {bool allowWrap = false}) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label,
             style: const TextStyle(color: Color(0xFF6B87A8), fontSize: 8)),
         const SizedBox(height: 2),
-        Text(value,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-                color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold))
-      ]));
+        allowWrap
+            ? FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(value,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold)))
+            : Text(value,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold))
+      ]);
 
   @override
   Widget build(BuildContext context) => _isMobileNavaid(context)
@@ -1989,6 +2028,9 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
       : _buildDesktopView(context);
 
   Widget _buildDesktopView(BuildContext context) {
+    final Size screenSize = MediaQuery.sizeOf(context);
+    final bool isTabletPortrait =
+        screenSize.width >= 600 && screenSize.width < screenSize.height;
     return Stack(clipBehavior: Clip.none, children: [
       SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -2606,82 +2648,176 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
                                                     border: Border.all(
                                                         color: const Color(
                                                             0xFF1E324A))),
-                                                child: Row(children: [
-                                                  const Icon(Icons.my_location,
-                                                      color: Color(0xFF455A75),
-                                                      size: 24),
-                                                  const SizedBox(width: 16),
-                                                  Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        const Text(
-                                                            'Teleport Position',
-                                                            style: TextStyle(
+                                                child: isTabletPortrait
+                                                    ? Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                            const Icon(
+                                                                Icons
+                                                                    .my_location,
                                                                 color: Color(
-                                                                    0xFF6B87A8),
-                                                                fontSize: 11)),
+                                                                    0xFF455A75),
+                                                                size: 24),
+                                                            const SizedBox(
+                                                                width: 12),
+                                                            Expanded(
+                                                                flex: 3,
+                                                                child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      const Text(
+                                                                          'Teleport Position',
+                                                                          style: TextStyle(
+                                                                              color: Color(0xFF6B87A8),
+                                                                              fontSize: 11)),
+                                                                      const SizedBox(
+                                                                          height:
+                                                                              4),
+                                                                      FittedBox(
+                                                                          fit: BoxFit
+                                                                              .scaleDown,
+                                                                          alignment: Alignment
+                                                                              .centerLeft,
+                                                                          child:
+                                                                              Text(
+                                                                            '${toDMS(_targetLat, true)}   ${toDMS(_targetLon, false)}',
+                                                                            style: const TextStyle(
+                                                                                color: Colors.white,
+                                                                                fontSize: 13,
+                                                                                fontWeight: FontWeight.bold),
+                                                                          )),
+                                                                    ])),
+                                                            const SizedBox(
+                                                                width: 16),
+                                                            Expanded(
+                                                                flex: 2,
+                                                                child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .end,
+                                                                    children: [
+                                                                      Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.end,
+                                                                          children: [
+                                                                            const Text('Hdg',
+                                                                                style: TextStyle(color: Color(0xFF6B87A8), fontSize: 10)),
+                                                                            const SizedBox(width: 8),
+                                                                            Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: Text('${_hdgCtrl.text}°', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold))))
+                                                                          ]),
+                                                                      const SizedBox(
+                                                                          height:
+                                                                              4),
+                                                                      Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.end,
+                                                                          children: [
+                                                                            const Text('Dist',
+                                                                                style: TextStyle(color: Color(0xFF6B87A8), fontSize: 10)),
+                                                                            const SizedBox(width: 8),
+                                                                            Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: Text('${_distCtrl.text} NM', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold))))
+                                                                          ]),
+                                                                      const SizedBox(
+                                                                          height:
+                                                                              4),
+                                                                      Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.end,
+                                                                          children: [
+                                                                            const Text('Spd',
+                                                                                style: TextStyle(color: Color(0xFF6B87A8), fontSize: 10)),
+                                                                            const SizedBox(width: 8),
+                                                                            Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: Text('${_spdCtrl.text} KT', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold))))
+                                                                          ])
+                                                                    ]))
+                                                          ])
+                                                    : Row(children: [
+                                                        const Icon(
+                                                            Icons.my_location,
+                                                            color: Color(
+                                                                0xFF455A75),
+                                                            size: 24),
                                                         const SizedBox(
-                                                            height: 4),
-                                                        Text(
-                                                            '${toDMS(_targetLat, true)}   ${toDMS(_targetLon, false)}',
-                                                            style: const TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 13,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold))
-                                                      ]),
-                                                  const Spacer(),
-                                                  Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
-                                                      children: [
-                                                        Row(children: [
-                                                          const Text('Hdg',
-                                                              style: TextStyle(
-                                                                  color: Color(
-                                                                      0xFF6B87A8),
-                                                                  fontSize:
-                                                                      11)),
-                                                          const SizedBox(
-                                                              width: 12),
-                                                          Text(
-                                                              '${_hdgCtrl.text}°',
-                                                              style: const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 12,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold))
-                                                        ]),
-                                                        const SizedBox(
-                                                            height: 4),
-                                                        Row(children: [
-                                                          const Text('Dist/Spd',
-                                                              style: TextStyle(
-                                                                  color: Color(
-                                                                      0xFF6B87A8),
-                                                                  fontSize:
-                                                                      11)),
-                                                          const SizedBox(
-                                                              width: 12),
-                                                          Text(
-                                                              '${_distCtrl.text} NM • ${_spdCtrl.text} KT',
-                                                              style: const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 12,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold))
-                                                        ])
-                                                      ])
-                                                ])),
+                                                            width: 16),
+                                                        Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              const Text(
+                                                                  'Teleport Position',
+                                                                  style: TextStyle(
+                                                                      color: Color(
+                                                                          0xFF6B87A8),
+                                                                      fontSize:
+                                                                          11)),
+                                                              const SizedBox(
+                                                                  height: 4),
+                                                              Text(
+                                                                  '${toDMS(_targetLat, true)}   ${toDMS(_targetLon, false)}',
+                                                                  style: const TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          13,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold))
+                                                            ]),
+                                                        const Spacer(),
+                                                        Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .end,
+                                                            children: [
+                                                              Row(children: [
+                                                                const Text(
+                                                                    'Hdg',
+                                                                    style: TextStyle(
+                                                                        color: Color(
+                                                                            0xFF6B87A8),
+                                                                        fontSize:
+                                                                            11)),
+                                                                const SizedBox(
+                                                                    width: 12),
+                                                                Text(
+                                                                    '${_hdgCtrl.text}°',
+                                                                    style: const TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            12,
+                                                                        fontWeight:
+                                                                            FontWeight.bold))
+                                                              ]),
+                                                              const SizedBox(
+                                                                  height: 4),
+                                                              Row(children: [
+                                                                const Text(
+                                                                    'Dist/Spd',
+                                                                    style: TextStyle(
+                                                                        color: Color(
+                                                                            0xFF6B87A8),
+                                                                        fontSize:
+                                                                            11)),
+                                                                const SizedBox(
+                                                                    width: 12),
+                                                                Text(
+                                                                    '${_distCtrl.text} NM • ${_spdCtrl.text} KT',
+                                                                    style: const TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            12,
+                                                                        fontWeight:
+                                                                            FontWeight.bold))
+                                                              ])
+                                                            ])
+                                                      ])),
                                             const SizedBox(height: 20),
                                             SizedBox(
                                                 width: double.infinity,
