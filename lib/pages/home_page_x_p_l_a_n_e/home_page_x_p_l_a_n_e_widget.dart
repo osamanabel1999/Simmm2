@@ -39986,6 +39986,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     'sim/operation/freeze_toggle',
                                     FFAppState().ipPC,
                                   );
+
+                                  context.pushNamed(TestWidget.routeName);
                                 },
                                 flightPlanAction: () async {
                                   FFAppState().TabNumber = 4;

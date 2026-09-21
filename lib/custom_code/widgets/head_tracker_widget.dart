@@ -13,7 +13,7 @@ import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data'; // تم إضافة هذا السطر لحل مشكلة ByteData و Endian
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,6 +49,7 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
   bool _isTracking = false;
   bool _isProcessing = false;
   bool _showSettings = false;
+  bool _isRecenteringEffect = false; // تأثير الفلاش الأخضر للسنترة
 
   // القيم الخام (للسنترة)
   double _rawYaw = 0.0;
@@ -65,24 +66,35 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
   double _pitchOffset = 0.0;
   double _rollOffset = 0.0;
 
-  // سرعة الاستجابة (Multipliers)
-  double _yawMultiplier = 3.0;
-  double _pitchMultiplier = 2.0;
-  double _rollMultiplier = 1.0;
+  // إعدادات افتراضية ثابتة للـ Default
+  final double _defYawMult = 3.0;
+  final double _defPitchMult = 2.0;
+  final double _defRollMult = 1.0;
+  final double _defSmooth = 0.2;
+  final double _defDeadzone = 2.0;
+  final double _defYawLim = 90.0;
+  final double _defPitchLim = 60.0;
+  final double _defRollLim = 15.0;
 
-  // إعدادات التنعيم والمنطقة الميتة
-  double _smoothingFactor = 0.2;
-  double _deadzoneRadius = 2.0;
+  // الإعدادات النشطة
+  late double _yawMultiplier = _defYawMult;
+  late double _pitchMultiplier = _defPitchMult;
+  late double _rollMultiplier = _defRollMult;
+  late double _smoothingFactor = _defSmooth;
+  late double _deadzoneRadius = _defDeadzone;
+  late double _yawLimit = _defYawLim;
+  late double _pitchLimit = _defPitchLim;
+  late double _rollLimit = _defRollLim;
 
-  // --- الحدود القصوى (Limits) والدفولت كما طلبتها بالضبط ---
-  double _yawLimit = 90.0;
-  double _pitchLimit = 60.0;
-  double _rollLimit = 15.0;
+  // إعدادات الانعكاس (Invert Axes)
+  bool _invertYaw = false;
+  bool _invertPitch = false;
+  bool _invertRoll = false;
 
   // نظام البروفايلات
   String _currentProfile = "Default";
   List<String> _profileNames = ["Default"];
-  Map<String, Map<String, double>> _profilesData = {};
+  Map<String, Map<String, dynamic>> _profilesData = {};
 
   bool _isLowLight = false;
   DateTime? _lastFaceDetectedTime;
@@ -110,7 +122,7 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
     super.dispose();
   }
 
-  // --- تهيئة شبكة الـ UDP وإرسال الأوامر ---
+  // --- تهيئة شبكة الـ UDP وإرسال الأوامر (مخصصة لـ X-Plane) ---
   Future<void> _initUdpSocket() async {
     try {
       _udpSocket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
@@ -120,7 +132,6 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
   }
 
   void _startUdpSender() {
-    // إرسال البيانات بمعدل 30 مرة في الثانية (كل 33 مللي ثانية) لضمان حركة سلسة وواقعية جداً
     _udpSenderTimer = Timer.periodic(const Duration(milliseconds: 33), (timer) {
       if (_isTracking && _udpSocket != null) {
         _sendDrefPacket("sim/graphics/view/pilots_head_psi", _smoothedYaw);
@@ -135,7 +146,6 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
   }
 
   void _sendDrefPacket(String dref, double value) {
-    // استخدام الـ widget.targetIp اللي هتربطه من الـ App State
     String activeIp =
         widget.targetIp.isNotEmpty ? widget.targetIp : "192.168.1.100";
     if (_udpSocket == null || activeIp.isEmpty) return;
@@ -160,27 +170,29 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
     return bd.buffer.asUint8List();
   }
 
-  // --- نظام البروفايلات (حفظ واسترجاع) ---
+  // --- نظام البروفايلات الاحترافي ---
   Future<void> _loadProfiles() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? profilesJson = prefs.getString('tracker_profiles_v4');
+    final String? profilesJson = prefs.getString('tracker_profiles_xplane_v5');
 
     if (profilesJson != null) {
       final Map<String, dynamic> decoded = json.decode(profilesJson);
       setState(() {
         _profilesData = decoded.map(
-            (key, value) => MapEntry(key, Map<String, double>.from(value)));
+            (key, value) => MapEntry(key, Map<String, dynamic>.from(value)));
         _profileNames = _profilesData.keys.toList();
-        if (!_profileNames.contains("Default"))
+        if (!_profileNames.contains("Default")) {
           _profileNames.insert(0, "Default");
+        }
       });
     }
   }
 
-  Future<void> _saveCurrentProfile(String profileName) async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> _autoSaveCurrentProfile() async {
+    if (_currentProfile == "Default") return;
 
-    _profilesData[profileName] = {
+    final prefs = await SharedPreferences.getInstance();
+    _profilesData[_currentProfile] = {
       'yawMult': _yawMultiplier,
       'pitchMult': _pitchMultiplier,
       'rollMult': _rollMultiplier,
@@ -189,47 +201,60 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
       'yawLim': _yawLimit,
       'pitchLim': _pitchLimit,
       'rollLim': _rollLimit,
+      'invYaw': _invertYaw,
+      'invPitch': _invertPitch,
+      'invRoll': _invertRoll,
     };
-
-    await prefs.setString('tracker_profiles_v4', json.encode(_profilesData));
-
-    setState(() {
-      if (!_profileNames.contains(profileName)) _profileNames.add(profileName);
-      _currentProfile = profileName;
-    });
+    await prefs.setString(
+        'tracker_profiles_xplane_v5', json.encode(_profilesData));
   }
 
   void _applyProfile(String profileName) {
-    if (_profilesData.containsKey(profileName)) {
-      final data = _profilesData[profileName]!;
-      setState(() {
-        _currentProfile = profileName;
-        _yawMultiplier = data['yawMult'] ?? 3.0;
-        _pitchMultiplier = data['pitchMult'] ?? 2.0;
-        _rollMultiplier = data['rollMult'] ?? 1.0;
-        _smoothingFactor = data['smooth'] ?? 0.2;
-        _deadzoneRadius = data['deadzone'] ?? 2.0;
-        _yawLimit = data['yawLim'] ?? 90.0;
-        _pitchLimit = data['pitchLim'] ?? 60.0;
-        _rollLimit = data['rollLim'] ?? 15.0;
-      });
-    }
+    setState(() {
+      _currentProfile = profileName;
+      if (profileName == "Default") {
+        _yawMultiplier = _defYawMult;
+        _pitchMultiplier = _defPitchMult;
+        _rollMultiplier = _defRollMult;
+        _smoothingFactor = _defSmooth;
+        _deadzoneRadius = _defDeadzone;
+        _yawLimit = _defYawLim;
+        _pitchLimit = _defPitchLim;
+        _rollLimit = _defRollLim;
+        _invertYaw = false;
+        _invertPitch = false;
+        _invertRoll = false;
+      } else if (_profilesData.containsKey(profileName)) {
+        final data = _profilesData[profileName]!;
+        _yawMultiplier = data['yawMult'] ?? _defYawMult;
+        _pitchMultiplier = data['pitchMult'] ?? _defPitchMult;
+        _rollMultiplier = data['rollMult'] ?? _defRollMult;
+        _smoothingFactor = data['smooth'] ?? _defSmooth;
+        _deadzoneRadius = data['deadzone'] ?? _defDeadzone;
+        _yawLimit = data['yawLim'] ?? _defYawLim;
+        _pitchLimit = data['pitchLim'] ?? _defPitchLim;
+        _rollLimit = data['rollLim'] ?? _defRollLim;
+        _invertYaw = data['invYaw'] ?? false;
+        _invertPitch = data['invPitch'] ?? false;
+        _invertRoll = data['invRoll'] ?? false;
+      }
+    });
   }
 
-  Future<void> _showSaveProfileDialog() async {
+  Future<void> _addNewProfileDialog() async {
     TextEditingController controller = TextEditingController();
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF0B111A),
-          title: const Text("Save Profile As",
+          title: const Text("Create New Profile",
               style: TextStyle(color: Color(0xFF639DF0))),
           content: TextField(
             controller: controller,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
-              hintText: "e.g., A320 Fenix",
+              hintText: "Enter profile name...",
               hintStyle: TextStyle(color: Colors.white54),
               enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Color(0xFF639DF0))),
@@ -243,10 +268,72 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF639DF0)),
-              onPressed: () {
-                if (controller.text.isNotEmpty)
-                  _saveCurrentProfile(controller.text);
-                Navigator.pop(context);
+              onPressed: () async {
+                String newName = controller.text.trim();
+                if (newName.isNotEmpty &&
+                    newName != "Default" &&
+                    !_profileNames.contains(newName)) {
+                  setState(() {
+                    _profileNames.add(newName);
+                    _currentProfile = newName;
+                  });
+                  await _autoSaveCurrentProfile();
+                  if (mounted) Navigator.pop(context);
+                }
+              },
+              child:
+                  const Text("Create", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _renameProfileDialog() async {
+    if (_currentProfile == "Default") return;
+    TextEditingController controller =
+        TextEditingController(text: _currentProfile);
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF0B111A),
+          title: const Text("Rename Profile",
+              style: TextStyle(color: Color(0xFF639DF0))),
+          content: TextField(
+            controller: controller,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF639DF0))),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF639DF0)),
+              onPressed: () async {
+                String newName = controller.text.trim();
+                if (newName.isNotEmpty &&
+                    newName != "Default" &&
+                    newName != _currentProfile) {
+                  final prefs = await SharedPreferences.getInstance();
+                  setState(() {
+                    _profilesData[newName] = _profilesData[_currentProfile]!;
+                    _profilesData.remove(_currentProfile);
+                    int index = _profileNames.indexOf(_currentProfile);
+                    if (index != -1) _profileNames[index] = newName;
+                    _currentProfile = newName;
+                  });
+                  await prefs.setString(
+                      'tracker_profiles_xplane_v5', json.encode(_profilesData));
+                  if (mounted) Navigator.pop(context);
+                }
               },
               child: const Text("Save", style: TextStyle(color: Colors.white)),
             ),
@@ -256,7 +343,20 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
     );
   }
 
-  // --- نافذة كتابة الأرقام يدوياً (الكيبورد الوهمي) ---
+  Future<void> _deleteProfile() async {
+    if (_currentProfile == "Default") return;
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _profilesData.remove(_currentProfile);
+      _profileNames.remove(_currentProfile);
+      _currentProfile = "Default";
+      _applyProfile("Default");
+    });
+    await prefs.setString(
+        'tracker_profiles_xplane_v5', json.encode(_profilesData));
+  }
+
+  // --- نافذة كتابة الأرقام يدوياً ---
   Future<void> _showEditNumberDialog(String label, double currentValue,
       double minVal, double maxVal, Function(double) onSaved) async {
     TextEditingController numController =
@@ -334,7 +434,7 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
         _lastFaceDetectedTime = DateTime.now();
       });
 
-      _startUdpSender(); // تشغيل الإرسال للمحاكي تلقائياً عند بدء التتبع
+      _startUdpSender();
 
       _lowLightCheckTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
         if (_isTracking && _lastFaceDetectedTime != null) {
@@ -365,7 +465,7 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
     await _cameraController?.dispose();
     _cameraController = null;
     _lowLightCheckTimer?.cancel();
-    _stopUdpSender(); // إيقاف الإرسال للمحاكي
+    _stopUdpSender();
     if (!mounted) return;
     setState(() {
       _isTracking = false;
@@ -387,6 +487,15 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
       _smoothedYaw = 0.0;
       _smoothedPitch = 0.0;
       _smoothedRoll = 0.0;
+      _isRecenteringEffect = true; // تشغيل إيفيكت السنترة
+    });
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isRecenteringEffect = false;
+        });
+      }
     });
   }
 
@@ -420,12 +529,17 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
         if (calPitch.abs() < _deadzoneRadius) calPitch = 0.0;
         if (calRoll.abs() < _deadzoneRadius) calRoll = 0.0;
 
+        // تطبيق العكس (Invert)
+        double dirYaw = _invertYaw ? -calYaw : calYaw;
+        double dirPitch = _invertPitch ? -calPitch : calPitch;
+        double dirRoll = _invertRoll ? -calRoll : calRoll;
+
         double targetYaw =
-            (calYaw * _yawMultiplier).clamp(-_yawLimit, _yawLimit);
+            (dirYaw * _yawMultiplier).clamp(-_yawLimit, _yawLimit);
         double targetPitch =
-            (calPitch * _pitchMultiplier).clamp(-_pitchLimit, _pitchLimit);
+            (dirPitch * _pitchMultiplier).clamp(-_pitchLimit, _pitchLimit);
         double targetRoll =
-            (calRoll * _rollMultiplier).clamp(-_rollLimit, _rollLimit);
+            (dirRoll * _rollMultiplier).clamp(-_rollLimit, _rollLimit);
 
         _smoothedYaw = (_smoothedYaw * (1 - _smoothingFactor)) +
             (targetYaw * _smoothingFactor);
@@ -451,10 +565,10 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
       color: const Color(0xFF0B111A),
       child: Column(
         children: [
-          // --- الشريط العلوي (Top Bar) ---
+          // الشريط العلوي مصمم بذكاء لمنع خروج العناصر من الشاشة
           Container(
             padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
             decoration: BoxDecoration(
               color: const Color(0xFF0B111A),
               border: Border(
@@ -463,53 +577,71 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                       width: 1)),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("SIM STATION EFB",
+                const Expanded(
+                  child: Text(
+                    "COCKPIT HEAD TRACKER",
                     style: TextStyle(
                         color: Color(0xFF639DF0),
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2)),
+                        letterSpacing: 1.0),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                       icon: Icon(Icons.tune,
                           color: _showSettings
                               ? Colors.white
-                              : const Color(0xFF639DF0)),
+                              : const Color(0xFF639DF0),
+                          size: 22),
                       onPressed: () =>
                           setState(() => _showSettings = !_showSettings),
                     ),
-                    const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E2633),
-                        side: const BorderSide(
-                            color: Color(0xFF639DF0), width: 1),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      height: 32,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          backgroundColor: const Color(0xFF1E2633),
+                          side: const BorderSide(
+                              color: Color(0xFF639DF0), width: 1),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6)),
+                        ),
+                        onPressed: _isTracking ? _recenter : null,
+                        icon: const Icon(Icons.center_focus_strong,
+                            color: Colors.white, size: 14),
+                        label: const Text("Center",
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 12)),
                       ),
-                      onPressed: _isTracking ? _recenter : null,
-                      icon: const Icon(Icons.center_focus_strong,
-                          color: Colors.white, size: 16),
-                      label: const Text("Recenter",
-                          style: TextStyle(color: Colors.white)),
                     ),
                     const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _isTracking
-                            ? Colors.redAccent
-                            : const Color(0xFF639DF0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
+                    SizedBox(
+                      height: 32,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          backgroundColor: _isTracking
+                              ? Colors.redAccent
+                              : const Color(0xFF639DF0),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6)),
+                        ),
+                        onPressed: _isTracking ? _stopTracking : _startTracking,
+                        icon: Icon(_isTracking ? Icons.stop : Icons.play_arrow,
+                            color: Colors.white, size: 14),
+                        label: Text(_isTracking ? "Stop" : "Start",
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12)),
                       ),
-                      onPressed: _isTracking ? _stopTracking : _startTracking,
-                      icon: Icon(_isTracking ? Icons.stop : Icons.play_arrow,
-                          color: Colors.white, size: 16),
-                      label: Text(_isTracking ? "Stop" : "Start",
-                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),
@@ -544,14 +676,26 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
           Expanded(
             child: Stack(
               children: [
-                // 1. المحاكي الوهمي (الرؤية)
-                Container(
+                // المحاكي الوهمي مع إيفيكت السنترة
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
                   margin: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.black,
-                    border:
-                        Border.all(color: const Color(0xFF1E2633), width: 2),
+                    border: Border.all(
+                        color: _isRecenteringEffect
+                            ? Colors.greenAccent
+                            : const Color(0xFF1E2633),
+                        width: _isRecenteringEffect ? 3 : 2),
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: _isRecenteringEffect
+                        ? [
+                            BoxShadow(
+                                color: Colors.greenAccent.withOpacity(0.5),
+                                blurRadius: 15,
+                                spreadRadius: 2)
+                          ]
+                        : [],
                   ),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
@@ -596,13 +740,16 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                                   color: const Color(0xFF1E2633))),
                           Align(
                             alignment: Alignment.center,
-                            child: Container(
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
                               width: deadzoneVisualSize,
                               height: deadzoneVisualSize,
                               decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                      color: Colors.grey.withOpacity(0.2),
+                                      color: _isRecenteringEffect
+                                          ? Colors.greenAccent
+                                          : Colors.grey.withOpacity(0.2),
                                       width: 1),
                                   color: Colors.white.withOpacity(0.02)),
                             ),
@@ -612,15 +759,20 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                             top: clampedY,
                             child: Transform.rotate(
                               angle: _smoothedRoll * (pi / 180),
-                              child: Container(
-                                width: 20,
-                                height: 20,
-                                decoration: const BoxDecoration(
-                                    color: Color(0xFF639DF0),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 100),
+                                width: _isRecenteringEffect ? 24 : 20,
+                                height: _isRecenteringEffect ? 24 : 20,
+                                decoration: BoxDecoration(
+                                    color: _isRecenteringEffect
+                                        ? Colors.greenAccent
+                                        : const Color(0xFF639DF0),
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                          color: Color(0xFF639DF0),
+                                          color: _isRecenteringEffect
+                                              ? Colors.greenAccent
+                                              : const Color(0xFF639DF0),
                                           blurRadius: 12,
                                           spreadRadius: 3)
                                     ]),
@@ -638,7 +790,7 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                   ),
                 ),
 
-                // 2. نافذة الإعدادات الشفافة (Glassmorphism)
+                // نافذة الإعدادات الشفافة بنظام البروفايلات الجديد
                 if (_showSettings)
                   Positioned(
                     top: 16,
@@ -664,52 +816,99 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // البروفايلات
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text("AIRCRAFT PROFILES",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1.5)),
-                                Row(
-                                  children: [
-                                    DropdownButton<String>(
-                                      value: _currentProfile,
-                                      dropdownColor: const Color(0xFF1E2633),
-                                      style: const TextStyle(
-                                          color: Color(0xFF639DF0),
-                                          fontWeight: FontWeight.bold),
-                                      underline: Container(),
-                                      items: _profileNames
-                                          .map((String value) =>
-                                              DropdownMenuItem<String>(
-                                                  value: value,
-                                                  child: Text(value)))
-                                          .toList(),
-                                      onChanged: (val) {
-                                        if (val != null) _applyProfile(val);
-                                      },
-                                    ),
-                                    const SizedBox(width: 12),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              const Color(0xFF1E2633),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(6))),
-                                      onPressed: _showSaveProfileDialog,
-                                      child: const Text("Save",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12)),
-                                    ),
-                                  ],
+                                const Expanded(
+                                  child: Text("PROFILES",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1.5,
+                                          fontSize: 14)),
                                 ),
+                                Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  decoration: BoxDecoration(
+                                      color: const Color(0xFF1E2633),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border:
+                                          Border.all(color: Colors.white24)),
+                                  child: DropdownButton<String>(
+                                    value: _currentProfile,
+                                    dropdownColor: const Color(0xFF1E2633),
+                                    style: const TextStyle(
+                                        color: Color(0xFF639DF0),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12),
+                                    underline: Container(),
+                                    icon: const Icon(Icons.arrow_drop_down,
+                                        color: Color(0xFF639DF0), size: 18),
+                                    items: _profileNames
+                                        .map((String value) =>
+                                            DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(value)))
+                                        .toList(),
+                                    onChanged: (val) {
+                                      if (val != null) _applyProfile(val);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                if (_currentProfile == "Default")
+                                  IconButton(
+                                    icon: const Icon(Icons.add_circle,
+                                        color: Color(0xFF639DF0)),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: _addNewProfileDialog,
+                                  )
+                                else ...[
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.white70, size: 20),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: _renameProfileDialog,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.redAccent, size: 20),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: _deleteProfile,
+                                  ),
+                                ],
                               ],
                             ),
+                            const Divider(color: Colors.white24, height: 30),
+
+                            const Text("AXIS INVERSION",
+                                style: TextStyle(
+                                    color: Color(0xFF639DF0),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildInvertButton("Yaw", _invertYaw, () {
+                                  setState(() => _invertYaw = !_invertYaw);
+                                  _autoSaveCurrentProfile();
+                                }),
+                                _buildInvertButton("Pitch", _invertPitch, () {
+                                  setState(() => _invertPitch = !_invertPitch);
+                                  _autoSaveCurrentProfile();
+                                }),
+                                _buildInvertButton("Roll", _invertRoll, () {
+                                  setState(() => _invertRoll = !_invertRoll);
+                                  _autoSaveCurrentProfile();
+                                }),
+                              ],
+                            ),
+
                             const Divider(color: Colors.white24, height: 30),
 
                             // قسم الحساسية (Multipliers)
@@ -720,24 +919,21 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                                     fontWeight: FontWeight.bold)),
                             const SizedBox(height: 10),
                             _buildSliderWithInput(
-                                "Yaw Speed",
-                                _yawMultiplier,
-                                1.0,
-                                5.0,
-                                (val) => setState(() => _yawMultiplier = val)),
+                                "Yaw Speed", _yawMultiplier, 1.0, 5.0, (val) {
+                              setState(() => _yawMultiplier = val);
+                              _autoSaveCurrentProfile();
+                            }),
                             _buildSliderWithInput(
-                                "Pitch Speed",
-                                _pitchMultiplier,
-                                1.0,
-                                5.0,
-                                (val) =>
-                                    setState(() => _pitchMultiplier = val)),
+                                "Pitch Speed", _pitchMultiplier, 1.0, 5.0,
+                                (val) {
+                              setState(() => _pitchMultiplier = val);
+                              _autoSaveCurrentProfile();
+                            }),
                             _buildSliderWithInput(
-                                "Roll Speed",
-                                _rollMultiplier,
-                                1.0,
-                                5.0,
-                                (val) => setState(() => _rollMultiplier = val)),
+                                "Roll Speed", _rollMultiplier, 1.0, 5.0, (val) {
+                              setState(() => _rollMultiplier = val);
+                              _autoSaveCurrentProfile();
+                            }),
 
                             const Divider(color: Colors.white24, height: 30),
 
@@ -749,23 +945,20 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                                     fontWeight: FontWeight.bold)),
                             const SizedBox(height: 10),
                             _buildSliderWithInput(
-                                "Yaw Limit",
-                                _yawLimit,
-                                30.0,
-                                180.0,
-                                (val) => setState(() => _yawLimit = val)),
+                                "Yaw Limit", _yawLimit, 30.0, 180.0, (val) {
+                              setState(() => _yawLimit = val);
+                              _autoSaveCurrentProfile();
+                            }),
                             _buildSliderWithInput(
-                                "Pitch Limit",
-                                _pitchLimit,
-                                30.0,
-                                110.0,
-                                (val) => setState(() => _pitchLimit = val)),
+                                "Pitch Limit", _pitchLimit, 30.0, 110.0, (val) {
+                              setState(() => _pitchLimit = val);
+                              _autoSaveCurrentProfile();
+                            }),
                             _buildSliderWithInput(
-                                "Roll Limit",
-                                _rollLimit,
-                                0.0,
-                                45.0,
-                                (val) => setState(() => _rollLimit = val)),
+                                "Roll Limit", _rollLimit, 0.0, 45.0, (val) {
+                              setState(() => _rollLimit = val);
+                              _autoSaveCurrentProfile();
+                            }),
 
                             const Divider(color: Colors.white24, height: 30),
 
@@ -777,18 +970,16 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                                     fontWeight: FontWeight.bold)),
                             const SizedBox(height: 10),
                             _buildSliderWithInput(
-                                "Smoothing",
-                                _smoothingFactor,
-                                0.05,
-                                1.0,
-                                (val) =>
-                                    setState(() => _smoothingFactor = val)),
+                                "Smoothing", _smoothingFactor, 0.05, 1.0,
+                                (val) {
+                              setState(() => _smoothingFactor = val);
+                              _autoSaveCurrentProfile();
+                            }),
                             _buildSliderWithInput(
-                                "Deadzone",
-                                _deadzoneRadius,
-                                0.0,
-                                15.0,
-                                (val) => setState(() => _deadzoneRadius = val)),
+                                "Deadzone", _deadzoneRadius, 0.0, 15.0, (val) {
+                              setState(() => _deadzoneRadius = val);
+                              _autoSaveCurrentProfile();
+                            }),
                           ],
                         ),
                       ),
@@ -802,7 +993,49 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
     );
   }
 
-  // أداة بناء الـ Slider مع مربع الإدخال (EFB Style Container)
+  // زر العكس الاحترافي (Invert)
+  Widget _buildInvertButton(String label, bool isSelected, VoidCallback onTap) {
+    return InkWell(
+      onTap: _currentProfile == "Default" ? null : onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF639DF0).withOpacity(0.2)
+              : const Color(0xFF1E2633),
+          border: Border.all(
+              color: isSelected ? const Color(0xFF639DF0) : Colors.white24),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? Icons.swap_horiz : Icons.arrow_right_alt,
+              color: _currentProfile == "Default"
+                  ? Colors.white24
+                  : (isSelected ? const Color(0xFF639DF0) : Colors.white54),
+              size: 14,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              "Inv $label",
+              style: TextStyle(
+                color: _currentProfile == "Default"
+                    ? Colors.white24
+                    : (isSelected ? const Color(0xFF639DF0) : Colors.white54),
+                fontWeight: FontWeight.bold,
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // أداة بناء الـ Slider مع مربع الإدخال
   Widget _buildSliderWithInput(String label, double value, double minVal,
       double maxVal, Function(double) onChanged) {
     return Padding(
@@ -810,11 +1043,11 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
       child: Row(
         children: [
           SizedBox(
-            width: 90,
+            width: 85,
             child: Text(label,
                 style: const TextStyle(
                     color: Colors.white70,
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w500)),
           ),
           Expanded(
@@ -822,31 +1055,39 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
               value: value,
               min: minVal,
               max: maxVal,
-              activeColor: const Color(0xFF639DF0),
+              activeColor: _currentProfile == "Default"
+                  ? Colors.grey
+                  : const Color(0xFF639DF0),
               inactiveColor: Colors.white12,
-              onChanged: onChanged,
+              onChanged: _currentProfile == "Default" ? null : onChanged,
             ),
           ),
           InkWell(
-            onTap: () =>
-                _showEditNumberDialog(label, value, minVal, maxVal, onChanged),
+            onTap: _currentProfile == "Default"
+                ? null
+                : () => _showEditNumberDialog(
+                    label, value, minVal, maxVal, onChanged),
             borderRadius: BorderRadius.circular(6),
             child: Container(
-              width: 55,
+              width: 50,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
                 color: const Color(0xFF1E2633),
-                border:
-                    Border.all(color: const Color(0xFF639DF0).withOpacity(0.5)),
+                border: Border.all(
+                    color: _currentProfile == "Default"
+                        ? Colors.white12
+                        : const Color(0xFF639DF0).withOpacity(0.5)),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 value.toStringAsFixed(1),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.white,
+                style: TextStyle(
+                    color: _currentProfile == "Default"
+                        ? Colors.white54
+                        : Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 12),
+                    fontSize: 11),
               ),
             ),
           ),

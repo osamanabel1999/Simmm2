@@ -47,3 +47,4 @@ export '/custom_code/widgets/efb_home_screen_xplane.dart'
 export '/custom_code/widgets/head_tracker_widget.dart' show HeadTrackerWidget;
 export '/custom_code/widgets/head_tracker_widget_m_s_f_s.dart'
     show HeadTrackerWidgetMSFS;
+export '/custom_code/widgets/ai_dispatcher_screen.dart' show AiDispatcherScreen;

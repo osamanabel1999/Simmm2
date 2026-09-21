@@ -50,3 +50,4 @@ export '/head_track_xplane/head_track_xplane_widget.dart'
     show HeadTrackXplaneWidget;
 export '/head_track_m_s_f_s/head_track_m_s_f_s_widget.dart'
     show HeadTrackMSFSWidget;
+export '/test/test_widget.dart' show TestWidget;
