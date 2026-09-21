@@ -30,32 +30,45 @@ Future checkAppNotification(BuildContext context) async {
 
     final updateInfo = data['update'];
     final announcementInfo = data['announcement'];
+    final promoBannerInfo = data['promo_banner']; // القسم الجديد للبانر
 
-    // 1. نظام فحص التحديثات
+    // 1. نظام فحص التحديثات (الأسبق دائماً)
     if (updateInfo != null && updateInfo['latest_version'] != null) {
       final String latestVersion = updateInfo['latest_version'];
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       String currentVersion = packageInfo.version;
 
-      // لو نسخة جيت هاب أحدث من نسخة الموبايل
       if (_isNewerVersion(latestVersion, currentVersion)) {
         if (!context.mounted) return;
         _showUpdateSheet(context, updateInfo, appStoreLink);
-        return; // توقف هنا، لا تعرض الإشعار العادي إذا كان هناك تحديث إجباري/اختياري
+        return;
       }
     }
 
-    // 2. نظام الإشعارات (الظهور لمرة واحدة)
+    // 2. نظام الإشعارات العادية (الظهور لمرة واحدة)
     if (announcementInfo != null && announcementInfo['message_id'] != null) {
       final int messageId = announcementInfo['message_id'];
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       int lastSeenId = prefs.getInt('last_seen_message_id') ?? 0;
 
-      // لو رقم الإشعار في جيت هاب أكبر من اللي متسجل في الموبايل
       if (messageId > lastSeenId) {
         if (!context.mounted) return;
         _showAnnouncementSheet(context, announcementInfo, messageId, prefs);
+        return; // توقف لعرض رسالة واحدة في المرة
+      }
+    }
+
+    // 3. نظام البانر الإعلاني الجديد (بالصورة والزرار المخصص)
+    if (promoBannerInfo != null && promoBannerInfo['show'] == true) {
+      final int bannerId = promoBannerInfo['banner_id'] ?? 1;
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      int lastSeenBannerId = prefs.getInt('last_seen_banner_id') ?? 0;
+
+      if (bannerId > lastSeenBannerId) {
+        if (!context.mounted) return;
+        _showPromoBannerSheet(context, promoBannerInfo, bannerId, prefs);
       }
     }
   } catch (e) {
@@ -63,7 +76,7 @@ Future checkAppNotification(BuildContext context) async {
   }
 }
 
-// دالة ذكية لمقارنة أرقام الإصدارات (مثلاً 1.0.2 أكبر من 1.0.1)
+// دالة لمقارنة الإصدارات
 bool _isNewerVersion(String latest, String current) {
   List<String> lParts = latest.split('.');
   List<String> cParts = current.split('.');
@@ -76,7 +89,7 @@ bool _isNewerVersion(String latest, String current) {
   return false;
 }
 
-// تصميم نافذة التحديث (Update UI)
+// 1. تصميم نافذة التحديث (قديم كما هو)
 void _showUpdateSheet(
     BuildContext context, Map<dynamic, dynamic> info, String storeLink) {
   final String title = info['title'] ?? 'New Update Available';
@@ -85,18 +98,17 @@ void _showUpdateSheet(
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: const Color(0xFF101923), // لون الكروت
+    backgroundColor: const Color(0xFF101923),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      side: BorderSide(color: Color(0xFF26364D), width: 1.5), // لون الحواف
+      side: BorderSide(color: Color(0xFF26364D), width: 1.5),
     ),
     builder: (context) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment:
-              CrossAxisAlignment.start, // محاذاة لليسار للانجليزي
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
               child: Container(
@@ -126,7 +138,6 @@ void _showUpdateSheet(
               ],
             ),
             const SizedBox(height: 20),
-            // عرض المميزات الجديدة كنقاط (Bullet Points)
             ...features
                 .map((feature) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -152,7 +163,6 @@ void _showUpdateSheet(
                     ))
                 .toList(),
             const SizedBox(height: 30),
-            // زر الأبديت
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -176,7 +186,6 @@ void _showUpdateSheet(
               ),
             ),
             const SizedBox(height: 12),
-            // زر التجاهل
             SizedBox(
               width: double.infinity,
               height: 48,
@@ -201,7 +210,7 @@ void _showUpdateSheet(
   );
 }
 
-// تصميم نافذة الإشعار العادي (Announcement UI)
+// 2. تصميم نافذة الإشعار العادي (قديم كما هو)
 void _showAnnouncementSheet(BuildContext context, Map<dynamic, dynamic> info,
     int messageId, SharedPreferences prefs) {
   final String title = info['title'] ?? 'Notice';
@@ -255,7 +264,6 @@ void _showAnnouncementSheet(BuildContext context, Map<dynamic, dynamic> info,
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () {
-                  // تسجيل رقم الرسالة في الذاكرة عشان متظهرش تاني
                   prefs.setInt('last_seen_message_id', messageId);
                   Navigator.pop(context);
                 },
@@ -265,6 +273,111 @@ void _showAnnouncementSheet(BuildContext context, Map<dynamic, dynamic> info,
                         fontWeight: FontWeight.bold,
                         color: Colors.white)),
               ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+// 3. تصميم البانر الإعلاني الجديد الاحترافي (بالصورة والزرار المخصص)
+void _showPromoBannerSheet(BuildContext context, Map<dynamic, dynamic> info,
+    int bannerId, SharedPreferences prefs) {
+  final String imageUrl = info['image_url'] ?? '';
+  final String title = info['title'] ?? 'Special Announcement';
+  final String body = info['body'] ?? '';
+  final String buttonText = info['button_text'] ?? 'Explore Now';
+  final String buttonLink = info['button_link'] ?? '';
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: const Color(0xFF101923),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      side: BorderSide(color: Color(0xFF26364D), width: 1.5),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFF26364D),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // عرض الصورة بشكل احترافي بحواف دائرية
+            if (imageUrl.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(
+                  imageUrl,
+                  height: 160,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox.shrink(),
+                ),
+              ),
+            if (imageUrl.isNotEmpty) const SizedBox(height: 20),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              body,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 15, color: Color(0xFF8B949E), height: 1.4),
+            ),
+            const SizedBox(height: 25),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF639DF0),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () async {
+                  prefs.setInt('last_seen_banner_id', bannerId);
+                  Navigator.pop(context);
+                  if (buttonLink.isNotEmpty) {
+                    final Uri url = Uri.parse(buttonLink);
+                    if (await canLaunchUrl(url)) {
+                      await launchUrl(url,
+                          mode: LaunchMode.externalApplication);
+                    }
+                  }
+                },
+                child: Text(buttonText,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white)),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: () {
+                prefs.setInt('last_seen_banner_id', bannerId);
+                Navigator.pop(context);
+              },
+              child: const Text('Dismiss',
+                  style: TextStyle(color: Color(0xFF8B949E), fontSize: 14)),
             ),
           ],
         ),

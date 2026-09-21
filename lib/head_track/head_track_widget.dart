@@ -4,6 +4,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'head_track_model.dart';
 export 'head_track_model.dart';
 
@@ -37,6 +38,8 @@ class _HeadTrackWidgetState extends State<HeadTrackWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -63,7 +66,7 @@ class _HeadTrackWidgetState extends State<HeadTrackWidget> {
             },
           ),
           title: Text(
-            'Page Title',
+            ' ',
             style: FlutterFlowTheme.of(context).headlineMedium.override(
                   font: GoogleFonts.interTight(
                     fontWeight:
@@ -96,6 +99,7 @@ class _HeadTrackWidgetState extends State<HeadTrackWidget> {
                   child: custom_widgets.HeadTrackerWidget(
                     width: double.infinity,
                     height: double.infinity,
+                    targetIp: FFAppState().ipPC,
                   ),
                 ),
               ),
