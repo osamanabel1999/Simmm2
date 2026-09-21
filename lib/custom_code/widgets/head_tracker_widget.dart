@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'dart:math';
+import 'dart:async'; // نحتاجه لحساب وقت الإضاءة المنخفضة
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
@@ -35,25 +36,41 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
       enableLandmarks: false,
       enableClassification: false,
       enableTracking: false,
-      performanceMode: FaceDetectorMode.fast, // وضع سريع
+      performanceMode: FaceDetectorMode.fast,
     ),
   );
 
   bool _isTracking = false;
   bool _isProcessing = false;
 
+  // القيم الخام والمنعمة
   double _rawYaw = 0.0;
   double _rawPitch = 0.0;
   double _smoothedYaw = 0.0;
   double _smoothedPitch = 0.0;
 
-  final double _smoothingFactor = 0.3;
-  final double _multiplier = 2.5;
+  // 1. إعدادات السنترة (Recenter)
+  double _yawOffset = 0.0;
+  double _pitchOffset = 0.0;
+
+  // 2. إعدادات المستخدم (Sensitivity, Smoothing, Deadzone, Invert)
+  double _multiplier = 2.5; // الحساسية
+  double _smoothingFactor = 0.3; // النعومة (رقم أصغر = أنعم بس أبطأ)
+  double _deadzoneRadius =
+      2.5; // حجم المنطقة الميتة بالدرجات (لا توجد حركة بداخلها)
+  bool _invertYaw = true; // عكس حركة اليمين والشمال
+  bool _invertPitch = true; // عكس حركة الفوق والتحت
+
+  // 3. نظام تحذير الإضاءة المنخفضة
+  bool _isLowLight = false;
+  DateTime? _lastFaceDetectedTime;
+  Timer? _lowLightCheckTimer;
 
   @override
   void dispose() {
     _cameraController?.dispose();
     _faceDetector.close();
+    _lowLightCheckTimer?.cancel();
     super.dispose();
   }
 
@@ -77,6 +94,26 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
 
       setState(() {
         _isTracking = true;
+        _isLowLight = false;
+        _lastFaceDetectedTime = DateTime.now();
+      });
+
+      // مؤقت يراجع هل الوش اختفى لفترة طويلة (بسبب الضلمة)
+      _lowLightCheckTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (_isTracking && _lastFaceDetectedTime != null) {
+          final timeSinceLastFace =
+              DateTime.now().difference(_lastFaceDetectedTime!).inMilliseconds;
+          if (timeSinceLastFace > 2500 && !_isLowLight) {
+            // لو عدى 2.5 ثانية ومفيش وش، نطلع تحذير الإضاءة
+            setState(() {
+              _isLowLight = true;
+            });
+          } else if (timeSinceLastFace <= 2500 && _isLowLight) {
+            setState(() {
+              _isLowLight = false;
+            });
+          }
+        }
       });
 
       _cameraController!.startImageStream((CameraImage image) {
@@ -93,11 +130,23 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
     await _cameraController?.stopImageStream();
     await _cameraController?.dispose();
     _cameraController = null;
+    _lowLightCheckTimer?.cancel();
     if (!mounted) return;
     setState(() {
       _isTracking = false;
+      _isLowLight = false;
       _rawYaw = 0.0;
       _rawPitch = 0.0;
+      _smoothedYaw = 0.0;
+      _smoothedPitch = 0.0;
+    });
+  }
+
+  // دالة السنترة (بتعتبر الوضع الحالي هو الصفر)
+  void _recenter() {
+    setState(() {
+      _yawOffset = _rawYaw;
+      _pitchOffset = _rawPitch;
       _smoothedYaw = 0.0;
       _smoothedPitch = 0.0;
     });
@@ -120,14 +169,33 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
       final faces = await _faceDetector.processImage(inputImage);
 
       if (faces.isNotEmpty) {
-        final face = faces.first;
-        final newYaw = face.headEulerAngleY ?? 0.0;
-        final newPitch = face.headEulerAngleX ?? 0.0;
+        _lastFaceDetectedTime = DateTime.now(); // تحديث وقت آخر وش تم اكتشافه
 
+        final face = faces.first;
+
+        // جلب الزوايا الخام
+        double newYaw = face.headEulerAngleY ?? 0.0;
+        double newPitch = face.headEulerAngleX ?? 0.0;
+
+        // تطبيق العكس (Invert) لو متفعل
+        if (_invertYaw) newYaw = -newYaw;
+        if (_invertPitch) newPitch = -newPitch;
+
+        // تطبيق السنترة (Offset)
+        double calibratedYaw = newYaw - (_invertYaw ? -_yawOffset : _yawOffset);
+        double calibratedPitch =
+            newPitch - (_invertPitch ? -_pitchOffset : _pitchOffset);
+
+        // تطبيق المنطقة الميتة (Deadzone)
+        // لو الحركة أصغر من الـ Radius اللي حددناه، اعتبرها صفر
+        if (calibratedYaw.abs() < _deadzoneRadius) calibratedYaw = 0.0;
+        if (calibratedPitch.abs() < _deadzoneRadius) calibratedPitch = 0.0;
+
+        // تطبيق التنعيم (Smoothing)
         _smoothedYaw = (_smoothedYaw * (1 - _smoothingFactor)) +
-            (newYaw * _smoothingFactor);
+            (calibratedYaw * _smoothingFactor);
         _smoothedPitch = (_smoothedPitch * (1 - _smoothingFactor)) +
-            (newPitch * _smoothingFactor);
+            (calibratedPitch * _smoothingFactor);
 
         if (mounted) {
           setState(() {
@@ -145,13 +213,13 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // استخدمنا الـ width والـ height بتوع FlutterFlow هنا
     return Container(
       width: widget.width,
       height: widget.height,
       color: const Color(0xFF0B111A),
       child: Column(
         children: [
+          // شريط الأزرار العلوي
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -164,32 +232,57 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                       fontSize: 20,
                       fontWeight: FontWeight.bold),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        _isTracking ? Colors.red : const Color(0xFF639DF0),
-                  ),
-                  onPressed: _isTracking ? _stopTracking : _startTracking,
-                  child: Text(_isTracking ? "Stop Tracking" : "Start Tracking",
-                      style: const TextStyle(color: Colors.white)),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[800]),
+                      onPressed: _isTracking ? _recenter : null,
+                      child: const Text("Recenter",
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            _isTracking ? Colors.red : const Color(0xFF639DF0),
+                      ),
+                      onPressed: _isTracking ? _stopTracking : _startTracking,
+                      child: Text(_isTracking ? "Stop" : "Start",
+                          style: const TextStyle(color: Colors.white)),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildDataCard("RAW YAW", _rawYaw.toStringAsFixed(1)),
-                _buildDataCard("SMOOTH YAW", _smoothedYaw.toStringAsFixed(1)),
-                _buildDataCard("RAW PITCH", _rawPitch.toStringAsFixed(1)),
-                _buildDataCard(
-                    "SMOOTH PITCH", _smoothedPitch.toStringAsFixed(1)),
-              ],
+
+          // عرض تحذير الإضاءة لو موجود
+          if (_isLowLight)
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange)),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.warning_amber_rounded,
+                      color: Colors.orange, size: 20),
+                  SizedBox(width: 8),
+                  Text("Low Light! Ensure your face is illuminated.",
+                      style: TextStyle(
+                          color: Colors.orange, fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
+
+          // لوحة تحكم الإعدادات (Sliders)
+          _buildSettingsPanel(),
+
+          // الشاشة التفاعلية (المحاكي الوهمي)
           Expanded(
             child: Container(
               margin: const EdgeInsets.all(16),
@@ -203,7 +296,7 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                   final centerX = constraints.maxWidth / 2;
                   final centerY = constraints.maxHeight / 2;
 
-                  final dotX = centerX -
+                  final dotX = centerX +
                       (_smoothedYaw *
                           _multiplier *
                           (constraints.maxWidth / 90));
@@ -217,22 +310,43 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                   final clampedY =
                       min(max(dotY, 0.0), constraints.maxHeight - 20);
 
+                  // رسم دائرة المنطقة الميتة في المنتصف
+                  final deadzoneVisualSize = (_deadzoneRadius *
+                          _multiplier *
+                          (constraints.maxWidth / 90)) *
+                      2;
+
                   return Stack(
                     children: [
                       Align(
-                        alignment: Alignment.center,
-                        child: Container(
-                            width: constraints.maxWidth,
-                            height: 1,
-                            color: Colors.white24),
-                      ),
+                          alignment: Alignment.center,
+                          child: Container(
+                              width: constraints.maxWidth,
+                              height: 1,
+                              color: Colors.white24)),
+                      Align(
+                          alignment: Alignment.center,
+                          child: Container(
+                              width: 1,
+                              height: constraints.maxHeight,
+                              color: Colors.white24)),
+
+                      // دائرة الـ Deadzone (عشان تشوفها بعينك)
                       Align(
                         alignment: Alignment.center,
                         child: Container(
-                            width: 1,
-                            height: constraints.maxHeight,
-                            color: Colors.white24),
+                          width: deadzoneVisualSize,
+                          height: deadzoneVisualSize,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  width: 1),
+                              color: Colors.white.withOpacity(0.05)),
+                        ),
                       ),
+
+                      // نقطة الحركة
                       Positioned(
                         left: clampedX,
                         top: clampedY,
@@ -261,15 +375,67 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
     );
   }
 
-  Widget _buildDataCard(String title, String value) {
+  // بناء واجهة الإعدادات (المتزلجات والأزرار)
+  Widget _buildSettingsPanel() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                  child: _buildSlider("Sensitivity", _multiplier, 1.0, 5.0,
+                      (val) => setState(() => _multiplier = val))),
+              Expanded(
+                  child: _buildSlider("Smoothing", _smoothingFactor, 0.05, 1.0,
+                      (val) => setState(() => _smoothingFactor = val))),
+              Expanded(
+                  child: _buildSlider("Deadzone", _deadzoneRadius, 0.0, 10.0,
+                      (val) => setState(() => _deadzoneRadius = val))),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildToggle("Invert Yaw", _invertYaw,
+                  (val) => setState(() => _invertYaw = val)),
+              const SizedBox(width: 20),
+              _buildToggle("Invert Pitch", _invertPitch,
+                  (val) => setState(() => _invertPitch = val)),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSlider(String label, double value, double minVal, double maxVal,
+      Function(double) onChanged) {
     return Column(
       children: [
-        Text(title, style: const TextStyle(color: Colors.grey, fontSize: 10)),
-        Text(value,
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold)),
+        Text("$label: ${value.toStringAsFixed(1)}",
+            style: const TextStyle(color: Colors.grey, fontSize: 10)),
+        Slider(
+          value: value,
+          min: minVal,
+          max: maxVal,
+          activeColor: const Color(0xFF639DF0),
+          inactiveColor: Colors.white24,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildToggle(String label, bool value, Function(bool) onChanged) {
+    return Row(
+      children: [
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: const Color(0xFF639DF0),
+        ),
       ],
     );
   }
