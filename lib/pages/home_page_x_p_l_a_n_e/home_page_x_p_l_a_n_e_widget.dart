@@ -39978,7 +39978,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     FFAppState().ipPC,
                                   );
 
-                                  context.pushNamed(HeadTrackWidget.routeName);
+                                  context.pushNamed(
+                                      HeadTrackXplaneWidget.routeName);
                                 },
                                 freezeAction: () async {
                                   await actions.sendXPlaneCommand(

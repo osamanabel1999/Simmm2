@@ -46,4 +46,7 @@ export '/e_f_bmsfs/e_f_bmsfs_widget.dart' show EFBmsfsWidget;
 export '/e_f_bxplane/e_f_bxplane_widget.dart' show EFBxplaneWidget;
 export '/docs_m_s_f_s/docs_m_s_f_s_widget.dart' show DocsMSFSWidget;
 export '/docs_xplane/docs_xplane_widget.dart' show DocsXplaneWidget;
-export '/head_track/head_track_widget.dart' show HeadTrackWidget;
+export '/head_track_xplane/head_track_xplane_widget.dart'
+    show HeadTrackXplaneWidget;
+export '/head_track_m_s_f_s/head_track_m_s_f_s_widget.dart'
+    show HeadTrackMSFSWidget;

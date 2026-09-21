@@ -5,28 +5,28 @@ import '/custom_code/widgets/index.dart' as custom_widgets;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'head_track_model.dart';
-export 'head_track_model.dart';
+import 'head_track_m_s_f_s_model.dart';
+export 'head_track_m_s_f_s_model.dart';
 
-class HeadTrackWidget extends StatefulWidget {
-  const HeadTrackWidget({super.key});
+class HeadTrackMSFSWidget extends StatefulWidget {
+  const HeadTrackMSFSWidget({super.key});
 
-  static String routeName = 'HeadTrack';
-  static String routePath = '/headTrack';
+  static String routeName = 'HeadTrackMSFS';
+  static String routePath = '/headTrackMSFS';
 
   @override
-  State<HeadTrackWidget> createState() => _HeadTrackWidgetState();
+  State<HeadTrackMSFSWidget> createState() => _HeadTrackMSFSWidgetState();
 }
 
-class _HeadTrackWidgetState extends State<HeadTrackWidget> {
-  late HeadTrackModel _model;
+class _HeadTrackMSFSWidgetState extends State<HeadTrackMSFSWidget> {
+  late HeadTrackMSFSModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => HeadTrackModel());
+    _model = createModel(context, () => HeadTrackMSFSModel());
   }
 
   @override
@@ -47,7 +47,7 @@ class _HeadTrackWidgetState extends State<HeadTrackWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: Color(0xFF0B111A),
         appBar: AppBar(
           backgroundColor: Color(0xFF0B111A),
           automaticallyImplyLeading: false,
@@ -96,7 +96,7 @@ class _HeadTrackWidgetState extends State<HeadTrackWidget> {
                 child: Container(
                   width: double.infinity,
                   height: double.infinity,
-                  child: custom_widgets.HeadTrackerWidget(
+                  child: custom_widgets.HeadTrackerWidgetMSFS(
                     width: double.infinity,
                     height: double.infinity,
                     targetIp: FFAppState().ipPC,

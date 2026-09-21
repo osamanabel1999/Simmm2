@@ -43793,6 +43793,9 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         FFAppState().ipPC,
                                         'pause',
                                       );
+
+                                      context.pushNamed(
+                                          HeadTrackMSFSWidget.routeName);
                                     },
                                     freezeAction: () async {
                                       await actions.pauseAndFreezeController(

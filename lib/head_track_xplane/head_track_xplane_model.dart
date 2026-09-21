@@ -1,8 +1,8 @@
 import '/flutter_flow/flutter_flow_util.dart';
-import 'head_track_widget.dart' show HeadTrackWidget;
+import 'head_track_xplane_widget.dart' show HeadTrackXplaneWidget;
 import 'package:flutter/material.dart';
 
-class HeadTrackModel extends FlutterFlowModel<HeadTrackWidget> {
+class HeadTrackXplaneModel extends FlutterFlowModel<HeadTrackXplaneWidget> {
   @override
   void initState(BuildContext context) {}
 
