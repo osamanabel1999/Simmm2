@@ -313,6 +313,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: DocsXplaneWidget.routeName,
           path: DocsXplaneWidget.routePath,
           builder: (context, params) => DocsXplaneWidget(),
+        ),
+        FFRoute(
+          name: HeadTrackWidget.routeName,
+          path: HeadTrackWidget.routePath,
+          builder: (context, params) => HeadTrackWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
