@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'dart:math';
-import 'dart:async'; // نحتاجه لحساب وقت الإضاءة المنخفضة
+import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
@@ -43,25 +43,24 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
   bool _isTracking = false;
   bool _isProcessing = false;
 
-  // القيم الخام والمنعمة
+  // القيم الخام التي لا يتم التلاعب بها أبداً (تُستخدم للسنترة فقط)
   double _rawYaw = 0.0;
   double _rawPitch = 0.0;
+
+  // القيم النهائية بعد كل العمليات الحسابية (تُستخدم للرسم)
   double _smoothedYaw = 0.0;
   double _smoothedPitch = 0.0;
 
-  // 1. إعدادات السنترة (Recenter)
+  // إعدادات السنترة (Recenter Offsets)
   double _yawOffset = 0.0;
   double _pitchOffset = 0.0;
 
-  // 2. إعدادات المستخدم (Sensitivity, Smoothing, Deadzone, Invert)
-  double _multiplier = 2.5; // الحساسية
-  double _smoothingFactor = 0.3; // النعومة (رقم أصغر = أنعم بس أبطأ)
-  double _deadzoneRadius =
-      2.5; // حجم المنطقة الميتة بالدرجات (لا توجد حركة بداخلها)
-  bool _invertYaw = true; // عكس حركة اليمين والشمال
-  bool _invertPitch = true; // عكس حركة الفوق والتحت
+  // إعدادات المستخدم (الحساسية والنعومة والمنطقة الميتة)
+  double _multiplier = 3.0;
+  double _smoothingFactor = 0.2;
+  double _deadzoneRadius = 2.0;
 
-  // 3. نظام تحذير الإضاءة المنخفضة
+  // نظام تحذير الإضاءة
   bool _isLowLight = false;
   DateTime? _lastFaceDetectedTime;
   Timer? _lowLightCheckTimer;
@@ -98,13 +97,11 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
         _lastFaceDetectedTime = DateTime.now();
       });
 
-      // مؤقت يراجع هل الوش اختفى لفترة طويلة (بسبب الضلمة)
       _lowLightCheckTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
         if (_isTracking && _lastFaceDetectedTime != null) {
           final timeSinceLastFace =
               DateTime.now().difference(_lastFaceDetectedTime!).inMilliseconds;
           if (timeSinceLastFace > 2500 && !_isLowLight) {
-            // لو عدى 2.5 ثانية ومفيش وش، نطلع تحذير الإضاءة
             setState(() {
               _isLowLight = true;
             });
@@ -139,10 +136,12 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
       _rawPitch = 0.0;
       _smoothedYaw = 0.0;
       _smoothedPitch = 0.0;
+      _yawOffset = 0.0;
+      _pitchOffset = 0.0;
     });
   }
 
-  // دالة السنترة (بتعتبر الوضع الحالي هو الصفر)
+  // الدالة الاحترافية للسنترة
   void _recenter() {
     setState(() {
       _yawOffset = _rawYaw;
@@ -169,39 +168,33 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
       final faces = await _faceDetector.processImage(inputImage);
 
       if (faces.isNotEmpty) {
-        _lastFaceDetectedTime = DateTime.now(); // تحديث وقت آخر وش تم اكتشافه
-
+        _lastFaceDetectedTime = DateTime.now();
         final face = faces.first;
 
-        // جلب الزوايا الخام
-        double newYaw = face.headEulerAngleY ?? 0.0;
-        double newPitch = face.headEulerAngleX ?? 0.0;
+        // 1. استخراج القيم الخام
+        final currentRawYaw = face.headEulerAngleY ?? 0.0;
+        final currentRawPitch = face.headEulerAngleX ?? 0.0;
 
-        // تطبيق العكس (Invert) لو متفعل
-        if (_invertYaw) newYaw = -newYaw;
-        if (_invertPitch) newPitch = -newPitch;
+        _rawYaw = currentRawYaw;
+        _rawPitch = currentRawPitch;
 
-        // تطبيق السنترة (Offset)
-        double calibratedYaw = newYaw - (_invertYaw ? -_yawOffset : _yawOffset);
-        double calibratedPitch =
-            newPitch - (_invertPitch ? -_pitchOffset : _pitchOffset);
+        // 2. تطبيق السنترة وعكس الـ Yaw فقط (حسب طلبك لتوحيد الاتجاه)
+        // تم وضع سالب (-) قبل معادلة الـ Yaw لعكسها للأبد، وترك الـ Pitch كما هي
+        double calibratedYaw = -(currentRawYaw - _yawOffset);
+        double calibratedPitch = currentRawPitch - _pitchOffset;
 
-        // تطبيق المنطقة الميتة (Deadzone)
-        // لو الحركة أصغر من الـ Radius اللي حددناه، اعتبرها صفر
+        // 3. تطبيق المنطقة الميتة (Deadzone)
         if (calibratedYaw.abs() < _deadzoneRadius) calibratedYaw = 0.0;
         if (calibratedPitch.abs() < _deadzoneRadius) calibratedPitch = 0.0;
 
-        // تطبيق التنعيم (Smoothing)
+        // 4. تطبيق التنعيم (Smoothing)
         _smoothedYaw = (_smoothedYaw * (1 - _smoothingFactor)) +
             (calibratedYaw * _smoothingFactor);
         _smoothedPitch = (_smoothedPitch * (1 - _smoothingFactor)) +
             (calibratedPitch * _smoothingFactor);
 
         if (mounted) {
-          setState(() {
-            _rawYaw = newYaw;
-            _rawPitch = newPitch;
-          });
+          setState(() {});
         }
       }
     } catch (e) {
@@ -257,7 +250,6 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
             ),
           ),
 
-          // عرض تحذير الإضاءة لو موجود
           if (_isLowLight)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -274,15 +266,16 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                   SizedBox(width: 8),
                   Text("Low Light! Ensure your face is illuminated.",
                       style: TextStyle(
-                          color: Colors.orange, fontWeight: FontWeight.bold)),
+                          color: Colors.orange,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12)),
                 ],
               ),
             ),
 
-          // لوحة تحكم الإعدادات (Sliders)
           _buildSettingsPanel(),
 
-          // الشاشة التفاعلية (المحاكي الوهمي)
+          // الشاشة التفاعلية
           Expanded(
             child: Container(
               margin: const EdgeInsets.all(16),
@@ -306,11 +299,10 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                           (constraints.maxHeight / 90));
 
                   final clampedX =
-                      min(max(dotX, 0.0), constraints.maxWidth - 20);
+                      min(max(dotX, 10.0), constraints.maxWidth - 10.0) - 10.0;
                   final clampedY =
-                      min(max(dotY, 0.0), constraints.maxHeight - 20);
+                      min(max(dotY, 10.0), constraints.maxHeight - 10.0) - 10.0;
 
-                  // رسم دائرة المنطقة الميتة في المنتصف
                   final deadzoneVisualSize = (_deadzoneRadius *
                           _multiplier *
                           (constraints.maxWidth / 90)) *
@@ -330,8 +322,6 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                               width: 1,
                               height: constraints.maxHeight,
                               color: Colors.white24)),
-
-                      // دائرة الـ Deadzone (عشان تشوفها بعينك)
                       Align(
                         alignment: Alignment.center,
                         child: Container(
@@ -345,8 +335,6 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
                               color: Colors.white.withOpacity(0.05)),
                         ),
                       ),
-
-                      // نقطة الحركة
                       Positioned(
                         left: clampedX,
                         top: clampedY,
@@ -375,35 +363,20 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
     );
   }
 
-  // بناء واجهة الإعدادات (المتزلجات والأزرار)
   Widget _buildSettingsPanel() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                  child: _buildSlider("Sensitivity", _multiplier, 1.0, 5.0,
-                      (val) => setState(() => _multiplier = val))),
-              Expanded(
-                  child: _buildSlider("Smoothing", _smoothingFactor, 0.05, 1.0,
-                      (val) => setState(() => _smoothingFactor = val))),
-              Expanded(
-                  child: _buildSlider("Deadzone", _deadzoneRadius, 0.0, 10.0,
-                      (val) => setState(() => _deadzoneRadius = val))),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildToggle("Invert Yaw", _invertYaw,
-                  (val) => setState(() => _invertYaw = val)),
-              const SizedBox(width: 20),
-              _buildToggle("Invert Pitch", _invertPitch,
-                  (val) => setState(() => _invertPitch = val)),
-            ],
-          )
+          Expanded(
+              child: _buildSlider("Sensitivity", _multiplier, 1.0, 5.0,
+                  (val) => setState(() => _multiplier = val))),
+          Expanded(
+              child: _buildSlider("Smoothing", _smoothingFactor, 0.05, 1.0,
+                  (val) => setState(() => _smoothingFactor = val))),
+          Expanded(
+              child: _buildSlider("Deadzone", _deadzoneRadius, 0.0, 10.0,
+                  (val) => setState(() => _deadzoneRadius = val))),
         ],
       ),
     );
@@ -422,19 +395,6 @@ class _HeadTrackerWidgetState extends State<HeadTrackerWidget> {
           activeColor: const Color(0xFF639DF0),
           inactiveColor: Colors.white24,
           onChanged: onChanged,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildToggle(String label, bool value, Function(bool) onChanged) {
-    return Row(
-      children: [
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeColor: const Color(0xFF639DF0),
         ),
       ],
     );
