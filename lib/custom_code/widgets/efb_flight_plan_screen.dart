@@ -67,6 +67,9 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   bool _isDepNotamExpanded = false;
   bool _isArrNotamExpanded = false;
 
+  // --- متغير التبويبات الخاص بالموبايل (0 افتراضي = INFO) ---
+  int _selectedMobileTab = 0;
+
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -224,133 +227,188 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       color: efbBg,
       child: SafeArea(
         bottom: false,
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: efbAccent))
-            : Column(
-                children: [
-                  if (_errorMessage.isNotEmpty)
-                    Container(
-                      width: double.infinity,
-                      color: cDanger.withOpacity(0.9),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.warning_amber_rounded,
-                              color: efbWhite, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(
-                              child: Text(_errorMessage,
-                                  style: const TextStyle(
-                                      color: efbWhite,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13))),
-                        ],
+        child: Stack(
+          children: [
+            // --- المحتوى الرئيسي للشاشة ---
+            _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: efbAccent))
+                : Column(
+                    children: [
+                      if (_errorMessage.isNotEmpty)
+                        Container(
+                          width: double.infinity,
+                          color: cDanger.withOpacity(0.9),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.warning_amber_rounded,
+                                  color: efbWhite, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                  child: Text(_errorMessage,
+                                      style: const TextStyle(
+                                          color: efbWhite,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13))),
+                            ],
+                          ),
+                        ),
+
+                      _buildHeader(),
+
+                      // --- Layout الذكي (موبايل vs أيباد بالطول vs أيباد بالعرض) ---
+                      Expanded(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            bool isMobile = constraints.maxWidth < 600;
+                            bool isTabletPortrait =
+                                constraints.maxWidth >= 600 &&
+                                    constraints.maxWidth < 900;
+
+                            // 1. نظام الموبايل (شاشة صغيرة = تبويبات)
+                            if (isMobile) {
+                              return Column(
+                                children: [
+                                  _buildMobileSegmentedControl(),
+                                  Expanded(
+                                    child: _buildMobileTabContent(),
+                                  ),
+                                ],
+                              );
+                            }
+                            // 2. نظام الأيباد بالطول (عمودين)
+                            else if (isTabletPortrait) {
+                              return Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: ListView(
+                                        children: [
+                                          _buildTimesCard(),
+                                          const SizedBox(height: 12),
+                                          _buildSmartWeightsCard(),
+                                          const SizedBox(height: 12),
+                                          _buildFuelBreakdownCard(),
+                                          const SizedBox(height: 12),
+                                          _buildRouteAndEnvCard(),
+                                          const SizedBox(height: 12),
+                                          _buildStepClimbsCard(),
+                                          const SizedBox(height: 12),
+                                          _buildWeatherNotamCard(
+                                              "DEPARTURE", _ofpData?['origin']),
+                                          const SizedBox(height: 12),
+                                          _buildWeatherNotamCard("ARRIVAL",
+                                              _ofpData?['destination']),
+                                          const SizedBox(height: 20),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      flex: 1,
+                                      child: _buildLiveNavlogCard(),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            // 3. نظام الأيباد بالعرض (3 عواميد)
+                            else {
+                              return Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: ListView(
+                                        children: [
+                                          _buildTimesCard(),
+                                          const SizedBox(height: 12),
+                                          _buildSmartWeightsCard(),
+                                          const SizedBox(height: 12),
+                                          _buildFuelBreakdownCard(),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      flex: 4,
+                                      child: ListView(
+                                        children: [
+                                          _buildRouteAndEnvCard(),
+                                          const SizedBox(height: 12),
+                                          _buildStepClimbsCard(),
+                                          const SizedBox(height: 12),
+                                          _buildWeatherNotamCard(
+                                              "DEPARTURE", _ofpData?['origin']),
+                                          const SizedBox(height: 12),
+                                          _buildWeatherNotamCard("ARRIVAL",
+                                              _ofpData?['destination']),
+                                          const SizedBox(height: 20),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      flex: 3,
+                                      child: _buildLiveNavlogCard(),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                          },
+                        ),
                       ),
-                    ),
-
-                  _buildHeader(),
-
-                  // --- Layout الذكي للأيباد (Portrait vs Landscape) ---
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        bool isPortrait = constraints.maxWidth < 900;
-
-                        if (isPortrait) {
-                          // وضع الطول: عمودين فقط عشان المساحة
-                          return Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: ListView(
-                                    children: [
-                                      _buildTimesCard(),
-                                      const SizedBox(height: 12),
-                                      _buildSmartWeightsCard(),
-                                      const SizedBox(height: 12),
-                                      _buildFuelBreakdownCard(),
-                                      const SizedBox(height: 12),
-                                      _buildRouteAndEnvCard(),
-                                      const SizedBox(height: 12),
-                                      _buildStepClimbsCard(),
-                                      const SizedBox(height: 12),
-                                      _buildWeatherNotamCard(
-                                          "DEPARTURE", _ofpData?['origin']),
-                                      const SizedBox(height: 12),
-                                      _buildWeatherNotamCard(
-                                          "ARRIVAL", _ofpData?['destination']),
-                                      const SizedBox(height: 20),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  flex: 1,
-                                  child: _buildLiveNavlogCard(),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else {
-                          // وضع العرض: 3 عواميد مرتاحة
-                          return Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 3,
-                                  child: ListView(
-                                    children: [
-                                      _buildTimesCard(),
-                                      const SizedBox(height: 12),
-                                      _buildSmartWeightsCard(),
-                                      const SizedBox(height: 12),
-                                      _buildFuelBreakdownCard(),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  flex: 4,
-                                  child: ListView(
-                                    children: [
-                                      _buildRouteAndEnvCard(),
-                                      const SizedBox(height: 12),
-                                      _buildStepClimbsCard(),
-                                      const SizedBox(height: 12),
-                                      _buildWeatherNotamCard(
-                                          "DEPARTURE", _ofpData?['origin']),
-                                      const SizedBox(height: 12),
-                                      _buildWeatherNotamCard(
-                                          "ARRIVAL", _ofpData?['destination']),
-                                      const SizedBox(height: 20),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  flex: 3,
-                                  child: _buildLiveNavlogCard(),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                      },
-                    ),
+                    ],
                   ),
-                ],
+
+            // --- الشريط العائم (Home Indicator) ---
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: _buildHomeIndicator(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
               ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
+  // --- دالة الشريط العائم الأصلية كما طلبتها ---
+  Widget _buildHomeIndicator({required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
+        alignment: Alignment.center,
+        child: Container(
+          width: 130,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- بناء الهيدر مع حماية الـ Wrap للموبايل ---
   Widget _buildHeader() {
     final Map? gen = _ofpData?['general'] is Map ? _ofpData!['general'] : null;
 
@@ -373,12 +431,17 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      width: double.infinity,
       decoration: const BoxDecoration(
         color: efbCard,
         border: Border(bottom: BorderSide(color: efbBorder, width: 2)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      // استخدام Wrap لحماية الهيدر من صغر شاشة الموبايل
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        runSpacing: 12,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,6 +452,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                       fontSize: 14,
                       fontWeight: FontWeight.bold)),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(origin,
                       style: const TextStyle(
@@ -410,18 +474,21 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
               ),
             ],
           ),
-          Row(
-            children: [
-              // ربط زر الـ PDF بالـ App State
-              _buildHeaderBtn("PDF OFP", Icons.picture_as_pdf,
-                  () => _launchUrl(widget.pdfLink)),
-              const SizedBox(width: 8),
-              _buildHeaderBtn("VATSIM", Icons.network_check,
-                  () => _launchUrl(prefileVatsim)),
-              const SizedBox(width: 8),
-              _buildHeaderBtn(
-                  "IVAO", Icons.network_wifi, () => _launchUrl(prefileIvao)),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildHeaderBtn("PDF OFP", Icons.picture_as_pdf,
+                    () => _launchUrl(widget.pdfLink)),
+                const SizedBox(width: 8),
+                _buildHeaderBtn("VATSIM", Icons.network_check,
+                    () => _launchUrl(prefileVatsim)),
+                const SizedBox(width: 8),
+                _buildHeaderBtn(
+                    "IVAO", Icons.network_wifi, () => _launchUrl(prefileIvao)),
+              ],
+            ),
           )
         ],
       ),
@@ -438,6 +505,106 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
           backgroundColor: efbBorder, foregroundColor: efbWhite, elevation: 0),
     );
   }
+
+  // =========================================================================
+  // ====================== تصميم تبويبات الموبايل ============================
+  // =========================================================================
+
+  Widget _buildMobileSegmentedControl() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+      decoration: BoxDecoration(
+        color: efbCard,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: efbBorder),
+      ),
+      child: Row(
+        children: [
+          _buildMobileTabBtn("INFO", 0),
+          Container(width: 1, height: 24, color: efbBorder),
+          _buildMobileTabBtn("WX & NOTAM", 1),
+          Container(width: 1, height: 24, color: efbBorder),
+          _buildMobileTabBtn("NAVLOG", 2),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileTabBtn(String title, int index) {
+    bool isActive = _selectedMobileTab == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedMobileTab = index),
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive ? efbAccent.withOpacity(0.15) : Colors.transparent,
+            borderRadius: BorderRadius.circular(isActive ? 7 : 0),
+          ),
+          child: Center(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: isActive ? efbAccent : efbTextMuted,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileTabContent() {
+    if (_selectedMobileTab == 0) {
+      // شاشة الـ INFO
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(
+            12, 12, 12, 40), // زيادة مساحة سفلية للشريط
+        children: [
+          _buildTimesCard(),
+          const SizedBox(height: 12),
+          _buildSmartWeightsCard(),
+          const SizedBox(height: 12),
+          _buildFuelBreakdownCard(),
+          const SizedBox(height: 12),
+          _buildRouteAndEnvCard(),
+          const SizedBox(height: 20),
+        ],
+      );
+    } else if (_selectedMobileTab == 1) {
+      // شاشة الـ WX & NOTAM
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(
+            12, 12, 12, 40), // زيادة مساحة سفلية للشريط
+        children: [
+          _buildWeatherNotamCard("DEPARTURE", _ofpData?['origin']),
+          const SizedBox(height: 12),
+          _buildWeatherNotamCard("ARRIVAL", _ofpData?['destination']),
+          const SizedBox(height: 20),
+        ],
+      );
+    } else {
+      // شاشة الـ NAVLOG (لازم تكون Column جواه Expanded عشان الرادار ياخد باقي الشاشة)
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(
+            12, 12, 12, 40), // زيادة مساحة سفلية للشريط
+        child: Column(
+          children: [
+            _buildStepClimbsCard(),
+            const SizedBox(height: 12),
+            Expanded(child: _buildLiveNavlogCard()),
+          ],
+        ),
+      );
+    }
+  }
+
+  // =========================================================================
+  // ====================== الأقسام والكروت الأساسية ==========================
+  // =========================================================================
 
   Widget _buildTimesCard() {
     final Map? times = _ofpData?['times'] is Map ? _ofpData!['times'] : null;
@@ -671,7 +838,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     final Map? gen = _ofpData?['general'] is Map ? _ofpData!['general'] : null;
     final String route = gen?['route']?.toString() ?? "---";
 
-    // --- الأسماء الصحيحة التي قمت باكتشافها ---
     final String avgWind = gen?['avg_wind_comp']?.toString() ?? "---";
     final String isaDev = gen?['avg_temp_dev']?.toString() ?? "---";
     final String tropopause = gen?['avg_tropopause']?.toString() ?? "---";
@@ -1048,13 +1214,12 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1)),
-              // --- زرار فتح الـ Vertical Profile ---
               if (navlogRaw != null)
                 ElevatedButton.icon(
                   onPressed: () => _showVerticalProfile(
                       navlogRaw is List ? navlogRaw : [navlogRaw]),
                   icon: const Icon(Icons.show_chart, size: 14, color: efbBg),
-                  label: const Text("VERTICAL PROFILE",
+                  label: const Text("PROFILE",
                       style:
                           TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
@@ -1094,7 +1259,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
         TextDecoration decoration =
             isPassed ? TextDecoration.lineThrough : TextDecoration.none;
 
-        // --- البيانات الدقيقة المستخرجة من الصورة ---
         String legDist = fix['distance']?.toString() ?? "0";
         String efobRaw = fix['fuel_plan_onboard']?.toString() ?? "0";
         double efobNum = double.tryParse(efobRaw) ?? 0;
@@ -1176,7 +1340,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                       ],
                     ),
                     const SizedBox(height: 6),
-                    // --- الصف الاحترافي الجديد للبيانات الملاحية ---
                     Wrap(
                       spacing: 12,
                       runSpacing: 4,
@@ -1209,7 +1372,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     );
   }
 
-  // --- شاشة الـ Vertical Profile Chart 📈 ---
   void _showVerticalProfile(List<dynamic> fixes) {
     showDialog(
       context: context,
@@ -1244,7 +1406,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                 const Divider(color: efbBorder, thickness: 1),
                 const SizedBox(height: 10),
                 Expanded(
-                  // استدعاء الويدجت اللي هيرسم الشارت
                   child: VerticalProfileChartWidget(
                     fixes: fixes,
                     activeIndex: _calculateActiveWaypointIndex(fixes),
@@ -1410,7 +1571,6 @@ class _VerticalProfileChartWidgetState
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // --- كارت بيانات النقطة المحددة (Tooltip Box) ---
         Container(
           height: 80,
           width: double.infinity,
@@ -1447,8 +1607,6 @@ class _VerticalProfileChartWidgetState
                 ),
         ),
         const SizedBox(height: 20),
-
-        // --- رسم الشارت والتفاعل ---
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -1458,7 +1616,6 @@ class _VerticalProfileChartWidgetState
               double totalDist = 0;
               List<ChartPoint> points = [];
 
-              // حساب إجمالي المسافة والارتفاع الأقصى
               for (var fix in widget.fixes) {
                 if (fix is! Map) continue;
                 double alt =
@@ -1470,7 +1627,6 @@ class _VerticalProfileChartWidgetState
                 totalDist += dist;
               }
 
-              // معالجة النقاط ورسمها
               double currentAccumulatedDist = 0;
               for (int i = 0; i < widget.fixes.length; i++) {
                 final fix = widget.fixes[i];
@@ -1487,13 +1643,11 @@ class _VerticalProfileChartWidgetState
                     ? 0
                     : (currentAccumulatedDist / totalDist) *
                         constraints.maxWidth;
-                // حماية من القسمة على صفر وإعطاء بادينج علوي
                 double yPos = maxAlt == 0
                     ? constraints.maxHeight
                     : constraints.maxHeight -
                         ((alt / maxAlt) * (constraints.maxHeight * 0.8));
 
-                // تحديد ألوان TOC و TOD بناءً على الـ ident أو الارتفاع
                 Color dotColor = efbAccent;
                 String ident = fix['ident']?.toString().toUpperCase() ?? "";
                 if (ident == "TOC") dotColor = cSafe;
@@ -1505,13 +1659,10 @@ class _VerticalProfileChartWidgetState
 
               return Stack(
                 children: [
-                  // 1. الرسم البياني الصافي (Custom Painter)
                   CustomPaint(
                     size: Size(constraints.maxWidth, constraints.maxHeight),
                     painter: ProfileChartPainter(points: points),
                   ),
-
-                  // 2. النقاط التفاعلية (أزرار شفافة فوق النقاط)
                   ...points.map((p) {
                     return Positioned(
                       left: p.x - 15,
@@ -1538,8 +1689,6 @@ class _VerticalProfileChartWidgetState
                       ),
                     );
                   }).toList(),
-
-                  // 3. أيقونة الطيارة اللايف ✈️
                   if (widget.activeIndex >= 0 &&
                       widget.activeIndex < points.length)
                     Positioned(
@@ -1575,7 +1724,6 @@ class _VerticalProfileChartWidgetState
   }
 }
 
-// كلاس لحفظ إحداثيات النقطة في الشارت
 class ChartPoint {
   final double x;
   final double y;
@@ -1588,7 +1736,6 @@ class ChartPoint {
       required this.color});
 }
 
-// الرسام (الذي يرسم الخط والتظليل)
 class ProfileChartPainter extends CustomPainter {
   final List<ChartPoint> points;
   ProfileChartPainter({required this.points});
@@ -1612,7 +1759,6 @@ class ProfileChartPainter extends CustomPainter {
     fillPath.lineTo(points.last.x, size.height);
     fillPath.close();
 
-    // رسم التظليل المتدرج (Gradient)
     final gradient = LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -1623,7 +1769,6 @@ class ProfileChartPainter extends CustomPainter {
           gradient.createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawPath(fillPath, fillPaint);
 
-    // رسم الخط الأساسي للارتفاع
     final linePaint = Paint()
       ..color = efbAccent
       ..strokeWidth = 3.0
