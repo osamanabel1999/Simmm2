@@ -21777,207 +21777,260 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,
                                       children: [
+                                        if (responsiveVisibility(
+                                          context: context,
+                                          phone: false,
+                                          tablet: false,
+                                          tabletLandscape: false,
+                                          desktop: false,
+                                        ))
+                                          Expanded(
+                                            child: Container(
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              child: custom_widgets
+                                                  .FlightPlanPageWidget(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                routeTitle:
+                                                    valueOrDefault<String>(
+                                                  '${getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.origin.icao_code''',
+                                                  ).toString()} - ${getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.destination.icao_code''',
+                                                  ).toString()}',
+                                                  '-',
+                                                ),
+                                                callsign:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.atc.callsign''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                departure:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.origin.icao_code''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                arrival: valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.destination.icao_code''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                alternate:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.alternate.icao_code''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                aircraftType:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.aircraft.icaocode''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                altitude:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.general.initial_altitude''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                airTime: valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.times.est_time_enroute''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                distance:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.general.route_distance''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                averageWind:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.general.avg_wind_comp''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                cruise: valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.general.cruise_profile''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                departureMetar:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.weather.orig_metar''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                departureTaf:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.weather.orig_taf''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                arrivalMetar:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.weather.dest_metar''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                arrivalTaf:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.weather.dest_taf''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                departureNotamCode:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.origin.icao_code''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                departureNotam:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.origin.notam[:].notam_raw''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                arrivalNotamCode:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.destination.icao_code''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                arrivalNotam:
+                                                    valueOrDefault<String>(
+                                                  getJsonField(
+                                                    (_model.simbreifResponse
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.origin.notam[:].notam_raw''',
+                                                  )?.toString(),
+                                                  '-',
+                                                ),
+                                                onRouteTap: () async {
+                                                  context.pushNamed(
+                                                      FlightplanpageWidget
+                                                          .routeName);
+                                                },
+                                                onListenDepartureAtis:
+                                                    () async {
+                                                  await actions
+                                                      .professionalAtis(
+                                                    getJsonField(
+                                                      (_model.simbreifResponse
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.origin.atis.message''',
+                                                    ).toString(),
+                                                  );
+                                                },
+                                                onListenArrivalAtis: () async {
+                                                  await actions
+                                                      .professionalAtis(
+                                                    getJsonField(
+                                                      (_model.simbreifResponse
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.destination.atis.message''',
+                                                    ).toString(),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
                                         Expanded(
                                           child: Container(
                                             width: double.infinity,
                                             height: double.infinity,
                                             child: custom_widgets
-                                                .FlightPlanPageWidget(
+                                                .EfbFlightPlanScreen(
                                               width: double.infinity,
                                               height: double.infinity,
-                                              routeTitle:
-                                                  valueOrDefault<String>(
-                                                '${getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.origin.icao_code''',
-                                                ).toString()} - ${getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.destination.icao_code''',
-                                                ).toString()}',
-                                                '-',
-                                              ),
-                                              callsign: valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.atc.callsign''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              departure: valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.origin.icao_code''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              arrival: valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.destination.icao_code''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              alternate: valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.alternate.icao_code''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              aircraftType:
-                                                  valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.aircraft.icaocode''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              altitude: valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.general.initial_altitude''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              airTime: valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.times.est_time_enroute''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              distance: valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.general.route_distance''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              averageWind:
-                                                  valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.general.avg_wind_comp''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              cruise: valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.general.cruise_profile''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              departureMetar:
-                                                  valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.weather.orig_metar''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              departureTaf:
-                                                  valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.weather.orig_taf''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              arrivalMetar:
-                                                  valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.weather.dest_metar''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              arrivalTaf:
-                                                  valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.weather.dest_taf''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              departureNotamCode:
-                                                  valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.origin.icao_code''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              departureNotam:
-                                                  valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.origin.notam[:].notam_raw''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              arrivalNotamCode:
-                                                  valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.destination.icao_code''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              arrivalNotam:
-                                                  valueOrDefault<String>(
-                                                getJsonField(
-                                                  (_model.simbreifResponse
-                                                          ?.jsonBody ??
-                                                      ''),
-                                                  r'''$.origin.notam[:].notam_raw''',
-                                                )?.toString(),
-                                                '-',
-                                              ),
-                                              onRouteTap: () async {
-                                                context.pushNamed(
-                                                    FlightplanpageWidget
-                                                        .routeName);
-                                              },
-                                              onListenDepartureAtis: () async {
+                                              pilotId: FFAppState()
+                                                  .SimbreifID
+                                                  .toString(),
+                                              currentLat:
+                                                  FFAppState().currentLAT,
+                                              currentLon:
+                                                  FFAppState().currentLON,
+                                              onDepartureAtisPressed: () async {
                                                 await actions.professionalAtis(
                                                   getJsonField(
                                                     (_model.simbreifResponse
@@ -21987,7 +22040,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                   ).toString(),
                                                 );
                                               },
-                                              onListenArrivalAtis: () async {
+                                              onArrivalAtisPressed: () async {
                                                 await actions.professionalAtis(
                                                   getJsonField(
                                                     (_model.simbreifResponse

@@ -206,6 +206,14 @@ class _AiDispatcherScreenState extends State<AiDispatcherScreen> {
                           ? _buildBriefingContent()
                           : _buildEmptyState(),
             ),
+
+            // إضافة مؤشر الرجوع (Home Indicator) هنا بناءً على طلبك
+            _buildHomeIndicator(
+              onTap: () {
+                // يمكنك إضافة وظيفة الخروج أو الرجوع هنا (الوضع الافتراضي: إغلاق الشاشة)
+                Navigator.of(context).pop();
+              },
+            ),
           ],
         ),
       ),
@@ -486,5 +494,26 @@ class _AiDispatcherScreenState extends State<AiDispatcherScreen> {
     }
 
     return TextSpan(children: spans);
+  }
+
+  // --- إضافة الودجيت المطلوبة (Home Indicator) بنفس التفاصيل تماماً ---
+  Widget _buildHomeIndicator({required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
+        alignment: Alignment.center,
+        child: Container(
+          width: 130,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
   }
 }
