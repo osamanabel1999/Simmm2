@@ -33,7 +33,9 @@ class EfbFlightPlanScreen extends StatefulWidget {
   final double? width;
   final double? height;
 
+  // الباراميترز (تم إضافة رابط الـ PDF حسب طلبك)
   final String pilotId;
+  final String pdfLink;
   final double currentLat;
   final double currentLon;
   final Future<dynamic> Function() onDepartureAtisPressed;
@@ -44,6 +46,7 @@ class EfbFlightPlanScreen extends StatefulWidget {
     this.width,
     this.height,
     required this.pilotId,
+    required this.pdfLink,
     required this.currentLat,
     required this.currentLon,
     required this.onDepartureAtisPressed,
@@ -183,6 +186,15 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   Future<void> _launchUrl(String urlString) async {
+    if (urlString.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Link is not available",
+                style: TextStyle(color: efbWhite)),
+            backgroundColor: cWarn),
+      );
+      return;
+    }
     final Uri url = Uri.parse(urlString);
     try {
       await launchUrl(url, mode: LaunchMode.inAppWebView);
@@ -198,9 +210,10 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
   @override
   Widget build(BuildContext context) {
-    // --- التعديل الذكي للتخزين في الذاكرة ---
-    // لا نقوم بتحديث الذاكرة إلا لو كانت الإحداثيات منطقية (ليست 0,0 معاً)
-    if (!(widget.currentLat == 0.0 && widget.currentLon == 0.0)) {
+    // حماية الإحداثيات اللايف الذكية
+    bool isDropped =
+        widget.currentLat.abs() < 0.001 && widget.currentLon.abs() < 0.001;
+    if (!isDropped) {
       _lastValidLat = widget.currentLat;
       _lastValidLon = widget.currentLon;
     }
@@ -236,50 +249,100 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                         ],
                       ),
                     ),
+
                   _buildHeader(),
+
+                  // --- Layout الذكي للأيباد (Portrait vs Landscape) ---
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: ListView(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        bool isPortrait = constraints.maxWidth < 900;
+
+                        if (isPortrait) {
+                          // وضع الطول: عمودين فقط عشان المساحة
+                          return Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildTimesCard(),
-                                const SizedBox(height: 12),
-                                _buildSmartWeightsCard(),
-                                const SizedBox(height: 12),
-                                _buildFuelBreakdownCard(),
+                                Expanded(
+                                  flex: 1,
+                                  child: ListView(
+                                    children: [
+                                      _buildTimesCard(),
+                                      const SizedBox(height: 12),
+                                      _buildSmartWeightsCard(),
+                                      const SizedBox(height: 12),
+                                      _buildFuelBreakdownCard(),
+                                      const SizedBox(height: 12),
+                                      _buildRouteAndEnvCard(),
+                                      const SizedBox(height: 12),
+                                      _buildStepClimbsCard(),
+                                      const SizedBox(height: 12),
+                                      _buildWeatherNotamCard(
+                                          "DEPARTURE", _ofpData?['origin']),
+                                      const SizedBox(height: 12),
+                                      _buildWeatherNotamCard(
+                                          "ARRIVAL", _ofpData?['destination']),
+                                      const SizedBox(height: 20),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  flex: 1,
+                                  child: _buildLiveNavlogCard(),
+                                ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            flex: 4,
-                            child: ListView(
+                          );
+                        } else {
+                          // وضع العرض: 3 عواميد مرتاحة
+                          return Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildRouteAndEnvCard(),
-                                const SizedBox(height: 12),
-                                _buildStepClimbsCard(),
-                                const SizedBox(height: 12),
-                                _buildWeatherNotamCard(
-                                    "DEPARTURE", _ofpData?['origin']),
-                                const SizedBox(height: 12),
-                                _buildWeatherNotamCard(
-                                    "ARRIVAL", _ofpData?['destination']),
-                                const SizedBox(height: 20),
+                                Expanded(
+                                  flex: 3,
+                                  child: ListView(
+                                    children: [
+                                      _buildTimesCard(),
+                                      const SizedBox(height: 12),
+                                      _buildSmartWeightsCard(),
+                                      const SizedBox(height: 12),
+                                      _buildFuelBreakdownCard(),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  flex: 4,
+                                  child: ListView(
+                                    children: [
+                                      _buildRouteAndEnvCard(),
+                                      const SizedBox(height: 12),
+                                      _buildStepClimbsCard(),
+                                      const SizedBox(height: 12),
+                                      _buildWeatherNotamCard(
+                                          "DEPARTURE", _ofpData?['origin']),
+                                      const SizedBox(height: 12),
+                                      _buildWeatherNotamCard(
+                                          "ARRIVAL", _ofpData?['destination']),
+                                      const SizedBox(height: 20),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  flex: 3,
+                                  child: _buildLiveNavlogCard(),
+                                ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            flex: 3,
-                            child: _buildLiveNavlogCard(),
-                          ),
-                        ],
-                      ),
+                          );
+                        }
+                      },
                     ),
                   ),
                 ],
@@ -307,11 +370,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
     const String prefileVatsim = "https://my.vatsim.net/pilots/flightplan";
     const String prefileIvao = "https://fpl.ivao.aero/flight-plans/create";
-
-    final String pdfUrl = _ofpData?['files']?['pdf']?['link']?.toString() ??
-        (gen != null
-            ? "https://www.simbrief.com/ofp/flightplans/${gen['c_ofp_id']}_pdf.pdf"
-            : "https://www.simbrief.com");
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -354,8 +412,9 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
           ),
           Row(
             children: [
-              _buildHeaderBtn(
-                  "PDF OFP", Icons.picture_as_pdf, () => _launchUrl(pdfUrl)),
+              // ربط زر الـ PDF بالـ App State
+              _buildHeaderBtn("PDF OFP", Icons.picture_as_pdf,
+                  () => _launchUrl(widget.pdfLink)),
               const SizedBox(width: 8),
               _buildHeaderBtn("VATSIM", Icons.network_check,
                   () => _launchUrl(prefileVatsim)),
@@ -612,9 +671,10 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     final Map? gen = _ofpData?['general'] is Map ? _ofpData!['general'] : null;
     final String route = gen?['route']?.toString() ?? "---";
 
+    // --- الأسماء الصحيحة التي قمت باكتشافها ---
     final String avgWind = gen?['avg_wind_comp']?.toString() ?? "---";
-    final String isaDev = gen?['isa_deviation']?.toString() ?? "---";
-    final String tropopause = gen?['tropopause']?.toString() ?? "---";
+    final String isaDev = gen?['avg_temp_dev']?.toString() ?? "---";
+    final String tropopause = gen?['avg_tropopause']?.toString() ?? "---";
 
     return _buildCardWrapper(
       title: "ROUTE & ENVIRONMENT",
@@ -696,7 +756,9 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   Widget _buildStepClimbsCard() {
-    final dynamic steps = (_ofpData != null && _ofpData!['stepclimbs'] is Map)
+    final dynamic steps = (_ofpData != null &&
+            _ofpData!['stepclimbs'] != null &&
+            _ofpData!['stepclimbs'] is Map)
         ? _ofpData!['stepclimbs']['step']
         : null;
 
@@ -977,12 +1039,32 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("LIVE MASTER NAVLOG",
-              style: TextStyle(
-                  color: efbAccent,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("LIVE MASTER NAVLOG",
+                  style: TextStyle(
+                      color: efbAccent,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1)),
+              // --- زرار فتح الـ Vertical Profile ---
+              if (navlogRaw != null)
+                ElevatedButton.icon(
+                  onPressed: () => _showVerticalProfile(
+                      navlogRaw is List ? navlogRaw : [navlogRaw]),
+                  icon: const Icon(Icons.show_chart, size: 14, color: efbBg),
+                  label: const Text("VERTICAL PROFILE",
+                      style:
+                          TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: cSafe,
+                      foregroundColor: efbBg,
+                      minimumSize: const Size(0, 24),
+                      padding: const EdgeInsets.symmetric(horizontal: 8)),
+                ),
+            ],
+          ),
           const Divider(color: efbBorder, height: 20, thickness: 1),
           Expanded(
             child: navlogRaw == null
@@ -1012,14 +1094,15 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
         TextDecoration decoration =
             isPassed ? TextDecoration.lineThrough : TextDecoration.none;
 
-        String dtg = fix['distance_to_dest']?.toString() ??
-            fix['dist_dest']?.toString() ??
-            fix['rem_dist']?.toString() ??
-            "0";
-        String efob = fix['fuel_plan_on_board']?.toString() ??
-            fix['plan_fob']?.toString() ??
-            fix['efob']?.toString() ??
-            "0";
+        // --- البيانات الدقيقة المستخرجة من الصورة ---
+        String legDist = fix['distance']?.toString() ?? "0";
+        String efobRaw = fix['fuel_plan_onboard']?.toString() ?? "0";
+        double efobNum = double.tryParse(efobRaw) ?? 0;
+        String efob = (efobNum / 1000).toStringAsFixed(1);
+        String windDir = fix['wind_dir']?.toString() ?? "000";
+        String windSpd = fix['wind_spd']?.toString() ?? "00";
+        String wind = "$windDir/$windSpd";
+        String oat = fix['oat']?.toString() ?? "0";
 
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1092,19 +1175,25 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                         ]
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    const SizedBox(height: 6),
+                    // --- الصف الاحترافي الجديد للبيانات الملاحية ---
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 4,
                       children: [
                         Text(
                             "FL${(int.tryParse(fix['altitude_feet']?.toString() ?? "0") ?? 0) ~/ 100}",
-                            style: TextStyle(color: textColor, fontSize: 12)),
-                        Text("DTG: $dtg NM",
-                            style: TextStyle(color: textColor, fontSize: 12)),
+                            style: TextStyle(color: textColor, fontSize: 11)),
+                        Text("DIST: $legDist NM",
+                            style: TextStyle(color: textColor, fontSize: 11)),
+                        Text("WND: $wind",
+                            style: TextStyle(color: textColor, fontSize: 11)),
+                        Text("OAT: $oat°C",
+                            style: TextStyle(color: textColor, fontSize: 11)),
                         Text("EFOB: $efob T",
                             style: TextStyle(
                                 color: isActive ? cSafe : textColor,
-                                fontSize: 12,
+                                fontSize: 11,
                                 fontWeight: isActive
                                     ? FontWeight.bold
                                     : FontWeight.normal)),
@@ -1120,11 +1209,58 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     );
   }
 
-  // --- التعديل الذكي لحماية الأصفار (Fallback) ---
+  // --- شاشة الـ Vertical Profile Chart 📈 ---
+  void _showVerticalProfile(List<dynamic> fixes) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: efbBg,
+          insetPadding: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: efbBorder, width: 2)),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.95,
+            height: MediaQuery.of(context).size.height * 0.85,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("VERTICAL FLIGHT PROFILE",
+                        style: TextStyle(
+                            color: efbWhite,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1)),
+                    IconButton(
+                        icon: const Icon(Icons.close, color: efbTextMuted),
+                        onPressed: () => Navigator.pop(context)),
+                  ],
+                ),
+                const Divider(color: efbBorder, thickness: 1),
+                const SizedBox(height: 10),
+                Expanded(
+                  // استدعاء الويدجت اللي هيرسم الشارت
+                  child: VerticalProfileChartWidget(
+                    fixes: fixes,
+                    activeIndex: _calculateActiveWaypointIndex(fixes),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   int _calculateActiveWaypointIndex(List<dynamic> fixes) {
     if (fixes.isEmpty) return 0;
 
-    // إذا لم تتوفر إحداثيات صحيحة في الذاكرة ولا في الوقت الحالي (المحاكي مغلق مثلاً)
     if (_lastValidLat == 0.0 && _lastValidLon == 0.0) return 0;
 
     int closestIndex = 0;
@@ -1137,7 +1273,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       double fixLon =
           double.tryParse(fixes[i]['pos_long']?.toString() ?? "0") ?? 0;
 
-      // الاعتماد على آخر إحداثيات صحيحة لضمان عدم عودة الرادار للبداية بسبب الأصفار
       double dist =
           _haversineDistance(_lastValidLat, _lastValidLon, fixLat, fixLon);
       if (dist < minDistance) {
@@ -1248,4 +1383,255 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     int minutes = (seconds % 3600) ~/ 60;
     return "${hours}h ${minutes}m";
   }
+}
+
+// ============================================================================
+// ==================== VERTICAL PROFILE CHART WIDGET =========================
+// ============================================================================
+
+class VerticalProfileChartWidget extends StatefulWidget {
+  final List<dynamic> fixes;
+  final int activeIndex;
+
+  const VerticalProfileChartWidget(
+      {Key? key, required this.fixes, required this.activeIndex})
+      : super(key: key);
+
+  @override
+  _VerticalProfileChartWidgetState createState() =>
+      _VerticalProfileChartWidgetState();
+}
+
+class _VerticalProfileChartWidgetState
+    extends State<VerticalProfileChartWidget> {
+  Map? selectedFix;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // --- كارت بيانات النقطة المحددة (Tooltip Box) ---
+        Container(
+          height: 80,
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+              color: efbCard,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: efbBorder)),
+          child: selectedFix == null
+              ? const Center(
+                  child: Text("Tap on any waypoint to view details",
+                      style: TextStyle(
+                          color: efbTextMuted, fontStyle: FontStyle.italic)))
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildChartStat("WPT",
+                        selectedFix!['ident']?.toString() ?? "UNK", efbAccent),
+                    _buildChartStat(
+                        "ALT",
+                        "FL${(int.tryParse(selectedFix!['altitude_feet']?.toString() ?? "0") ?? 0) ~/ 100}",
+                        efbWhite),
+                    _buildChartStat(
+                        "WIND",
+                        "${selectedFix!['wind_dir'] ?? '000'}/${selectedFix!['wind_spd'] ?? '00'}",
+                        efbWhite),
+                    _buildChartStat(
+                        "OAT", "${selectedFix!['oat'] ?? '0'}°C", efbWhite),
+                    _buildChartStat(
+                        "EFOB",
+                        "${((double.tryParse(selectedFix!['fuel_plan_onboard']?.toString() ?? "0") ?? 0) / 1000).toStringAsFixed(1)} T",
+                        cSafe),
+                  ],
+                ),
+        ),
+        const SizedBox(height: 20),
+
+        // --- رسم الشارت والتفاعل ---
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (widget.fixes.isEmpty) return const SizedBox();
+
+              double maxAlt = 0;
+              double totalDist = 0;
+              List<ChartPoint> points = [];
+
+              // حساب إجمالي المسافة والارتفاع الأقصى
+              for (var fix in widget.fixes) {
+                if (fix is! Map) continue;
+                double alt =
+                    double.tryParse(fix['altitude_feet']?.toString() ?? "0") ??
+                        0;
+                double dist =
+                    double.tryParse(fix['distance']?.toString() ?? "0") ?? 0;
+                if (alt > maxAlt) maxAlt = alt;
+                totalDist += dist;
+              }
+
+              // معالجة النقاط ورسمها
+              double currentAccumulatedDist = 0;
+              for (int i = 0; i < widget.fixes.length; i++) {
+                final fix = widget.fixes[i];
+                if (fix is! Map) continue;
+
+                double alt =
+                    double.tryParse(fix['altitude_feet']?.toString() ?? "0") ??
+                        0;
+                double dist =
+                    double.tryParse(fix['distance']?.toString() ?? "0") ?? 0;
+                currentAccumulatedDist += dist;
+
+                double xPos = totalDist == 0
+                    ? 0
+                    : (currentAccumulatedDist / totalDist) *
+                        constraints.maxWidth;
+                // حماية من القسمة على صفر وإعطاء بادينج علوي
+                double yPos = maxAlt == 0
+                    ? constraints.maxHeight
+                    : constraints.maxHeight -
+                        ((alt / maxAlt) * (constraints.maxHeight * 0.8));
+
+                // تحديد ألوان TOC و TOD بناءً على الـ ident أو الارتفاع
+                Color dotColor = efbAccent;
+                String ident = fix['ident']?.toString().toUpperCase() ?? "";
+                if (ident == "TOC") dotColor = cSafe;
+                if (ident == "TOD") dotColor = cWarn;
+
+                points.add(ChartPoint(
+                    x: xPos, y: yPos, fixData: fix, color: dotColor));
+              }
+
+              return Stack(
+                children: [
+                  // 1. الرسم البياني الصافي (Custom Painter)
+                  CustomPaint(
+                    size: Size(constraints.maxWidth, constraints.maxHeight),
+                    painter: ProfileChartPainter(points: points),
+                  ),
+
+                  // 2. النقاط التفاعلية (أزرار شفافة فوق النقاط)
+                  ...points.map((p) {
+                    return Positioned(
+                      left: p.x - 15,
+                      top: p.y - 15,
+                      child: GestureDetector(
+                        onTap: () => setState(() => selectedFix = p.fixData),
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          decoration: const BoxDecoration(
+                              color: Colors.transparent,
+                              shape: BoxShape.circle),
+                          child: Center(
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                  color: p.color,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: efbBg, width: 1)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+
+                  // 3. أيقونة الطيارة اللايف ✈️
+                  if (widget.activeIndex >= 0 &&
+                      widget.activeIndex < points.length)
+                    Positioned(
+                      left: points[widget.activeIndex].x - 12,
+                      top: points[widget.activeIndex].y - 12,
+                      child:
+                          const Icon(Icons.flight, color: efbWhite, size: 24),
+                    )
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChartStat(String title, String value, Color valColor) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(title,
+            style: const TextStyle(
+                color: efbTextMuted,
+                fontSize: 11,
+                fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(value,
+            style: TextStyle(
+                color: valColor, fontSize: 16, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+}
+
+// كلاس لحفظ إحداثيات النقطة في الشارت
+class ChartPoint {
+  final double x;
+  final double y;
+  final Map fixData;
+  final Color color;
+  ChartPoint(
+      {required this.x,
+      required this.y,
+      required this.fixData,
+      required this.color});
+}
+
+// الرسام (الذي يرسم الخط والتظليل)
+class ProfileChartPainter extends CustomPainter {
+  final List<ChartPoint> points;
+  ProfileChartPainter({required this.points});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (points.isEmpty) return;
+
+    final path = Path();
+    final fillPath = Path();
+
+    path.moveTo(points.first.x, points.first.y);
+    fillPath.moveTo(points.first.x, size.height);
+    fillPath.lineTo(points.first.x, points.first.y);
+
+    for (var i = 1; i < points.length; i++) {
+      path.lineTo(points[i].x, points[i].y);
+      fillPath.lineTo(points[i].x, points[i].y);
+    }
+
+    fillPath.lineTo(points.last.x, size.height);
+    fillPath.close();
+
+    // رسم التظليل المتدرج (Gradient)
+    final gradient = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [efbAccent.withOpacity(0.4), Colors.transparent],
+    );
+    final fillPaint = Paint()
+      ..shader =
+          gradient.createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.drawPath(fillPath, fillPaint);
+
+    // رسم الخط الأساسي للارتفاع
+    final linePaint = Paint()
+      ..color = efbAccent
+      ..strokeWidth = 3.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(path, linePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

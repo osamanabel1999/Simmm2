@@ -22030,6 +22030,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                   FFAppState().currentLAT,
                                               currentLon:
                                                   FFAppState().currentLON,
+                                              pdfLink:
+                                                  FFAppState().PDFlinkSimbreif,
                                               onDepartureAtisPressed: () async {
                                                 await actions.professionalAtis(
                                                   getJsonField(
