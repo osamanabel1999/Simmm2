@@ -61,7 +61,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   String _errorMessage = "";
   Map<String, dynamic>? _ofpData;
 
-  // للتحكم في الأقسام القابلة للتوسعة
   bool _isRouteExpanded = false;
   bool _isDepNotamExpanded = false;
   bool _isArrNotamExpanded = false;
@@ -91,12 +90,12 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     super.dispose();
   }
 
-  // --- 1. جلب بيانات SimBrief (مُعدل ومُحصن بالكامل) ---
+  // --- 1. جلب بيانات SimBrief ---
   Future<void> _fetchSimBriefData() async {
     String cleanId = widget.pilotId.trim();
 
-    // لو مفيش آيدي، اعرض التصميم فاضي مع رسالة خطأ
     if (cleanId.isEmpty) {
+      if (!mounted) return;
       setState(() {
         _errorMessage =
             "No Pilot ID provided. Please connect your SimBrief account.";
@@ -107,31 +106,51 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     }
 
     try {
-      // تم تثبيت الباراميتر ليكون userid فقط بناءً على طلبك
+      // اللينك الصريح بناءً على طلبك (userid فقط)
       final url = Uri.parse(
           "https://www.simbrief.com/api/xml.fetcher.php?userid=${Uri.encodeComponent(cleanId)}&json=1");
       final response = await http.get(url);
 
-      if (response.statusCode == 200 || response.statusCode == 400) {
-        final data = json.decode(response.body);
+      dynamic data;
+      try {
+        data = json.decode(response.body);
+      } catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _errorMessage = "SimBrief returned invalid JSON format.";
+          _ofpData = null;
+          _isLoading = false;
+        });
+        return;
+      }
 
-        if (data['general'] == null ||
+      if (response.statusCode == 200 || response.statusCode == 400) {
+        if (data is! Map ||
+            data['general'] == null ||
+            data['general'] is! Map ||
             data['general']['icao_airline'] == null) {
           String apiError =
-              data['fetch']?['status'] ?? "No active flight plan found.";
+              (data is Map && data['fetch'] != null && data['fetch'] is Map)
+                  ? (data['fetch']['status']?.toString() ??
+                      "No active flight plan found.")
+                  : "No active flight plan found.";
+
+          if (!mounted) return;
           setState(() {
             _errorMessage = "SimBrief Alert: $apiError";
-            _ofpData = null; // تفريغ الداتا عشان الشاشة تعرض الـ Fallback (---)
+            _ofpData = null;
             _isLoading = false;
           });
         } else {
+          if (!mounted) return;
           setState(() {
             _ofpData = data;
-            _errorMessage = ""; // مسح أي أخطاء لو الداتا جت سليمة
+            _errorMessage = "";
             _isLoading = false;
           });
         }
       } else {
+        if (!mounted) return;
         setState(() {
           _errorMessage =
               "Connection Error (${response.statusCode}). Showing empty layout.";
@@ -140,6 +159,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage =
             "Network timeout or parsing error. Showing empty layout.";
@@ -184,10 +204,8 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       child: SafeArea(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator(color: efbAccent))
-            // التصميم هيتعرض في كل الحالات (سواء في إيرور أو داتا سليمة)
             : Column(
                 children: [
-                  // شريط الخطأ الأحمر (يظهر فقط لو في مشكلة)
                   if (_errorMessage.isNotEmpty)
                     Container(
                       width: double.infinity,
@@ -209,7 +227,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                         ],
                       ),
                     ),
-
                   _buildHeader(),
                   Expanded(
                     child: Padding(
@@ -255,8 +272,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                       ),
                     ),
                   ),
-
-                  // شريط السحب (Home Indicator) المضاف بناءً على طلبك
                   _buildHomeIndicator(
                     onTap: () {
                       Navigator.of(context).pop();
@@ -268,23 +283,29 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     );
   }
 
-  // --- 3. بناء الأقسام (مُحصنة بـ Fallbacks لتعمل في حال عدم وجود داتا) ---
+  // --- 3. بناء الأقسام ---
 
   Widget _buildHeader() {
-    final gen = _ofpData?['general'];
-    final origin = _ofpData?['origin']?['icao_code'] ?? "---";
-    final dest = _ofpData?['destination']?['icao_code'] ?? "---";
+    final Map? gen = _ofpData?['general'] is Map ? _ofpData!['general'] : null;
 
-    final airline = gen?['icao_airline'] ?? "";
-    final fltNum = gen?['flight_number'] ?? "";
-    final callsign =
+    // تأمين الـ Type Casting تماماً بإستخدام ?.toString()
+    final String origin = (_ofpData?['origin'] is Map)
+        ? (_ofpData!['origin']['icao_code']?.toString() ?? "---")
+        : "---";
+    final String dest = (_ofpData?['destination'] is Map)
+        ? (_ofpData!['destination']['icao_code']?.toString() ?? "---")
+        : "---";
+
+    final String airline = gen?['icao_airline']?.toString() ?? "";
+    final String fltNum = gen?['flight_number']?.toString() ?? "";
+    final String callsign =
         "$airline$fltNum".trim().isNotEmpty ? "$airline$fltNum" : "---";
 
-    final acType = gen?['aircraft'] ?? "---";
+    final String acType = gen?['aircraft']?.toString() ?? "---";
 
-    final prefileVatsim = "https://my.vatsim.net/pilots/flightplan";
-    final prefileIvao = "https://fpl.ivao.aero/flight-plans/create";
-    final pdfUrl = gen != null
+    const String prefileVatsim = "https://my.vatsim.net/pilots/flightplan";
+    const String prefileIvao = "https://fpl.ivao.aero/flight-plans/create";
+    final String pdfUrl = gen != null
         ? "https://www.simbrief.com/ofp/flightplans/${gen['c_ofp_id']}_pdf.pdf"
         : "https://www.simbrief.com";
 
@@ -356,7 +377,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   Widget _buildTimesCard() {
-    final times = _ofpData?['times'];
+    final Map? times = _ofpData?['times'] is Map ? _ofpData!['times'] : null;
     return _buildCardWrapper(
       title: "TIMES & SCHEDULE",
       child: Column(
@@ -376,7 +397,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   Widget _buildSmartWeightsCard() {
-    final w = _ofpData?['weights'];
+    final Map? w = _ofpData?['weights'] is Map ? _ofpData!['weights'] : null;
 
     double zfw = double.tryParse(w?['est_zfw']?.toString() ?? "0") ?? 0;
     double tow = double.tryParse(w?['est_tow']?.toString() ?? "0") ?? 0;
@@ -386,6 +407,10 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     double mtow = double.tryParse(w?['max_tow']?.toString() ?? "1") ?? 1;
     double mlaw = double.tryParse(w?['max_ldw']?.toString() ?? "1") ?? 1;
 
+    if (mzfw <= 0) mzfw = 1;
+    if (mtow <= 0) mtow = 1;
+    if (mlaw <= 0) mlaw = 1;
+
     return _buildCardWrapper(
       title: "SMART WEIGHTS & PAYLOAD",
       child: Column(
@@ -394,13 +419,13 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("PAX: ${w?['pax_count'] ?? '---'}",
+              Text("PAX: ${w?['pax_count']?.toString() ?? '---'}",
                   style: const TextStyle(
                       color: efbWhite, fontWeight: FontWeight.bold)),
-              Text("CARGO: ${w?['cargo'] ?? '---'} KG",
+              Text("CARGO: ${w?['cargo']?.toString() ?? '---'} KG",
                   style: const TextStyle(
                       color: efbWhite, fontWeight: FontWeight.bold)),
-              Text("PAYLOAD: ${w?['payload'] ?? '---'} KG",
+              Text("PAYLOAD: ${w?['payload']?.toString() ?? '---'} KG",
                   style: const TextStyle(
                       color: efbWhite, fontWeight: FontWeight.bold)),
             ],
@@ -418,6 +443,8 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
   Widget _buildWeightProgressBar(String label, double actual, double max) {
     double percentage = max == 1 ? 0 : (actual / max).clamp(0.0, 1.0);
+    if (percentage.isNaN || percentage.isInfinite) percentage = 0.0;
+
     Color barColor = cSafe;
     if (percentage > 0.98)
       barColor = cDanger;
@@ -449,6 +476,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
           children: [
             Container(
                 height: 10,
+                width: double.infinity,
                 decoration: BoxDecoration(
                     color: efbBg, borderRadius: BorderRadius.circular(5))),
             FractionallySizedBox(
@@ -469,7 +497,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   Widget _buildFuelBreakdownCard() {
-    final f = _ofpData?['fuel'];
+    final Map? f = _ofpData?['fuel'] is Map ? _ofpData!['fuel'] : null;
     double trip = double.tryParse(f?['enroute_burn']?.toString() ?? "0") ?? 0;
     double cont = double.tryParse(f?['contingency']?.toString() ?? "0") ?? 0;
     double alt = double.tryParse(f?['alternate_burn']?.toString() ?? "0") ?? 0;
@@ -534,8 +562,11 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
   Widget _buildFuelSegment(double amount, Color color) {
     if (amount <= 0) return const SizedBox();
+    int flexVal = (amount * 10).toInt();
+    if (flexVal <= 0) flexVal = 1;
+
     return Expanded(
-      flex: (amount * 1000).toInt(),
+      flex: flexVal,
       child: Container(height: 16, color: color),
     );
   }
@@ -559,8 +590,10 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   Widget _buildRouteAndEnvCard() {
-    final gen = _ofpData?['general'];
-    String route = gen?['route'] ?? "---";
+    final Map? gen = _ofpData?['general'] is Map ? _ofpData!['general'] : null;
+    final String route = gen?['route']?.toString() ?? "---";
+    final Map? weather =
+        _ofpData?['weather'] is Map ? _ofpData!['weather'] : null;
 
     return _buildCardWrapper(
       title: "ROUTE & ENVIRONMENT",
@@ -627,13 +660,16 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildInfoColumn(
-                  "COST INDEX", gen != null ? "CI ${gen['costindex']}" : "---"),
+                  "COST INDEX",
+                  gen != null && gen['costindex'] != null
+                      ? "CI ${gen['costindex']}"
+                      : "---"),
               _buildInfoColumn(
-                  "AVG WIND", _ofpData?['weather']?['avg_wind_comp'] ?? "---"),
+                  "AVG WIND", weather?['avg_wind_comp']?.toString() ?? "---"),
               _buildInfoColumn(
-                  "ISA DEV", _ofpData?['weather']?['isa_deviation'] ?? "---"),
+                  "ISA DEV", weather?['isa_deviation']?.toString() ?? "---"),
               _buildInfoColumn(
-                  "TROPOPAUSE", _ofpData?['weather']?['tropopause'] ?? "---"),
+                  "TROPOPAUSE", weather?['tropopause']?.toString() ?? "---"),
             ],
           )
         ],
@@ -642,7 +678,9 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   Widget _buildStepClimbsCard() {
-    final steps = _ofpData?['stepclimbs']?['step'];
+    final dynamic steps = (_ofpData != null && _ofpData!['stepclimbs'] is Map)
+        ? _ofpData!['stepclimbs']['step']
+        : null;
 
     if (steps == null) {
       return _buildCardWrapper(
@@ -666,12 +704,14 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
           scrollDirection: Axis.horizontal,
           itemCount: stepList.length,
           itemBuilder: (context, index) {
-            final step = stepList[index];
+            final Map? step = stepList[index] is Map ? stepList[index] : null;
+            if (step == null) return const SizedBox();
+
             return Row(
               children: [
                 Tooltip(
                   message:
-                      "Fix: ${step['name']}\nWind: ${step['wind_dir']}/${step['wind_spd']}",
+                      "Fix: ${step['name']?.toString() ?? '---'}\nWind: ${step['wind_dir']?.toString() ?? '---'}/${step['wind_spd']?.toString() ?? '---'}",
                   textStyle: const TextStyle(
                       color: efbBg, fontWeight: FontWeight.bold),
                   decoration: BoxDecoration(
@@ -683,12 +723,12 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                           color: efbAccent, size: 20),
                       const SizedBox(height: 4),
                       Text(
-                          "FL${(int.tryParse(step['level'].toString()) ?? 0) ~/ 100}",
+                          "FL${(int.tryParse(step['level']?.toString() ?? "0") ?? 0) ~/ 100}",
                           style: const TextStyle(
                               color: efbWhite,
                               fontWeight: FontWeight.bold,
                               fontSize: 14)),
-                      Text(step['name'].toString(),
+                      Text(step['name']?.toString() ?? "---",
                           style: const TextStyle(
                               color: efbTextMuted, fontSize: 10)),
                     ],
@@ -710,12 +750,29 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     );
   }
 
-  Widget _buildWeatherNotamCard(String type, dynamic airportData) {
-    final icao = airportData?['icao_code'] ?? "---";
-    final metar = airportData?['metar'] ?? "---";
-    final taf = airportData?['taf'] ?? "---";
-    final atis = airportData?['atis'] ?? "---";
-    final notam = airportData?['notam'] ?? "---";
+  Widget _buildWeatherNotamCard(String type, dynamic airportDataRaw) {
+    final Map? airportData = airportDataRaw is Map ? airportDataRaw : null;
+    final String icao = airportData?['icao_code']?.toString() ?? "---";
+    final String metar = airportData?['metar']?.toString() ?? "---";
+    final String taf = airportData?['taf']?.toString() ?? "---";
+    final String atis = airportData?['atis']?.toString() ?? "---";
+
+    // --- الحل الجذري لمشكلة النوتام اللي ظهرت في الـ JSON بتاعك ---
+    String notamStr = "---";
+    if (airportData != null && airportData['notam'] != null) {
+      if (airportData['notam'] is List) {
+        List notamList = airportData['notam'] as List;
+        notamStr = notamList.map((n) {
+          if (n is Map)
+            return n['notam_raw']?.toString() ??
+                n['notam_text']?.toString() ??
+                n.toString();
+          return n.toString();
+        }).join("\n\n---\n\n");
+      } else {
+        notamStr = airportData['notam'].toString();
+      }
+    }
 
     bool isDep = type == "DEPARTURE";
     bool isExpanded = isDep ? _isDepNotamExpanded : _isArrNotamExpanded;
@@ -762,14 +819,14 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                         icon: const Icon(Icons.copy,
                             color: efbTextMuted, size: 16),
                         onPressed: () =>
-                            _copyToClipboard(notam, "$icao NOTAMs"),
+                            _copyToClipboard(notamStr, "$icao NOTAMs"),
                         constraints: const BoxConstraints(),
                         padding: EdgeInsets.zero),
                   ],
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  notam.toString().replaceAll(RegExp(r'\n+'), '\n\n'),
+                  notamStr.replaceAll(RegExp(r'\n+'), '\n\n'),
                   style: const TextStyle(
                       color: efbWhite, fontSize: 12, fontFamily: 'monospace'),
                   maxLines: isExpanded ? null : 3,
@@ -831,9 +888,10 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   Widget _buildLiveNavlogCard() {
-    final navlog = _ofpData?['navlog']?['fix'];
+    final dynamic navlogRaw = (_ofpData != null && _ofpData!['navlog'] is Map)
+        ? _ofpData!['navlog']['fix']
+        : null;
 
-    // تصميم الهيكل الداخلي للكارت عشان ياخد الطول بالكامل بدون إيرور
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -851,11 +909,11 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                   letterSpacing: 1)),
           const Divider(color: efbBorder, height: 20, thickness: 1),
           Expanded(
-            child: navlog == null
+            child: navlogRaw == null
                 ? const Center(
                     child: Text("---",
                         style: TextStyle(color: efbTextMuted, fontSize: 18)))
-                : _buildNavlogList(navlog is List ? navlog : [navlog]),
+                : _buildNavlogList(navlogRaw is List ? navlogRaw : [navlogRaw]),
           ),
         ],
       ),
@@ -868,7 +926,9 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     return ListView.builder(
       itemCount: fixes.length,
       itemBuilder: (context, index) {
-        final fix = fixes[index];
+        final Map? fix = fixes[index] is Map ? fixes[index] : null;
+        if (fix == null) return const SizedBox();
+
         bool isPassed = index < activeIndex;
         bool isActive = index == activeIndex;
 
@@ -924,7 +984,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                   children: [
                     Row(
                       children: [
-                        Text(fix['ident'] ?? "UNK",
+                        Text(fix['ident']?.toString() ?? "UNK",
                             style: TextStyle(
                                 color: isActive ? efbAccent : textColor,
                                 fontSize: 16,
@@ -954,9 +1014,11 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                         Text(
                             "FL${(int.tryParse(fix['altitude_feet']?.toString() ?? "0") ?? 0) ~/ 100}",
                             style: TextStyle(color: textColor, fontSize: 12)),
-                        Text("DTG: ${fix['distance_to_dest'] ?? '0'} NM",
+                        Text(
+                            "DTG: ${fix['distance_to_dest']?.toString() ?? '0'} NM",
                             style: TextStyle(color: textColor, fontSize: 12)),
-                        Text("EFOB: ${fix['fuel_plan_on_board'] ?? '0'} T",
+                        Text(
+                            "EFOB: ${fix['fuel_plan_on_board']?.toString() ?? '0'} T",
                             style: TextStyle(
                                 color: isActive ? cSafe : textColor,
                                 fontSize: 12,
@@ -975,7 +1037,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     );
   }
 
-  // --- دوال رياضية ---
   int _calculateActiveWaypointIndex(List<dynamic> fixes) {
     if (fixes.isEmpty || (widget.currentLat == 0 && widget.currentLon == 0))
       return 0;
@@ -984,6 +1045,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     double minDistance = double.infinity;
 
     for (int i = 0; i < fixes.length; i++) {
+      if (fixes[i] is! Map) continue;
       double fixLat =
           double.tryParse(fixes[i]['pos_lat']?.toString() ?? "0") ?? 0;
       double fixLon =
@@ -1014,7 +1076,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
   double _toRadians(double degree) => degree * math.pi / 180.0;
 
-  // --- دوال بناء الـ UI العامة ---
   Widget _buildCardWrapper(
       {required String title, required Widget child, Widget? actionWidget}) {
     return Container(
@@ -1101,7 +1162,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     return "${hours}h ${minutes}m";
   }
 
-  // --- إضافة الودجيت المطلوبة (Home Indicator) ---
   Widget _buildHomeIndicator({required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
