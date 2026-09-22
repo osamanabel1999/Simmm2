@@ -33,7 +33,6 @@ class EfbFlightPlanScreen extends StatefulWidget {
   final double? width;
   final double? height;
 
-  // الـ 5 Parameters المطلوبة بدقة
   final String pilotId;
   final double currentLat;
   final double currentLon;
@@ -68,6 +67,10 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
+  // --- نظام الحماية الذكي للإحداثيات (Memory Fallback) ---
+  double _lastValidLat = 0.0;
+  double _lastValidLon = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -90,15 +93,13 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     super.dispose();
   }
 
-  // --- 1. جلب بيانات SimBrief ---
   Future<void> _fetchSimBriefData() async {
     String cleanId = widget.pilotId.trim();
 
     if (cleanId.isEmpty) {
       if (!mounted) return;
       setState(() {
-        _errorMessage =
-            "No Pilot ID provided. Please connect your SimBrief account.";
+        _errorMessage = "No Pilot ID provided.";
         _ofpData = null;
         _isLoading = false;
       });
@@ -106,7 +107,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     }
 
     try {
-      // اللينك الصريح بناءً على طلبك (userid فقط)
       final url = Uri.parse(
           "https://www.simbrief.com/api/xml.fetcher.php?userid=${Uri.encodeComponent(cleanId)}&json=1");
       final response = await http.get(url);
@@ -117,7 +117,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       } catch (e) {
         if (!mounted) return;
         setState(() {
-          _errorMessage = "SimBrief returned invalid JSON format.";
+          _errorMessage = "Invalid Data Format.";
           _ofpData = null;
           _isLoading = false;
         });
@@ -125,19 +125,15 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       }
 
       if (response.statusCode == 200 || response.statusCode == 400) {
-        if (data is! Map ||
-            data['general'] == null ||
-            data['general'] is! Map ||
-            data['general']['icao_airline'] == null) {
+        if (data is! Map || data['general'] == null) {
           String apiError =
               (data is Map && data['fetch'] != null && data['fetch'] is Map)
                   ? (data['fetch']['status']?.toString() ??
-                      "No active flight plan found.")
-                  : "No active flight plan found.";
-
+                      "No active flight plan.")
+                  : "No active flight plan.";
           if (!mounted) return;
           setState(() {
-            _errorMessage = "SimBrief Alert: $apiError";
+            _errorMessage = "SimBrief: $apiError";
             _ofpData = null;
             _isLoading = false;
           });
@@ -152,8 +148,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       } else {
         if (!mounted) return;
         setState(() {
-          _errorMessage =
-              "Connection Error (${response.statusCode}). Showing empty layout.";
+          _errorMessage = "Connection Error (${response.statusCode}).";
           _ofpData = null;
           _isLoading = false;
         });
@@ -161,30 +156,37 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage =
-            "Network timeout or parsing error. Showing empty layout.";
+        _errorMessage = "Network timeout.";
         _ofpData = null;
         _isLoading = false;
       });
     }
   }
 
-  // --- دوال مساعدة ---
   void _copyToClipboard(String text, String label) {
     if (text == "---" || text.isEmpty) return;
     Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content:
-              Text("$label Copied!", style: const TextStyle(color: efbWhite)),
-          backgroundColor: efbBorder,
-          duration: const Duration(seconds: 2)),
+        content: Text("$label Copied!",
+            style: const TextStyle(
+                color: efbWhite, fontSize: 13, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center),
+        backgroundColor: efbBorder,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(bottom: 20, left: 100, right: 100),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 
   Future<void> _launchUrl(String urlString) async {
     final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+    try {
+      await launchUrl(url, mode: LaunchMode.inAppWebView);
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content:
@@ -194,14 +196,21 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     }
   }
 
-  // --- 2. التصميم الرئيسي للشاشة ---
   @override
   Widget build(BuildContext context) {
+    // --- التعديل الذكي للتخزين في الذاكرة ---
+    // لا نقوم بتحديث الذاكرة إلا لو كانت الإحداثيات منطقية (ليست 0,0 معاً)
+    if (!(widget.currentLat == 0.0 && widget.currentLon == 0.0)) {
+      _lastValidLat = widget.currentLat;
+      _lastValidLon = widget.currentLon;
+    }
+
     return Container(
       width: widget.width,
       height: widget.height,
       color: efbBg,
       child: SafeArea(
+        bottom: false,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator(color: efbAccent))
             : Column(
@@ -260,6 +269,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                                 const SizedBox(height: 12),
                                 _buildWeatherNotamCard(
                                     "ARRIVAL", _ofpData?['destination']),
+                                const SizedBox(height: 20),
                               ],
                             ),
                           ),
@@ -272,23 +282,15 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                       ),
                     ),
                   ),
-                  _buildHomeIndicator(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
                 ],
               ),
       ),
     );
   }
 
-  // --- 3. بناء الأقسام ---
-
   Widget _buildHeader() {
     final Map? gen = _ofpData?['general'] is Map ? _ofpData!['general'] : null;
 
-    // تأمين الـ Type Casting تماماً بإستخدام ?.toString()
     final String origin = (_ofpData?['origin'] is Map)
         ? (_ofpData!['origin']['icao_code']?.toString() ?? "---")
         : "---";
@@ -298,16 +300,18 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
     final String airline = gen?['icao_airline']?.toString() ?? "";
     final String fltNum = gen?['flight_number']?.toString() ?? "";
-    final String callsign =
-        "$airline$fltNum".trim().isNotEmpty ? "$airline$fltNum" : "---";
+    String callsign = "$airline$fltNum".trim();
+    if (callsign.isEmpty || callsign == "null") callsign = "FLIGHT";
 
     final String acType = gen?['aircraft']?.toString() ?? "---";
 
     const String prefileVatsim = "https://my.vatsim.net/pilots/flightplan";
     const String prefileIvao = "https://fpl.ivao.aero/flight-plans/create";
-    final String pdfUrl = gen != null
-        ? "https://www.simbrief.com/ofp/flightplans/${gen['c_ofp_id']}_pdf.pdf"
-        : "https://www.simbrief.com";
+
+    final String pdfUrl = _ofpData?['files']?['pdf']?['link']?.toString() ??
+        (gen != null
+            ? "https://www.simbrief.com/ofp/flightplans/${gen['c_ofp_id']}_pdf.pdf"
+            : "https://www.simbrief.com");
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -416,21 +420,20 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("PAX: ${w?['pax_count']?.toString() ?? '---'}",
-                  style: const TextStyle(
-                      color: efbWhite, fontWeight: FontWeight.bold)),
-              Text("CARGO: ${w?['cargo']?.toString() ?? '---'} KG",
-                  style: const TextStyle(
-                      color: efbWhite, fontWeight: FontWeight.bold)),
-              Text("PAYLOAD: ${w?['payload']?.toString() ?? '---'} KG",
-                  style: const TextStyle(
-                      color: efbWhite, fontWeight: FontWeight.bold)),
+              _buildPayloadRow(
+                  "PAX", w?['pax_count']?.toString() ?? '---', efbWhite),
+              const SizedBox(height: 6),
+              _buildPayloadRow(
+                  "CARGO", "${w?['cargo']?.toString() ?? '---'} KG", cWarn),
+              const SizedBox(height: 6),
+              _buildPayloadRow(
+                  "PAYLOAD", "${w?['payload']?.toString() ?? '---'} KG", cSafe),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           _buildWeightProgressBar("ZFW", zfw, mzfw),
           const SizedBox(height: 12),
           _buildWeightProgressBar("TOW", tow, mtow),
@@ -438,6 +441,22 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
           _buildWeightProgressBar("LAW", law, mlaw),
         ],
       ),
+    );
+  }
+
+  Widget _buildPayloadRow(String title, String value, Color valueColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title,
+            style: const TextStyle(
+                color: efbTextMuted,
+                fontWeight: FontWeight.bold,
+                fontSize: 13)),
+        Text(value,
+            style: TextStyle(
+                color: valueColor, fontWeight: FontWeight.bold, fontSize: 14)),
+      ],
     );
   }
 
@@ -592,8 +611,10 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   Widget _buildRouteAndEnvCard() {
     final Map? gen = _ofpData?['general'] is Map ? _ofpData!['general'] : null;
     final String route = gen?['route']?.toString() ?? "---";
-    final Map? weather =
-        _ofpData?['weather'] is Map ? _ofpData!['weather'] : null;
+
+    final String avgWind = gen?['avg_wind_comp']?.toString() ?? "---";
+    final String isaDev = gen?['isa_deviation']?.toString() ?? "---";
+    final String tropopause = gen?['tropopause']?.toString() ?? "---";
 
     return _buildCardWrapper(
       title: "ROUTE & ENVIRONMENT",
@@ -664,12 +685,9 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                   gen != null && gen['costindex'] != null
                       ? "CI ${gen['costindex']}"
                       : "---"),
-              _buildInfoColumn(
-                  "AVG WIND", weather?['avg_wind_comp']?.toString() ?? "---"),
-              _buildInfoColumn(
-                  "ISA DEV", weather?['isa_deviation']?.toString() ?? "---"),
-              _buildInfoColumn(
-                  "TROPOPAUSE", weather?['tropopause']?.toString() ?? "---"),
+              _buildInfoColumn("AVG WIND", avgWind),
+              _buildInfoColumn("ISA DEV", isaDev),
+              _buildInfoColumn("TROPOPAUSE", tropopause),
             ],
           )
         ],
@@ -753,24 +771,16 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   Widget _buildWeatherNotamCard(String type, dynamic airportDataRaw) {
     final Map? airportData = airportDataRaw is Map ? airportDataRaw : null;
     final String icao = airportData?['icao_code']?.toString() ?? "---";
-    final String metar = airportData?['metar']?.toString() ?? "---";
-    final String taf = airportData?['taf']?.toString() ?? "---";
-    final String atis = airportData?['atis']?.toString() ?? "---";
+    final String metar =
+        airportData?['metar']?.toString() ?? "No METAR available";
+    final String taf = airportData?['taf']?.toString() ?? "No TAF available";
 
-    // --- الحل الجذري لمشكلة النوتام اللي ظهرت في الـ JSON بتاعك ---
-    String notamStr = "---";
+    List<dynamic> notamList = [];
     if (airportData != null && airportData['notam'] != null) {
       if (airportData['notam'] is List) {
-        List notamList = airportData['notam'] as List;
-        notamStr = notamList.map((n) {
-          if (n is Map)
-            return n['notam_raw']?.toString() ??
-                n['notam_text']?.toString() ??
-                n.toString();
-          return n.toString();
-        }).join("\n\n---\n\n");
+        notamList = airportData['notam'] as List;
       } else {
-        notamStr = airportData['notam'].toString();
+        notamList = [airportData['notam']];
       }
     }
 
@@ -778,7 +788,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     bool isExpanded = isDep ? _isDepNotamExpanded : _isArrNotamExpanded;
 
     return _buildCardWrapper(
-      title: "$type WEATHER & NOTAM ($icao)",
+      title: "$type BRIEFING ($icao)",
       actionWidget: ElevatedButton.icon(
         onPressed:
             isDep ? widget.onDepartureAtisPressed : widget.onArrivalAtisPressed,
@@ -792,67 +802,123 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTextReport("METAR", metar),
-          const SizedBox(height: 8),
-          _buildTextReport("TAF", taf),
-          const SizedBox(height: 8),
-          _buildTextReport("D-ATIS", atis),
+          _buildWeatherCard("METAR", metar),
           const SizedBox(height: 12),
+          _buildWeatherCard("TAF", taf),
+          const SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
                 color: efbBg,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: cWarn.withOpacity(0.5))),
+                borderRadius: BorderRadius.circular(8),
+                border:
+                    Border.all(color: cDanger.withOpacity(0.6), width: 1.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("NOTAMs",
-                        style: TextStyle(
-                            color: cWarn,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12)),
-                    IconButton(
-                        icon: const Icon(Icons.copy,
-                            color: efbTextMuted, size: 16),
-                        onPressed: () =>
-                            _copyToClipboard(notamStr, "$icao NOTAMs"),
-                        constraints: const BoxConstraints(),
-                        padding: EdgeInsets.zero),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  notamStr.replaceAll(RegExp(r'\n+'), '\n\n'),
-                  style: const TextStyle(
-                      color: efbWhite, fontSize: 12, fontFamily: 'monospace'),
-                  maxLines: isExpanded ? null : 3,
-                  overflow:
-                      isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (isDep)
-                        _isDepNotamExpanded = !_isDepNotamExpanded;
-                      else
-                        _isArrNotamExpanded = !_isArrNotamExpanded;
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                        isExpanded ? "COLLAPSE NOTAMs" : "EXPAND NOTAMs",
-                        style: const TextStyle(
-                            color: cWarn,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                      color: cDanger.withOpacity(0.15),
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(6),
+                          topRight: Radius.circular(6))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("NOTAMs (${notamList.length} Total)",
+                          style: const TextStyle(
+                              color: cDanger,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13)),
+                      if (notamList.isNotEmpty)
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (isDep)
+                                _isDepNotamExpanded = !_isDepNotamExpanded;
+                              else
+                                _isArrNotamExpanded = !_isArrNotamExpanded;
+                            });
+                          },
+                          child: Text(isExpanded ? "COLLAPSE" : "EXPAND",
+                              style: const TextStyle(
+                                  color: efbWhite,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold)),
+                        )
+                    ],
                   ),
-                )
+                ),
+                if (notamList.isEmpty)
+                  const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Text("No NOTAMs available.",
+                          style: TextStyle(color: efbTextMuted, fontSize: 12)))
+                else if (!isExpanded)
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                        "Tap Expand to view ${notamList.length} NOTAMs...",
+                        style: const TextStyle(
+                            color: efbTextMuted,
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic)),
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: notamList.map((n) {
+                        String notamText = "";
+                        String notamId = "NOTAM";
+                        if (n is Map) {
+                          notamText = n['notam_raw']?.toString() ??
+                              n['notam_text']?.toString() ??
+                              "---";
+                          notamId = n['notam_id']?.toString() ?? "NOTAM";
+                        } else {
+                          notamText = n.toString();
+                        }
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                              color: efbCard,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: efbBorder)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(notamId,
+                                      style: const TextStyle(
+                                          color: efbAccent,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12)),
+                                  GestureDetector(
+                                      onTap: () =>
+                                          _copyToClipboard(notamText, notamId),
+                                      child: const Icon(Icons.copy,
+                                          size: 14, color: efbTextMuted)),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(notamText.replaceAll(RegExp(r'\n+'), '\n'),
+                                  style: const TextStyle(
+                                      color: efbWhite,
+                                      fontSize: 12,
+                                      fontFamily: 'monospace')),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  )
               ],
             ),
           )
@@ -861,29 +927,39 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     );
   }
 
-  Widget _buildTextReport(String label, String text) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label,
-                style: const TextStyle(
-                    color: efbAccent,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold)),
-            GestureDetector(
-              onTap: () => _copyToClipboard(text, label),
-              child: const Icon(Icons.copy, color: efbTextMuted, size: 14),
-            )
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(text,
-            style: const TextStyle(
-                color: efbWhite, fontSize: 12, fontFamily: 'monospace')),
-      ],
+  Widget _buildWeatherCard(String label, String text) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          color: efbBg,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: efbBorder)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(label,
+                  style: const TextStyle(
+                      color: efbTextMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold)),
+              GestureDetector(
+                onTap: () => _copyToClipboard(text, label),
+                child: const Icon(Icons.copy, color: efbAccent, size: 14),
+              )
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(text,
+              style: const TextStyle(
+                  color: efbWhite,
+                  fontSize: 13,
+                  fontFamily: 'monospace',
+                  height: 1.4)),
+        ],
+      ),
     );
   }
 
@@ -935,6 +1011,15 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
         Color textColor = isPassed ? efbTextMuted.withOpacity(0.5) : efbWhite;
         TextDecoration decoration =
             isPassed ? TextDecoration.lineThrough : TextDecoration.none;
+
+        String dtg = fix['distance_to_dest']?.toString() ??
+            fix['dist_dest']?.toString() ??
+            fix['rem_dist']?.toString() ??
+            "0";
+        String efob = fix['fuel_plan_on_board']?.toString() ??
+            fix['plan_fob']?.toString() ??
+            fix['efob']?.toString() ??
+            "0";
 
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1014,11 +1099,9 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                         Text(
                             "FL${(int.tryParse(fix['altitude_feet']?.toString() ?? "0") ?? 0) ~/ 100}",
                             style: TextStyle(color: textColor, fontSize: 12)),
-                        Text(
-                            "DTG: ${fix['distance_to_dest']?.toString() ?? '0'} NM",
+                        Text("DTG: $dtg NM",
                             style: TextStyle(color: textColor, fontSize: 12)),
-                        Text(
-                            "EFOB: ${fix['fuel_plan_on_board']?.toString() ?? '0'} T",
+                        Text("EFOB: $efob T",
                             style: TextStyle(
                                 color: isActive ? cSafe : textColor,
                                 fontSize: 12,
@@ -1037,9 +1120,12 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     );
   }
 
+  // --- التعديل الذكي لحماية الأصفار (Fallback) ---
   int _calculateActiveWaypointIndex(List<dynamic> fixes) {
-    if (fixes.isEmpty || (widget.currentLat == 0 && widget.currentLon == 0))
-      return 0;
+    if (fixes.isEmpty) return 0;
+
+    // إذا لم تتوفر إحداثيات صحيحة في الذاكرة ولا في الوقت الحالي (المحاكي مغلق مثلاً)
+    if (_lastValidLat == 0.0 && _lastValidLon == 0.0) return 0;
 
     int closestIndex = 0;
     double minDistance = double.infinity;
@@ -1051,8 +1137,9 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       double fixLon =
           double.tryParse(fixes[i]['pos_long']?.toString() ?? "0") ?? 0;
 
-      double dist = _haversineDistance(
-          widget.currentLat, widget.currentLon, fixLat, fixLon);
+      // الاعتماد على آخر إحداثيات صحيحة لضمان عدم عودة الرادار للبداية بسبب الأصفار
+      double dist =
+          _haversineDistance(_lastValidLat, _lastValidLon, fixLat, fixLon);
       if (dist < minDistance) {
         minDistance = dist;
         closestIndex = i;
@@ -1160,25 +1247,5 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     int hours = seconds ~/ 3600;
     int minutes = (seconds % 3600) ~/ 60;
     return "${hours}h ${minutes}m";
-  }
-
-  Widget _buildHomeIndicator({required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
-        alignment: Alignment.center,
-        child: Container(
-          width: 130,
-          height: 5,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      ),
-    );
   }
 }
