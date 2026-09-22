@@ -16,7 +16,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:url_launcher/url_launcher.dart';
 
-// --- ألوان EFB الاحترافية (حسب طلبك) ---
+// --- ألوان EFB الاحترافية ---
 const Color efbBg = Color(0xFF0B111A);
 const Color efbCard = Color(0xFF101923);
 const Color efbBorder = Color(0xFF26364D);
@@ -24,7 +24,7 @@ const Color efbTextMuted = Color(0xFF8B949E);
 const Color efbAccent = Color(0xFF639DF0);
 const Color efbWhite = Color(0xFFFFFFFF);
 
-// --- ألوان الحالات والتحذيرات (Smart Limits) ---
+// --- ألوان الحالات والتحذيرات ---
 const Color cDanger = Color(0xFFFF5252);
 const Color cWarn = Color(0xFFFFD740);
 const Color cSafe = Color(0xFF69F0AE);
@@ -61,12 +61,11 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   String _errorMessage = "";
   Map<String, dynamic>? _ofpData;
 
-  // للتحكم في الأقسام القابلة للتوسعة (Expandable)
+  // للتحكم في الأقسام القابلة للتوسعة
   bool _isRouteExpanded = false;
   bool _isDepNotamExpanded = false;
   bool _isArrNotamExpanded = false;
 
-  // أنيميشن النقطة النشطة (الرادار)
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -83,7 +82,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       curve: Curves.easeInOut,
     ));
 
-    _fetchSimBriefData(); // تحميل الداتا فوراً بناءً على الآيدي
+    _fetchSimBriefData();
   }
 
   @override
@@ -92,51 +91,67 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     super.dispose();
   }
 
-  // --- 1. جلب بيانات SimBrief ---
+  // --- 1. جلب بيانات SimBrief (مُعدل ومُحصن بالكامل) ---
   Future<void> _fetchSimBriefData() async {
-    if (widget.pilotId.isEmpty) {
+    String cleanId = widget.pilotId.trim();
+
+    // لو مفيش آيدي، اعرض التصميم فاضي مع رسالة خطأ
+    if (cleanId.isEmpty) {
       setState(() {
-        _errorMessage = "Pilot ID is missing.";
+        _errorMessage =
+            "No Pilot ID provided. Please connect your SimBrief account.";
+        _ofpData = null;
         _isLoading = false;
       });
       return;
     }
 
     try {
+      // تم تثبيت الباراميتر ليكون userid فقط بناءً على طلبك
       final url = Uri.parse(
-          "https://www.simbrief.com/api/xml.fetcher.php?username=${widget.pilotId}&json=1");
+          "https://www.simbrief.com/api/xml.fetcher.php?userid=${Uri.encodeComponent(cleanId)}&json=1");
       final response = await http.get(url);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 400) {
         final data = json.decode(response.body);
-        if (data['status'] == 'Error') {
+
+        if (data['general'] == null ||
+            data['general']['icao_airline'] == null) {
+          String apiError =
+              data['fetch']?['status'] ?? "No active flight plan found.";
           setState(() {
-            _errorMessage = data['fetch']['status'] ?? "SimBrief Error";
+            _errorMessage = "SimBrief Alert: $apiError";
+            _ofpData = null; // تفريغ الداتا عشان الشاشة تعرض الـ Fallback (---)
             _isLoading = false;
           });
         } else {
           setState(() {
             _ofpData = data;
+            _errorMessage = ""; // مسح أي أخطاء لو الداتا جت سليمة
             _isLoading = false;
           });
         }
       } else {
         setState(() {
           _errorMessage =
-              "Failed to connect to SimBrief (${response.statusCode})";
+              "Connection Error (${response.statusCode}). Showing empty layout.";
+          _ofpData = null;
           _isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
-        _errorMessage = "Network error or invalid data format.";
+        _errorMessage =
+            "Network timeout or parsing error. Showing empty layout.";
+        _ofpData = null;
         _isLoading = false;
       });
     }
   }
 
-  // --- دوال مساعدة (لنسخ النصوص وفتح الروابط) ---
+  // --- دوال مساعدة ---
   void _copyToClipboard(String text, String label) {
+    if (text == "---" || text.isEmpty) return;
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -159,7 +174,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     }
   }
 
-  // --- 2. التصميم الرئيسي للشاشة (3 أعمدة للأيباد) ---
+  // --- 2. التصميم الرئيسي للشاشة ---
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -169,87 +184,109 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
       child: SafeArea(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator(color: efbAccent))
-            : _errorMessage.isNotEmpty
-                ? Center(
-                    child: Text(_errorMessage,
-                        style: const TextStyle(
-                            color: cDanger,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold)))
-                : _buildDashboard(),
+            // التصميم هيتعرض في كل الحالات (سواء في إيرور أو داتا سليمة)
+            : Column(
+                children: [
+                  // شريط الخطأ الأحمر (يظهر فقط لو في مشكلة)
+                  if (_errorMessage.isNotEmpty)
+                    Container(
+                      width: double.infinity,
+                      color: cDanger.withOpacity(0.9),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.warning_amber_rounded,
+                              color: efbWhite, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                              child: Text(_errorMessage,
+                                  style: const TextStyle(
+                                      color: efbWhite,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13))),
+                        ],
+                      ),
+                    ),
+
+                  _buildHeader(),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: ListView(
+                              children: [
+                                _buildTimesCard(),
+                                const SizedBox(height: 12),
+                                _buildSmartWeightsCard(),
+                                const SizedBox(height: 12),
+                                _buildFuelBreakdownCard(),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            flex: 4,
+                            child: ListView(
+                              children: [
+                                _buildRouteAndEnvCard(),
+                                const SizedBox(height: 12),
+                                _buildStepClimbsCard(),
+                                const SizedBox(height: 12),
+                                _buildWeatherNotamCard(
+                                    "DEPARTURE", _ofpData?['origin']),
+                                const SizedBox(height: 12),
+                                _buildWeatherNotamCard(
+                                    "ARRIVAL", _ofpData?['destination']),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            flex: 3,
+                            child: _buildLiveNavlogCard(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // شريط السحب (Home Indicator) المضاف بناءً على طلبك
+                  _buildHomeIndicator(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
       ),
     );
   }
 
-  Widget _buildDashboard() {
-    return Column(
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // العمود الأول: الأوقات، الأوزان، الوقود
-                Expanded(
-                  flex: 3,
-                  child: ListView(
-                    children: [
-                      _buildTimesCard(),
-                      const SizedBox(height: 12),
-                      _buildSmartWeightsCard(),
-                      const SizedBox(height: 12),
-                      _buildFuelBreakdownCard(),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // العمود الثاني: المسار، الطقس، النوتام
-                Expanded(
-                  flex: 4,
-                  child: ListView(
-                    children: [
-                      _buildRouteAndEnvCard(),
-                      const SizedBox(height: 12),
-                      _buildStepClimbsCard(),
-                      const SizedBox(height: 12),
-                      _buildWeatherNotamCard("DEPARTURE", _ofpData?['origin']),
-                      const SizedBox(height: 12),
-                      _buildWeatherNotamCard(
-                          "ARRIVAL", _ofpData?['destination']),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // العمود الثالث: سجل الملاحة الحي (Navlog)
-                Expanded(
-                  flex: 3,
-                  child: _buildLiveNavlogCard(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // --- 3. بناء الأقسام (Widgets) ---
+  // --- 3. بناء الأقسام (مُحصنة بـ Fallbacks لتعمل في حال عدم وجود داتا) ---
 
   Widget _buildHeader() {
     final gen = _ofpData?['general'];
     final origin = _ofpData?['origin']?['icao_code'] ?? "---";
     final dest = _ofpData?['destination']?['icao_code'] ?? "---";
-    final callsign = "${gen?['icao_airline']}${gen?['flight_number']}";
+
+    final airline = gen?['icao_airline'] ?? "";
+    final fltNum = gen?['flight_number'] ?? "";
+    final callsign =
+        "$airline$fltNum".trim().isNotEmpty ? "$airline$fltNum" : "---";
+
     final acType = gen?['aircraft'] ?? "---";
 
-    // روابط استخراج الخطة
-    final prefileVatsim =
-        "https://my.vatsim.net/pilots/flightplan"; // يحتاج بناء دقيق لو أردت، وضعنا الرابط العام كمثال
+    final prefileVatsim = "https://my.vatsim.net/pilots/flightplan";
     final prefileIvao = "https://fpl.ivao.aero/flight-plans/create";
-    final pdfUrl =
-        "https://www.simbrief.com/ofp/flightplans/${gen?['c_ofp_id']}_pdf.pdf";
+    final pdfUrl = gen != null
+        ? "https://www.simbrief.com/ofp/flightplans/${gen['c_ofp_id']}_pdf.pdf"
+        : "https://www.simbrief.com";
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -341,12 +378,10 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   Widget _buildSmartWeightsCard() {
     final w = _ofpData?['weights'];
 
-    // قيم فعلية
     double zfw = double.tryParse(w?['est_zfw']?.toString() ?? "0") ?? 0;
     double tow = double.tryParse(w?['est_tow']?.toString() ?? "0") ?? 0;
     double law = double.tryParse(w?['est_ldw']?.toString() ?? "0") ?? 0;
 
-    // حدود أقصى
     double mzfw = double.tryParse(w?['max_zfw']?.toString() ?? "1") ?? 1;
     double mtow = double.tryParse(w?['max_tow']?.toString() ?? "1") ?? 1;
     double mlaw = double.tryParse(w?['max_ldw']?.toString() ?? "1") ?? 1;
@@ -359,13 +394,13 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("PAX: ${w?['pax_count'] ?? '0'}",
+              Text("PAX: ${w?['pax_count'] ?? '---'}",
                   style: const TextStyle(
                       color: efbWhite, fontWeight: FontWeight.bold)),
-              Text("CARGO: ${w?['cargo'] ?? '0'} KG",
+              Text("CARGO: ${w?['cargo'] ?? '---'} KG",
                   style: const TextStyle(
                       color: efbWhite, fontWeight: FontWeight.bold)),
-              Text("PAYLOAD: ${w?['payload'] ?? '0'} KG",
+              Text("PAYLOAD: ${w?['payload'] ?? '---'} KG",
                   style: const TextStyle(
                       color: efbWhite, fontWeight: FontWeight.bold)),
             ],
@@ -382,11 +417,14 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   Widget _buildWeightProgressBar(String label, double actual, double max) {
-    double percentage = (actual / max).clamp(0.0, 1.0);
-    Color barColor = cSafe; // أخضر افتراضي
+    double percentage = max == 1 ? 0 : (actual / max).clamp(0.0, 1.0);
+    Color barColor = cSafe;
     if (percentage > 0.98)
-      barColor = cDanger; // تجاوز أو قريب جداً من الخطر
-    else if (percentage > 0.90) barColor = cWarn; // تحذير
+      barColor = cDanger;
+    else if (percentage > 0.90) barColor = cWarn;
+
+    String actualStr = actual == 0 ? "---" : actual.toInt().toString();
+    String maxStr = max == 1 ? "---" : max.toInt().toString();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,7 +437,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                     color: efbTextMuted,
                     fontWeight: FontWeight.bold,
                     fontSize: 12)),
-            Text("${actual.toInt()} / ${max.toInt()} KG",
+            Text("$actualStr / $maxStr KG",
                 style: TextStyle(
                     color: barColor,
                     fontWeight: FontWeight.bold,
@@ -420,7 +458,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                   decoration: BoxDecoration(
                       color: barColor, borderRadius: BorderRadius.circular(5))),
             ),
-            // مؤشر الحد الأقصى
             Positioned(
               right: 0,
               child: Container(width: 2, height: 10, color: efbWhite),
@@ -439,8 +476,9 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     double res = double.tryParse(f?['reserve']?.toString() ?? "0") ?? 0;
     double taxi = double.tryParse(f?['taxi']?.toString() ?? "0") ?? 0;
     double extra = double.tryParse(f?['extra']?.toString() ?? "0") ?? 0;
-    double block =
-        double.tryParse(f?['plan_ramp']?.toString() ?? "1") ?? 1; // إجمالي
+    double block = double.tryParse(f?['plan_ramp']?.toString() ?? "0") ?? 0;
+
+    String blockStr = block == 0 ? "---" : block.toInt().toString();
 
     return _buildCardWrapper(
       title: "ADVANCED FUEL BREAKDOWN",
@@ -448,7 +486,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Center(
-            child: Text("BLOCK FUEL: ${block.toInt()} KG",
+            child: Text("BLOCK FUEL: $blockStr KG",
                 style: const TextStyle(
                     color: efbWhite,
                     fontSize: 18,
@@ -456,33 +494,35 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                     letterSpacing: 1)),
           ),
           const SizedBox(height: 16),
-          // الشريط الملون
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: Row(
               children: [
-                _buildFuelSegment(
-                    trip, block, const Color(0xFF42A5F5)), // أزرق (Trip)
-                _buildFuelSegment(cont, block, cWarn), // أصفر (Contingency)
-                _buildFuelSegment(alt, block, cSafe), // أخضر (Alternate)
-                _buildFuelSegment(res, block, cDanger), // أحمر (Reserve)
-                _buildFuelSegment(
-                    taxi, block, Colors.purpleAccent), // بنفسجي (Taxi)
-                _buildFuelSegment(extra, block, efbTextMuted), // رمادي (Extra)
+                if (block == 0)
+                  Expanded(child: Container(height: 16, color: efbBg)),
+                _buildFuelSegment(trip, const Color(0xFF42A5F5)),
+                _buildFuelSegment(cont, cWarn),
+                _buildFuelSegment(alt, cSafe),
+                _buildFuelSegment(res, cDanger),
+                _buildFuelSegment(taxi, Colors.purpleAccent),
+                _buildFuelSegment(extra, efbTextMuted),
               ],
             ),
           ),
           const SizedBox(height: 12),
-          // مفتاح الألوان (Legend)
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              _buildLegendDot(const Color(0xFF42A5F5), "TRIP: ${trip.toInt()}"),
-              _buildLegendDot(cWarn, "CONT: ${cont.toInt()}"),
-              _buildLegendDot(cSafe, "ALTN: ${alt.toInt()}"),
-              _buildLegendDot(cDanger, "RESV: ${res.toInt()}"),
-              _buildLegendDot(Colors.purpleAccent, "TAXI: ${taxi.toInt()}"),
+              _buildLegendDot(const Color(0xFF42A5F5),
+                  "TRIP: ${trip == 0 ? '---' : trip.toInt()}"),
+              _buildLegendDot(
+                  cWarn, "CONT: ${cont == 0 ? '---' : cont.toInt()}"),
+              _buildLegendDot(cSafe, "ALTN: ${alt == 0 ? '---' : alt.toInt()}"),
+              _buildLegendDot(
+                  cDanger, "RESV: ${res == 0 ? '---' : res.toInt()}"),
+              _buildLegendDot(Colors.purpleAccent,
+                  "TAXI: ${taxi == 0 ? '---' : taxi.toInt()}"),
               if (extra > 0)
                 _buildLegendDot(efbTextMuted, "EXTRA: ${extra.toInt()}"),
             ],
@@ -492,10 +532,10 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     );
   }
 
-  Widget _buildFuelSegment(double amount, double total, Color color) {
+  Widget _buildFuelSegment(double amount, Color color) {
     if (amount <= 0) return const SizedBox();
     return Expanded(
-      flex: (amount * 1000).toInt(), // تكبير الرقم لضبط النسبة في الـ flex
+      flex: (amount * 1000).toInt(),
       child: Container(height: 16, color: color),
     );
   }
@@ -520,7 +560,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
   Widget _buildRouteAndEnvCard() {
     final gen = _ofpData?['general'];
-    String route = gen?['route'] ?? "NO ROUTE DATA";
+    String route = gen?['route'] ?? "---";
 
     return _buildCardWrapper(
       title: "ROUTE & ENVIRONMENT",
@@ -564,7 +604,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                       ? TextOverflow.visible
                       : TextOverflow.ellipsis,
                 ),
-                if (route.length > 80) // إظهار زر Expand لو المسار طويل
+                if (route.length > 80)
                   GestureDetector(
                     onTap: () =>
                         setState(() => _isRouteExpanded = !_isRouteExpanded),
@@ -586,7 +626,8 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildInfoColumn("COST INDEX", "CI ${gen?['costindex'] ?? '-'}"),
+              _buildInfoColumn(
+                  "COST INDEX", gen != null ? "CI ${gen['costindex']}" : "---"),
               _buildInfoColumn(
                   "AVG WIND", _ofpData?['weather']?['avg_wind_comp'] ?? "---"),
               _buildInfoColumn(
@@ -602,9 +643,19 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
   Widget _buildStepClimbsCard() {
     final steps = _ofpData?['stepclimbs']?['step'];
-    if (steps == null) return const SizedBox(); // إخفاء لو مفيش ستيبس
 
-    // معالجة إذا كانت نقطة واحدة (Map) أو عدة نقاط (List)
+    if (steps == null) {
+      return _buildCardWrapper(
+        title: "STEP CLIMBS PROFILE",
+        child: const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: Text("No Step Climbs Planned",
+              style:
+                  TextStyle(color: efbTextMuted, fontWeight: FontWeight.bold)),
+        ),
+      );
+    }
+
     List<dynamic> stepList = steps is List ? steps : [steps];
 
     return _buildCardWrapper(
@@ -660,13 +711,11 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   Widget _buildWeatherNotamCard(String type, dynamic airportData) {
-    if (airportData == null) return const SizedBox();
-
-    final icao = airportData['icao_code'];
-    final metar = airportData['metar'] ?? "No METAR available";
-    final taf = airportData['taf'] ?? "No TAF available";
-    final atis = airportData['atis'] ?? "No D-ATIS available";
-    final notam = airportData['notam'] ?? "No NOTAMs available";
+    final icao = airportData?['icao_code'] ?? "---";
+    final metar = airportData?['metar'] ?? "---";
+    final taf = airportData?['taf'] ?? "---";
+    final atis = airportData?['atis'] ?? "---";
+    final notam = airportData?['notam'] ?? "---";
 
     bool isDep = type == "DEPARTURE";
     bool isExpanded = isDep ? _isDepNotamExpanded : _isArrNotamExpanded;
@@ -674,7 +723,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
     return _buildCardWrapper(
       title: "$type WEATHER & NOTAM ($icao)",
       actionWidget: ElevatedButton.icon(
-        // ربط الزراير بالـ Parameters المطلوبة
         onPressed:
             isDep ? widget.onDepartureAtisPressed : widget.onArrivalAtisPressed,
         icon: const Icon(Icons.volume_up, size: 14, color: efbWhite),
@@ -693,8 +741,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
           const SizedBox(height: 8),
           _buildTextReport("D-ATIS", atis),
           const SizedBox(height: 12),
-
-          // قسم النوتام القابل للتوسعة
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -723,9 +769,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  notam
-                      .toString()
-                      .replaceAll(RegExp(r'\n+'), '\n\n'), // تنسيق النوتام
+                  notam.toString().replaceAll(RegExp(r'\n+'), '\n\n'),
                   style: const TextStyle(
                       color: efbWhite, fontSize: 12, fontFamily: 'monospace'),
                   maxLines: isExpanded ? null : 3,
@@ -788,144 +832,153 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
   Widget _buildLiveNavlogCard() {
     final navlog = _ofpData?['navlog']?['fix'];
-    if (navlog == null)
-      return const Center(
-          child: Text("No Navlog Data", style: TextStyle(color: efbWhite)));
 
-    List<dynamic> fixes = navlog is List ? navlog : [navlog];
-
-    // تحديد النقطة النشطة برمجياً (أقرب نقطة للطائرة)
-    int activeIndex = _calculateActiveWaypointIndex(fixes);
-
-    return _buildCardWrapper(
-      title: "LIVE MASTER NAVLOG",
-      child: Expanded(
-        child: ListView.builder(
-          itemCount: fixes.length,
-          itemBuilder: (context, index) {
-            final fix = fixes[index];
-            bool isPassed = index < activeIndex;
-            bool isActive = index == activeIndex;
-            bool isFuture = index > activeIndex;
-
-            // تحديد ألوان وحالات العناصر
-            Color textColor =
-                isPassed ? efbTextMuted.withOpacity(0.5) : efbWhite;
-            TextDecoration decoration =
-                isPassed ? TextDecoration.lineThrough : TextDecoration.none;
-
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // رسم الخط الزمني
-                Column(
-                  children: [
-                    Container(
-                        width: 2,
-                        height: 16,
-                        color:
-                            isPassed ? efbBorder : efbAccent.withOpacity(0.5)),
-                    if (isActive)
-                      FadeTransition(
-                        opacity: _pulseAnimation,
-                        child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: const BoxDecoration(
-                                color: efbAccent,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(color: efbAccent, blurRadius: 10)
-                                ])),
-                      )
-                    else
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: isPassed ? efbBg : efbBorder,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                              color: isPassed ? efbBorder : efbWhite, width: 2),
-                        ),
-                      ),
-                    Container(
-                        width: 2,
-                        height: 40,
-                        color:
-                            isPassed ? efbBorder : efbAccent.withOpacity(0.5)),
-                  ],
-                ),
-                const SizedBox(width: 12),
-                // بيانات النقطة
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(fix['ident'] ?? "UNK",
-                                style: TextStyle(
-                                    color: isActive ? efbAccent : textColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    decoration: decoration)),
-                            if (isActive) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                      color: efbAccent.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(color: efbAccent)),
-                                  child: const Text("ACTIVE",
-                                      style: TextStyle(
-                                          color: efbAccent,
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.bold))),
-                            ]
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                                "FL${(int.tryParse(fix['altitude_feet']?.toString() ?? "0") ?? 0) ~/ 100}",
-                                style:
-                                    TextStyle(color: textColor, fontSize: 12)),
-                            Text("DTG: ${fix['distance_to_dest'] ?? '0'} NM",
-                                style:
-                                    TextStyle(color: textColor, fontSize: 12)),
-                            Text("EFOB: ${fix['fuel_plan_on_board'] ?? '0'} T",
-                                style: TextStyle(
-                                    color: isActive ? cSafe : textColor,
-                                    fontSize: 12,
-                                    fontWeight: isActive
-                                        ? FontWeight.bold
-                                        : FontWeight.normal)),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            );
-          },
-        ),
+    // تصميم الهيكل الداخلي للكارت عشان ياخد الطول بالكامل بدون إيرور
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+          color: efbCard,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: efbBorder)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("LIVE MASTER NAVLOG",
+              style: TextStyle(
+                  color: efbAccent,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1)),
+          const Divider(color: efbBorder, height: 20, thickness: 1),
+          Expanded(
+            child: navlog == null
+                ? const Center(
+                    child: Text("---",
+                        style: TextStyle(color: efbTextMuted, fontSize: 18)))
+                : _buildNavlogList(navlog is List ? navlog : [navlog]),
+          ),
+        ],
       ),
     );
   }
 
-  // --- دوال رياضية للرادار ---
+  Widget _buildNavlogList(List<dynamic> fixes) {
+    int activeIndex = _calculateActiveWaypointIndex(fixes);
+
+    return ListView.builder(
+      itemCount: fixes.length,
+      itemBuilder: (context, index) {
+        final fix = fixes[index];
+        bool isPassed = index < activeIndex;
+        bool isActive = index == activeIndex;
+
+        Color textColor = isPassed ? efbTextMuted.withOpacity(0.5) : efbWhite;
+        TextDecoration decoration =
+            isPassed ? TextDecoration.lineThrough : TextDecoration.none;
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              children: [
+                Container(
+                    width: 2,
+                    height: 16,
+                    color: isPassed ? efbBorder : efbAccent.withOpacity(0.5)),
+                if (isActive)
+                  FadeTransition(
+                    opacity: _pulseAnimation,
+                    child: Container(
+                        width: 14,
+                        height: 14,
+                        decoration: const BoxDecoration(
+                            color: efbAccent,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(color: efbAccent, blurRadius: 10)
+                            ])),
+                  )
+                else
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: isPassed ? efbBg : efbBorder,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                          color: isPassed ? efbBorder : efbWhite, width: 2),
+                    ),
+                  ),
+                Container(
+                    width: 2,
+                    height: 40,
+                    color: isPassed ? efbBorder : efbAccent.withOpacity(0.5)),
+              ],
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(fix['ident'] ?? "UNK",
+                            style: TextStyle(
+                                color: isActive ? efbAccent : textColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                decoration: decoration)),
+                        if (isActive) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                  color: efbAccent.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: efbAccent)),
+                              child: const Text("ACTIVE",
+                                  style: TextStyle(
+                                      color: efbAccent,
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.bold))),
+                        ]
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                            "FL${(int.tryParse(fix['altitude_feet']?.toString() ?? "0") ?? 0) ~/ 100}",
+                            style: TextStyle(color: textColor, fontSize: 12)),
+                        Text("DTG: ${fix['distance_to_dest'] ?? '0'} NM",
+                            style: TextStyle(color: textColor, fontSize: 12)),
+                        Text("EFOB: ${fix['fuel_plan_on_board'] ?? '0'} T",
+                            style: TextStyle(
+                                color: isActive ? cSafe : textColor,
+                                fontSize: 12,
+                                fontWeight: isActive
+                                    ? FontWeight.bold
+                                    : FontWeight.normal)),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  // --- دوال رياضية ---
   int _calculateActiveWaypointIndex(List<dynamic> fixes) {
-    // نبحث عن أقرب نقطة للطائرة لتكون هي النقطة النشطة
-    if (widget.currentLat == 0 && widget.currentLon == 0)
-      return 0; // حماية لو لم يرسل المحاكي داتا بعد
+    if (fixes.isEmpty || (widget.currentLat == 0 && widget.currentLon == 0))
+      return 0;
 
     int closestIndex = 0;
     double minDistance = double.infinity;
@@ -948,7 +1001,7 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
 
   double _haversineDistance(
       double lat1, double lon1, double lat2, double lon2) {
-    const double r = 3440.065; // نصف قطر الأرض بالميل البحري (NM)
+    const double r = 3440.065;
     final double dLat = _toRadians(lat2 - lat1);
     final double dLon = _toRadians(lon2 - lon1);
     final double a = math.pow(math.sin(dLat / 2), 2) +
@@ -962,7 +1015,6 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   double _toRadians(double degree) => degree * math.pi / 180.0;
 
   // --- دوال بناء الـ UI العامة ---
-
   Widget _buildCardWrapper(
       {required String title, required Widget child, Widget? actionWidget}) {
     return Container(
@@ -1033,17 +1085,40 @@ class _EfbFlightPlanScreenState extends State<EfbFlightPlanScreen>
   }
 
   String _formatTime(dynamic timestamp) {
-    if (timestamp == null) return "--:--";
+    if (timestamp == null) return "---";
     int ts = int.tryParse(timestamp.toString()) ?? 0;
-    if (ts == 0) return "--:--";
+    if (ts == 0) return "---";
     DateTime date = DateTime.fromMillisecondsSinceEpoch(ts * 1000, isUtc: true);
     return "${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}Z";
   }
 
   String _formatDuration(dynamic secondsStr) {
-    int seconds = int.tryParse(secondsStr?.toString() ?? "0") ?? 0;
+    if (secondsStr == null) return "---";
+    int seconds = int.tryParse(secondsStr.toString()) ?? 0;
+    if (seconds == 0) return "---";
     int hours = seconds ~/ 3600;
     int minutes = (seconds % 3600) ~/ 60;
     return "${hours}h ${minutes}m";
+  }
+
+  // --- إضافة الودجيت المطلوبة (Home Indicator) ---
+  Widget _buildHomeIndicator({required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
+        alignment: Alignment.center,
+        child: Container(
+          width: 130,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
   }
 }
