@@ -56,7 +56,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   Map<String, dynamic>? _ofpData;
 
   // --- Toggle State ---
-  bool _isDepartureTab = true; // True = Departure, False = Arrival
+  bool _isDepartureTab = true;
 
   // --- Audio & TTS Variables ---
   final FlutterEdgeTts _edgeTts = FlutterEdgeTts(voice: "en-US-GuyNeural");
@@ -73,18 +73,26 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
+  // =================================================================
+  // ==== هنا تم حل المشكلة: تعريف المتغيرات الصحيحة للمغادرة والوصول ====
+  // =================================================================
+
   // --- Departure Computed Variables ---
-  double depHeadwind = 0;
+  double depWindComp = 0;
   double depCrosswind = 0;
   bool depIsCrosswindRight = true;
+  double depWindDir = 0;
+  double depWindSpd = 0;
   int depThreatCount = 0;
   List<Widget> depThreatBadges = [];
   List<String> depThreatNames = [];
 
   // --- Arrival Computed Variables ---
-  double arrHeadwind = 0;
+  double arrWindComp = 0;
   double arrCrosswind = 0;
   bool arrIsCrosswindRight = true;
+  double arrWindDir = 0;
+  double arrWindSpd = 0;
   int arrThreatCount = 0;
   List<Widget> arrThreatBadges = [];
   List<String> arrThreatNames = [];
@@ -782,7 +790,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       width: widget.width,
       height: widget.height,
       color: efbBg,
-      // تم إزالة SafeArea بالكامل من هنا لإنهاء مشكلة المساحة الفاضية الكبيرة
       child: Stack(
         children: [
           _isLoading
@@ -966,10 +973,8 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             constraints.maxWidth >= 600 && constraints.maxWidth < 900;
 
         if (isMobile) {
-          // الترتيب الجديد للموبايل فقط: Parameters ثم Visualizer ثم TEM Board
           return ListView(
-            padding: const EdgeInsets.fromLTRB(
-                12, 12, 12, 40), // إضافة بادينج علوي بعد مسح الـ SafeArea
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 40),
             children: [
               _buildDepParamsCard(),
               const SizedBox(height: 12),
@@ -1023,10 +1028,8 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             constraints.maxWidth >= 600 && constraints.maxWidth < 900;
 
         if (isMobile) {
-          // الترتيب الجديد للموبايل فقط: Parameters ثم Visualizer ثم TEM Board
           return ListView(
-            padding: const EdgeInsets.fromLTRB(
-                12, 12, 12, 40), // إضافة بادينج علوي بعد مسح الـ SafeArea
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 40),
             children: [
               _buildArrParamsCard(),
               const SizedBox(height: 12),
