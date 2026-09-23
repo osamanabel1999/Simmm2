@@ -22073,7 +22073,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                 .EfbBriefingScreen(
                                               width: double.infinity,
                                               height: double.infinity,
-                                              pilotId: FFAppState().ipPC,
+                                              pilotId: FFAppState()
+                                                  .SimbreifID
+                                                  .toString(),
                                             ),
                                           ),
                                         ),
