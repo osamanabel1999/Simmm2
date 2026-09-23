@@ -14,7 +14,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui' as ui; // تم إضافة هذه المكتبة لحل مشكلة TextDirection
+import 'dart:ui' as ui;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_edge_tts/flutter_edge_tts.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -56,7 +56,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   Map<String, dynamic>? _ofpData;
 
   // --- Toggle State ---
-  bool _isDepartureTab = true; // True = Departure, False = Arrival
+  bool _isDepartureTab = true;
 
   // --- Audio & TTS Variables ---
   final FlutterEdgeTts _edgeTts = FlutterEdgeTts(voice: "en-US-GuyNeural");
@@ -73,7 +73,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
-  // --- Departure Computed Variables (OLD - UNTOUCHED) ---
+  // --- Departure Computed Variables ---
   double depHeadwind = 0;
   double depCrosswind = 0;
   bool depIsCrosswindRight = true;
@@ -81,7 +81,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   List<Widget> depThreatBadges = [];
   List<String> depThreatNames = [];
 
-  // --- Arrival Computed Variables (NEW) ---
+  // --- Arrival Computed Variables ---
   double arrHeadwind = 0;
   double arrCrosswind = 0;
   bool arrIsCrosswindRight = true;
@@ -140,19 +140,18 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
         if (data is! Map || data['general'] == null) {
           if (!mounted) return;
           setState(() {
-            _errorMessage = "No active flight plan.";
+            _errorMessage = "No active flight plan found for this ID.";
             _isLoading = false;
           });
         } else {
           if (!mounted) return;
           setState(() {
-            // تم التعديل هنا لحل مشكلة الـ Map Assignment
             _ofpData = Map<String, dynamic>.from(data);
             _errorMessage = "";
             _isLoading = false;
           });
 
-          // تشغيل محركات الذكاء الاصطناعي للمغادرة والوصول
+          // تشغيل المحركات بطريقة آمنة
           _analyzeDepDataAndBuildTEM();
           _buildDepScriptAndPrepareAudio();
 
@@ -166,10 +165,12 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("Parsing Error: $e\n$stackTrace");
       if (!mounted) return;
       setState(() {
-        _errorMessage = "Network timeout.";
+        // لو حصلت مصيبة في البيانات هيقولك عليها بدل ما يقول "نت"
+        _errorMessage = "Data Parsing Error: $e";
         _isLoading = false;
       });
     }
@@ -193,18 +194,19 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   }
 
   // =========================================================================
-  // ====================== محرك حسابات المغادرة (OLD) =========================
+  // ====================== محرك حسابات المغادرة =============================
   // =========================================================================
   void _analyzeDepDataAndBuildTEM() {
     if (_ofpData == null) return;
 
-    final gen = _ofpData!['general'];
-    final origin = _ofpData!['origin'];
-    final wghts = _ofpData!['weights'];
+    final gen = _ofpData!['general'] ?? {};
+    final origin = _ofpData!['origin'] ?? {};
+    final wghts = _ofpData!['weights'] ?? {};
 
-    String rwyStr =
-        origin['plan_rwy']?.toString().replaceAll(RegExp(r'[A-Za-z]'), '') ??
-            "36";
+    // المعالجة الآمنة للرقم الخاص بالمدرج (حتى لو قيمته null)
+    String rwyRaw = origin['plan_rwy']?.toString() ?? "36";
+    String rwyStr = rwyRaw.replaceAll(RegExp(r'[A-Za-z]'), '');
+    if (rwyStr.isEmpty) rwyStr = "36";
     double rwyHdg = (double.tryParse(rwyStr) ?? 36) * 10;
 
     double windDir = 0;
@@ -258,7 +260,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       depThreatCount++;
     }
 
-    if (tow > mtow * 0.95) {
+    if (tow > mtow * 0.95 && mtow > 1) {
       depThreatBadges.add(_buildBadge("HEAVY AIRCRAFT", cWarn));
       depThreatNames.add("a very heavy takeoff weight");
       depThreatCount++;
@@ -272,17 +274,22 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   void _buildDepScriptAndPrepareAudio() {
     if (_ofpData == null) return;
 
-    final gen = _ofpData!['general'];
-    final origin = _ofpData!['origin'];
-    final wghts = _ofpData!['weights'];
-    final fuel = _ofpData!['fuel'];
+    final gen = _ofpData!['general'] ?? {};
+    final origin = _ofpData!['origin'] ?? {};
+    final wghts = _ofpData!['weights'] ?? {};
+    final fuel = _ofpData!['fuel'] ?? {};
 
-    String callsign = "${gen['icao_airline']}${gen['flight_number']}";
+    String callsign =
+        "${gen['icao_airline'] ?? ""}${gen['flight_number'] ?? ""}";
     String originName = origin['name']?.toString() ??
         origin['icao_code']?.toString() ??
         "Origin";
     String rwy = origin['plan_rwy']?.toString() ?? "Unknown";
-    String sid = gen['route']?.toString().split(' ').first ?? "";
+
+    // الحل الآمن للـ null chaining
+    String routeStr = gen['route']?.toString() ?? "";
+    String sid = routeStr.isEmpty ? "" : routeStr.split(' ').first;
+
     String metar = origin['metar']?.toString() ?? "";
 
     double towTons =
@@ -358,19 +365,19 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   }
 
   // =========================================================================
-  // ====================== محرك حسابات الوصول (NEW ARRIVAL) ==================
+  // ====================== محرك حسابات الوصول ===============================
   // =========================================================================
   void _analyzeArrDataAndBuildTEM() {
     if (_ofpData == null) return;
 
-    final dest = _ofpData!['destination'];
+    final dest = _ofpData!['destination'] ?? {};
     final altn = _ofpData!['alternate'];
-    final wghts = _ofpData!['weights'];
+    final wghts = _ofpData!['weights'] ?? {};
 
-    // حساب الرياح لمدرج الوصول
-    String rwyStr =
-        dest['plan_rwy']?.toString().replaceAll(RegExp(r'[A-Za-z]'), '') ??
-            "36";
+    // المعالجة الآمنة
+    String rwyRaw = dest['plan_rwy']?.toString() ?? "36";
+    String rwyStr = rwyRaw.replaceAll(RegExp(r'[A-Za-z]'), '');
+    if (rwyStr.isEmpty) rwyStr = "36";
     double rwyHdg = (double.tryParse(rwyStr) ?? 36) * 10;
 
     double windDir = 0;
@@ -390,7 +397,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     arrIsCrosswindRight = arrCrosswind > 0;
     arrCrosswind = arrCrosswind.abs();
 
-    // بناء كروت المخاطر (TEM) للوصول
     arrThreatBadges.clear();
     arrThreatNames.clear();
     arrThreatCount = 0;
@@ -398,14 +404,13 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     double elw = double.tryParse(wghts['est_ldw']?.toString() ?? "0") ?? 0;
     double mlw = double.tryParse(wghts['max_ldw']?.toString() ?? "1") ?? 1;
 
-    // المطار البديل
-    if (altn == null || altn.isEmpty) {
+    // معالجة المطار البديل حتى لو كان List مش Map
+    if (altn == null || (altn is List && altn.isEmpty)) {
       arrThreatBadges.add(_buildBadge("NO ALTERNATE FILED", cDanger));
       arrThreatNames.add("having no alternate airport");
       arrThreatCount++;
     }
 
-    // الطقس والمدرج
     if (metar.contains("RA") || metar.contains("SN")) {
       arrThreatBadges.add(_buildBadge("CONTAMINATED RUNWAY", cWarn));
       arrThreatNames.add("a contaminated landing runway");
@@ -425,13 +430,12 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       arrThreatCount++;
     }
 
-    if (elw > mlw * 0.95) {
+    if (elw > mlw * 0.95 && mlw > 1) {
       arrThreatBadges.add(_buildBadge("HEAVY LANDING", cWarn));
       arrThreatNames.add("a very heavy landing weight");
       arrThreatCount++;
     }
 
-    // Fallback ذكي لطول المدرج (لأنه نادراً بييجي مباشر من SimBrief)
     arrThreatBadges.add(_buildBadge("RWY LENGTH UNVERIFIED", cWarn));
 
     if (arrThreatCount == 0) {
@@ -442,13 +446,14 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   void _buildArrScriptAndPrepareAudio() {
     if (_ofpData == null) return;
 
-    final gen = _ofpData!['general'];
-    final dest = _ofpData!['destination'];
+    final gen = _ofpData!['general'] ?? {};
+    final dest = _ofpData!['destination'] ?? {};
     final altn = _ofpData!['alternate'];
-    final wghts = _ofpData!['weights'];
-    final fuel = _ofpData!['fuel'];
+    final wghts = _ofpData!['weights'] ?? {};
+    final fuel = _ofpData!['fuel'] ?? {};
 
-    String callsign = "${gen['icao_airline']}${gen['flight_number']}";
+    String callsign =
+        "${gen['icao_airline'] ?? ""}${gen['flight_number'] ?? ""}";
     String destName = dest['name']?.toString() ??
         dest['icao_code']?.toString() ??
         "Destination";
@@ -456,33 +461,34 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     String metar = dest['metar']?.toString() ?? "";
 
     String altnName = "";
-    if (altn != null && altn is Map) {
+    if (altn is Map) {
       altnName =
           altn['name']?.toString() ?? altn['icao_code']?.toString() ?? "";
+    } else if (altn is List && altn.isNotEmpty) {
+      altnName = altn.first['name']?.toString() ??
+          altn.first['icao_code']?.toString() ??
+          "";
     }
 
     double elwTons =
         (double.tryParse(wghts['est_ldw']?.toString() ?? "0") ?? 0) / 1000;
     double mlwTons =
         (double.tryParse(wghts['max_ldw']?.toString() ?? "1") ?? 1) / 1000;
-    // استخراج الوقود المتبقي المتوقع عند الهبوط (Plan Arrival أو Taxi out مطروح من الـ Block)
+
     double efobTons =
         (double.tryParse(fuel['plan_landing']?.toString() ?? "0") ?? 0) / 1000;
     if (efobTons == 0) {
-      // Fallback calculation
       double block = double.tryParse(fuel['plan_ramp']?.toString() ?? "0") ?? 0;
       double trip =
           double.tryParse(fuel['enroute_burn']?.toString() ?? "0") ?? 0;
       efobTons = (block - trip) / 1000;
     }
 
-    // OAT Fallback from METAR
     String oat = "---";
     RegExp tempRegex = RegExp(r'\b(M?\d{2})/(M?\d{2})\b');
     Match? tMatch = tempRegex.firstMatch(metar);
     if (tMatch != null) oat = tMatch.group(1)?.replaceAll('M', '-') ?? "---";
 
-    // 1. Intros
     List<String> intros = [
       "Alright Captain, let's set up the arrival and approach briefing into $destName.",
       "We are getting closer. Let's review our arrival brief for $destName.",
@@ -490,7 +496,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     ];
     String intro = intros[math.Random().nextInt(intros.length)];
 
-    // 2. Routing & Alternate
     String altnText = "";
     if (altnName.isEmpty) {
       altnText =
@@ -501,7 +506,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     String routeTxt =
         "We are planning an approach for Runway $arrRwy. $altnText";
 
-    // 3. Weather, Winds & Flaps
     String windTxt =
         "Destination weather gives us a headwind of ${arrHeadwind.round()} knots, and a crosswind of ${arrCrosswind.round()} knots.";
     String flapsTxt = "";
@@ -521,25 +525,20 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       oatTxt = "Outside air temperature is $oat degrees Celsius.";
     }
 
-    // 4. Weights, Fuel & Runway Logic
     String weightTxt =
         "Our Estimated Landing Weight is ${elwTons.toStringAsFixed(1)} tons. Maximum landing weight is ${mlwTons.toStringAsFixed(1)} tons.";
-    if (elwTons > mlwTons * 0.95) {
+    if (elwTons > mlwTons * 0.95 && mlwTons > 1) {
       weightTxt +=
           " We are landing quite heavy today, very close to our maximum limit. Watch the vertical speed on touchdown.";
     }
 
     String fuelTxt =
         "We expect to touch down with ${efobTons.toStringAsFixed(1)} tons of fuel, which gives us a comfortable margin.";
-
     String brakesTxt =
         "Runway length data is currently unverified in my database. Let's play it safe with the autobrakes.";
-
-    // 5. Emergencies / Go Around
     String goAroundTxt =
         "In case of a missed approach or a go-around, the callout is: 'Go-around, Flaps'. Apply TOGA thrust, positive rate gear up, and we will follow the published missed approach procedure or ATC radar vectors.";
 
-    // 6. Outro & TEM
     String outro = "";
     if (arrThreatCount == 0) {
       outro =
@@ -559,7 +558,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   }
 
   // =========================================================================
-  // ====================== محرك تشغيل الصوت =================================
+  // ====================== تشغيل الصوت ======================================
   // =========================================================================
   Future<void> _playAudioBriefing() async {
     String textToPlay =
@@ -610,9 +609,13 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                     child: CircularProgressIndicator(color: efbAccent))
                 : _errorMessage.isNotEmpty
                     ? Center(
+                        child: Padding(
+                        padding: const EdgeInsets.all(20.0),
                         child: Text(_errorMessage,
                             style:
-                                const TextStyle(color: cDanger, fontSize: 16)))
+                                const TextStyle(color: cDanger, fontSize: 16),
+                            textAlign: TextAlign.center),
+                      ))
                     : Column(
                         children: [
                           _buildHeaderToggleAndAudio(),
@@ -627,8 +630,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                           ),
                         ],
                       ),
-
-            // --- الشريط العائم (Home Indicator) ---
             Positioned(
               bottom: 0,
               left: 0,
@@ -645,7 +646,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     );
   }
 
-  // --- دالة الشريط العائم ---
   Widget _buildHomeIndicator({required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
@@ -658,15 +658,13 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
           width: 130,
           height: 5,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(10),
-          ),
+              color: Colors.white.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(10)),
         ),
       ),
     );
   }
 
-  // --- الهيدر (زراير التبديل + زرار الـ AI) ---
   Widget _buildHeaderToggleAndAudio() {
     return Container(
       width: double.infinity,
@@ -677,7 +675,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       ),
       child: Column(
         children: [
-          // زراير التبديل (Tabs)
           Container(
             height: 40,
             decoration: BoxDecoration(
@@ -747,8 +744,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             ),
           ),
           const SizedBox(height: 12),
-
-          // زرار الـ AI المشترك
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -757,8 +752,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                   ? FadeTransition(
                       opacity: _pulseAnimation,
                       child: const Icon(Icons.stop_circle,
-                          color: cDanger, size: 24),
-                    )
+                          color: cDanger, size: 24))
                   : const Icon(Icons.record_voice_over, color: efbBg, size: 24),
               label: Text(
                 _isPlaying ? "STOP BRIEFING" : "🤖 AI CO-PILOT BRIEF",
@@ -784,149 +778,122 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     );
   }
 
-  // =========================================================================
-  // ====================== Layout Builders ==================================
-  // =========================================================================
-
   Widget _buildDepartureLayout() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        bool isMobile = constraints.maxWidth < 600;
-        bool isTabletPortrait =
-            constraints.maxWidth >= 600 && constraints.maxWidth < 900;
-
-        if (isMobile) {
-          return ListView(
+    return LayoutBuilder(builder: (context, constraints) {
+      bool isMobile = constraints.maxWidth < 600;
+      bool isTabletPortrait =
+          constraints.maxWidth >= 600 && constraints.maxWidth < 900;
+      if (isMobile) {
+        return ListView(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 40),
             children: [
               _buildDepVisualizerCard(),
               const SizedBox(height: 12),
               _buildDepTEMBoard(),
               const SizedBox(height: 12),
-              _buildDepParamsCard(),
-            ],
-          );
-        } else if (isTabletPortrait) {
-          return Padding(
+              _buildDepParamsCard()
+            ]);
+      } else if (isTabletPortrait) {
+        return Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 40),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: Column(children: [
-                      _buildDepParamsCard(),
-                      const SizedBox(height: 12),
-                      _buildDepTEMBoard()
-                    ])),
-                const SizedBox(width: 12),
-                Expanded(flex: 1, child: _buildDepVisualizerCard()),
-              ],
-            ),
-          );
-        } else {
-          return Padding(
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(
+                  flex: 1,
+                  child: Column(children: [
+                    _buildDepParamsCard(),
+                    const SizedBox(height: 12),
+                    _buildDepTEMBoard()
+                  ])),
+              const SizedBox(width: 12),
+              Expanded(flex: 1, child: _buildDepVisualizerCard())
+            ]));
+      } else {
+        return Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 40),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 1, child: _buildDepParamsCard()),
-                const SizedBox(width: 12),
-                Expanded(flex: 2, child: _buildDepVisualizerCard()),
-                const SizedBox(width: 12),
-                Expanded(flex: 1, child: _buildDepTEMBoard()),
-              ],
-            ),
-          );
-        }
-      },
-    );
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(flex: 1, child: _buildDepParamsCard()),
+              const SizedBox(width: 12),
+              Expanded(flex: 2, child: _buildDepVisualizerCard()),
+              const SizedBox(width: 12),
+              Expanded(flex: 1, child: _buildDepTEMBoard())
+            ]));
+      }
+    });
   }
 
   Widget _buildArrivalLayout() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        bool isMobile = constraints.maxWidth < 600;
-        bool isTabletPortrait =
-            constraints.maxWidth >= 600 && constraints.maxWidth < 900;
-
-        if (isMobile) {
-          return ListView(
+    return LayoutBuilder(builder: (context, constraints) {
+      bool isMobile = constraints.maxWidth < 600;
+      bool isTabletPortrait =
+          constraints.maxWidth >= 600 && constraints.maxWidth < 900;
+      if (isMobile) {
+        return ListView(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 40),
             children: [
               _buildArrVisualizerCard(),
               const SizedBox(height: 12),
               _buildArrTEMBoard(),
               const SizedBox(height: 12),
-              _buildArrParamsCard(),
-            ],
-          );
-        } else if (isTabletPortrait) {
-          return Padding(
+              _buildArrParamsCard()
+            ]);
+      } else if (isTabletPortrait) {
+        return Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 40),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: Column(children: [
-                      _buildArrParamsCard(),
-                      const SizedBox(height: 12),
-                      _buildArrTEMBoard()
-                    ])),
-                const SizedBox(width: 12),
-                Expanded(flex: 1, child: _buildArrVisualizerCard()),
-              ],
-            ),
-          );
-        } else {
-          return Padding(
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(
+                  flex: 1,
+                  child: Column(children: [
+                    _buildArrParamsCard(),
+                    const SizedBox(height: 12),
+                    _buildArrTEMBoard()
+                  ])),
+              const SizedBox(width: 12),
+              Expanded(flex: 1, child: _buildArrVisualizerCard())
+            ]));
+      } else {
+        return Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 40),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 1, child: _buildArrParamsCard()),
-                const SizedBox(width: 12),
-                Expanded(flex: 2, child: _buildArrVisualizerCard()),
-                const SizedBox(width: 12),
-                Expanded(flex: 1, child: _buildArrTEMBoard()),
-              ],
-            ),
-          );
-        }
-      },
-    );
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(flex: 1, child: _buildArrParamsCard()),
+              const SizedBox(width: 12),
+              Expanded(flex: 2, child: _buildArrVisualizerCard()),
+              const SizedBox(width: 12),
+              Expanded(flex: 1, child: _buildArrTEMBoard())
+            ]));
+      }
+    });
   }
 
-  // =========================================================================
-  // ====================== المغادرة (DEPARTURE) Widgets =======================
-  // =========================================================================
-
   Widget _buildDepParamsCard() {
-    final gen = _ofpData?['general'];
-    final origin = _ofpData?['origin'];
-    final wghts = _ofpData?['weights'];
-    final fuel = _ofpData?['fuel'];
-    final params = _ofpData?['parameters'];
+    final gen = _ofpData?['general'] ?? {};
+    final origin = _ofpData?['origin'] ?? {};
+    final wghts = _ofpData?['weights'] ?? {};
+    final fuel = _ofpData?['fuel'] ?? {};
+
+    // تم التصحيح: المفتاح في SimBrief اسمه 'params' وليس 'parameters'
+    final params = _ofpData?['params'] ?? {};
 
     double tow =
-        (double.tryParse(wghts?['est_tow']?.toString() ?? "0") ?? 0) / 1000;
+        (double.tryParse(wghts['est_tow']?.toString() ?? "0") ?? 0) / 1000;
     double block =
-        (double.tryParse(fuel?['plan_ramp']?.toString() ?? "0") ?? 0) / 1000;
+        (double.tryParse(fuel['plan_ramp']?.toString() ?? "0") ?? 0) / 1000;
 
-    String rules = gen?['flight_rules']?.toString().toUpperCase() ?? "IFR";
-    String rwy = origin?['plan_rwy']?.toString() ?? "---";
-    String sid = gen?['route']?.toString().split(' ').first ?? "RADAR VECTORS";
-    String climb = gen?['initial_altitude']?.toString() ?? "---";
-    String emergRtn = origin?['icao_code']?.toString() ?? "---";
+    String rules = gen['flight_rules']?.toString().toUpperCase() ?? "IFR";
+    String rwy = origin['plan_rwy']?.toString() ?? "---";
 
-    String v1 = params?['v1']?.toString() ?? "___";
-    String vr = params?['vr']?.toString() ?? "___";
-    String v2 = params?['v2']?.toString() ?? "___";
-    String vis = origin?['metar']?.toString().contains("CAVOK") == true
-        ? "10+ KM (CAVOK)"
-        : "Check METAR";
-    String oat = gen?['avg_temp_dev']?.toString() ?? "---";
+    String routeStr = gen['route']?.toString() ?? "";
+    String sid = routeStr.isEmpty ? "RADAR VECTORS" : routeStr.split(' ').first;
+
+    String climb = gen['initial_altitude']?.toString() ?? "---";
+    String emergRtn = origin['icao_code']?.toString() ?? "---";
+
+    String v1 = params['v1']?.toString() ?? "___";
+    String vr = params['vr']?.toString() ?? "___";
+    String v2 = params['v2']?.toString() ?? "___";
+
+    String metarStr = origin['metar']?.toString() ?? "";
+    String vis = metarStr.contains("CAVOK") ? "10+ KM (CAVOK)" : "Check METAR";
+    String oat = gen['avg_temp_dev']?.toString() ?? "---";
 
     return Container(
       decoration: BoxDecoration(
@@ -1021,11 +988,12 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   }
 
   Widget _buildDepVisualizerCard() {
-    final origin = _ofpData?['origin'];
-    String rwyStr =
-        origin?['plan_rwy']?.toString().replaceAll(RegExp(r'[A-Za-z]'), '') ??
-            "36";
+    final origin = _ofpData?['origin'] ?? {};
+    String rwyRaw = origin['plan_rwy']?.toString() ?? "36";
+    String rwyStr = rwyRaw.replaceAll(RegExp(r'[A-Za-z]'), '');
+    if (rwyStr.isEmpty) rwyStr = "36";
     double rwyHdg = (double.tryParse(rwyStr) ?? 36) * 10;
+
     int oppositeRwy = ((rwyHdg + 180) % 360) ~/ 10;
     if (oppositeRwy == 0) oppositeRwy = 36;
     String oppositeRwyStr = oppositeRwy.toString().padLeft(2, '0');
@@ -1092,57 +1060,52 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     );
   }
 
-  // =========================================================================
-  // ====================== الوصول (ARRIVAL) Widgets =========================
-  // =========================================================================
-
   Widget _buildArrParamsCard() {
-    final dest = _ofpData?['destination'];
+    final dest = _ofpData?['destination'] ?? {};
     final altn = _ofpData?['alternate'];
-    final wghts = _ofpData?['weights'];
-    final fuel = _ofpData?['fuel'];
-    final gen = _ofpData?['general'];
+    final wghts = _ofpData?['weights'] ?? {};
+    final fuel = _ofpData?['fuel'] ?? {};
+    final gen = _ofpData?['general'] ?? {};
 
     double elw =
-        (double.tryParse(wghts?['est_ldw']?.toString() ?? "0") ?? 0) / 1000;
+        (double.tryParse(wghts['est_ldw']?.toString() ?? "0") ?? 0) / 1000;
     double mlw =
-        (double.tryParse(wghts?['max_ldw']?.toString() ?? "1") ?? 1) / 1000;
+        (double.tryParse(wghts['max_ldw']?.toString() ?? "1") ?? 1) / 1000;
 
-    // Fallback لـ EFOB
     double efob =
-        (double.tryParse(fuel?['plan_landing']?.toString() ?? "0") ?? 0) / 1000;
+        (double.tryParse(fuel['plan_landing']?.toString() ?? "0") ?? 0) / 1000;
     if (efob == 0) {
-      double block =
-          double.tryParse(fuel?['plan_ramp']?.toString() ?? "0") ?? 0;
+      double block = double.tryParse(fuel['plan_ramp']?.toString() ?? "0") ?? 0;
       double trip =
-          double.tryParse(fuel?['enroute_burn']?.toString() ?? "0") ?? 0;
+          double.tryParse(fuel['enroute_burn']?.toString() ?? "0") ?? 0;
       efob = (block - trip) / 1000;
     }
 
-    String rwy = dest?['plan_rwy']?.toString() ?? "---";
-    // الـ STAR بنجيبه من آخر نقطة في الـ Route
-    List<String> routePoints = gen?['route']?.toString().split(' ') ?? [];
+    String rwy = dest['plan_rwy']?.toString() ?? "---";
+
+    String routeStr = gen['route']?.toString() ?? "";
+    List<String> routePoints = routeStr.isEmpty ? [] : routeStr.split(' ');
     String star = routePoints.length > 1 ? routePoints.last : "VECTORS";
 
     String altnName = "NO ALTERNATE FILED";
     Color altnColor = cDanger;
-    if (altn != null && altn is Map) {
+
+    if (altn is Map) {
       altnName = altn['icao_code']?.toString() ?? "---";
+      altnColor = efbWhite;
+    } else if (altn is List && altn.isNotEmpty) {
+      altnName = altn.first['icao_code']?.toString() ?? "---";
       altnColor = efbWhite;
     }
 
-    String vis = dest?['metar']?.toString().contains("CAVOK") == true
-        ? "10+ KM (CAVOK)"
-        : "Check METAR";
+    String metarStr = dest['metar']?.toString() ?? "";
+    String vis = metarStr.contains("CAVOK") ? "10+ KM (CAVOK)" : "Check METAR";
 
-    // OAT extraction
     String oat = "---";
-    String metar = dest?['metar']?.toString() ?? "";
     RegExp tempRegex = RegExp(r'\b(M?\d{2})/(M?\d{2})\b');
-    Match? tMatch = tempRegex.firstMatch(metar);
+    Match? tMatch = tempRegex.firstMatch(metarStr);
     if (tMatch != null) oat = tMatch.group(1)?.replaceAll('M', '-') ?? "---";
 
-    // AI Suggestions
     String recFlaps = arrCrosswind > 15 ? "3" : "FULL";
     String recBrakes = "UNVERIFIED RWY -> MED/MAX";
 
@@ -1175,7 +1138,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                 _buildDataRow(
                     "EST LNDG WGT (ELW)",
                     "${elw.toStringAsFixed(1)} T",
-                    elw > mlw * 0.95 ? cWarn : efbWhite),
+                    (elw > mlw * 0.95 && mlw > 1) ? cWarn : efbWhite),
                 _buildDataRow("MAX LNDG WGT (MLW)",
                     "${mlw.toStringAsFixed(1)} T", efbWhite),
                 _buildDataRow(
@@ -1250,11 +1213,12 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   }
 
   Widget _buildArrVisualizerCard() {
-    final dest = _ofpData?['destination'];
-    String rwyStr =
-        dest?['plan_rwy']?.toString().replaceAll(RegExp(r'[A-Za-z]'), '') ??
-            "36";
+    final dest = _ofpData?['destination'] ?? {};
+    String rwyRaw = dest['plan_rwy']?.toString() ?? "36";
+    String rwyStr = rwyRaw.replaceAll(RegExp(r'[A-Za-z]'), '');
+    if (rwyStr.isEmpty) rwyStr = "36";
     double rwyHdg = (double.tryParse(rwyStr) ?? 36) * 10;
+
     int oppositeRwy = ((rwyHdg + 180) % 360) ~/ 10;
     if (oppositeRwy == 0) oppositeRwy = 36;
     String oppositeRwyStr = oppositeRwy.toString().padLeft(2, '0');
