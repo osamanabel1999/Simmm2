@@ -119,9 +119,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     super.dispose();
   }
 
-  // =========================================================================
-  // ==== هنا تم نسخ الكود العبقري بتاعك حرفياً لضمان عدم حدوث أي Crash ====
-  // =========================================================================
   Future<void> _fetchSimBriefData() async {
     String cleanId = widget.pilotId.trim();
 
@@ -137,8 +134,10 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     }
 
     try {
+      bool isNumeric = RegExp(r'^[0-9]+$').hasMatch(cleanId);
+      String queryParam = isNumeric ? "userid" : "username";
       final url = Uri.parse(
-          "https://www.simbrief.com/api/xml.fetcher.php?userid=${Uri.encodeComponent(cleanId)}&json=1");
+          "https://www.simbrief.com/api/xml.fetcher.php?$queryParam=${Uri.encodeComponent(cleanId)}&json=1");
       final response = await http.get(url);
 
       dynamic data;
@@ -167,20 +166,18 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
 
           if (!mounted) return;
           setState(() {
-            _errorMessage = "SimBrief Alert: $apiError";
+            _errorMessage = "SimBrief Alert: $apiError\n[ID Sent: '$cleanId']";
             _ofpData = null;
             _isLoading = false;
           });
         } else {
           if (!mounted) return;
           setState(() {
-            _ofpData =
-                data; // الإسناد المباشر اللي بيمنع الـ Type Casting Crash
+            _ofpData = Map<String, dynamic>.from(data);
             _errorMessage = "";
             _isLoading = false;
           });
 
-          // تشغيل محركات الذكاء الاصطناعي للمغادرة والوصول
           _analyzeDepDataAndBuildTEM();
           _buildDepScriptAndPrepareAudio();
 
@@ -190,8 +187,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       } else {
         if (!mounted) return;
         setState(() {
-          _errorMessage =
-              "Connection Error (${response.statusCode}). Showing empty layout.";
+          _errorMessage = "Connection Error (${response.statusCode}).";
           _ofpData = null;
           _isLoading = false;
         });
@@ -199,15 +195,104 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage =
-            "Network timeout or parsing error. Showing empty layout.";
+        _errorMessage = "Network timeout or parsing error.";
         _ofpData = null;
         _isLoading = false;
       });
     }
   }
 
+  // =========================================================================
+  // ====================== Helper Functions (Phonetics & Formats) ===========
+  // =========================================================================
+
   double _toRadians(double degree) => degree * math.pi / 180.0;
+
+  String _toPhoneticCallsign(String cs) {
+    const dict = {
+      'A': 'Alpha',
+      'B': 'Bravo',
+      'C': 'Charlie',
+      'D': 'Delta',
+      'E': 'Echo',
+      'F': 'Foxtrot',
+      'G': 'Golf',
+      'H': 'Hotel',
+      'I': 'India',
+      'J': 'Juliett',
+      'K': 'Kilo',
+      'L': 'Lima',
+      'M': 'Mike',
+      'N': 'November',
+      'O': 'Oscar',
+      'P': 'Papa',
+      'Q': 'Quebec',
+      'R': 'Romeo',
+      'S': 'Sierra',
+      'T': 'Tango',
+      'U': 'Uniform',
+      'V': 'Victor',
+      'W': 'Whiskey',
+      'X': 'X-ray',
+      'Y': 'Yankee',
+      'Z': 'Zulu',
+      '0': 'Zero',
+      '1': 'One',
+      '2': 'Two',
+      '3': 'Three',
+      '4': 'Four',
+      '5': 'Five',
+      '6': 'Six',
+      '7': 'Seven',
+      '8': 'Eight',
+      '9': 'Nine'
+    };
+    return cs.toUpperCase().split('').map((c) => dict[c] ?? c).join(' ');
+  }
+
+  String _toPhoneticRunway(String rwy) {
+    return rwy.toUpperCase().split('').map((c) {
+      if (c == 'L') return 'Left';
+      if (c == 'R') return 'Right';
+      if (c == 'C') return 'Center';
+      const dict = {
+        '0': 'Zero',
+        '1': 'One',
+        '2': 'Two',
+        '3': 'Three',
+        '4': 'Four',
+        '5': 'Five',
+        '6': 'Six',
+        '7': 'Seven',
+        '8': 'Eight',
+        '9': 'Nine'
+      };
+      return dict[c] ?? c;
+    }).join(' ');
+  }
+
+  String _formatTransAlt(dynamic alt) {
+    if (alt == null || alt.toString().isEmpty) return "---";
+    int? val = int.tryParse(alt.toString());
+    return val != null ? "$val FT" : "---";
+  }
+
+  String _formatTransLvl(dynamic lvl) {
+    if (lvl == null || lvl.toString().isEmpty) return "---";
+    int? val = int.tryParse(lvl.toString());
+    if (val != null) {
+      if (val > 1000) return "FL${(val ~/ 100).toString().padLeft(3, '0')}";
+      return "FL${val.toString().padLeft(3, '0')}";
+    }
+    return "---";
+  }
+
+  String _ftToM(dynamic ft) {
+    if (ft == null || ft.toString().isEmpty) return "---";
+    double? val = double.tryParse(ft.toString());
+    if (val != null) return "${(val * 0.3048).round()} M";
+    return "---";
+  }
 
   Widget _buildBadge(String text, Color color) {
     return Container(
@@ -225,12 +310,11 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   }
 
   // =========================================================================
-  // ====================== محرك حسابات المغادرة =========================
+  // ====================== محرك المغادرة (DEPARTURE) =========================
   // =========================================================================
   void _analyzeDepDataAndBuildTEM() {
     if (_ofpData == null) return;
 
-    // تم إضافة الـ Fallbacks لمنع الـ Null Errors
     final gen = (_ofpData!['general'] is Map) ? _ofpData!['general'] : {};
     final origin = (_ofpData!['origin'] is Map) ? _ofpData!['origin'] : {};
     final wghts = (_ofpData!['weights'] is Map) ? _ofpData!['weights'] : {};
@@ -240,23 +324,21 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             "36";
     double rwyHdg = (double.tryParse(rwyStr) ?? 36) * 10;
 
-    double windDir = 0;
-    double windSpd = 0;
     String metar = origin['metar']?.toString() ?? "";
 
     RegExp windRegex = RegExp(r'\b(\d{3})(\d{2,3})(?:G\d{2,3})?KT\b');
     Match? match = windRegex.firstMatch(metar);
     if (match != null) {
-      windDir = double.tryParse(match.group(1) ?? "0") ?? 0;
-      windSpd = double.tryParse(match.group(2) ?? "0") ?? 0;
+      depWindDir = double.tryParse(match.group(1) ?? "0") ?? 0;
+      depWindSpd = double.tryParse(match.group(2) ?? "0") ?? 0;
     } else {
-      windDir = double.tryParse(gen['avg_wind_dir']?.toString() ?? "0") ?? 0;
-      windSpd = double.tryParse(gen['avg_wind_spd']?.toString() ?? "0") ?? 0;
+      depWindDir = double.tryParse(gen['avg_wind_dir']?.toString() ?? "0") ?? 0;
+      depWindSpd = double.tryParse(gen['avg_wind_spd']?.toString() ?? "0") ?? 0;
     }
 
-    double angleDiff = _toRadians(windDir - rwyHdg);
-    depHeadwind = windSpd * math.cos(angleDiff);
-    depCrosswind = windSpd * math.sin(angleDiff);
+    double angleDiff = _toRadians(depWindDir - rwyHdg);
+    depWindComp = depWindSpd * math.cos(angleDiff);
+    depCrosswind = depWindSpd * math.sin(angleDiff);
     depIsCrosswindRight = depCrosswind > 0;
     depCrosswind = depCrosswind.abs();
 
@@ -291,6 +373,12 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       depThreatCount++;
     }
 
+    if (depWindComp < -3) {
+      depThreatBadges.add(_buildBadge("TAILWIND DEP", cWarn));
+      depThreatNames.add("a tailwind component on departure");
+      depThreatCount++;
+    }
+
     if (tow > mtow * 0.95) {
       depThreatBadges.add(_buildBadge("HEAVY AIRCRAFT", cWarn));
       depThreatNames.add("a very heavy takeoff weight");
@@ -309,22 +397,36 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     final origin = (_ofpData!['origin'] is Map) ? _ofpData!['origin'] : {};
     final wghts = (_ofpData!['weights'] is Map) ? _ofpData!['weights'] : {};
     final fuel = (_ofpData!['fuel'] is Map) ? _ofpData!['fuel'] : {};
+    final tlr = (_ofpData!['tlr'] is Map) ? _ofpData!['tlr'] : {};
+
+    final tkoRwyList = (tlr['takeoff'] is Map &&
+            tlr['takeoff']['runway'] is List &&
+            tlr['takeoff']['runway'].isNotEmpty)
+        ? tlr['takeoff']['runway'][0]
+        : {};
 
     String callsign = "${gen['icao_airline']}${gen['flight_number']}";
+    String phonCallsign = _toPhoneticCallsign(callsign);
+
     String originName = origin['name']?.toString() ??
         origin['icao_code']?.toString() ??
         "Origin";
     String rwy = origin['plan_rwy']?.toString() ?? "Unknown";
+    String phonRwy = _toPhoneticRunway(rwy);
+
     String sid = gen['route']?.toString().split(' ').first ?? "";
     String metar = origin['metar']?.toString() ?? "";
 
     double towTons =
         (double.tryParse(wghts['est_tow']?.toString() ?? "0") ?? 0) / 1000;
-    double blockTons =
-        (double.tryParse(fuel['plan_ramp']?.toString() ?? "0") ?? 0) / 1000;
+    double mtowTons =
+        (double.tryParse(wghts['max_tow']?.toString() ?? "1") ?? 1) / 1000;
     double extraTons =
         (double.tryParse(fuel['extra']?.toString() ?? "0") ?? 0) / 1000;
     int holdMins = (extraTons * 25).round();
+
+    String v1 = tkoRwyList['speeds_v1']?.toString() ?? "___";
+    String v2 = tkoRwyList['speeds_v2']?.toString() ?? "___";
 
     int hour = DateTime.now().hour;
     String greeting = "Good evening";
@@ -333,26 +435,34 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
 
     List<String> intros = [
-      "$greeting, Captain. Let’s run through the departure brief for flight $callsign.",
-      "$greeting! Ready when you are. Here’s the departure briefing for $callsign.",
-      "$greeting. Let's get our departure brief out of the way for $callsign."
+      "$greeting, Captain. Let’s run through the departure brief for flight $phonCallsign.",
+      "$greeting! Ready when you are. Here’s the departure briefing for $phonCallsign.",
+      "$greeting. Let's get our departure brief out of the way for $phonCallsign.",
+      "Okay, let's complete the departure briefing for $phonCallsign."
     ];
     String intro = intros[math.Random().nextInt(intros.length)];
 
     String routingTxt = "";
     if (sid.isEmpty || sid == "DCT" || sid.length < 3) {
       routingTxt =
-          "We are departing from $originName, planning Runway $rwy. Expecting radar vectors out of here today.";
+          "We are departing from $originName, planning Runway $phonRwy. Expecting radar vectors out of here today.";
     } else {
       routingTxt =
-          "We are departing from $originName, planning Runway $rwy. We will follow the $sid departure.";
+          "We are departing from $originName, planning Runway $phonRwy. We will follow the $sid departure.";
     }
 
-    String windTxt =
-        "Looking at the weather, we have a headwind of ${depHeadwind.round()} knots, and a crosswind component of ${depCrosswind.round()} knots.";
+    String windTxt = "";
+    if (depWindComp >= 0) {
+      windTxt =
+          "Looking at the weather, we have a headwind of ${depWindComp.round()} knots, and a crosswind component of ${depCrosswind.round()} knots.";
+    } else {
+      windTxt =
+          "Caution, looking at the weather we have a tailwind component of ${(-depWindComp).round()} knots, and a crosswind of ${depCrosswind.round()} knots. Monitor takeoff distance carefully.";
+    }
+
     if (depCrosswind > 15) {
       windTxt +=
-          " It's a bit gusty from the side, I'll be ready on the ailerons.";
+          " It's quite gusty from the side, I'll be ready on the ailerons.";
     }
 
     String cloudsTxt = "Skies look relatively clear.";
@@ -363,10 +473,19 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     }
 
     String weightTxt =
-        "Our planned takeoff weight is ${towTons.toStringAsFixed(1)} tons. Block fuel is ${blockTons.toStringAsFixed(1)} tons. This includes ${extraTons.toStringAsFixed(1)} tons of extra fuel, which buys us roughly $holdMins minutes of holding time if things get busy.";
+        "Our estimated takeoff weight is ${towTons.toStringAsFixed(1)} tons against a maximum of ${mtowTons.toStringAsFixed(1)} tons. We have roughly $holdMins minutes of extra holding fuel.";
+
+    String vSpeedTxt = "";
+    if (v1 != "___" && v2 != "___") {
+      vSpeedTxt =
+          "Takeoff speeds are computed. V 1 is $v1, V 2 is $v2. Thrust is set.";
+    } else {
+      vSpeedTxt =
+          "Takeoff speeds are pending your input in the FMC. Thrust is set.";
+    }
 
     String emergencyTxt =
-        "Takeoff speeds and thrust are set. For the emergency brief: Any warning, caution, or engine failure prior to V 1, I will call STOP. We abort, apply max brakes, and max reverse thrust. If the failure occurs after V 1, we continue the takeoff, gear up with a positive rate, silence warnings, and manage the failure at a safe altitude.";
+        "For the emergency brief: Any warning, caution, or engine failure prior to V 1, I will call STOP. We abort, apply max brakes, and max reverse thrust. If the failure occurs after V 1, we continue the takeoff, gear up with a positive rate, silence warnings, and manage the failure at a safe altitude.";
 
     String outro = "";
     if (depThreatCount == 0) {
@@ -375,11 +494,11 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     } else {
       String threatsListed = depThreatNames.join(" and ");
       outro =
-          "Alright, we have a few challenges to consider today, including $threatsListed. This will require a bit more effort and coordination. Let's stay sharp and keep our guard up. Any questions?";
+          "Alright, we have a few challenges to consider today, specifically $threatsListed. This will require a bit more effort and coordination. Let's stay sharp and keep our guard up. Any questions?";
     }
 
     String rawScript =
-        "$intro $routingTxt $windTxt $cloudsTxt $weightTxt $emergencyTxt $outro";
+        "$intro $routingTxt $windTxt $cloudsTxt $weightTxt $vSpeedTxt $emergencyTxt $outro";
 
     _cleanDepAudioText = rawScript
         .replaceAll(RegExp(r'<[^>]*>'), ' ')
@@ -391,14 +510,14 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   }
 
   // =========================================================================
-  // ====================== محرك حسابات الوصول (NEW ARRIVAL) ==================
+  // ====================== محرك الوصول (ARRIVAL) =============================
   // =========================================================================
   void _analyzeArrDataAndBuildTEM() {
     if (_ofpData == null) return;
 
     final dest =
         (_ofpData!['destination'] is Map) ? _ofpData!['destination'] : {};
-    final altn = _ofpData!['alternate']; // يمكن أن يكون Map أو Empty String
+    final altn = _ofpData!['alternate'];
     final wghts = (_ofpData!['weights'] is Map) ? _ofpData!['weights'] : {};
 
     String rwyStr =
@@ -406,20 +525,18 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             "36";
     double rwyHdg = (double.tryParse(rwyStr) ?? 36) * 10;
 
-    double windDir = 0;
-    double windSpd = 0;
     String metar = dest['metar']?.toString() ?? "";
 
     RegExp windRegex = RegExp(r'\b(\d{3})(\d{2,3})(?:G\d{2,3})?KT\b');
     Match? match = windRegex.firstMatch(metar);
     if (match != null) {
-      windDir = double.tryParse(match.group(1) ?? "0") ?? 0;
-      windSpd = double.tryParse(match.group(2) ?? "0") ?? 0;
+      arrWindDir = double.tryParse(match.group(1) ?? "0") ?? 0;
+      arrWindSpd = double.tryParse(match.group(2) ?? "0") ?? 0;
     }
 
-    double angleDiff = _toRadians(windDir - rwyHdg);
-    arrHeadwind = windSpd * math.cos(angleDiff);
-    arrCrosswind = windSpd * math.sin(angleDiff);
+    double angleDiff = _toRadians(arrWindDir - rwyHdg);
+    arrWindComp = arrWindSpd * math.cos(angleDiff);
+    arrCrosswind = arrWindSpd * math.sin(angleDiff);
     arrIsCrosswindRight = arrCrosswind > 0;
     arrCrosswind = arrCrosswind.abs();
 
@@ -455,6 +572,12 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       arrThreatCount++;
     }
 
+    if (arrWindComp < -3) {
+      arrThreatBadges.add(_buildBadge("TAILWIND LNDG", cWarn));
+      arrThreatNames.add("a tailwind component on landing");
+      arrThreatCount++;
+    }
+
     if (elw > mlw * 0.95) {
       arrThreatBadges.add(_buildBadge("HEAVY LANDING", cWarn));
       arrThreatNames.add("a very heavy landing weight");
@@ -477,12 +600,25 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     final altn = _ofpData!['alternate'];
     final wghts = (_ofpData!['weights'] is Map) ? _ofpData!['weights'] : {};
     final fuel = (_ofpData!['fuel'] is Map) ? _ofpData!['fuel'] : {};
+    final tlr = (_ofpData!['tlr'] is Map) ? _ofpData!['tlr'] : {};
+
+    final lndDistDry =
+        (tlr['landing'] is Map && tlr['landing']['distance_dry'] is Map)
+            ? tlr['landing']['distance_dry']
+            : {};
+    final lndRwy = (tlr['landing'] is Map &&
+            tlr['landing']['runway'] is List &&
+            tlr['landing']['runway'].isNotEmpty)
+        ? tlr['landing']['runway'][0]
+        : {};
 
     String callsign = "${gen['icao_airline']}${gen['flight_number']}";
+    String phonCallsign = _toPhoneticCallsign(callsign);
     String destName = dest['name']?.toString() ??
         dest['icao_code']?.toString() ??
         "Destination";
     String arrRwy = dest['plan_rwy']?.toString() ?? "Unknown";
+    String phonRwy = _toPhoneticRunway(arrRwy);
     String metar = dest['metar']?.toString() ?? "";
 
     String altnName = "";
@@ -512,8 +648,8 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
 
     List<String> intros = [
       "Alright Captain, let's set up the arrival and approach briefing into $destName.",
-      "We are getting closer. Let's review our arrival brief for $destName.",
-      "Okay, time to prepare for descent. Here is the arrival briefing for flight $callsign into $destName."
+      "We are getting closer. Let's review our arrival brief for flight $phonCallsign into $destName.",
+      "Okay, time to prepare for descent. Here is the arrival briefing for $phonCallsign."
     ];
     String intro = intros[math.Random().nextInt(intros.length)];
 
@@ -525,17 +661,40 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       altnText = "Our filed alternate is $altnName.";
     }
     String routeTxt =
-        "We are planning an approach for Runway $arrRwy. $altnText";
+        "We are planning an approach for Runway $phonRwy. $altnText";
 
-    String windTxt =
-        "Destination weather gives us a headwind of ${arrHeadwind.round()} knots, and a crosswind of ${arrCrosswind.round()} knots.";
+    String windTxt = "";
+    if (arrWindComp >= 0) {
+      windTxt =
+          "Destination weather gives us a headwind of ${arrWindComp.round()} knots, and a crosswind of ${arrCrosswind.round()} knots.";
+    } else {
+      windTxt =
+          "Caution, destination weather indicates a tailwind of ${(-arrWindComp).round()} knots, and a crosswind of ${arrCrosswind.round()} knots.";
+    }
+
+    String flaps = lndDistDry['flap_setting']?.toString() ?? "---";
+    String brakes = lndDistDry['brake_setting']?.toString() ?? "---";
+
+    double rwyLenMeters = 0;
+    String rwyLenRaw = lndRwy['length_lda']?.toString() ?? "";
+    if (rwyLenRaw.isNotEmpty) {
+      rwyLenMeters = (double.tryParse(rwyLenRaw) ?? 0) * 0.3048;
+    }
+
     String flapsTxt = "";
-    if (arrCrosswind < 15) {
+    if (flaps != "---") {
       flapsTxt =
-          "Winds are relatively calm, so we will plan for a standard Flaps FULL landing.";
+          "Based on our data, we will plan for a Flaps $flaps landing using autobrakes $brakes.";
     } else {
       flapsTxt =
-          "It's quite gusty down there. To maintain better handling, I suggest we plan for a Flaps 3 landing.";
+          "Landing performance data is unverified. We will manage flaps and autobrakes manually.";
+    }
+
+    if (rwyLenMeters > 0 && rwyLenMeters < 2400) {
+      flapsTxt +=
+          " Be advised, we have a relatively short runway today, maximum reverse thrust is recommended upon touchdown.";
+    } else if (rwyLenMeters >= 2400) {
+      flapsTxt += " We have plenty of runway available for rollout.";
     }
 
     String oatTxt = "";
@@ -581,7 +740,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   }
 
   // =========================================================================
-  // ====================== محرك تشغيل الصوت =================================
+  // ====================== تشغيل الصوت ======================================
   // =========================================================================
   Future<void> _playAudioBriefing() async {
     String textToPlay =
@@ -623,51 +782,47 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       width: widget.width,
       height: widget.height,
       color: efbBg,
-      child: SafeArea(
-        bottom: false,
-        child: Stack(
-          children: [
-            _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: efbAccent))
-                : _errorMessage.isNotEmpty
-                    ? Center(
-                        child: Text(_errorMessage,
-                            style:
-                                const TextStyle(color: cDanger, fontSize: 16)))
-                    : Column(
-                        children: [
-                          _buildHeaderToggleAndAudio(),
-                          const SizedBox(height: 12),
-                          Expanded(
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
-                              child: _isDepartureTab
-                                  ? _buildDepartureLayout()
-                                  : _buildArrivalLayout(),
-                            ),
+      // تم إزالة SafeArea بالكامل من هنا لإنهاء مشكلة المساحة الفاضية الكبيرة
+      child: Stack(
+        children: [
+          _isLoading
+              ? const Center(child: CircularProgressIndicator(color: efbAccent))
+              : _errorMessage.isNotEmpty
+                  ? Center(
+                      child: Text(_errorMessage,
+                          style: const TextStyle(color: cDanger, fontSize: 16),
+                          textAlign: TextAlign.center))
+                  : Column(
+                      children: [
+                        _buildHeaderToggleAndAudio(),
+                        const SizedBox(height: 12),
+                        Expanded(
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: _isDepartureTab
+                                ? _buildDepartureLayout()
+                                : _buildArrivalLayout(),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
 
-            // --- الشريط العائم (Home Indicator) ---
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: _buildHomeIndicator(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-              ),
+          // --- الشريط العائم (Home Indicator) ---
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _buildHomeIndicator(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  // --- دالة الشريط العائم ---
   Widget _buildHomeIndicator({required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
@@ -688,7 +843,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     );
   }
 
-  // --- الهيدر (زراير التبديل + زرار الـ AI) ---
   Widget _buildHeaderToggleAndAudio() {
     return Container(
       width: double.infinity,
@@ -699,7 +853,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       ),
       child: Column(
         children: [
-          // زراير التبديل (Tabs)
           Container(
             height: 40,
             decoration: BoxDecoration(
@@ -721,11 +874,10 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: _isDepartureTab
-                            ? efbAccent.withOpacity(0.2)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(7),
-                      ),
+                          color: _isDepartureTab
+                              ? efbAccent.withOpacity(0.2)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(7)),
                       child: Center(
                           child: Text("DEPARTURE",
                               style: TextStyle(
@@ -750,11 +902,10 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: !_isDepartureTab
-                            ? efbAccent.withOpacity(0.2)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(7),
-                      ),
+                          color: !_isDepartureTab
+                              ? efbAccent.withOpacity(0.2)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(7)),
                       child: Center(
                           child: Text("ARRIVAL",
                               style: TextStyle(
@@ -769,8 +920,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             ),
           ),
           const SizedBox(height: 12),
-
-          // زرار الـ AI المشترك
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -779,8 +928,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                   ? FadeTransition(
                       opacity: _pulseAnimation,
                       child: const Icon(Icons.stop_circle,
-                          color: cDanger, size: 24),
-                    )
+                          color: cDanger, size: 24))
                   : const Icon(Icons.record_voice_over, color: efbBg, size: 24),
               label: Text(
                 _isPlaying ? "STOP BRIEFING" : "🤖 AI CO-PILOT BRIEF",
@@ -818,14 +966,16 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             constraints.maxWidth >= 600 && constraints.maxWidth < 900;
 
         if (isMobile) {
+          // الترتيب الجديد للموبايل فقط: Parameters ثم Visualizer ثم TEM Board
           return ListView(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 40),
+            padding: const EdgeInsets.fromLTRB(
+                12, 12, 12, 40), // إضافة بادينج علوي بعد مسح الـ SafeArea
             children: [
+              _buildDepParamsCard(),
+              const SizedBox(height: 12),
               _buildDepVisualizerCard(),
               const SizedBox(height: 12),
               _buildDepTEMBoard(),
-              const SizedBox(height: 12),
-              _buildDepParamsCard(),
             ],
           );
         } else if (isTabletPortrait) {
@@ -873,14 +1023,16 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             constraints.maxWidth >= 600 && constraints.maxWidth < 900;
 
         if (isMobile) {
+          // الترتيب الجديد للموبايل فقط: Parameters ثم Visualizer ثم TEM Board
           return ListView(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 40),
+            padding: const EdgeInsets.fromLTRB(
+                12, 12, 12, 40), // إضافة بادينج علوي بعد مسح الـ SafeArea
             children: [
+              _buildArrParamsCard(),
+              const SizedBox(height: 12),
               _buildArrVisualizerCard(),
               const SizedBox(height: 12),
               _buildArrTEMBoard(),
-              const SizedBox(height: 12),
-              _buildArrParamsCard(),
             ],
           );
         } else if (isTabletPortrait) {
@@ -929,23 +1081,39 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     final origin = (_ofpData?['origin'] is Map) ? _ofpData!['origin'] : {};
     final wghts = (_ofpData?['weights'] is Map) ? _ofpData!['weights'] : {};
     final fuel = (_ofpData?['fuel'] is Map) ? _ofpData!['fuel'] : {};
-    final params =
-        (_ofpData?['parameters'] is Map) ? _ofpData!['parameters'] : {};
+    final tlr = (_ofpData?['tlr'] is Map) ? _ofpData!['tlr'] : {};
 
-    double tow =
+    final tkoRwy = (tlr['takeoff'] is Map &&
+            tlr['takeoff']['runway'] is List &&
+            tlr['takeoff']['runway'].isNotEmpty)
+        ? tlr['takeoff']['runway'][0]
+        : {};
+
+    double mtow =
+        (double.tryParse(wghts['max_tow']?.toString() ?? "1") ?? 1) / 1000;
+    double etow =
         (double.tryParse(wghts['est_tow']?.toString() ?? "0") ?? 0) / 1000;
     double block =
         (double.tryParse(fuel['plan_ramp']?.toString() ?? "0") ?? 0) / 1000;
 
     String rules = gen['flight_rules']?.toString().toUpperCase() ?? "IFR";
+    String transAlt = _formatTransAlt(origin['trans_alt']);
+    String transLvl = _formatTransLvl(origin['trans_level']);
+
     String rwy = origin['plan_rwy']?.toString() ?? "---";
     String sid = gen['route']?.toString().split(' ').first ?? "RADAR VECTORS";
     String climb = gen['initial_altitude']?.toString() ?? "---";
     String emergRtn = origin['icao_code']?.toString() ?? "---";
 
-    String v1 = params['v1']?.toString() ?? "___";
-    String vr = params['vr']?.toString() ?? "___";
-    String v2 = params['v2']?.toString() ?? "___";
+    String windDirStr = depWindDir.round().toString().padLeft(3, '0');
+    String windSpdStr = depWindSpd.round().toString();
+    String windMetar = "$windDirStr° / $windSpdStr KT";
+
+    String v1 = tkoRwy['speeds_v1']?.toString() ?? "___";
+    String vr = tkoRwy['speeds_vr']?.toString() ?? "___";
+    String v2 = tkoRwy['speeds_v2']?.toString() ?? "___";
+    String rwyLen = _ftToM(tkoRwy['length_tora'] ?? tkoRwy['length']);
+
     String vis = origin['metar']?.toString().contains("CAVOK") == true
         ? "10+ KM (CAVOK)"
         : "Check METAR";
@@ -977,10 +1145,14 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildDataRow("TOW", "${tow.toStringAsFixed(1)} T", efbWhite),
+                _buildDataRow("MTOW", "${mtow.toStringAsFixed(1)} T", efbWhite),
+                _buildDataRow("ETOW", "${etow.toStringAsFixed(1)} T", efbWhite),
                 _buildDataRow(
                     "BLOCK FUEL", "${block.toStringAsFixed(1)} T", efbWhite),
+                const Divider(color: efbBorder, height: 24),
                 _buildDataRow("RULES", rules, efbAccent),
+                _buildDataRow("TRANS ALT", transAlt, efbWhite),
+                _buildDataRow("TRANS LVL", transLvl, efbWhite),
                 const Divider(color: efbBorder, height: 24),
                 _buildDataRow("DEP RWY", rwy, efbWhite),
                 _buildDataRow("SID", sid, sid.length < 3 ? cWarn : efbWhite),
@@ -991,14 +1163,20 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                 _buildDataRow("EMERG RETURN", emergRtn, cDanger),
                 const Divider(color: efbBorder, height: 24),
                 _buildDataRow("VISIBILITY", vis, cWeather),
-                _buildDataRow("OAT", "$oat°C", oat == "---" ? cWarn : cWeather),
+                _buildDataRow("WIND", windMetar, cWeather),
+                _buildDataRow("OAT", oat == "---" ? "---" : "$oat°C",
+                    oat == "---" ? cWarn : cWeather),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildVSpeedBox("V1", v1),
                     _buildVSpeedBox("VR", vr),
-                    _buildVSpeedBox("V2", v2)
+                    _buildVSpeedBox("V2", v2),
+                    Expanded(
+                        child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: _buildVSpeedBox("RWY LEN", rwyLen))),
                   ],
                 )
               ],
@@ -1053,8 +1231,13 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     if (oppositeRwy == 0) oppositeRwy = 36;
     String oppositeRwyStr = oppositeRwy.toString().padLeft(2, '0');
 
+    String windCompText = depWindComp >= 0
+        ? "HEADWIND: ${depWindComp.round()} kts"
+        : "TAILWIND: ${(-depWindComp).round()} kts";
+    Color windCompColor = depWindComp >= 0 ? cWeather : cDanger;
+
     return Container(
-      height: 350,
+      height: 450,
       decoration: BoxDecoration(
           color: efbBg,
           borderRadius: BorderRadius.circular(12),
@@ -1080,9 +1263,8 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                       runwayHeading: rwyHdg,
                       runwayStr: rwyStr,
                       oppositeRwyStr: oppositeRwyStr,
-                      windSpd: depHeadwind.abs() + depCrosswind,
-                      crosswind: depCrosswind,
-                      isCrosswindRight: depIsCrosswindRight,
+                      windSpd: depWindSpd,
+                      windDir: depWindDir,
                       animValue: _windAnimationController.value,
                     ),
                   );
@@ -1100,9 +1282,9 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text("HEADWIND: ${depHeadwind.round()} kts",
-                    style: const TextStyle(
-                        color: cWeather, fontWeight: FontWeight.bold)),
+                Text(windCompText,
+                    style: TextStyle(
+                        color: windCompColor, fontWeight: FontWeight.bold)),
                 Text("CROSSWIND: ${depCrosswind.round()} kts",
                     style: TextStyle(
                         color: depCrosswind > 15 ? cWarn : cWeather,
@@ -1126,6 +1308,17 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     final wghts = (_ofpData?['weights'] is Map) ? _ofpData!['weights'] : {};
     final fuel = (_ofpData?['fuel'] is Map) ? _ofpData!['fuel'] : {};
     final gen = (_ofpData?['general'] is Map) ? _ofpData!['general'] : {};
+    final tlr = (_ofpData?['tlr'] is Map) ? _ofpData!['tlr'] : {};
+
+    final lndDistDry =
+        (tlr['landing'] is Map && tlr['landing']['distance_dry'] is Map)
+            ? tlr['landing']['distance_dry']
+            : {};
+    final lndRwy = (tlr['landing'] is Map &&
+            tlr['landing']['runway'] is List &&
+            tlr['landing']['runway'].isNotEmpty)
+        ? tlr['landing']['runway'][0]
+        : {};
 
     double elw =
         (double.tryParse(wghts['est_ldw']?.toString() ?? "0") ?? 0) / 1000;
@@ -1162,8 +1355,16 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     Match? tMatch = tempRegex.firstMatch(metar);
     if (tMatch != null) oat = tMatch.group(1)?.replaceAll('M', '-') ?? "---";
 
-    String recFlaps = arrCrosswind > 15 ? "3" : "FULL";
-    String recBrakes = "UNVERIFIED RWY -> MED/MAX";
+    String windDirStr = arrWindDir.round().toString().padLeft(3, '0');
+    String windSpdStr = arrWindSpd.round().toString();
+    String windMetar = "$windDirStr° / $windSpdStr KT";
+
+    String flaps = lndDistDry['flap_setting']?.toString() ?? "---";
+    String brakes = lndDistDry['brake_setting']?.toString() ?? "---";
+    String vref = lndDistDry['speeds_vref']?.toString() ?? "___";
+    String actDist = _ftToM(lndDistDry['actual_distance']);
+    String factDist = _ftToM(lndDistDry['factored_distance']);
+    String rwyLen = _ftToM(lndRwy['length_lda']);
 
     return Container(
       decoration: BoxDecoration(
@@ -1206,6 +1407,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                 _buildDataRow("ALTERNATE", altnName, altnColor),
                 const Divider(color: efbBorder, height: 24),
                 _buildDataRow("VISIBILITY", vis, cWeather),
+                _buildDataRow("WIND", windMetar, cWeather),
                 _buildDataRow("OAT", oat == "---" ? "UNVERIFIED" : "$oat°C",
                     oat == "---" ? cWarn : cWeather),
                 const SizedBox(height: 16),
@@ -1219,11 +1421,31 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildVSpeedBox("FLAPS", recFlaps),
+                    _buildVSpeedBox("FLAPS", flaps),
                     Expanded(
                         child: Padding(
                             padding: const EdgeInsets.only(left: 8.0),
-                            child: _buildVSpeedBox("AUTOBRAKES", recBrakes)))
+                            child: _buildVSpeedBox("AUTOBRK", brakes)))
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildVSpeedBox("VREF", vref),
+                    Expanded(
+                        child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: _buildVSpeedBox("RWY LEN", rwyLen))),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(child: _buildVSpeedBox("ACTUAL DIST", actDist)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildVSpeedBox("FACTORED DIST", factDist)),
                   ],
                 )
               ],
@@ -1279,8 +1501,13 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     if (oppositeRwy == 0) oppositeRwy = 36;
     String oppositeRwyStr = oppositeRwy.toString().padLeft(2, '0');
 
+    String windCompText = arrWindComp >= 0
+        ? "HEADWIND: ${arrWindComp.round()} kts"
+        : "TAILWIND: ${(-arrWindComp).round()} kts";
+    Color windCompColor = arrWindComp >= 0 ? cWeather : cDanger;
+
     return Container(
-      height: 350,
+      height: 450,
       decoration: BoxDecoration(
           color: efbBg,
           borderRadius: BorderRadius.circular(12),
@@ -1306,9 +1533,8 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                       runwayHeading: rwyHdg,
                       runwayStr: rwyStr,
                       oppositeRwyStr: oppositeRwyStr,
-                      windSpd: arrHeadwind.abs() + arrCrosswind,
-                      crosswind: arrCrosswind,
-                      isCrosswindRight: arrIsCrosswindRight,
+                      windSpd: arrWindSpd,
+                      windDir: arrWindDir,
                       animValue: _windAnimationController.value,
                     ),
                   );
@@ -1326,9 +1552,9 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text("HEADWIND: ${arrHeadwind.round()} kts",
-                    style: const TextStyle(
-                        color: cWeather, fontWeight: FontWeight.bold)),
+                Text(windCompText,
+                    style: TextStyle(
+                        color: windCompColor, fontWeight: FontWeight.bold)),
                 Text("CROSSWIND: ${arrCrosswind.round()} kts",
                     style: TextStyle(
                         color: arrCrosswind > 15 ? cWarn : cWeather,
@@ -1364,11 +1590,12 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     return Column(
       children: [
         Text(label,
-            style:
-                const TextStyle(color: efbAccent, fontWeight: FontWeight.bold)),
+            style: const TextStyle(
+                color: efbAccent, fontWeight: FontWeight.bold, fontSize: 11)),
         const SizedBox(height: 4),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           decoration: BoxDecoration(
               color: efbBg,
               borderRadius: BorderRadius.circular(6),
@@ -1376,7 +1603,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
           child: Text(speed,
               style: const TextStyle(
                   color: efbWhite,
-                  fontSize: 18,
+                  fontSize: 15,
                   fontFamily: 'monospace',
                   fontWeight: FontWeight.bold),
               textAlign: TextAlign.center),
@@ -1387,7 +1614,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
 }
 
 // =========================================================================
-// ====================== CustomPainter للمدرج وقمع الرياح ==================
+// ====================== CustomPainter (المدرج الثابت الرأسي) ==============
 // =========================================================================
 
 class RunwayWindsockPainter extends CustomPainter {
@@ -1395,8 +1622,7 @@ class RunwayWindsockPainter extends CustomPainter {
   final String runwayStr;
   final String oppositeRwyStr;
   final double windSpd;
-  final double crosswind;
-  final bool isCrosswindRight;
+  final double windDir;
   final double animValue;
 
   RunwayWindsockPainter({
@@ -1404,8 +1630,7 @@ class RunwayWindsockPainter extends CustomPainter {
     required this.runwayStr,
     required this.oppositeRwyStr,
     required this.windSpd,
-    required this.crosswind,
-    required this.isCrosswindRight,
+    required this.windDir,
     required this.animValue,
   });
 
@@ -1414,17 +1639,19 @@ class RunwayWindsockPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     canvas.save();
     canvas.translate(center.dx, center.dy);
-    canvas.rotate(_toRadians(runwayHeading));
 
-    double rwyWidth = 60;
-    double rwyHeight = size.height * 0.7;
+    // --- رسم المدرج الثابت بالطول ---
+    double rwyWidth = 70;
+    double rwyHeight = size.height * 0.85;
 
+    // الأسفلت
     final rwyPaint = Paint()..color = const Color(0xFF2C323A);
     final rwyRect = Rect.fromCenter(
         center: const Offset(0, 0), width: rwyWidth, height: rwyHeight);
     canvas.drawRRect(
-        RRect.fromRectAndRadius(rwyRect, const Radius.circular(4)), rwyPaint);
+        RRect.fromRectAndRadius(rwyRect, const Radius.circular(6)), rwyPaint);
 
+    // خطوط الحواف
     final linePaint = Paint()
       ..color = Colors.white
       ..strokeWidth = 2;
@@ -1433,70 +1660,78 @@ class RunwayWindsockPainter extends CustomPainter {
     canvas.drawLine(Offset(rwyWidth / 2 - 4, -rwyHeight / 2 + 10),
         Offset(rwyWidth / 2 - 4, rwyHeight / 2 - 10), linePaint);
 
+    // خط المنتصف
     final dashPaint = Paint()
       ..color = Colors.white
-      ..strokeWidth = 2;
-    double startY = -rwyHeight / 2 + 40;
-    while (startY < rwyHeight / 2 - 40) {
-      canvas.drawLine(Offset(0, startY), Offset(0, startY + 15), dashPaint);
-      startY += 30;
+      ..strokeWidth = 3;
+    double startY = -rwyHeight / 2 + 60;
+    while (startY < rwyHeight / 2 - 60) {
+      canvas.drawLine(Offset(0, startY), Offset(0, startY + 20), dashPaint);
+      startY += 40;
     }
 
-    for (int i = -2; i <= 2; i++) {
+    // Thresholds (مفاتيح البيانو)
+    for (int i = -3; i <= 3; i++) {
       if (i == 0) continue;
       canvas.drawRect(
-          Rect.fromLTWH(i * 10.0 - 2, rwyHeight / 2 - 20, 4, 15), dashPaint);
+          Rect.fromLTWH(i * 10.0 - 2, rwyHeight / 2 - 30, 4, 20), dashPaint);
       canvas.drawRect(
-          Rect.fromLTWH(i * 10.0 - 2, -rwyHeight / 2 + 5, 4, 15), dashPaint);
+          Rect.fromLTWH(i * 10.0 - 2, -rwyHeight / 2 + 10, 4, 20), dashPaint);
     }
 
-    _drawText(canvas, runwayStr, const Offset(0, 50), true);
-    _drawText(canvas, oppositeRwyStr, const Offset(0, -50), false);
+    // الأرقام
+    _drawText(canvas, runwayStr, Offset(0, rwyHeight / 2 - 50), false);
+    _drawText(canvas, oppositeRwyStr, Offset(0, -rwyHeight / 2 + 50), true);
+
     canvas.restore();
 
+    // --- رسم قمع الرياح وسهم الاتجاه ---
     canvas.save();
     canvas.translate(size.width * 0.15, size.height * 0.5);
+
+    double relWindAngle = _toRadians(windDir - runwayHeading);
+    canvas.save();
+    canvas.rotate(relWindAngle);
+    final arrowPaint = Paint()
+      ..color = cWeather
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(const Offset(0, -50), const Offset(0, -30), arrowPaint);
+    canvas.drawLine(const Offset(0, -30), const Offset(-10, -40), arrowPaint);
+    canvas.drawLine(const Offset(0, -30), const Offset(10, -40), arrowPaint);
+    canvas.restore();
 
     final polePaint = Paint()
       ..color = Colors.grey
       ..strokeWidth = 4
       ..strokeCap = StrokeCap.round;
-    canvas.drawLine(const Offset(0, 30), const Offset(0, -30), polePaint);
+    canvas.drawLine(const Offset(0, 30), const Offset(0, -20), polePaint);
 
     double flutter = 0;
     if (windSpd > 15)
-      flutter = math.sin(animValue * math.pi * 4) * 10;
+      flutter = math.sin(animValue * math.pi * 5) * 12;
     else if (windSpd > 5)
-      flutter = math.sin(animValue * math.pi * 2) * 3;
+      flutter = math.sin(animValue * math.pi * 2) * 5;
     else
-      flutter = 20;
+      flutter = 25;
 
     Path sockPath = Path();
-    sockPath.moveTo(0, -28);
-    sockPath.lineTo(40, -20 + flutter);
+    sockPath.moveTo(0, -18);
     sockPath.lineTo(40, -10 + flutter);
-    sockPath.lineTo(0, -18);
+    sockPath.lineTo(40, 0 + flutter);
+    sockPath.lineTo(0, -8);
     sockPath.close();
 
     final sockPaintRed = Paint()..color = cDanger;
     canvas.drawPath(sockPath, sockPaintRed);
 
-    if (crosswind > 2) {
-      final arrowPaint = Paint()
-        ..color = cWeather
-        ..strokeWidth = 3;
-      double arrowStartX = isCrosswindRight ? 50 : -50;
-      canvas.drawLine(
-          Offset(arrowStartX, -40), const Offset(0, -40), arrowPaint);
-      canvas.drawCircle(const Offset(0, -40), 3, arrowPaint);
-    }
     canvas.restore();
   }
 
   void _drawText(Canvas canvas, String text, Offset offset, bool invert) {
     final textStyle = const TextStyle(
         color: Colors.white,
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: FontWeight.bold,
         fontFamily: 'monospace');
     final textSpan = TextSpan(text: text, style: textStyle);
@@ -1512,8 +1747,11 @@ class RunwayWindsockPainter extends CustomPainter {
   }
 
   double _toRadians(double degree) => degree * math.pi / 180.0;
+
   @override
   bool shouldRepaint(covariant RunwayWindsockPainter oldDelegate) {
-    return oldDelegate.animValue != animValue || oldDelegate.windSpd != windSpd;
+    return oldDelegate.animValue != animValue ||
+        oldDelegate.windSpd != windSpd ||
+        oldDelegate.windDir != windDir;
   }
 }
