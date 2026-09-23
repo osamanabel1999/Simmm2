@@ -3685,6 +3685,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                 .ToPerformanceWidget(
                                               width: double.infinity,
                                               height: double.infinity,
+                                              pilotId: FFAppState()
+                                                  .SimbreifID
+                                                  .toString(),
                                               onCalculatePressed: (acType,
                                                   gw,
                                                   cg,

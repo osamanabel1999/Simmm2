@@ -13974,6 +13974,9 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                     .ToPerformanceWidget(
                                                   width: double.infinity,
                                                   height: double.infinity,
+                                                  pilotId: FFAppState()
+                                                      .SimbreifID
+                                                      .toString(),
                                                   onCalculatePressed: (acType,
                                                       gw,
                                                       cg,

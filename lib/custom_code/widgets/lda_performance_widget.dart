@@ -52,7 +52,7 @@ class LdaPerformanceWidget extends StatefulWidget {
 
 class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
   // ============================================================
-  // COLORS (نفس الألوان الأصلية وتطابق الصورة الاحترافية)
+  // COLORS (نفس الألوان الأصلية وتطابق الصورة الاحترافية + حل الأخطاء)
   // ============================================================
   static const Color outerBackground = Color(0xFF0E1724);
   static const Color panelBackground = Color(0xFF080B14);
@@ -65,9 +65,10 @@ class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
   static const Color secondaryText = Color(0xFF8AAED8);
   static const Color errorBorder = Colors.redAccent;
 
-  // ألوان إضافية تم تعريفها
-  static const Color cDanger = Color(0xFFFF5252);
-  static const Color cSafe = Color(0xFF69F0AE);
+  // ألوان إضافية تم تعريفها لحل مشكلة Undefined name وللـ Snackbars الشيك
+  static const Color cDanger = Color(0xFFE53935); // أحمر شيك للـ SnackBar
+  static const Color cSuccess =
+      Color(0xFF2563EB); // أزرق شيك للـ SnackBar بدل الأخضر
   static const Color efbWhite = Color(0xFFFFFFFF);
 
   // ============================================================
@@ -153,8 +154,6 @@ class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
       final dest = sbData['destination'];
       String destIcao = dest['icao_code']?.toString() ?? "";
       String rwyStr = dest['plan_rwy']?.toString() ?? "";
-      double rwyElev =
-          double.tryParse(dest['elevation']?.toString() ?? "0") ?? 0.0;
 
       // Extract Runway Data from TLR if available
       double rwyLen = 0.0;
@@ -175,12 +174,9 @@ class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
       int hdgInt = int.tryParse(cleanRwy) ?? 0;
       double rwyHdg = hdgInt > 0 ? (hdgInt * 10).toDouble() : 0.0;
 
-      // Update UI with SimBrief Data
-      _aptElevCtrl.text = rwyElev.round().toString();
+      // Update UI with SimBrief Data (تم استثناء Elevation و Slope كما طلبت)
       if (rwyLen > 0) _rwyLenCtrl.text = rwyLen.round().toString();
       _rwyHdgCtrl.text = rwyHdg.round().toString().padLeft(3, '0');
-      _slopeCtrl.text =
-          "0.0"; // Defaulting to 0 unless exact slope is available
 
       // 2. Fetch Live METAR from AviationWeather
       if (destIcao.isNotEmpty) {
@@ -232,10 +228,17 @@ class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content: Text(message,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold)),
-          backgroundColor: cDanger),
+        content: Text(message,
+            style: const TextStyle(
+                color: Colors.white,
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w600)),
+        backgroundColor: cDanger,
+        behavior: SnackBarBehavior.floating, // لجعلها عائمة وشيك
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
     );
   }
 
@@ -245,9 +248,16 @@ class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
       SnackBar(
           content: Text(message,
               style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold)),
-          backgroundColor: cSafe,
-          duration: const Duration(seconds: 2)),
+                  color: Colors.white,
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600)),
+          backgroundColor: cSuccess, // اللون الجديد الشيك
+          behavior: SnackBarBehavior.floating, // لجعلها عائمة وشيك
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3)),
     );
   }
 
@@ -314,7 +324,7 @@ class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
                         ),
                       ),
 
-                      // --- Top Fetch Button (مكان شيك ومناسب جداً فوق) ---
+                      // --- Top Fetch Button (مكان شيك ومناسب جداً فوق مع لون مميز) ---
                       SizedBox(
                         height: 50,
                         child: ElevatedButton.icon(
@@ -324,18 +334,20 @@ class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
                                   width: 16,
                                   height: 16,
                                   child: CircularProgressIndicator(
-                                      color: efbWhite, strokeWidth: 2))
-                              : const Icon(Icons.cloud_sync, color: efbWhite),
+                                      color: panelBackground, strokeWidth: 2))
+                              : const Icon(Icons.cloud_sync,
+                                  color: panelBackground),
                           label: const Text(
                               'FETCH LIVE DATA FROM SIMBRIEF & METAR',
                               style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: efbWhite,
+                                  color: panelBackground,
                                   letterSpacing: 1.0)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: panelBorder,
+                            backgroundColor:
+                                blueBright, // لون جديد مميز للفت الانتباه
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
                             elevation: 0,
