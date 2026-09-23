@@ -15,6 +15,7 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   audio_waveforms: 1.2.0
+  audioplayers: any # تم إضافة مكتبة الصوت هنا
   auto_size_text: 3.0.0
   cached_network_image: 3.4.1
   cached_network_image_platform_interface: 4.1.1
@@ -32,6 +33,7 @@ dependencies:
   file_picker: 10.1.9
   flutter_animate: 4.5.0
   flutter_cache_manager: 3.4.1
+  flutter_edge_tts: any # تم إضافة مكتبة النطق هنا
   flutter_map: any
   flutter_plugin_android_lifecycle: 2.0.28
   flutter_svg: any
