@@ -16024,6 +16024,9 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                     .LdaPerformanceWidget(
                                                   width: double.infinity,
                                                   height: double.infinity,
+                                                  pilotId: FFAppState()
+                                                      .SimbreifID
+                                                      .toString(),
                                                   onCalculatePressed: (acType,
                                                       gw,
                                                       aptElev,
