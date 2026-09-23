@@ -9,11 +9,13 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_edge_tts/flutter_edge_tts.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -74,6 +76,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   // --- Departure Computed Variables ---
   double depWindComp = 0;
   double depCrosswind = 0;
+  bool depIsCrosswindRight = true;
   double depWindDir = 0;
   double depWindSpd = 0;
   int depThreatCount = 0;
@@ -83,6 +86,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   // --- Arrival Computed Variables ---
   double arrWindComp = 0;
   double arrCrosswind = 0;
+  bool arrIsCrosswindRight = true;
   double arrWindDir = 0;
   double arrWindSpd = 0;
   int arrThreatCount = 0;
@@ -203,7 +207,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   }
 
   // =========================================================================
-  // ====================== Helper Functions =================================
+  // ====================== Helper Functions (Phonetics & Formats) ===========
   // =========================================================================
 
   double _toRadians(double degree) => degree * math.pi / 180.0;
@@ -269,6 +273,50 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       };
       return dict[c] ?? c;
     }).join(' ');
+  }
+
+  String _toPhoneticStar(String star) {
+    if (star == "VECTORS" || star.isEmpty) return star;
+    int digitIdx = star.indexOf(RegExp(r'[0-9]'));
+    if (digitIdx == -1) return star;
+
+    String prefix = star.substring(0, digitIdx);
+    String digitStr = star.substring(digitIdx, digitIdx + 1);
+    String suffix = star.substring(digitIdx + 1);
+
+    String phoneticSuffix = suffix.toUpperCase().split('').map((c) {
+      const dict = {
+        'A': 'Alpha',
+        'B': 'Bravo',
+        'C': 'Charlie',
+        'D': 'Delta',
+        'E': 'Echo',
+        'F': 'Foxtrot',
+        'G': 'Golf',
+        'H': 'Hotel',
+        'I': 'India',
+        'J': 'Juliett',
+        'K': 'Kilo',
+        'L': 'Lima',
+        'M': 'Mike',
+        'N': 'November',
+        'O': 'Oscar',
+        'P': 'Papa',
+        'Q': 'Quebec',
+        'R': 'Romeo',
+        'S': 'Sierra',
+        'T': 'Tango',
+        'U': 'Uniform',
+        'V': 'Victor',
+        'W': 'Whiskey',
+        'X': 'X-ray',
+        'Y': 'Yankee',
+        'Z': 'Zulu'
+      };
+      return dict[c] ?? c;
+    }).join(' ');
+
+    return "$prefix $digitStr $phoneticSuffix".trim();
   }
 
   String _formatTransAlt(dynamic alt) {
@@ -339,6 +387,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     double angleDiff = _toRadians(depWindDir - rwyHdg);
     depWindComp = depWindSpd * math.cos(angleDiff);
     depCrosswind = depWindSpd * math.sin(angleDiff);
+    depIsCrosswindRight = depCrosswind > 0;
     depCrosswind = depCrosswind.abs();
 
     depThreatBadges.clear();
@@ -410,6 +459,9 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     String originName = origin['name']?.toString() ??
         origin['icao_code']?.toString() ??
         "Origin";
+    originName = originName.replaceAll(
+        RegExp(r'\bIntl\b', caseSensitive: false), 'International Airport');
+
     String rwy = origin['plan_rwy']?.toString() ?? "Unknown";
     String phonRwy = _toPhoneticRunway(rwy);
 
@@ -425,6 +477,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     int holdMins = (extraTons * 25).round();
 
     String v1 = tkoRwyList['speeds_v1']?.toString() ?? "___";
+    String vr = tkoRwyList['speeds_vr']?.toString() ?? "___";
     String v2 = tkoRwyList['speeds_v2']?.toString() ?? "___";
 
     int hour = DateTime.now().hour;
@@ -475,9 +528,9 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
         "Our estimated takeoff weight is ${towTons.toStringAsFixed(1)} tons against a maximum of ${mtowTons.toStringAsFixed(1)} tons. We have roughly $holdMins minutes of extra holding fuel.";
 
     String vSpeedTxt = "";
-    if (v1 != "___" && v2 != "___") {
+    if (v1 != "___" && vr != "___" && v2 != "___") {
       vSpeedTxt =
-          "Takeoff speeds are computed. V 1 is $v1, V 2 is $v2. Thrust is set.";
+          "Takeoff speeds are computed. V 1 is $v1, V R is $vr, and V 2 is $v2. Thrust is set.";
     } else {
       vSpeedTxt =
           "Takeoff speeds are pending your input in the FMC. Thrust is set.";
@@ -536,6 +589,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     double angleDiff = _toRadians(arrWindDir - rwyHdg);
     arrWindComp = arrWindSpd * math.cos(angleDiff);
     arrCrosswind = arrWindSpd * math.sin(angleDiff);
+    arrIsCrosswindRight = arrCrosswind > 0;
     arrCrosswind = arrCrosswind.abs();
 
     arrThreatBadges.clear();
@@ -612,9 +666,13 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
 
     String callsign = "${gen['icao_airline']}${gen['flight_number']}";
     String phonCallsign = _toPhoneticCallsign(callsign);
+
     String destName = dest['name']?.toString() ??
         dest['icao_code']?.toString() ??
         "Destination";
+    destName = destName.replaceAll(
+        RegExp(r'\bIntl\b', caseSensitive: false), 'International Airport');
+
     String arrRwy = dest['plan_rwy']?.toString() ?? "Unknown";
     String phonRwy = _toPhoneticRunway(arrRwy);
     String metar = dest['metar']?.toString() ?? "";
@@ -623,7 +681,13 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     if (altn != null && altn is Map) {
       altnName =
           altn['name']?.toString() ?? altn['icao_code']?.toString() ?? "";
+      altnName = altnName.replaceAll(
+          RegExp(r'\bIntl\b', caseSensitive: false), 'International Airport');
     }
+
+    List<String> routePoints = gen['route']?.toString().split(' ') ?? [];
+    String star = routePoints.length > 1 ? routePoints.last : "VECTORS";
+    String phonStar = _toPhoneticStar(star);
 
     double elwTons =
         (double.tryParse(wghts['est_ldw']?.toString() ?? "0") ?? 0) / 1000;
@@ -659,7 +723,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
       altnText = "Our filed alternate is $altnName.";
     }
     String routeTxt =
-        "We are planning an approach for Runway $phonRwy. $altnText";
+        "We are planning an approach for Runway $phonRwy via the $phonStar arrival. $altnText";
 
     String windTxt = "";
     if (arrWindComp >= 0) {
@@ -673,7 +737,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     String flaps = lndDistDry['flap_setting']?.toString() ?? "---";
     String brakes = lndDistDry['brake_setting']?.toString() ?? "---";
 
-    // تحويل MAX MAN إلى maximum manual في الصوت فقط
     String spokenBrakes = brakes;
     if (spokenBrakes.toUpperCase() == "MAX MAN") {
       spokenBrakes = "maximum manual";
@@ -694,11 +757,19 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
           "Landing performance data is unverified. We will manage flaps and autobrakes manually.";
     }
 
-    if (rwyLenMeters > 0 && rwyLenMeters < 2400) {
-      flapsTxt +=
-          " Be advised, we have a relatively short runway today, maximum reverse thrust is recommended upon touchdown.";
-    } else if (rwyLenMeters >= 2400) {
-      flapsTxt += " We have plenty of runway available for rollout.";
+    String brakesTxt = "";
+    if (rwyLenMeters > 0) {
+      brakesTxt =
+          "We have an available runway length of ${rwyLenMeters.round()} meters.";
+      if (rwyLenMeters < 2400) {
+        brakesTxt +=
+            " This is relatively short, so prompt reverse thrust is recommended upon touchdown.";
+      } else {
+        brakesTxt += " We have plenty of runway available for rollout.";
+      }
+    } else {
+      brakesTxt =
+          "Runway length data is currently unverified in my database. Let's play it safe with the autobrakes.";
     }
 
     String oatTxt = "";
@@ -718,9 +789,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
 
     String fuelTxt =
         "We expect to touch down with ${efobTons.toStringAsFixed(1)} tons of fuel, which gives us a comfortable margin.";
-
-    String brakesTxt =
-        "Runway length data is currently unverified in my database. Let's play it safe with the autobrakes.";
 
     String goAroundTxt =
         "In case of a missed approach or a go-around, the callout is: 'Go-around, Flaps'. Apply TOGA thrust, positive rate gear up, and we will follow the published missed approach procedure or ATC radar vectors.";
