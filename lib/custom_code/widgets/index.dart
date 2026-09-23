@@ -50,3 +50,4 @@ export '/custom_code/widgets/head_tracker_widget_m_s_f_s.dart'
 export '/custom_code/widgets/ai_dispatcher_screen.dart' show AiDispatcherScreen;
 export '/custom_code/widgets/efb_flight_plan_screen.dart'
     show EfbFlightPlanScreen;
+export '/custom_code/widgets/efb_briefing_screen.dart' show EfbBriefingScreen;

@@ -22015,43 +22015,65 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                               ),
                                             ),
                                           ),
+                                        if (responsiveVisibility(
+                                          context: context,
+                                          phone: false,
+                                          tablet: false,
+                                          tabletLandscape: false,
+                                          desktop: false,
+                                        ))
+                                          Expanded(
+                                            child: Container(
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              child: custom_widgets
+                                                  .EfbFlightPlanScreen(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                pilotId: FFAppState()
+                                                    .SimbreifID
+                                                    .toString(),
+                                                currentLat:
+                                                    FFAppState().currentLAT,
+                                                currentLon:
+                                                    FFAppState().currentLON,
+                                                pdfLink: FFAppState()
+                                                    .PDFlinkSimbreif,
+                                                onDepartureAtisPressed:
+                                                    () async {
+                                                  await actions
+                                                      .professionalAtis(
+                                                    getJsonField(
+                                                      (_model.simbreifResponse
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.origin.atis.message''',
+                                                    ).toString(),
+                                                  );
+                                                },
+                                                onArrivalAtisPressed: () async {
+                                                  await actions
+                                                      .professionalAtis(
+                                                    getJsonField(
+                                                      (_model.simbreifResponse
+                                                              ?.jsonBody ??
+                                                          ''),
+                                                      r'''$.destination.atis.message''',
+                                                    ).toString(),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
                                         Expanded(
                                           child: Container(
                                             width: double.infinity,
                                             height: double.infinity,
                                             child: custom_widgets
-                                                .EfbFlightPlanScreen(
+                                                .EfbBriefingScreen(
                                               width: double.infinity,
                                               height: double.infinity,
-                                              pilotId: FFAppState()
-                                                  .SimbreifID
-                                                  .toString(),
-                                              currentLat:
-                                                  FFAppState().currentLAT,
-                                              currentLon:
-                                                  FFAppState().currentLON,
-                                              pdfLink:
-                                                  FFAppState().PDFlinkSimbreif,
-                                              onDepartureAtisPressed: () async {
-                                                await actions.professionalAtis(
-                                                  getJsonField(
-                                                    (_model.simbreifResponse
-                                                            ?.jsonBody ??
-                                                        ''),
-                                                    r'''$.origin.atis.message''',
-                                                  ).toString(),
-                                                );
-                                              },
-                                              onArrivalAtisPressed: () async {
-                                                await actions.professionalAtis(
-                                                  getJsonField(
-                                                    (_model.simbreifResponse
-                                                            ?.jsonBody ??
-                                                        ''),
-                                                    r'''$.destination.atis.message''',
-                                                  ).toString(),
-                                                );
-                                              },
+                                              pilotId: FFAppState().ipPC,
                                             ),
                                           ),
                                         ),
