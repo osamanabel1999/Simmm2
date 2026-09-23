@@ -65,6 +65,11 @@ class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
   static const Color secondaryText = Color(0xFF8AAED8);
   static const Color errorBorder = Colors.redAccent;
 
+  // ألوان إضافية تم تعريفها
+  static const Color cDanger = Color(0xFFFF5252);
+  static const Color cSafe = Color(0xFF69F0AE);
+  static const Color efbWhite = Color(0xFFFFFFFF);
+
   // ============================================================
   // CONTROLLERS & STATE VARIABLES
   // ============================================================
@@ -274,98 +279,119 @@ class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
       height: widget.height,
       color: outerBackground,
       child: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            bool isMobile = constraints.maxWidth < 600;
-            // استخدام ScrollView كلي للشاشة كلها لتجنب أي قطع في الشاشات الصغيرة
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // --- Header ---
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0, left: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Landing Performance Data Entry',
-                            style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                                color: primaryText)),
-                        SizedBox(height: 4),
-                        Text(
-                            'Enter the parameters below or fetch live data to calculate landing performance.',
-                            style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 13,
-                                color: secondaryText)),
-                      ],
-                    ),
-                  ),
-
-                  // --- Top Fetch Button (مكان شيك ومناسب جداً فوق) ---
-                  SizedBox(
-                    height: 50,
-                    child: ElevatedButton.icon(
-                      onPressed: _isFetchingData ? null : _fetchLiveData,
-                      icon: _isFetchingData
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                  color: efbWhite, strokeWidth: 2))
-                          : const Icon(Icons.cloud_sync, color: efbWhite),
-                      label: const Text('FETCH LIVE DATA FROM SIMBRIEF & METAR',
-                          style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: efbWhite,
-                              letterSpacing: 1.0)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: panelBorder,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        elevation: 0,
+        // تم تغليف المحتوى داخل Stack لعمل الشريط العائم
+        child: Stack(
+          children: [
+            LayoutBuilder(
+              builder: (context, constraints) {
+                bool isMobile = constraints.maxWidth < 600;
+                // استخدام ScrollView كلي للشاشة كلها لتجنب أي قطع في الشاشات الصغيرة
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // --- Header ---
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 16.0, left: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Landing Performance Data Entry',
+                                style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w700,
+                                    color: primaryText)),
+                            SizedBox(height: 4),
+                            Text(
+                                'Enter the parameters below or fetch live data to calculate landing performance.',
+                                style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 13,
+                                    color: secondaryText)),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
 
-                  // --- Layout ---
-                  if (isMobile) ...[
-                    // ترتيب الموبايل: الكروت تحت بعض
-                    _buildAircraftPanel(),
-                    const SizedBox(height: 16),
-                    _buildRunwayPanel(),
-                    const SizedBox(height: 24),
-                    _buildCalculateButton(),
-                  ] else ...[
-                    // ترتيب الأيباد: عمودين جنب بعض
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _buildAircraftPanel()),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              _buildRunwayPanel(),
-                              const SizedBox(height: 24),
-                              _buildCalculateButton(),
-                            ],
+                      // --- Top Fetch Button (مكان شيك ومناسب جداً فوق) ---
+                      SizedBox(
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: _isFetchingData ? null : _fetchLiveData,
+                          icon: _isFetchingData
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                      color: efbWhite, strokeWidth: 2))
+                              : const Icon(Icons.cloud_sync, color: efbWhite),
+                          label: const Text(
+                              'FETCH LIVE DATA FROM SIMBRIEF & METAR',
+                              style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: efbWhite,
+                                  letterSpacing: 1.0)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: panelBorder,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // --- Layout ---
+                      if (isMobile) ...[
+                        // ترتيب الموبايل: الكروت تحت بعض
+                        _buildAircraftPanel(),
+                        const SizedBox(height: 16),
+                        _buildRunwayPanel(),
+                        const SizedBox(height: 24),
+                        _buildCalculateButton(),
+                      ] else ...[
+                        // ترتيب الأيباد: عمودين جنب بعض
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _buildAircraftPanel()),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  _buildRunwayPanel(),
+                                  const SizedBox(height: 24),
+                                  _buildCalculateButton(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
-                    ),
-                  ]
-                ],
+                      const SizedBox(
+                          height:
+                              40), // مساحة إضافية في الأسفل لعدم تداخل المحتوى مع الشريط
+                    ],
+                  ),
+                );
+              },
+            ),
+
+            // إضافة الشريط العائم في الأسفل تماماً
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: _buildHomeIndicator(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
@@ -537,6 +563,26 @@ class _LdaPerformanceWidgetState extends State<LdaPerformanceWidget> {
   // ============================================================
   // COMPONENT BUILDERS (Segmented Buttons & Fields)
   // ============================================================
+
+  Widget _buildHomeIndicator({required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
+        alignment: Alignment.center,
+        child: Container(
+          width: 130,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildPanelHeader(IconData icon, String title) {
     return Row(
