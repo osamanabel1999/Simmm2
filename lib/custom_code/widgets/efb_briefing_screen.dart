@@ -9,13 +9,11 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_edge_tts/flutter_edge_tts.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -73,14 +71,9 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
-  // =================================================================
-  // ==== هنا تم حل المشكلة: تعريف المتغيرات الصحيحة للمغادرة والوصول ====
-  // =================================================================
-
   // --- Departure Computed Variables ---
   double depWindComp = 0;
   double depCrosswind = 0;
-  bool depIsCrosswindRight = true;
   double depWindDir = 0;
   double depWindSpd = 0;
   int depThreatCount = 0;
@@ -90,7 +83,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   // --- Arrival Computed Variables ---
   double arrWindComp = 0;
   double arrCrosswind = 0;
-  bool arrIsCrosswindRight = true;
   double arrWindDir = 0;
   double arrWindSpd = 0;
   int arrThreatCount = 0;
@@ -211,7 +203,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
   }
 
   // =========================================================================
-  // ====================== Helper Functions (Phonetics & Formats) ===========
+  // ====================== Helper Functions =================================
   // =========================================================================
 
   double _toRadians(double degree) => degree * math.pi / 180.0;
@@ -347,7 +339,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     double angleDiff = _toRadians(depWindDir - rwyHdg);
     depWindComp = depWindSpd * math.cos(angleDiff);
     depCrosswind = depWindSpd * math.sin(angleDiff);
-    depIsCrosswindRight = depCrosswind > 0;
     depCrosswind = depCrosswind.abs();
 
     depThreatBadges.clear();
@@ -545,7 +536,6 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     double angleDiff = _toRadians(arrWindDir - rwyHdg);
     arrWindComp = arrWindSpd * math.cos(angleDiff);
     arrCrosswind = arrWindSpd * math.sin(angleDiff);
-    arrIsCrosswindRight = arrCrosswind > 0;
     arrCrosswind = arrCrosswind.abs();
 
     arrThreatBadges.clear();
@@ -683,6 +673,12 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     String flaps = lndDistDry['flap_setting']?.toString() ?? "---";
     String brakes = lndDistDry['brake_setting']?.toString() ?? "---";
 
+    // تحويل MAX MAN إلى maximum manual في الصوت فقط
+    String spokenBrakes = brakes;
+    if (spokenBrakes.toUpperCase() == "MAX MAN") {
+      spokenBrakes = "maximum manual";
+    }
+
     double rwyLenMeters = 0;
     String rwyLenRaw = lndRwy['length_lda']?.toString() ?? "";
     if (rwyLenRaw.isNotEmpty) {
@@ -692,7 +688,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
     String flapsTxt = "";
     if (flaps != "---") {
       flapsTxt =
-          "Based on our data, we will plan for a Flaps $flaps landing using autobrakes $brakes.";
+          "Based on our data, we will plan for a Flaps $flaps landing using autobrakes $spokenBrakes.";
     } else {
       flapsTxt =
           "Landing performance data is unverified. We will manage flaps and autobrakes manually.";
@@ -758,6 +754,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
 
     if (_isPlaying) {
       await _audioPlayer.stop();
+      if (!mounted) return;
       setState(() => _isPlaying = false);
       return;
     }
@@ -876,6 +873,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                           await _audioPlayer.stop();
                           _isPlaying = false;
                         }
+                        if (!mounted) return;
                         setState(() => _isDepartureTab = true);
                       }
                     },
@@ -904,6 +902,7 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                           await _audioPlayer.stop();
                           _isPlaying = false;
                         }
+                        if (!mounted) return;
                         setState(() => _isDepartureTab = false);
                       }
                     },
@@ -991,11 +990,12 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
               children: [
                 Expanded(
                     flex: 1,
-                    child: Column(children: [
+                    child: SingleChildScrollView(
+                        child: Column(children: [
                       _buildDepParamsCard(),
                       const SizedBox(height: 12),
                       _buildDepTEMBoard()
-                    ])),
+                    ]))),
                 const SizedBox(width: 12),
                 Expanded(flex: 1, child: _buildDepVisualizerCard()),
               ],
@@ -1007,11 +1007,15 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(flex: 1, child: _buildDepParamsCard()),
+                Expanded(
+                    flex: 1,
+                    child: SingleChildScrollView(child: _buildDepParamsCard())),
                 const SizedBox(width: 12),
                 Expanded(flex: 2, child: _buildDepVisualizerCard()),
                 const SizedBox(width: 12),
-                Expanded(flex: 1, child: _buildDepTEMBoard()),
+                Expanded(
+                    flex: 1,
+                    child: SingleChildScrollView(child: _buildDepTEMBoard())),
               ],
             ),
           );
@@ -1046,11 +1050,12 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
               children: [
                 Expanded(
                     flex: 1,
-                    child: Column(children: [
+                    child: SingleChildScrollView(
+                        child: Column(children: [
                       _buildArrParamsCard(),
                       const SizedBox(height: 12),
                       _buildArrTEMBoard()
-                    ])),
+                    ]))),
                 const SizedBox(width: 12),
                 Expanded(flex: 1, child: _buildArrVisualizerCard()),
               ],
@@ -1062,11 +1067,15 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(flex: 1, child: _buildArrParamsCard()),
+                Expanded(
+                    flex: 1,
+                    child: SingleChildScrollView(child: _buildArrParamsCard())),
                 const SizedBox(width: 12),
                 Expanded(flex: 2, child: _buildArrVisualizerCard()),
                 const SizedBox(width: 12),
-                Expanded(flex: 1, child: _buildArrTEMBoard()),
+                Expanded(
+                    flex: 1,
+                    child: SingleChildScrollView(child: _buildArrTEMBoard())),
               ],
             ),
           );
@@ -1171,15 +1180,14 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                     oat == "---" ? cWarn : cWeather),
                 const SizedBox(height: 16),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildVSpeedBox("V1", v1),
-                    _buildVSpeedBox("VR", vr),
-                    _buildVSpeedBox("V2", v2),
-                    Expanded(
-                        child: Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: _buildVSpeedBox("RWY LEN", rwyLen))),
+                    Expanded(child: _buildVSpeedBox("V1", v1)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildVSpeedBox("VR", vr)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildVSpeedBox("V2", v2)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildVSpeedBox("RWY LEN", rwyLen)),
                   ],
                 )
               ],
@@ -1414,37 +1422,23 @@ class _EfbBriefingScreenState extends State<EfbBriefingScreen>
                 _buildDataRow("OAT", oat == "---" ? "UNVERIFIED" : "$oat°C",
                     oat == "---" ? cWarn : cWeather),
                 const SizedBox(height: 16),
-                const Center(
-                    child: Text("AI SUGGESTIONS",
-                        style: TextStyle(
-                            color: efbTextMuted,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold))),
-                const SizedBox(height: 8),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildVSpeedBox("FLAPS", flaps),
-                    Expanded(
-                        child: Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: _buildVSpeedBox("AUTOBRK", brakes)))
+                    Expanded(child: _buildVSpeedBox("FLAPS", flaps)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildVSpeedBox("AUTOBRK", brakes)),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildVSpeedBox("VREF", vref),
-                    Expanded(
-                        child: Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: _buildVSpeedBox("RWY LEN", rwyLen))),
+                    Expanded(child: _buildVSpeedBox("VREF", vref)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildVSpeedBox("RWY LEN", rwyLen)),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Expanded(child: _buildVSpeedBox("ACTUAL DIST", actDist)),
                     const SizedBox(width: 8),
