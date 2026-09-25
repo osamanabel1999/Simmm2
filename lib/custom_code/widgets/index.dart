@@ -57,3 +57,6 @@ export '/custom_code/widgets/fuel_load_e_f_bmsfs.dart' show FuelLoadEFBmsfs;
 export '/custom_code/widgets/checklist_e_f_bmsfs.dart' show ChecklistEFBmsfs;
 export '/custom_code/widgets/cabin_pa_system_screen.dart'
     show CabinPaSystemScreen;
+export '/custom_code/widgets/efb_calculators_screen.dart'
+    show EfbCalculatorsScreen;
+export '/custom_code/widgets/efb_library_screen.dart' show EfbLibraryScreen;

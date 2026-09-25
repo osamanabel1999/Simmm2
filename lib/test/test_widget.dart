@@ -1,6 +1,5 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/custom_code/widgets/index.dart' as custom_widgets;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'test_model.dart';
@@ -73,18 +72,7 @@ class _TestWidgetState extends State<TestWidget> {
           top: true,
           child: Column(
             mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: custom_widgets.CabinPaSystemScreen(
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
-                ),
-              ),
-            ],
+            children: [],
           ),
         ),
       ),
