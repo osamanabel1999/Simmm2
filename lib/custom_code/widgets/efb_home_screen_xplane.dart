@@ -826,8 +826,8 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
           borderRadius: BorderRadius.circular(36),
           child: BackdropFilter(
             filter: ui.ImageFilter.blur(
-              sigmaX: 45,
-              sigmaY: 45,
+              sigmaX: 65.0,
+              sigmaY: 65.0,
             ),
             child: Container(
               padding: const EdgeInsets.symmetric(
@@ -835,7 +835,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                 vertical: 16.0,
               ),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withOpacity(0.01),
                 borderRadius: BorderRadius.circular(36),
                 border: Border.all(
                   color: Colors.white.withOpacity(0.25),
@@ -952,145 +952,197 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
     final String wind = _simBriefWind ?? '320° 12 KT';
     final String qnh = _simBriefQnh ?? '1014 hPa';
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 18.0),
-      child: SizedBox(
-        height: isTablet ? 160.0 : (constraints.maxWidth - 48) / 2,
-        child: Row(
+    final Widget flightWidget = AspectRatio(
+      aspectRatio: isTablet ? 2.0 : 1.1,
+      child: _buildGlassWidgetCard(
+        title: "SIMBRIEF FLIGHT",
+        subTitle: callsign,
+        isLoading: isLoadingOfp,
+        hasError: _simBriefError != null,
+        isEmpty: _simBriefOfp == null,
+        child: Column(
+          mainAxisAlignment: isTablet
+              ? MainAxisAlignment.spaceBetween
+              : MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Flight Plan Ticket Widget
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: isTablet ? 2.0 : 1.0,
-                child: _buildGlassWidgetCard(
-                  title: "SIMBRIEF FLIGHT",
-                  subTitle: callsign,
-                  isLoading: isLoadingOfp,
-                  hasError: _simBriefError != null,
-                  isEmpty: _simBriefOfp == null,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          children: [
-                            Text(
-                              origin,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w900),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Icon(CupertinoIcons.airplane,
-                                  color: Color(0xFF639DF0), size: 18),
-                            ),
-                            Text(
-                              dest,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w900),
-                            ),
-                          ],
-                        ),
-                      ),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          "OUT: $schedOut  •  IN: $schedIn",
-                          style: const TextStyle(
-                              color: Color(0xFF8B949E),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF639DF0).withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            "DIST: $distance  •  ZFW: $zfw",
-                            style: const TextStyle(
-                                color: Color(0xFF639DF0),
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ],
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                children: [
+                  Text(
+                    origin,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isTablet ? 26 : 24,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Icon(
+                      CupertinoIcons.airplane,
+                      color: Color(0xFF639DF0),
+                      size: 18,
+                    ),
+                  ),
+                  Text(
+                    dest,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isTablet ? 26 : 24,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                "OUT: $schedOut  •  IN: $schedIn",
+                style: const TextStyle(
+                  color: Color(0xFF8B949E),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            const SizedBox(width: 14),
-            // 2. Weather Ticket Widget
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: isTablet ? 2.0 : 1.0,
-                child: _buildGlassWidgetCard(
-                  title: "ORIGIN WX",
-                  subTitle: metarOrigin,
-                  isLoading: isLoadingOfp,
-                  hasError: _simBriefError != null,
-                  isEmpty: _simBriefOfp == null,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                temp.split('/').first.trim() + "°",
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w900),
-                              ),
-                            ),
-                          ),
-                          const Text("⛅", style: TextStyle(fontSize: 26)),
-                        ],
-                      ),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          "WIND: $wind",
-                          style: const TextStyle(
-                              color: Color(0xFF8B949E),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          "QNH: $qnh",
-                          style: const TextStyle(
-                              color: Color(0xFF639DF0),
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF639DF0).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  "DIST: $distance  •  ZFW: $zfw",
+                  style: const TextStyle(
+                    color: Color(0xFF639DF0),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+
+    final Widget weatherWidget = AspectRatio(
+      aspectRatio: isTablet ? 2.0 : 1.1,
+      child: _buildGlassWidgetCard(
+        title: "ORIGIN WX",
+        subTitle: metarOrigin,
+        isLoading: isLoadingOfp,
+        hasError: _simBriefError != null,
+        isEmpty: _simBriefOfp == null,
+        child: Column(
+          mainAxisAlignment: isTablet
+              ? MainAxisAlignment.spaceBetween
+              : MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      temp.split('/').first.trim(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isTablet ? 34 : 32,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+                const Text("⛅", style: TextStyle(fontSize: 26)),
+              ],
+            ),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                "WIND: $wind",
+                style: const TextStyle(
+                  color: Color(0xFF8B949E),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                "QNH: $qnh",
+                style: const TextStyle(
+                  color: Color(0xFF639DF0),
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18.0),
+      child: SizedBox(
+        height:
+            isTablet ? 140.0 : ((constraints.maxWidth - 92) / 2 / 1.1) + 23.0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: isTablet
+                    ? flightWidget
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          flightWidget,
+                          const SizedBox(height: 6),
+                          Text(
+                            "Flight Plan",
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+              const SizedBox(width: 28.0),
+              Expanded(
+                child: isTablet
+                    ? weatherWidget
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          weatherWidget,
+                          const SizedBox(height: 6),
+                          Text(
+                            "Weather",
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );
