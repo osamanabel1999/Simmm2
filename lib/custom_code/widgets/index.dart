@@ -51,3 +51,9 @@ export '/custom_code/widgets/ai_dispatcher_screen.dart' show AiDispatcherScreen;
 export '/custom_code/widgets/efb_flight_plan_screen.dart'
     show EfbFlightPlanScreen;
 export '/custom_code/widgets/efb_briefing_screen.dart' show EfbBriefingScreen;
+export '/custom_code/widgets/fuel_load_e_f_b_x_plane.dart'
+    show FuelLoadEFBXPlane;
+export '/custom_code/widgets/fuel_load_e_f_bmsfs.dart' show FuelLoadEFBmsfs;
+export '/custom_code/widgets/checklist_e_f_bmsfs.dart' show ChecklistEFBmsfs;
+export '/custom_code/widgets/cabin_pa_system_screen.dart'
+    show CabinPaSystemScreen;

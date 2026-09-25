@@ -218,22 +218,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   double? sliderspeedValue;
   // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in ColumnFlightPlan widget.
   ApiCallResponse? simbreifResponse1;
-  // State field(s) for Sliderpayloadn widget.
-  double? sliderpayloadnValue;
-  // State field(s) for SliderTotalFuelWeight widget.
-  double? sliderTotalFuelWeightValue;
-  // State field(s) for SliderLInner widget.
-  double? sliderLInnerValue;
-  // State field(s) for SliderLOuter widget.
-  double? sliderLOuterValue;
-  // State field(s) for SliderCGn widget.
-  double? sliderCGnValue;
-  // State field(s) for SliderCenterFuelTank widget.
-  double? sliderCenterFuelTankValue;
-  // State field(s) for SliderRInner widget.
-  double? sliderRInnerValue;
-  // State field(s) for SliderROuter widget.
-  double? sliderROuterValue;
   // State field(s) for MouseRegion widget.
   bool mouseRegionHovered1 = false;
   // State field(s) for MouseRegion widget.

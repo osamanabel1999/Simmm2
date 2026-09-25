@@ -78,7 +78,7 @@ class _TestWidgetState extends State<TestWidget> {
                 child: Container(
                   width: double.infinity,
                   height: double.infinity,
-                  child: custom_widgets.AiDispatcherScreen(
+                  child: custom_widgets.CabinPaSystemScreen(
                     width: double.infinity,
                     height: double.infinity,
                   ),
