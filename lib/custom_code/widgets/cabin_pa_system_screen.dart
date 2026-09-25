@@ -23,7 +23,6 @@ class CabinPaSystemScreen extends StatefulWidget {
     this.height,
   }) : super(key: key);
 
-  // المتغيرات اللي FlutterFlow بيطلبها إجبارياً
   final double? width;
   final double? height;
 
@@ -35,34 +34,77 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   late SharedPreferences _prefs;
 
-  // ID للعنصر اللي شغال حالياً عشان ننوّر زرار الـ Play بتاعه
   String? _currentlyPlayingId;
 
-  // القائمة الأساسية للمراحل الـ 12
   final List<Map<String, String>> _announcements = [
-    {'id': 'pa_boarding', 'title': 'Welcome & Boarding'},
-    {'id': 'pa_pushback', 'title': 'Pushback'},
-    {'id': 'pa_taxi', 'title': 'Taxi & Safety Demo'},
-    {'id': 'pa_takeoff', 'title': 'Seats for Takeoff'},
-    {'id': 'pa_10k_climb', 'title': 'Passing 10,000 ft Climb'},
-    {'id': 'pa_cruise', 'title': 'Cruise / Service'},
-    {'id': 'pa_turbulence', 'title': 'Turbulence'},
-    {'id': 'pa_tod', 'title': 'Top of Descent - TOD'},
-    {'id': 'pa_10k_descent', 'title': 'Passing 10,000 ft Descent'},
-    {'id': 'pa_landing_seats', 'title': 'Seats for Landing'},
-    {'id': 'pa_after_landing', 'title': 'After Landing'},
-    {'id': 'pa_parking', 'title': 'Parking'},
+    {
+      'id': 'pa_boarding',
+      'title': 'WELCOME / BOARDING',
+      'desc': 'Played during passenger boarding and welcome.'
+    },
+    {
+      'id': 'pa_pushback',
+      'title': 'PUSHBACK & ENGINE START',
+      'desc': 'Fires before taxi, when pushing back.'
+    },
+    {
+      'id': 'pa_taxi',
+      'title': 'TAXI & SAFETY DEMO',
+      'desc': 'Safety instructions during taxi to runway.'
+    },
+    {
+      'id': 'pa_takeoff',
+      'title': 'SEATS FOR TAKEOFF',
+      'desc': 'Command for cabin crew to take their seats.'
+    },
+    {
+      'id': 'pa_10k_climb',
+      'title': 'PASSING 10,000 FT (CLIMB)',
+      'desc': 'Seatbelts off, safe altitude reached.'
+    },
+    {
+      'id': 'pa_cruise',
+      'title': 'CRUISE / SERVICE',
+      'desc': 'Reaching cruising altitude, service begins.'
+    },
+    {
+      'id': 'pa_turbulence',
+      'title': 'TURBULENCE (SEATBELTS ON)',
+      'desc': 'Emergency announcement for turbulence.'
+    },
+    {
+      'id': 'pa_tod',
+      'title': 'TOP OF DESCENT (TOD)',
+      'desc': 'Beginning of the descent phase.'
+    },
+    {
+      'id': 'pa_10k_descent',
+      'title': 'PASSING 10,000 FT (DESCENT)',
+      'desc': 'Cabin preparation for landing.'
+    },
+    {
+      'id': 'pa_landing_seats',
+      'title': 'SEATS FOR LANDING',
+      'desc': 'Final command for crew before touchdown.'
+    },
+    {
+      'id': 'pa_after_landing',
+      'title': 'AFTER LANDING',
+      'desc': 'Welcome to destination announcement.'
+    },
+    {
+      'id': 'pa_parking',
+      'title': 'PARKING / DISARM DOORS',
+      'desc': 'Arrived at the gate, engines off.'
+    },
   ];
 
-  // Map لحفظ مسارات الملفات المرفوعة
   Map<String, String?> _savedFiles = {};
 
   @override
   void initState() {
     super.initState();
     _initPrefs();
-
-    // لما الصوت يخلص، نرجع حالة الزراير لطبيعتها
     _audioPlayer.onPlayerComplete.listen((event) {
       if (mounted) {
         setState(() {
@@ -84,18 +126,23 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
   }
 
   Future<void> _pickFile(String id) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.audio,
-    );
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.audio,
+      );
 
-    if (result != null && result.files.single.path != null) {
-      String filePath = result.files.single.path!;
-      await _prefs.setString(id, filePath);
-      if (mounted) {
-        setState(() {
-          _savedFiles[id] = filePath;
-        });
+      if (result != null && result.files.single.path != null) {
+        String filePath = result.files.single.path!;
+        await _prefs.setString(id, filePath);
+        if (mounted) {
+          setState(() {
+            _savedFiles[id] = filePath;
+          });
+        }
       }
+    } catch (e) {
+      debugPrint("File Picker Error: $e");
+      // تم إضافة try/catch لمنع انهيار التطبيق إذا رفض المستخدم إعطاء الصلاحيات
     }
   }
 
@@ -113,7 +160,7 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
   }
 
   Future<void> _playAudio(String id, String path) async {
-    await _audioPlayer.stop(); // إيقاف أي صوت شغال حالياً
+    await _audioPlayer.stop();
     if (mounted) {
       setState(() {
         _currentlyPlayingId = id;
@@ -131,7 +178,6 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
     }
   }
 
-  // استخراج اسم الفايل من المسار عشان نعرضه بشياكة
   String _getFileName(String path) {
     return path.split('/').last;
   }
@@ -144,28 +190,40 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // دمج الـ width و height بتوع FlutterFlow في الحاوية الرئيسية
     return Container(
       width: widget.width,
       height: widget.height,
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0F172A),
-            Color(0xFF020617)
-          ], // ألوان كحلي داكن جداً
-        ),
+        color:
+            Color(0xFF070B14), // لون كحلي أسود شديد الفخامة يشبه شاشات الطائرات
       ),
       child: Scaffold(
-        backgroundColor: Colors.transparent, // عشان الجراديانت اللي ورا يظهر
+        backgroundColor: Colors.transparent,
         body: SafeArea(
           child: Column(
             children: [
               _buildHeader(),
+              const Divider(color: Color(0xFF1E293B), thickness: 1, height: 1),
               Expanded(
-                child: _buildGrid(),
+                child: ListView.separated(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  itemCount: _announcements.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    final item = _announcements[index];
+                    final id = item['id']!;
+                    final title = item['title']!;
+                    final desc = item['desc']!;
+                    final filePath = _savedFiles[id];
+                    final isReady = filePath != null;
+                    final isPlaying = _currentlyPlayingId == id;
+
+                    return _buildPremiumRow(
+                        id, title, desc, filePath, isReady, isPlaying);
+                  },
+                ),
               ),
             ],
           ),
@@ -174,42 +232,57 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
     );
   }
 
-  // ==== [ تصميم الهيدر وزرار إيقاف الكل ] ====
+  // ==== [ تصميم الهيدر ] ====
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
-            "CABIN PA SYSTEM",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.5,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                "PA SYSTEM CONTROL",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                "CABIN ANNOUNCEMENTS MANAGER",
+                style: TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
           ),
           InkWell(
             onTap: _stopAudio,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.2),
+                color: const Color(0xFF3F0000), // لون طوارئ أحمر داكن
                 border: Border.all(color: Colors.redAccent.withOpacity(0.5)),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: const [
-                  Icon(Icons.stop_circle_outlined, color: Colors.redAccent),
-                  SizedBox(width: 8),
+                  Icon(Icons.stop_rounded, color: Colors.redAccent, size: 20),
+                  SizedBox(width: 6),
                   Text(
                     "STOP ALL",
                     style: TextStyle(
                       color: Colors.redAccent,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
+                      letterSpacing: 1.0,
                     ),
                   ),
                 ],
@@ -221,186 +294,182 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
     );
   }
 
-  // ==== [ تصميم الجريد المتجاوب (موبايل/آيباد) ] ====
-  Widget _buildGrid() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return GridView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent:
-                500, // هيعرض كارتين في الآيباد وكارت في الموبايل
-            mainAxisExtent: 140, // ارتفاع ثابت للكارت
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: _announcements.length,
-          itemBuilder: (context, index) {
-            final item = _announcements[index];
-            final id = item['id']!;
-            final title = item['title']!;
-            final filePath = _savedFiles[id];
-            final isReady = filePath != null;
-            final isPlaying = _currentlyPlayingId == id;
-
-            return _buildGlassCard(id, title, filePath, isReady, isPlaying);
-          },
-        );
-      },
-    );
-  }
-
-  // ==== [ تصميم كارت الـ Glassmorphism الاحترافي ] ====
-  Widget _buildGlassCard(
-      String id, String title, String? filePath, bool isReady, bool isPlaying) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isPlaying
-                ? Colors.greenAccent.withOpacity(0.05)
-                : Colors.white.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isPlaying
-                  ? Colors.greenAccent.withOpacity(0.3)
-                  : Colors.white.withOpacity(0.1),
-              width: 1,
-            ),
-          ),
-          child: Column(
+  // ==== [ تصميم الصف الاحترافي لكل إعلان ] ====
+  Widget _buildPremiumRow(String id, String title, String desc,
+      String? filePath, bool isReady, bool isPlaying) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isPlaying ? const Color(0xFF0F1e17) : const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isPlaying ? const Color(0xFF10B981) : const Color(0xFF1E293B),
+          width: 1.5,
+        ),
+        boxShadow: [
+          if (isPlaying)
+            BoxShadow(
+              color: const Color(0xFF10B981).withOpacity(0.1),
+              blurRadius: 10,
+              spreadRadius: 2,
+            )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // القسم العلوي: النصوص وحالة الملف
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // الصف الأول: العنوان وحالة الفايل
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      desc,
+                      style: const TextStyle(
+                        color: Color(0xFF64748B),
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // حالة الملف (Status)
+                    Row(
                       children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Icon(
+                          isReady
+                              ? Icons.check_circle_rounded
+                              : Icons.cancel_rounded,
+                          color: isReady
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF475569),
+                          size: 14,
                         ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: isReady
-                                    ? Colors.greenAccent
-                                    : Colors.redAccent,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: isReady
-                                        ? Colors.greenAccent
-                                        : Colors.redAccent,
-                                    blurRadius: 6,
-                                  )
-                                ],
-                              ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            isReady
+                                ? _getFileName(filePath!)
+                                : "No audio file loaded",
+                            style: TextStyle(
+                              color: isReady
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFF475569),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                isReady
-                                    ? "Ready: ${_getFileName(filePath!)}"
-                                    : "No File Assigned",
-                                style: TextStyle(
-                                  color: isReady
-                                      ? Colors.greenAccent.withOpacity(0.8)
-                                      : Colors.grey.shade400,
-                                  fontSize: 12,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-
-              // الصف الثاني: أزرار التحكم
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  // زرار الرفع
-                  IconButton(
-                    icon: const Icon(Icons.folder_open, color: Colors.white70),
-                    tooltip: "Upload MP3",
-                    onPressed: () => _pickFile(id),
-                  ),
-
-                  // زرار المسح (يظهر فقط لو فيه فايل)
-                  if (isReady)
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline,
-                          color: Colors.white38),
-                      tooltip: "Remove File",
-                      onPressed: () => _deleteFile(id),
-                    ),
-
-                  const SizedBox(width: 8),
-
-                  // زرار الإيقاف
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.stop, color: Colors.white54),
-                      onPressed: isPlaying ? _stopAudio : null,
-                    ),
-                  ),
-
-                  const SizedBox(width: 8),
-
-                  // زرار التشغيل
-                  Container(
-                    decoration: BoxDecoration(
-                        color: isReady
-                            ? (isPlaying
-                                ? Colors.greenAccent.withOpacity(0.2)
-                                : Colors.greenAccent.withOpacity(0.1))
-                            : Colors.white.withOpacity(0.02),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isReady
-                              ? Colors.greenAccent.withOpacity(0.5)
-                              : Colors.transparent,
-                        )),
-                    child: IconButton(
-                      icon: Icon(
-                        isPlaying ? Icons.volume_up : Icons.play_arrow,
-                        color: isReady ? Colors.greenAccent : Colors.white24,
-                      ),
-                      onPressed:
-                          isReady ? () => _playAudio(id, filePath!) : null,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
+
+          const SizedBox(height: 16),
+
+          // القسم السفلي: الأزرار (استخدام Wrap عشان تترص صح في الايفون والايباد)
+          Wrap(
+            spacing: 10, // المسافة الأفقية بين الزراير
+            runSpacing: 10, // المسافة لو نزلوا سطر جديد في الشاشات الصغيرة
+            children: [
+              _buildActionButton(
+                title: "Upload",
+                icon: Icons.upload_file_rounded,
+                color: const Color(0xFF3B82F6), // أزرق احترافي
+                onTap: () => _pickFile(id),
+                isOutlined: true,
+              ),
+              if (isReady)
+                _buildActionButton(
+                  title: "Delete",
+                  icon: Icons.delete_rounded,
+                  color: const Color(0xFFEF4444), // أحمر
+                  onTap: () => _deleteFile(id),
+                  isOutlined: true,
+                ),
+              if (isPlaying)
+                _buildActionButton(
+                  title: "Stop",
+                  icon: Icons.stop_rounded,
+                  color: const Color(0xFFF59E0B), // برتقالي للإيقاف
+                  onTap: _stopAudio,
+                  isOutlined: false,
+                ),
+              _buildActionButton(
+                title: isPlaying ? "Playing..." : "Play",
+                icon: isPlaying
+                    ? Icons.volume_up_rounded
+                    : Icons.play_arrow_rounded,
+                color: const Color(0xFF10B981), // أخضر
+                onTap: isReady ? () => _playAudio(id, filePath!) : null,
+                isOutlined: !isPlaying,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==== [ دالة مساعدة لرسم الزراير بشكل موحد واحترافي ] ====
+  Widget _buildActionButton({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback? onTap,
+    required bool isOutlined,
+  }) {
+    final bool isDisabled = onTap == null;
+    final Color activeColor = isDisabled ? const Color(0xFF334155) : color;
+    final Color textColor = isDisabled
+        ? const Color(0xFF64748B)
+        : (isOutlined ? color : Colors.white);
+    final Color bgColor = isOutlined ? Colors.transparent : activeColor;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: bgColor,
+          border: Border.all(
+            color: isDisabled ? const Color(0xFF334155) : activeColor,
+            width: 1.5,
+          ),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min, // عشان الزرار ياخد مساحة الكلمة بس
+          children: [
+            Icon(icon, color: textColor, size: 16),
+            const SizedBox(width: 6),
+            Text(
+              title.toUpperCase(),
+              style: TextStyle(
+                color: textColor,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -77,5 +77,7 @@
     <string>This app requires access to the photo library to allow you to upload profile pictures or save simulator screenshots.</string>
     <key>NSCameraUsageDescription</key>
     <string>This app requires camera access to track your head movements for the flight simulator.</string>
+    <key>NSAppleMusicUsageDescription</key>
+    <string>This app requires access to your media library to allow you to select and upload custom audio files for cabin announcements.</string>
   </dict>
 </plist>
