@@ -43,7 +43,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
                 ),
               ),
             )
-          : TestWidget(),
+          : HomeMenuWidget(),
       routes: [
         FFRoute(
           name: '_initialize',
@@ -58,7 +58,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
                     ),
                   ),
                 )
-              : TestWidget(),
+              : HomeMenuWidget(),
         ),
         FFRoute(
           name: HomePageXPLANEWidget.routeName,

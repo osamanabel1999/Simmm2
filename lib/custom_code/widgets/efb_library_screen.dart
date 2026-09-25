@@ -239,7 +239,40 @@ class _EfbLibraryScreenState extends State<EfbLibraryScreen> {
                         letterSpacing: 1.0)),
               ),
             ),
+
+            // شريط السحب السفلي المضاف لـ iOS
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: _buildHomeIndicator(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // ==== [ تصميم شريط Home Indicator الخاص بنظام iOS ] ====
+  Widget _buildHomeIndicator({required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
+        alignment: Alignment.center,
+        child: Container(
+          width: 130,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       ),
     );

@@ -200,34 +200,70 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // لضبط الهيدر على الشمال
+          child: Stack(
             children: [
-              _buildHeader(),
-              const Divider(color: Color(0xFF1E293B), thickness: 1, height: 1),
-              Expanded(
-                child: ListView.separated(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  itemCount: _announcements.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = _announcements[index];
-                    final id = item['id']!;
-                    final title = item['title']!;
-                    final desc = item['desc']!;
-                    final filePath = _savedFiles[id];
-                    final isReady = filePath != null;
-                    final isPlaying = _currentlyPlayingId == id;
+              Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // لضبط الهيدر على الشمال
+                children: [
+                  _buildHeader(),
+                  const Divider(
+                      color: Color(0xFF1E293B), thickness: 1, height: 1),
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 20),
+                      itemCount: _announcements.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final item = _announcements[index];
+                        final id = item['id']!;
+                        final title = item['title']!;
+                        final desc = item['desc']!;
+                        final filePath = _savedFiles[id];
+                        final isReady = filePath != null;
+                        final isPlaying = _currentlyPlayingId == id;
 
-                    return _buildPremiumRow(
-                        id, title, desc, filePath, isReady, isPlaying);
+                        return _buildPremiumRow(
+                            id, title, desc, filePath, isReady, isPlaying);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: _buildHomeIndicator(
+                  onTap: () {
+                    Navigator.of(context).pop();
                   },
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ==== [ تصميم شريط Home Indicator الخاص بنظام iOS ] ====
+  Widget _buildHomeIndicator({required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
+        alignment: Alignment.center,
+        child: Container(
+          width: 130,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
       ),

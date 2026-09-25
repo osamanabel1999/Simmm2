@@ -40,9 +40,9 @@ class _EfbBrowserScreenState extends State<EfbBrowserScreen>
   double _loadingProgress = 0.0;
   bool _isLoading = true;
   String _currentUrl = 'https://webeye.ivao.aero'; // الموقع الافتراضي (IVAO)
-  String _activePresetTitle = 'IVAO WEBER';
+  String _activePresetTitle = 'IVAO WEBEYE';
 
-  // قائمة الاختصارات المجهزة مسبقاً لأهم منصات الطيران
+  // قائمة الاختصارات المعتمدة للطيران بعد التعديل
   final List<Map<String, String>> _aviationPresets = [
     {'title': 'IVAO WEBEYE', 'url': 'https://webeye.ivao.aero', 'icon': '📡'},
     {'title': 'VATSIM RADAR', 'url': 'https://map.vatsim.net', 'icon': '🌐'},
@@ -51,10 +51,7 @@ class _EfbBrowserScreenState extends State<EfbBrowserScreen>
       'url': 'https://www.simbrief.com/system/dispatch.php',
       'icon': '✈️'
     },
-    {'title': 'WINDY RADAR', 'url': 'https://www.windy.com', 'icon': '🌪️'},
     {'title': 'SKYVECTOR', 'url': 'https://skyvector.com', 'icon': '🗺️'},
-    {'title': 'VOLANTA', 'url': 'https://volanta.app', 'icon': '📍'},
-    {'title': 'METAR/TAF', 'url': 'https://aviationweather.gov', 'icon': '⛅'},
   ];
 
   @override
@@ -136,48 +133,83 @@ class _EfbBrowserScreenState extends State<EfbBrowserScreen>
       height: widget.height,
       color: const Color(0xFF101923),
       child: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            // 1. شريط التحكم العلوي والروابط (متجاوب للآيباد والموبايل)
-            _buildControlBar(),
+            Column(
+              children: [
+                // 1. شريط التحكم العلوي والروابط (متجاوب للآيباد والموبايل)
+                _buildControlBar(),
 
-            // 2. شريط الاختصارات السريعة (Presets Bar)
-            _buildPresetsBar(),
+                // 2. شريط الاختصارات السريعة (Presets Bar)
+                _buildPresetsBar(),
 
-            // 3. مؤشر التحميل النحيف (Progress Bar)
-            if (_isLoading)
-              LinearProgressIndicator(
-                value: _loadingProgress,
-                backgroundColor: const Color(0xFF26364D),
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(Color(0xFF639DF0)),
-                minHeight: 2.5,
-              )
-            else
-              Container(height: 1.5, color: const Color(0xFF26364D)),
+                // 3. مؤشر التحميل النحيف (Progress Bar)
+                if (_isLoading)
+                  LinearProgressIndicator(
+                    value: _loadingProgress,
+                    backgroundColor: const Color(0xFF26364D),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Color(0xFF639DF0)),
+                    minHeight: 2.5,
+                  )
+                else
+                  Container(height: 1.5, color: const Color(0xFF26364D)),
 
-            // 4. مساحة عرض الويب مع حفظ الحالة
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0D141C),
-                    borderRadius: BorderRadius.circular(16),
-                    border:
-                        Border.all(color: const Color(0xFF26364D), width: 1.5),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14.5),
-                    child: KeyedSubtree(
-                      key: const PageStorageKey('efb_browser_viewport'),
-                      child: WebViewWidget(controller: _controller),
+                // 4. مساحة عرض الويب مع حفظ الحالة
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0D141C),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                            color: const Color(0xFF26364D), width: 1.5),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14.5),
+                        child: KeyedSubtree(
+                          key: const PageStorageKey('efb_browser_viewport'),
+                          child: WebViewWidget(controller: _controller),
+                        ),
+                      ),
                     ),
                   ),
                 ),
+              ],
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: _buildHomeIndicator(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // ==== [ تصميم شريط Home Indicator الخاص بنظام iOS ] ====
+  Widget _buildHomeIndicator({required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
+        alignment: Alignment.center,
+        child: Container(
+          width: 130,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       ),
     );

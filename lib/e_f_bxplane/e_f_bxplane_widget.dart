@@ -2,6 +2,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import '/index.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'e_f_bxplane_model.dart';
 export 'e_f_bxplane_model.dart';
 
@@ -35,6 +36,8 @@ class _EFBxplaneWidgetState extends State<EFBxplaneWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -63,6 +66,7 @@ class _EFBxplaneWidgetState extends State<EFBxplaneWidget> {
                   'https://raw.githubusercontent.com/osamanabel1999/App-assets/refs/heads/main/8B4CF9FB-FB3B-4E14-94F9-8433F4161703.png',
               iconSettings:
                   'https://raw.githubusercontent.com/osamanabel1999/App-assets/refs/heads/main/IMG_2364.jpeg',
+              simbriefUserId: FFAppState().SimbreifID.toString(),
               onExitAction: () async {
                 context.pushNamed(HomePageXPLANEWidget.routeName);
               },

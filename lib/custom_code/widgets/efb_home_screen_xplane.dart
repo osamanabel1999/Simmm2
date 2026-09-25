@@ -28,8 +28,10 @@ class EfbHomeScreenXplane extends StatefulWidget {
   final String iconNotams;
   final String iconScratchpad;
   final String iconSettings;
+  final String simbriefUserId;
   final Future<dynamic> Function()? onExitAction;
   final Future<dynamic> Function()? onSettingsAction;
+
   const EfbHomeScreenXplane({
     Key? key,
     this.width,
@@ -45,16 +47,37 @@ class EfbHomeScreenXplane extends StatefulWidget {
         'https://dummyimage.com/256x256/101923/639DF0&text=Pad',
     this.iconSettings =
         'https://dummyimage.com/256x256/101923/639DF0&text=Settings',
+    this.simbriefUserId = '',
     this.onExitAction,
     this.onSettingsAction,
   }) : super(key: key);
+
   @override
   State<EfbHomeScreenXplane> createState() => _EfbHomeScreenXplaneState();
 }
 
-class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
+class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
+    with SingleTickerProviderStateMixin {
+  static const String _dockPrefsKey = 'efb_home_screen_dock_v2';
+
   bool _isAppOpen = false;
   String _openedAppName = '';
+
+  // SimBrief OFP state.
+  bool isLoadingOfp = false;
+  Map<String, dynamic>? _simBriefOfp;
+  String? _simBriefError;
+  String? _simBriefMetar;
+  String? _simBriefWind;
+  String? _simBriefQnh;
+  String? _simBriefTemperature;
+  int _simBriefRequestSerial = 0;
+
+  final List<String> _dockAppNames = <String>[];
+  bool _dockLoaded = false;
+  bool _isJiggling = false;
+  late final AnimationController _jiggleController;
+
   String get _currentTime {
     final now = DateTime.now();
     return "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
@@ -80,6 +103,370 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
     return "${days[now.weekday - 1]} ${now.day} ${months[now.month - 1]}";
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _jiggleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 170),
+    );
+    _loadDock();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _fetchSimBriefOfp();
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant EfbHomeScreenXplane oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.simbriefUserId.trim() != widget.simbriefUserId.trim()) {
+      _fetchSimBriefOfp();
+    }
+  }
+
+  @override
+  void dispose() {
+    _jiggleController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchSimBriefOfp() async {
+    final String userId = widget.simbriefUserId.trim();
+    final int requestSerial = ++_simBriefRequestSerial;
+
+    if (userId.isEmpty) {
+      if (!mounted) return;
+      setState(() {
+        isLoadingOfp = false;
+        _simBriefOfp = null;
+        _simBriefError = null;
+        _simBriefMetar = null;
+        _simBriefWind = null;
+        _simBriefQnh = null;
+        _simBriefTemperature = null;
+      });
+      return;
+    }
+
+    setState(() {
+      isLoadingOfp = true;
+      _simBriefError = null;
+    });
+
+    try {
+      final Uri uri = Uri.parse(
+        'https://www.simbrief.com/api/xml.fetcher.php'
+        '?userid=${Uri.encodeQueryComponent(userId)}&json=1',
+      );
+
+      final http.Response response = await http.get(
+        uri,
+        headers: const <String, String>{
+          'Accept': 'application/json,text/plain,*/*',
+        },
+      );
+
+      if (!mounted || requestSerial != _simBriefRequestSerial) return;
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        setState(() {
+          isLoadingOfp = false;
+          _simBriefOfp = null;
+          _simBriefError = 'SimBrief returned HTTP ${response.statusCode}.';
+          _simBriefMetar = null;
+          _simBriefWind = null;
+          _simBriefQnh = null;
+          _simBriefTemperature = null;
+        });
+        return;
+      }
+
+      if (response.body.trim().isEmpty) {
+        setState(() {
+          isLoadingOfp = false;
+          _simBriefOfp = null;
+          _simBriefError = null;
+          _simBriefMetar = null;
+          _simBriefWind = null;
+          _simBriefQnh = null;
+          _simBriefTemperature = null;
+        });
+        return;
+      }
+
+      final dynamic decoded = jsonDecode(response.body);
+      if (decoded is! Map) {
+        setState(() {
+          isLoadingOfp = false;
+          _simBriefOfp = null;
+          _simBriefError = 'SimBrief returned an invalid OFP response.';
+        });
+        return;
+      }
+
+      final Map<String, dynamic> ofp =
+          Map<String, dynamic>.from(decoded as Map<dynamic, dynamic>);
+
+      final dynamic general = ofp['general'];
+      final dynamic origin = ofp['origin'];
+      final dynamic destination = ofp['destination'];
+      final dynamic times = ofp['times'];
+      final dynamic weights = ofp['weights'];
+      final dynamic fuel = ofp['fuel'];
+
+      final bool hasFlightData = general is Map &&
+          origin is Map &&
+          destination is Map &&
+          times is Map &&
+          weights is Map &&
+          fuel is Map;
+
+      if (!hasFlightData) {
+        setState(() {
+          isLoadingOfp = false;
+          _simBriefOfp = null;
+          _simBriefError = null;
+          _simBriefMetar = null;
+          _simBriefWind = null;
+          _simBriefQnh = null;
+          _simBriefTemperature = null;
+        });
+        return;
+      }
+
+      final Map<String, dynamic> originMap =
+          Map<String, dynamic>.from(origin as Map<dynamic, dynamic>);
+      final String? metar = _simBriefString(originMap['metar']);
+      final weather = _parseSimBriefMetar(metar);
+
+      setState(() {
+        isLoadingOfp = false;
+        _simBriefOfp = ofp;
+        _simBriefError = null;
+        _simBriefMetar = metar;
+        _simBriefWind = weather.wind;
+        _simBriefQnh = weather.qnh;
+        _simBriefTemperature = weather.temperature;
+      });
+    } on FormatException {
+      if (!mounted || requestSerial != _simBriefRequestSerial) return;
+      setState(() {
+        isLoadingOfp = false;
+        _simBriefOfp = null;
+        _simBriefError = 'SimBrief returned invalid JSON data.';
+        _simBriefMetar = null;
+        _simBriefWind = null;
+        _simBriefQnh = null;
+        _simBriefTemperature = null;
+      });
+    } catch (_) {
+      if (!mounted || requestSerial != _simBriefRequestSerial) return;
+      setState(() {
+        isLoadingOfp = false;
+        _simBriefOfp = null;
+        _simBriefError =
+            'Unable to load the active SimBrief OFP. Check your connection.';
+        _simBriefMetar = null;
+        _simBriefWind = null;
+        _simBriefQnh = null;
+        _simBriefTemperature = null;
+      });
+    }
+  }
+
+  String? _simBriefString(dynamic value) {
+    if (value == null) return null;
+    final String text = value.toString().trim();
+    return text.isEmpty ? null : text;
+  }
+
+  dynamic _simBriefSection(String section, String key) {
+    final dynamic value = _simBriefOfp?[section];
+    if (value is Map) return value[key];
+    return null;
+  }
+
+  String _simBriefText(String section, String key, [String fallback = '—']) {
+    final String? value = _simBriefString(_simBriefSection(section, key));
+    return value ?? fallback;
+  }
+
+  double? _simBriefNumber(String section, String key) {
+    final dynamic value = _simBriefSection(section, key);
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '');
+  }
+
+  String _formatSimBriefTime(dynamic raw) {
+    if (raw == null) return '—';
+    DateTime? date;
+    if (raw is num) {
+      final double value = raw.toDouble();
+      if (value > 100000000000) {
+        date = DateTime.fromMillisecondsSinceEpoch(value.round(), isUtc: true);
+      } else if (value > 1000000000) {
+        date = DateTime.fromMillisecondsSinceEpoch(
+          (value * 1000).round(),
+          isUtc: true,
+        );
+      }
+    } else {
+      final String text = raw.toString().trim();
+      final int? numeric = int.tryParse(text);
+      if (numeric != null) return _formatSimBriefTime(numeric);
+      final DateTime? parsed = DateTime.tryParse(text);
+      if (parsed != null) date = parsed.toUtc();
+    }
+    if (date == null) return raw.toString();
+    final String hh = date.hour.toString().padLeft(2, '0');
+    final String mm = date.minute.toString().padLeft(2, '0');
+    return '$hh:${mm}Z';
+  }
+
+  String _formatSimBriefWeightTonnes(String section, String key) {
+    final double? pounds = _simBriefNumber(section, key);
+    if (pounds == null) return '—';
+    final double tonnes = pounds * 0.45359237 / 1000.0;
+    return '${tonnes.toStringAsFixed(1)} T';
+  }
+
+  _SimBriefWeatherData _parseSimBriefMetar(String? metar) {
+    if (metar == null || metar.trim().isEmpty) {
+      return const _SimBriefWeatherData();
+    }
+
+    final String raw = metar.trim().toUpperCase();
+
+    String? wind;
+    final RegExpMatch? windMatch = RegExp(
+      r'\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?KT\b',
+    ).firstMatch(raw);
+    if (windMatch != null) {
+      final String direction = windMatch.group(1)!;
+      final String speed = windMatch.group(2)!;
+      final String? gust = windMatch.group(3);
+      wind =
+          gust == null ? '$direction/$speed KT' : '$direction/$speed G$gust KT';
+    }
+
+    String? qnh;
+    final RegExpMatch? qnhMatch = RegExp(r'\bQ(\d{4})\b').firstMatch(raw);
+    if (qnhMatch != null) {
+      qnh = '${qnhMatch.group(1)} hPa';
+    } else {
+      final RegExpMatch? altimeterMatch =
+          RegExp(r'\bA(\d{4})\b').firstMatch(raw);
+      if (altimeterMatch != null) {
+        final int rawAltimeter = int.parse(altimeterMatch.group(1)!);
+        final double inHg = rawAltimeter / 100.0;
+        final int hPa = (inHg * 33.8639).round();
+        qnh = '$hPa hPa';
+      }
+    }
+
+    String? temperature;
+    final RegExpMatch? tempMatch =
+        RegExp(r'\b(M?\d{2})/(M?\d{2})\b').firstMatch(raw);
+    if (tempMatch != null) {
+      final String tempRaw = tempMatch.group(1)!;
+      final int temp = tempRaw.startsWith('M')
+          ? -int.parse(tempRaw.substring(1))
+          : int.parse(tempRaw);
+      temperature = '$temp°C';
+    }
+
+    return _SimBriefWeatherData(
+      wind: wind,
+      qnh: qnh,
+      temperature: temperature,
+    );
+  }
+
+  Future<void> _loadDock() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getStringList(_dockPrefsKey);
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _dockAppNames
+          ..clear()
+          ..addAll(saved ?? const <String>[]);
+        _dockLoaded = true;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _dockLoaded = true;
+      });
+    }
+  }
+
+  Future<void> _persistDock() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_dockPrefsKey, List<String>.from(_dockAppNames));
+  }
+
+  List<_EfbHomeApp> get _allApps => <_EfbHomeApp>[
+        _EfbHomeApp(
+          name: 'Airport WX',
+          imageUrl: widget.iconAirportWx,
+          onTap: () => _openApp('Airport WX'),
+        ),
+        _EfbHomeApp(
+          name: 'WX Charts',
+          imageUrl: widget.iconWxCharts,
+          onTap: () => _openApp('WX Charts'),
+        ),
+        _EfbHomeApp(
+          name: 'NOTAMs',
+          imageUrl: widget.iconNotams,
+          onTap: () => _openApp('NOTAMs'),
+        ),
+        _EfbHomeApp(
+          name: 'Scratchpad',
+          imageUrl: widget.iconScratchpad,
+          onTap: () => _openApp('Scratchpad'),
+        ),
+        _EfbHomeApp(
+          name: 'Settings',
+          imageUrl: widget.iconSettings,
+          onTap: () {
+            if (widget.onSettingsAction != null) {
+              widget.onSettingsAction!();
+            }
+          },
+        ),
+      ];
+
+  _EfbHomeApp? _appByName(String name) {
+    for (final app in _allApps) {
+      if (app.name == name) {
+        return app;
+      }
+    }
+    return null;
+  }
+
+  List<_EfbHomeApp> get _dockApps {
+    final result = <_EfbHomeApp>[];
+    for (final name in _dockAppNames) {
+      final app = _appByName(name);
+      if (app != null) {
+        result.add(app);
+      }
+    }
+    return result;
+  }
+
   void _openApp(String appName) {
     setState(() {
       _openedAppName = appName;
@@ -93,27 +480,963 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
     });
   }
 
+  void _startJiggle() {
+    if (_isJiggling) {
+      return;
+    }
+
+    setState(() {
+      _isJiggling = true;
+    });
+
+    _jiggleController.repeat(reverse: true);
+    HapticFeedback.mediumImpact();
+  }
+
+  void _stopJiggle() {
+    if (!_isJiggling) {
+      return;
+    }
+
+    _jiggleController.stop();
+    _jiggleController.value = 0;
+
+    if (mounted) {
+      setState(() {
+        _isJiggling = false;
+      });
+    }
+  }
+
+  int _maxDockApps(bool isTablet) {
+    return isTablet ? 6 : 4;
+  }
+
+  void _enforceDockCapacity(int maxDockApps) {
+    if (!_dockLoaded || _dockAppNames.length <= maxDockApps) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _dockAppNames.length <= maxDockApps) {
+        return;
+      }
+
+      setState(() {
+        _dockAppNames.removeRange(
+          maxDockApps,
+          _dockAppNames.length,
+        );
+      });
+
+      _persistDock();
+    });
+  }
+
+  void _addToDock(String appName, int maxDockApps) {
+    if (_dockAppNames.length >= maxDockApps ||
+        _dockAppNames.contains(appName)) {
+      return;
+    }
+
+    setState(() {
+      _dockAppNames.add(appName);
+    });
+
+    _persistDock();
+    HapticFeedback.selectionClick();
+  }
+
+  void _removeFromDock(String appName) {
+    if (!_dockAppNames.contains(appName)) {
+      return;
+    }
+
+    setState(() {
+      _dockAppNames.remove(appName);
+    });
+
+    _persistDock();
+    HapticFeedback.selectionClick();
+  }
+
+  void _reorderDock(String appName, int targetIndex) {
+    final oldIndex = _dockAppNames.indexOf(appName);
+    if (oldIndex < 0) {
+      return;
+    }
+
+    int normalizedIndex = targetIndex;
+    if (oldIndex < normalizedIndex) {
+      normalizedIndex -= 1;
+    }
+
+    normalizedIndex = normalizedIndex.clamp(0, _dockAppNames.length - 1) as int;
+
+    if (oldIndex == normalizedIndex) {
+      return;
+    }
+
+    setState(() {
+      final item = _dockAppNames.removeAt(oldIndex);
+      _dockAppNames.insert(normalizedIndex, item);
+    });
+
+    _persistDock();
+    HapticFeedback.selectionClick();
+  }
+
+  Future<void> _showDockContextMenu(String appName) async {
+    _startJiggle();
+
+    await showCupertinoModalPopup<void>(
+      context: context,
+      builder: (context) {
+        return CupertinoActionSheet(
+          title: Text(appName),
+          actions: [
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                _removeFromDock(appName);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Remove from Dock'),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+        );
+      },
+    );
+
+    _stopJiggle();
+  }
+
+  Future<void> _showMainGridContextMenu(
+    _EfbHomeApp app,
+    int maxDockApps,
+  ) async {
+    if (_dockAppNames.length >= maxDockApps ||
+        _dockAppNames.contains(app.name)) {
+      return;
+    }
+
+    HapticFeedback.mediumImpact();
+
+    await showCupertinoModalPopup<void>(
+      context: context,
+      builder: (context) {
+        return CupertinoActionSheet(
+          title: Text(app.name),
+          actions: [
+            CupertinoActionSheetAction(
+              onPressed: () {
+                _addToDock(app.name, maxDockApps);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Add to Dock'),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAppleSquircleIcon(
+    _EfbHomeApp app,
+    double size, {
+    bool isDock = false,
+    bool isDragging = false,
+    int jiggleIndex = 0,
+  }) {
+    final radius = size * 0.22;
+    final imageUrl = app.imageUrl.trim();
+
+    final icon = ClipPath(
+      clipper: ShapeBorderClipper(
+        shape: ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(radius),
+        ),
+      ),
+      child: Image.network(
+        imageUrl,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: size,
+            height: size,
+            color: const Color(0xFF101923),
+            alignment: Alignment.center,
+            child: Icon(
+              app.name == 'Settings'
+                  ? Icons.settings_rounded
+                  : Icons.flight_rounded,
+              color: const Color(0xFF639DF0),
+              size: isDock ? 27 : 32,
+            ),
+          );
+        },
+      ),
+    );
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDragging ? 0.16 : 0.30),
+            blurRadius: isDock ? 8 : 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: _isJiggling && isDock
+          ? AnimatedBuilder(
+              animation: _jiggleController,
+              child: icon,
+              builder: (context, child) {
+                final angle = math.sin(
+                      (_jiggleController.value * math.pi * 2) +
+                          (jiggleIndex * 0.70),
+                    ) *
+                    0.025;
+
+                return Transform.rotate(
+                  angle: angle,
+                  alignment: Alignment.center,
+                  child: child,
+                );
+              },
+            )
+          : icon,
+    );
+  }
+
+  Widget _buildHomeGridIcon(
+    _EfbHomeApp app,
+    double iconSize,
+    int maxDockApps,
+    int index,
+  ) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: app.onTap,
+      onLongPress: () => _showMainGridContextMenu(app, maxDockApps),
+      child: Center(
+        child: SizedBox(
+          width: iconSize + 14,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildAppleSquircleIcon(
+                app,
+                iconSize,
+                jiggleIndex: index,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                app.name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black87,
+                      blurRadius: 4,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDockDropTarget(int targetIndex) {
+    return DragTarget<String>(
+      onWillAcceptWithDetails: (details) {
+        return _dockAppNames.contains(details.data);
+      },
+      onAcceptWithDetails: (details) {
+        _reorderDock(details.data, targetIndex);
+        _stopJiggle();
+      },
+      builder: (context, candidateData, rejectedData) {
+        final bool isActive = candidateData.isNotEmpty;
+
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          width: isActive ? 18 : 8,
+          height: 76,
+          margin: const EdgeInsets.symmetric(horizontal: 1),
+          decoration: BoxDecoration(
+            color:
+                isActive ? Colors.white.withOpacity(0.14) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDockApp(
+    _EfbHomeApp app,
+    double iconSize,
+    int index,
+  ) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: app.onTap,
+      onLongPress: () => _showDockContextMenu(app.name),
+      child: Draggable<String>(
+        data: app.name,
+        axis: Axis.horizontal,
+        maxSimultaneousDrags: 1,
+        feedback: Material(
+          type: MaterialType.transparency,
+          child: Opacity(
+            opacity: 0.92,
+            child: _buildAppleSquircleIcon(
+              app,
+              iconSize,
+              isDock: true,
+              isDragging: true,
+              jiggleIndex: index,
+            ),
+          ),
+        ),
+        childWhenDragging: Opacity(
+          opacity: 0.25,
+          child: _buildAppleSquircleIcon(
+            app,
+            iconSize,
+            isDock: true,
+            jiggleIndex: index,
+          ),
+        ),
+        onDragStarted: () {
+          _startJiggle();
+          HapticFeedback.mediumImpact();
+        },
+        onDragEnd: (_) {
+          _stopJiggle();
+        },
+        onDraggableCanceled: (_, __) {
+          _stopJiggle();
+        },
+        child: SizedBox(
+          width: iconSize + 8,
+          height: iconSize,
+          child: Center(
+            child: _buildAppleSquircleIcon(
+              app,
+              iconSize,
+              isDock: true,
+              jiggleIndex: index,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDock({
+    required bool isTablet,
+    required int maxDockApps,
+    required double dockIconSize,
+  }) {
+    final dockApps = _dockApps.take(maxDockApps).toList();
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        isTablet ? 26 : 14,
+        0,
+        isTablet ? 26 : 14,
+        0,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(isTablet ? 30 : 28),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: isTablet ? 96 : 88,
+              maxHeight: isTablet ? 112 : 98,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 18 : 14,
+              vertical: isTablet ? 10 : 8,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.16),
+              borderRadius: BorderRadius.circular(isTablet ? 30 : 28),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.20),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.20),
+                  blurRadius: 25,
+                  offset: const Offset(0, 9),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildDockDropTarget(0),
+                for (int i = 0; i < dockApps.length; i++) ...[
+                  _buildDockApp(
+                    dockApps[i],
+                    dockIconSize,
+                    i,
+                  ),
+                  _buildDockDropTarget(i + 1),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSpringboardHomeIndicator({
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(
+          bottom: 10,
+          top: 16,
+        ),
+        alignment: Alignment.center,
+        child: Container(
+          width: 130,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.82),
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.20),
+                blurRadius: 4,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBar({
+    required bool isTablet,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 30 : 24,
+        vertical: isTablet ? 14 : 12,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Text(
+                _currentTime,
+                style: _statusBarStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _currentDate,
+                style: _statusBarStyle,
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Icon(
+                CupertinoIcons.wifi,
+                color: Colors.white,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '100%',
+                style: _statusBarStyle,
+              ),
+              const SizedBox(width: 4),
+              const Icon(
+                CupertinoIcons.battery_100,
+                color: Colors.white,
+                size: 22,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSimBriefTicketWidget({
+    required bool isTablet,
+  }) {
+    final String origin = _simBriefText('origin', 'icao_code');
+    final String destination = _simBriefText('destination', 'icao_code');
+    final String dep =
+        _formatSimBriefTime(_simBriefSection('times', 'sched_out'));
+    final String arr =
+        _formatSimBriefTime(_simBriefSection('times', 'sched_in'));
+    final String callsign = _simBriefText('general', 'atc_callsign');
+    final String zfw = _formatSimBriefWeightTonnes('weights', 'est_zfw');
+    final String blockFuel = _formatSimBriefWeightTonnes('fuel', 'plan_ramp');
+
+    return _buildTopWidgetCard(
+      child: _buildSimBriefState(
+        isTablet: isTablet,
+        icon: CupertinoIcons.airplane,
+        title: 'SIMBRIEF FLIGHT',
+        child: _simBriefOfp == null
+            ? const SizedBox.shrink()
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Spacer(),
+                  FittedBox(
+                    alignment: Alignment.centerLeft,
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '$origin ➔ $destination',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isTablet ? 24 : 19,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'DEP $dep • ARR $arr',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.78),
+                      fontSize: isTablet ? 11 : 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Callsign: $callsign',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.88),
+                            fontSize: isTablet ? 11 : 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'ZFW: $zfw • BLK FUEL: $blockFuel',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.88),
+                          fontSize: isTablet ? 10.5 : 9.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildWeatherWidget({
+    required bool isTablet,
+  }) {
+    final String origin = _simBriefText('origin', 'icao_code');
+    final String city =
+        _simBriefString(_simBriefSection('origin', 'name')) ?? '';
+    final String location = city.isEmpty ? origin : '$origin • $city';
+
+    return _buildTopWidgetCard(
+      child: _buildSimBriefState(
+        isTablet: isTablet,
+        icon: CupertinoIcons.cloud_sun,
+        title: 'DEPARTURE WEATHER',
+        child: _simBriefOfp == null
+            ? const SizedBox.shrink()
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Spacer(),
+                  Text(
+                    location,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.82),
+                      fontSize: isTablet ? 12 : 10.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    alignment: Alignment.centerLeft,
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      _simBriefTemperature ?? '—',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isTablet ? 29 : 23,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Wind: ${_simBriefWind ?? '—'}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.79),
+                      fontSize: isTablet ? 11 : 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'QNH: ${_simBriefQnh ?? '—'}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.79),
+                      fontSize: isTablet ? 11 : 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildSimBriefState({
+    required bool isTablet,
+    required IconData icon,
+    required String title,
+    required Widget child,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: isTablet ? 32 : 28,
+              height: isTablet ? 32 : 28,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.13),
+                borderRadius: BorderRadius.circular(9),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.12),
+                ),
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white.withOpacity(0.95),
+                size: isTablet ? 18 : 16,
+              ),
+            ),
+            const SizedBox(width: 9),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (isLoadingOfp) ...[
+          const Spacer(),
+          const Center(
+            child: SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+          ),
+          const Spacer(),
+        ] else if (_simBriefOfp == null) ...[
+          const Spacer(),
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _simBriefError == null
+                      ? CupertinoIcons.doc_text_search
+                      : CupertinoIcons.wifi_slash,
+                  color: Colors.white.withOpacity(0.70),
+                  size: isTablet ? 24 : 21,
+                ),
+                const SizedBox(height: 7),
+                Text(
+                  'No Active OFP',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.90),
+                    fontSize: isTablet ? 12 : 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
+        ] else
+          Expanded(child: child),
+      ],
+    );
+  }
+
+  Widget _buildTopWidgetCard({
+    required Widget child,
+  }) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(
+          sigmaX: 18,
+          sigmaY: 18,
+        ),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.24),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.16),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.22),
+                blurRadius: 18,
+                offset: const Offset(0, 7),
+              ),
+            ],
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomeDashboard({
+    required BoxConstraints constraints,
+    required bool isTablet,
+    required bool isLandscape,
+    required int columns,
+    required int maxDockApps,
+  }) {
+    final double horizontalPadding = isTablet ? 26 : 16;
+    final double widgetGap = isTablet ? 14 : 12;
+    final double contentWidth =
+        math.max(0.0, constraints.maxWidth - (horizontalPadding * 2));
+
+    final double widgetMaxWidth = isTablet ? 350 : 175;
+    final double widgetWidth =
+        math.min(widgetMaxWidth, (contentWidth - widgetGap) / 2);
+
+    final double iconSize = isTablet ? 76 : 60;
+    final double dockIconSize = isTablet ? 66 : 56;
+
+    _enforceDockCapacity(maxDockApps);
+
+    return SafeArea(
+      bottom: false,
+      child: Column(
+        children: [
+          _buildStatusBar(isTablet: isTablet),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              isTablet ? 10 : 8,
+              horizontalPadding,
+              0,
+            ),
+            child: Center(
+              child: SizedBox(
+                width: math.min(
+                  contentWidth,
+                  (widgetWidth * 2) + widgetGap,
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: widgetWidth,
+                      height: widgetWidth,
+                      child: _buildSimBriefTicketWidget(
+                        isTablet: isTablet,
+                      ),
+                    ),
+                    SizedBox(width: widgetGap),
+                    SizedBox(
+                      width: widgetWidth,
+                      height: widgetWidth,
+                      child: _buildWeatherWidget(
+                        isTablet: isTablet,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+              ),
+              child: GridView.builder(
+                key: ValueKey('$columns-$isLandscape'),
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(
+                  top: 2,
+                  bottom: 10,
+                ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns,
+                  mainAxisSpacing: isTablet ? 22 : 20,
+                  crossAxisSpacing: isTablet ? 16 : 8,
+                  childAspectRatio: isTablet ? 0.78 : 0.76,
+                ),
+                itemCount: _allApps.length,
+                itemBuilder: (context, index) {
+                  return _buildHomeGridIcon(
+                    _allApps[index],
+                    iconSize,
+                    maxDockApps,
+                    index,
+                  );
+                },
+              ),
+            ),
+          ),
+          _buildDock(
+            isTablet: isTablet,
+            maxDockApps: maxDockApps,
+            dockIconSize: dockIconSize,
+          ),
+          _buildSpringboardHomeIndicator(
+            onTap: () {
+              if (widget.onExitAction != null) {
+                widget.onExitAction!();
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  final TextStyle _statusBarStyle = const TextStyle(
+    color: Colors.white,
+    fontSize: 14,
+    shadows: [
+      Shadow(
+        color: Colors.black54,
+        blurRadius: 3,
+        offset: Offset(0, 1),
+      ),
+    ],
+  );
+
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final bool isTablet = mediaQuery.size.shortestSide >= 600;
+    final bool isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final int columns = isTablet ? (isLandscape ? 6 : 5) : 4;
+    final int maxDockApps = _maxDockApps(isTablet);
+
     return Container(
       width: widget.width,
       height: widget.height,
+      color: Colors.black,
       child: Scaffold(
         backgroundColor: Colors.black,
         body: LayoutBuilder(
           builder: (context, constraints) {
-            // Mobile: preserve the existing layout logic exactly.
-            // Tablet/iPad: use a fixed-size, centered group for the four apps.
-            final bool isTablet = constraints.maxWidth >= 600;
-            final double availableWidth = constraints.maxWidth - 40;
-            final double iconSize =
-                isTablet ? 85.0 : (availableWidth / 4.5) - 10;
             return Stack(
+              fit: StackFit.expand,
               children: [
                 Positioned.fill(
                   child: Image.network(
                     widget.wallpaperUrl,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: const Color(0xFF0B111A),
+                      );
+                    },
+                  ),
+                ),
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.16),
+                          Colors.black.withOpacity(0.06),
+                          Colors.black.withOpacity(0.22),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 AnimatedOpacity(
@@ -121,117 +1444,12 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
                   duration: const Duration(milliseconds: 200),
                   child: IgnorePointer(
                     ignoring: _isAppOpen,
-                    child: SafeArea(
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24.0, vertical: 12.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      _currentTime,
-                                      style: _statusBarStyle.copyWith(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      _currentDate,
-                                      style: _statusBarStyle,
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    const Icon(CupertinoIcons.wifi,
-                                        color: Colors.white, size: 16),
-                                    const SizedBox(width: 8),
-                                    Text("100%", style: _statusBarStyle),
-                                    const SizedBox(width: 4),
-                                    const Icon(CupertinoIcons.battery_100,
-                                        color: Colors.white, size: 22),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 50),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: isTablet
-                                ? Center(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            _buildAppIcon("Airport WX",
-                                                widget.iconAirportWx, iconSize),
-                                            const SizedBox(width: 35.0),
-                                            _buildAppIcon("WX Charts",
-                                                widget.iconWxCharts, iconSize),
-                                            const SizedBox(width: 35.0),
-                                            _buildAppIcon("NOTAMs",
-                                                widget.iconNotams, iconSize),
-                                            const SizedBox(width: 35.0),
-                                            _buildAppIcon(
-                                                "Scratchpad",
-                                                widget.iconScratchpad,
-                                                iconSize),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 30.0),
-                                        _buildSettingsAppIcon(iconSize),
-                                      ],
-                                    ),
-                                  )
-                                : Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          _buildAppIcon("Airport WX",
-                                              widget.iconAirportWx, iconSize),
-                                          _buildAppIcon("WX Charts",
-                                              widget.iconWxCharts, iconSize),
-                                          _buildAppIcon("NOTAMs",
-                                              widget.iconNotams, iconSize),
-                                          _buildAppIcon("Scratchpad",
-                                              widget.iconScratchpad, iconSize),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 30.0),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: _buildSettingsAppIcon(iconSize),
-                                      ),
-                                    ],
-                                  ),
-                          ),
-                          const Spacer(),
-                          _buildHomeIndicator(
-                            onTap: () {
-                              if (widget.onExitAction != null) {
-                                widget
-                                    .onExitAction!(); // بينفذ الأكشن اللي إنت هتبرمجه
-                              }
-                            },
-                          ),
-                        ],
-                      ),
+                    child: _buildHomeDashboard(
+                      constraints: constraints,
+                      isTablet: isTablet,
+                      isLandscape: isLandscape,
+                      columns: columns,
+                      maxDockApps: maxDockApps,
                     ),
                   ),
                 ),
@@ -273,7 +1491,9 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            child: _buildHomeIndicator(onTap: _closeApp),
+                            child: _buildSpringboardHomeIndicator(
+                              onTap: _closeApp,
+                            ),
                           ),
                         ],
                       ),
@@ -287,80 +1507,252 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
       ),
     );
   }
+}
 
-  final TextStyle _statusBarStyle = const TextStyle(
-    color: Colors.white,
-    fontSize: 14,
-    shadows: [
-      Shadow(
-        color: Colors.black54,
-        blurRadius: 3,
-        offset: Offset(0, 1),
-      ),
-    ],
-  );
-  Widget _buildHomeIndicator({required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
-        alignment: Alignment.center,
-        child: Container(
-          width: 130,
-          height: 5,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsAppIcon(double size) {
-    final String settingsImageUrl = widget.iconSettings.trim();
-    return GestureDetector(
-      onTap: () {
-        if (widget.onSettingsAction != null) {
-          widget.onSettingsAction!();
-        }
-      },
-      child: SizedBox(
-        width: size + 10,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(size * 0.22),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+// Original Home implementation retained as an unused legacy fallback.
+Widget _buildLegacyOriginalHome(BuildContext context) {
+  return Container(
+    width: widget.width,
+    height: widget.height,
+    child: Scaffold(
+      backgroundColor: Colors.black,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // Mobile: preserve the existing layout logic exactly.
+          // Tablet/iPad: use a fixed-size, centered group for the four apps.
+          final bool isTablet = constraints.maxWidth >= 600;
+          final double availableWidth = constraints.maxWidth - 40;
+          final double iconSize = isTablet ? 85.0 : (availableWidth / 4.5) - 10;
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: Image.network(
+                  widget.wallpaperUrl,
+                  fit: BoxFit.cover,
+                ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(size * 0.22),
-                child: settingsImageUrl.isNotEmpty
-                    ? Image.network(
-                        settingsImageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: const Color(0xFF101923),
-                          child: const Icon(
-                            Icons.settings_rounded,
-                            color: Color(0xFF639DF0),
-                            size: 34,
+              AnimatedOpacity(
+                opacity: _isAppOpen ? 0.0 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                child: IgnorePointer(
+                  ignoring: _isAppOpen,
+                  child: SafeArea(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0, vertical: 12.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    _currentTime,
+                                    style: _statusBarStyle.copyWith(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _currentDate,
+                                    style: _statusBarStyle,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(CupertinoIcons.wifi,
+                                      color: Colors.white, size: 16),
+                                  const SizedBox(width: 8),
+                                  Text("100%", style: _statusBarStyle),
+                                  const SizedBox(width: 4),
+                                  const Icon(CupertinoIcons.battery_100,
+                                      color: Colors.white, size: 22),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      )
-                    : Container(
+                        const SizedBox(height: 50),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: isTablet
+                              ? Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _buildAppIcon("Airport WX",
+                                              widget.iconAirportWx, iconSize),
+                                          const SizedBox(width: 35.0),
+                                          _buildAppIcon("WX Charts",
+                                              widget.iconWxCharts, iconSize),
+                                          const SizedBox(width: 35.0),
+                                          _buildAppIcon("NOTAMs",
+                                              widget.iconNotams, iconSize),
+                                          const SizedBox(width: 35.0),
+                                          _buildAppIcon("Scratchpad",
+                                              widget.iconScratchpad, iconSize),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 30.0),
+                                      _buildSettingsAppIcon(iconSize),
+                                    ],
+                                  ),
+                                )
+                              : Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _buildAppIcon("Airport WX",
+                                            widget.iconAirportWx, iconSize),
+                                        _buildAppIcon("WX Charts",
+                                            widget.iconWxCharts, iconSize),
+                                        _buildAppIcon("NOTAMs",
+                                            widget.iconNotams, iconSize),
+                                        _buildAppIcon("Scratchpad",
+                                            widget.iconScratchpad, iconSize),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 30.0),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: _buildSettingsAppIcon(iconSize),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                        const Spacer(),
+                        _buildHomeIndicator(
+                          onTap: () {
+                            if (widget.onExitAction != null) {
+                              widget
+                                  .onExitAction!(); // بينفذ الأكشن اللي إنت هتبرمجه
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                top: _isAppOpen ? 0 : constraints.maxHeight,
+                bottom: _isAppOpen ? 0 : -constraints.maxHeight,
+                left: 0,
+                right: 0,
+                child: Container(
+                  color: const Color(0xFF0B111A),
+                  child: SafeArea(
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: switch (_openedAppName) {
+                            'Airport WX' => AviationMetarTafDashboard(
+                                width: constraints.maxWidth,
+                                height: constraints.maxHeight,
+                              ),
+                            'WX Charts' => AviationWeatherCharts(
+                                width: constraints.maxWidth,
+                                height: constraints.maxHeight,
+                              ),
+                            'NOTAMs' => RealTimeNotamsViewer(
+                                width: constraints.maxWidth,
+                                height: constraints.maxHeight,
+                                initialIcao: 'KJFK',
+                              ),
+                            'Scratchpad' => EFBDigitalScratchpad(
+                                width: constraints.maxWidth,
+                                height: constraints.maxHeight,
+                              ),
+                            _ => const SizedBox.shrink(),
+                          },
+                        ),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: _buildHomeIndicator(onTap: _closeApp),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    ),
+  );
+}
+
+Widget _buildHomeIndicator({required VoidCallback onTap}) {
+  return GestureDetector(
+    onTap: onTap,
+    behavior: HitTestBehavior.opaque,
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
+      alignment: Alignment.center,
+      child: Container(
+        width: 130,
+        height: 5,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _buildSettingsAppIcon(double size) {
+  final String settingsImageUrl = widget.iconSettings.trim();
+  return GestureDetector(
+    onTap: () {
+      if (widget.onSettingsAction != null) {
+        widget.onSettingsAction!();
+      }
+    },
+    child: SizedBox(
+      width: size + 10,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(size * 0.22),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(size * 0.22),
+              child: settingsImageUrl.isNotEmpty
+                  ? Image.network(
+                      settingsImageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
                         color: const Color(0xFF101923),
                         child: const Icon(
                           Icons.settings_rounded,
@@ -368,91 +1760,123 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane> {
                           size: 34,
                         ),
                       ),
-              ),
+                    )
+                  : Container(
+                      color: const Color(0xFF101923),
+                      child: const Icon(
+                        Icons.settings_rounded,
+                        color: Color(0xFF639DF0),
+                        size: 34,
+                      ),
+                    ),
             ),
-            const SizedBox(height: 8),
-            const Text(
-              "Settings",
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                shadows: [
-                  Shadow(
-                    color: Colors.black87,
-                    blurRadius: 4,
-                    offset: Offset(0, 1),
-                  ),
-                ],
-              ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Settings",
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              shadows: [
+                Shadow(
+                  color: Colors.black87,
+                  blurRadius: 4,
+                  offset: Offset(0, 1),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildAppIcon(String name, String imageUrl, double size,
-      {VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap ?? () => _openApp(name),
-      child: SizedBox(
-        width: size + 10,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(size * 0.22),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(size * 0.22),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: const Color(0xFF101923),
-                    child: const Icon(Icons.flight, color: Color(0xFF639DF0)),
-                  ),
+Widget _buildAppIcon(String name, String imageUrl, double size,
+    {VoidCallback? onTap}) {
+  return GestureDetector(
+    onTap: onTap ?? () => _openApp(name),
+    child: SizedBox(
+      width: size + 10,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(size * 0.22),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(size * 0.22),
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: const Color(0xFF101923),
+                  child: const Icon(Icons.flight, color: Color(0xFF639DF0)),
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              name,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                shadows: [
-                  Shadow(
-                    color: Colors.black87,
-                    blurRadius: 4,
-                    offset: Offset(0, 1),
-                  ),
-                ],
-              ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              shadows: [
+                Shadow(
+                  color: Colors.black87,
+                  blurRadius: 4,
+                  offset: Offset(0, 1),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+class _SimBriefWeatherData {
+  final String? wind;
+  final String? qnh;
+  final String? temperature;
+
+  const _SimBriefWeatherData({
+    this.wind,
+    this.qnh,
+    this.temperature,
+  });
+}
+
+class _EfbHomeApp {
+  final String name;
+  final String imageUrl;
+  final VoidCallback onTap;
+
+  const _EfbHomeApp({
+    required this.name,
+    required this.imageUrl,
+    required this.onTap,
+  });
 }
 
 class AviationMetarTafDashboard extends StatefulWidget {
