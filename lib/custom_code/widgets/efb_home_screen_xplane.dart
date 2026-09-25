@@ -980,7 +980,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                       origin,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: isTablet ? 34 : 24,
+                        fontSize: isTablet ? 26 : 24,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -998,7 +998,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                       dest,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: isTablet ? 34 : 24,
+                        fontSize: isTablet ? 26 : 24,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -1023,7 +1023,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                 "DIST: $distance  •  ZFW: $zfw",
                 style: TextStyle(
                   color: const Color(0xFF639DF0),
-                  fontSize: isTablet ? 12 : 10,
+                  fontSize: isTablet ? 12.5 : 10,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1058,7 +1058,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                       temp.split('/').first.trim(),
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: isTablet ? 48 : 32,
+                        fontSize: isTablet ? 34 : 32,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -1073,7 +1073,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                 "WIND: $wind",
                 style: TextStyle(
                   color: const Color(0xFF8B949E),
-                  fontSize: isTablet ? 13 : 11,
+                  fontSize: isTablet ? 12.5 : 11,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1084,7 +1084,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                 "QNH: $qnh",
                 style: TextStyle(
                   color: const Color(0xFF639DF0),
-                  fontSize: isTablet ? 13 : 11,
+                  fontSize: isTablet ? 12.5 : 11,
                   fontWeight: FontWeight.bold,
                 ),
               ),
