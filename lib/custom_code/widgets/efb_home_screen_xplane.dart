@@ -953,7 +953,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
     final String qnh = _simBriefQnh ?? '1014 hPa';
 
     final Widget flightWidget = AspectRatio(
-      aspectRatio: isTablet ? 2.0 : 1.1,
+      aspectRatio: isTablet ? 2.0 : 1.02,
       child: _buildGlassWidgetCard(
         title: "SIMBRIEF FLIGHT",
         subTitle: callsign,
@@ -964,65 +964,67 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
           mainAxisAlignment: isTablet
               ? MainAxisAlignment.spaceBetween
               : MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isTablet ? CrossAxisAlignment.center : CrossAxisAlignment.start,
           children: [
             FittedBox(
               fit: BoxFit.scaleDown,
-              child: Row(
-                children: [
-                  Text(
-                    origin,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: isTablet ? 26 : 24,
-                      fontWeight: FontWeight.w900,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 24.0 : 0.0,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      origin,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isTablet ? 34 : 24,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Icon(
-                      CupertinoIcons.airplane,
-                      color: Color(0xFF639DF0),
-                      size: 18,
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isTablet ? 24.0 : 10.0,
+                      ),
+                      child: Icon(
+                        CupertinoIcons.airplane,
+                        color: const Color(0xFF639DF0),
+                        size: isTablet ? 22 : 18,
+                      ),
                     ),
-                  ),
-                  Text(
-                    dest,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: isTablet ? 26 : 24,
-                      fontWeight: FontWeight.w900,
+                    Text(
+                      dest,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isTablet ? 34 : 24,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
                 "OUT: $schedOut  •  IN: $schedIn",
-                style: const TextStyle(
-                  color: Color(0xFF8B949E),
-                  fontSize: 11,
+                style: TextStyle(
+                  color: const Color(0xFF8B949E),
+                  fontSize: isTablet ? 13 : 11,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             FittedBox(
               fit: BoxFit.scaleDown,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF639DF0).withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  "DIST: $distance  •  ZFW: $zfw",
-                  style: const TextStyle(
-                    color: Color(0xFF639DF0),
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
+              child: Text(
+                "DIST: $distance  •  ZFW: $zfw",
+                style: TextStyle(
+                  color: const Color(0xFF639DF0),
+                  fontSize: isTablet ? 12 : 10,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -1032,7 +1034,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
     );
 
     final Widget weatherWidget = AspectRatio(
-      aspectRatio: isTablet ? 2.0 : 1.1,
+      aspectRatio: isTablet ? 2.0 : 1.02,
       child: _buildGlassWidgetCard(
         title: "ORIGIN WX",
         subTitle: metarOrigin,
@@ -1056,7 +1058,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                       temp.split('/').first.trim(),
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: isTablet ? 34 : 32,
+                        fontSize: isTablet ? 48 : 32,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -1069,9 +1071,9 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
               fit: BoxFit.scaleDown,
               child: Text(
                 "WIND: $wind",
-                style: const TextStyle(
-                  color: Color(0xFF8B949E),
-                  fontSize: 11,
+                style: TextStyle(
+                  color: const Color(0xFF8B949E),
+                  fontSize: isTablet ? 13 : 11,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1080,9 +1082,9 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
               fit: BoxFit.scaleDown,
               child: Text(
                 "QNH: $qnh",
-                style: const TextStyle(
-                  color: Color(0xFF639DF0),
-                  fontSize: 11,
+                style: TextStyle(
+                  color: const Color(0xFF639DF0),
+                  fontSize: isTablet ? 13 : 11,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1096,9 +1098,9 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
       padding: const EdgeInsets.only(bottom: 18.0),
       child: SizedBox(
         height:
-            isTablet ? 140.0 : ((constraints.maxWidth - 92) / 2 / 1.1) + 23.0,
+            isTablet ? 140.0 : ((constraints.maxWidth - 64) / 2 / 1.02) + 23.0,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 18.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
