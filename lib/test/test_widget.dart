@@ -76,10 +76,8 @@ class _TestWidgetState extends State<TestWidget> {
             children: [
               Expanded(
                 child: Container(
-                  width: double.infinity,
                   height: double.infinity,
-                  child: custom_widgets.EfbLibraryScreen(
-                    width: double.infinity,
+                  child: custom_widgets.EfbBrowserScreen(
                     height: double.infinity,
                   ),
                 ),
