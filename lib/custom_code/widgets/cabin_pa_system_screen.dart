@@ -127,8 +127,10 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
 
   Future<void> _pickFile(String id) async {
     try {
+      // الحل هنا: استخدام FileType.custom يجبر الآيفون على فتح تطبيق الـ Files بدلاً من Apple Music
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.audio,
+        type: FileType.custom,
+        allowedExtensions: ['mp3'], // حصر الاختيار في ملفات الـ mp3 فقط
       );
 
       if (result != null && result.files.single.path != null) {
@@ -142,7 +144,6 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
       }
     } catch (e) {
       debugPrint("File Picker Error: $e");
-      // تم إضافة try/catch لمنع انهيار التطبيق إذا رفض المستخدم إعطاء الصلاحيات
     }
   }
 
@@ -194,13 +195,14 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
       width: widget.width,
       height: widget.height,
       decoration: const BoxDecoration(
-        color:
-            Color(0xFF070B14), // لون كحلي أسود شديد الفخامة يشبه شاشات الطائرات
+        color: Color(0xFF070B14),
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
           child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start, // لضبط الهيدر على الشمال
             children: [
               _buildHeader(),
               const Divider(color: Color(0xFF1E293B), thickness: 1, height: 1),
@@ -232,61 +234,30 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
     );
   }
 
-  // ==== [ تصميم الهيدر ] ====
+  // ==== [ تصميم الهيدر (بدون زرار Stop All) ] ====
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                "PA SYSTEM CONTROL",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                "CABIN ANNOUNCEMENTS MANAGER",
-                style: TextStyle(
-                  color: Color(0xFF64748B),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.0,
-                ),
-              ),
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Text(
+            "PA SYSTEM CONTROL",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.2,
+            ),
           ),
-          InkWell(
-            onTap: _stopAudio,
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF3F0000), // لون طوارئ أحمر داكن
-                border: Border.all(color: Colors.redAccent.withOpacity(0.5)),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: const [
-                  Icon(Icons.stop_rounded, color: Colors.redAccent, size: 20),
-                  SizedBox(width: 6),
-                  Text(
-                    "STOP ALL",
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                ],
-              ),
+          SizedBox(height: 4),
+          Text(
+            "CABIN ANNOUNCEMENTS MANAGER",
+            style: TextStyle(
+              color: Color(0xFF64748B),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.0,
             ),
           ),
         ],
@@ -318,7 +289,6 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // القسم العلوي: النصوص وحالة الملف
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -344,7 +314,6 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // حالة الملف (Status)
                     Row(
                       children: [
                         Icon(
@@ -361,7 +330,7 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
                           child: Text(
                             isReady
                                 ? _getFileName(filePath!)
-                                : "No audio file loaded",
+                                : "No audio file loaded (MP3 only)",
                             style: TextStyle(
                               color: isReady
                                   ? const Color(0xFF10B981)
@@ -380,21 +349,19 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          // القسم السفلي: الأزرار (استخدام Wrap عشان تترص صح في الايفون والايباد)
           Wrap(
-            spacing: 10, // المسافة الأفقية بين الزراير
-            runSpacing: 10, // المسافة لو نزلوا سطر جديد في الشاشات الصغيرة
+            spacing: 10,
+            runSpacing: 10,
             children: [
               _buildActionButton(
                 title: "Upload",
                 icon: Icons.upload_file_rounded,
-                color: const Color(0xFF3B82F6), // أزرق احترافي
+                color: const Color(0xFF3B82F6), // أزرق
                 onTap: () => _pickFile(id),
                 isOutlined: true,
               ),
+
               if (isReady)
                 _buildActionButton(
                   title: "Delete",
@@ -403,22 +370,18 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
                   onTap: () => _deleteFile(id),
                   isOutlined: true,
                 ),
-              if (isPlaying)
-                _buildActionButton(
-                  title: "Stop",
-                  icon: Icons.stop_rounded,
-                  color: const Color(0xFFF59E0B), // برتقالي للإيقاف
-                  onTap: _stopAudio,
-                  isOutlined: false,
-                ),
+
+              // الزرار الذكي (Play / Stop)
               _buildActionButton(
-                title: isPlaying ? "Playing..." : "Play",
-                icon: isPlaying
-                    ? Icons.volume_up_rounded
-                    : Icons.play_arrow_rounded,
-                color: const Color(0xFF10B981), // أخضر
-                onTap: isReady ? () => _playAudio(id, filePath!) : null,
-                isOutlined: !isPlaying,
+                title: isPlaying ? "Stop" : "Play",
+                icon: isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                color: isPlaying
+                    ? const Color(0xFFEF4444)
+                    : const Color(0xFF10B981), // أحمر لو شغال، أخضر لو واقف
+                onTap: isReady
+                    ? (isPlaying ? _stopAudio : () => _playAudio(id, filePath!))
+                    : null,
+                isOutlined: !isPlaying && !isReady,
               ),
             ],
           ),
@@ -427,7 +390,7 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
     );
   }
 
-  // ==== [ دالة مساعدة لرسم الزراير بشكل موحد واحترافي ] ====
+  // ==== [ دالة مساعدة لرسم الزراير ] ====
   Widget _buildActionButton({
     required String title,
     required IconData icon,
@@ -437,6 +400,7 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
   }) {
     final bool isDisabled = onTap == null;
     final Color activeColor = isDisabled ? const Color(0xFF334155) : color;
+    // لو الزرار شغال، النص والأيقونة هيكونوا أبيض عشان يظهروا بوضوح على الخلفية الملونة
     final Color textColor = isDisabled
         ? const Color(0xFF64748B)
         : (isOutlined ? color : Colors.white);
@@ -456,7 +420,7 @@ class _CabinPaSystemScreenState extends State<CabinPaSystemScreen> {
           borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min, // عشان الزرار ياخد مساحة الكلمة بس
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: textColor, size: 16),
             const SizedBox(width: 6),
