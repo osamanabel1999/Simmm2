@@ -953,88 +953,91 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
     final String qnh = _simBriefQnh ?? '1014 hPa';
 
     final Widget flightWidget = AspectRatio(
-      aspectRatio: isTablet ? 2.0 : 1.02,
+      aspectRatio: isTablet ? 2.0 : 1.07,
       child: _buildGlassWidgetCard(
         title: "SIMBRIEF FLIGHT",
         subTitle: callsign,
         isLoading: isLoadingOfp,
         hasError: _simBriefError != null,
         isEmpty: _simBriefOfp == null,
-        child: Column(
-          mainAxisAlignment: isTablet
-              ? MainAxisAlignment.spaceBetween
-              : MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment:
-              isTablet ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-          children: [
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isTablet ? 24.0 : 0.0,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      origin,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isTablet ? 26 : 24,
-                        fontWeight: FontWeight.w900,
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: isTablet
+                ? MainAxisAlignment.spaceBetween
+                : MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment:
+                isTablet ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 24.0 : 0.0,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        origin,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isTablet ? 26 : 24,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isTablet ? 24.0 : 10.0,
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isTablet ? 24.0 : 10.0,
+                        ),
+                        child: Icon(
+                          CupertinoIcons.airplane,
+                          color: const Color(0xFF639DF0),
+                          size: isTablet ? 22 : 18,
+                        ),
                       ),
-                      child: Icon(
-                        CupertinoIcons.airplane,
-                        color: const Color(0xFF639DF0),
-                        size: isTablet ? 22 : 18,
+                      Text(
+                        dest,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isTablet ? 26 : 24,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
-                    ),
-                    Text(
-                      dest,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isTablet ? 26 : 24,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                "OUT: $schedOut  •  IN: $schedIn",
-                style: TextStyle(
-                  color: const Color(0xFF8B949E),
-                  fontSize: isTablet ? 13 : 11,
-                  fontWeight: FontWeight.w600,
+                    ],
+                  ),
                 ),
               ),
-            ),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                "DIST: $distance  •  ZFW: $zfw",
-                style: TextStyle(
-                  color: const Color(0xFF639DF0),
-                  fontSize: isTablet ? 12.5 : 10,
-                  fontWeight: FontWeight.bold,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  "OUT: $schedOut  •  IN: $schedIn",
+                  style: TextStyle(
+                    color: const Color(0xFF8B949E),
+                    fontSize: isTablet ? 13 : 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-          ],
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  "DIST: $distance  •  ZFW: $zfw",
+                  style: TextStyle(
+                    color: const Color(0xFF639DF0),
+                    fontSize: isTablet ? 12.5 : 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
 
     final Widget weatherWidget = AspectRatio(
-      aspectRatio: isTablet ? 2.0 : 1.02,
+      aspectRatio: isTablet ? 2.0 : 1.07,
       child: _buildGlassWidgetCard(
         title: "ORIGIN WX",
         subTitle: metarOrigin,
@@ -1100,7 +1103,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
         height:
             isTablet ? 140.0 : ((constraints.maxWidth - 64) / 2 / 1.02) + 23.0,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
