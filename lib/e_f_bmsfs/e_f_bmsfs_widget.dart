@@ -96,7 +96,16 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
               FFAppState().TabNumber = 13;
               safeSetState(() {});
 
-              context.pushNamed(HomePageMSFSWidget.routeName);
+              context.pushNamed(
+                HomePageMSFSWidget.routeName,
+                extra: <String, dynamic>{
+                  '__transition_info__': TransitionInfo(
+                    hasTransition: true,
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
+                  ),
+                },
+              );
             },
             onFlightPlanAction: () async {
               FFAppState().EFBpageNumber = 3.0;
@@ -107,7 +116,8 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
-                    transitionType: PageTransitionType.fade,
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
                   ),
                 },
               );
@@ -121,7 +131,8 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
-                    transitionType: PageTransitionType.topToBottom,
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
                   ),
                 },
               );
@@ -150,7 +161,8 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
-                    transitionType: PageTransitionType.bottomToTop,
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
                   ),
                 },
               );
@@ -164,8 +176,8 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
-                    transitionType: PageTransitionType.fade,
-                    duration: Duration(milliseconds: 0),
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
                   ),
                 },
               );
@@ -179,7 +191,8 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
-                    transitionType: PageTransitionType.fade,
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
                   ),
                 },
               );
@@ -193,7 +206,8 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
-                    transitionType: PageTransitionType.fade,
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
                   ),
                 },
               );
@@ -207,7 +221,8 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
-                    transitionType: PageTransitionType.fade,
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
                   ),
                 },
               );
@@ -221,7 +236,8 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
-                    transitionType: PageTransitionType.fade,
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
                   ),
                 },
               );
@@ -235,7 +251,8 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
-                    transitionType: PageTransitionType.bottomToTop,
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
                   ),
                 },
               );
@@ -246,7 +263,8 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
-                    transitionType: PageTransitionType.bottomToTop,
+                    transitionType: PageTransitionType.scale,
+                    alignment: Alignment.bottomCenter,
                   ),
                 },
               );

@@ -75,15 +75,15 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
     'LOAD',
     'DOORS',
     // Row 3
-    '-',
     'FAILURES',
     'EFB',
     'SETTINGS',
+    '-',
   ];
 
   bool _isMomentaryButton(int index) {
-    // Indices 1 (PAUSE) and 2 (FREEZE) are momentary buttons
-    return index == 1 || index == 2;
+    // Indices 1 (PAUSE), 2 (FREEZE), and 11 (-) are momentary buttons
+    return index == 1 || index == 2 || index == 11;
   }
 
   @override
@@ -160,7 +160,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
   ) {
     return Row(
       children: List.generate(
-        4, // 4 items per row instead of 5
+        4, // 4 items per row
         (column) {
           final index = startIndex + column;
 
@@ -186,10 +186,11 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
     double fontSize,
   ) {
     final bool momentary = _isMomentaryButton(index);
-
     final bool selected = !momentary && _selectedIndex == index;
-
     final bool pressed = _pressedIndex == index;
+
+    // Check if it is the dash button (index 11) for red effect
+    final bool isDashButton = index == 11;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -214,7 +215,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
           _pressedIndex = index;
         });
 
-        // PAUSE / FREEZE
+        // PAUSE / FREEZE / DASH
         // They never become selected.
         if (momentary) {
           await _executeAction(index);
@@ -255,14 +256,18 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
           color: selected
               ? _selectedColor
               : pressed
-                  ? const Color(0xFF182A40)
+                  ? (isDashButton
+                      ? const Color(0xFF3B1015)
+                      : const Color(0xFF182A40))
                   : _buttonColor,
           borderRadius: BorderRadius.circular(7.0),
           border: Border.all(
             color: selected
                 ? _selectedBorder
                 : pressed
-                    ? const Color(0xFF38587C)
+                    ? (isDashButton
+                        ? const Color(0xFFD32F2F)
+                        : const Color(0xFF38587C))
                     : _buttonBorder,
             width: selected ? 1.2 : 1.0,
           ),
@@ -280,9 +285,11 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
                   ),
                 ]
               : pressed
-                  ? const [
+                  ? [
                       BoxShadow(
-                        color: Color(0x33176FD8),
+                        color: isDashButton
+                            ? const Color(0x44D32F2F)
+                            : const Color(0x33176FD8),
                         blurRadius: 7.0,
                       ),
                     ]
@@ -304,7 +311,9 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
                     color: selected
                         ? const Color(0xFFEAF4FF)
                         : pressed
-                            ? const Color(0xFFD5E5F8)
+                            ? (isDashButton
+                                ? const Color(0xFFFFCDD2)
+                                : const Color(0xFFD5E5F8))
                             : const Color(0xFF9DACC2),
                   ),
                   child: Text(
@@ -322,13 +331,12 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(7.0),
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0x221E90FF),
-                      Color(0x001E90FF),
-                    ],
+                    colors: isDashButton
+                        ? const [Color(0x33D32F2F), Color(0x00D32F2F)]
+                        : const [Color(0x221E90FF), Color(0x001E90FF)],
                   ),
                 ),
               ),
@@ -374,19 +382,19 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
         break;
 
       case 8:
-        // (-) Dash button placeholder, no action
-        break;
-
-      case 9:
         await widget.failuresAction?.call();
         break;
 
-      case 10:
+      case 9:
         await widget.efbAction?.call();
         break;
 
-      case 11:
+      case 10:
         await widget.settingsAction?.call();
+        break;
+
+      case 11:
+        // (-) Dash button placeholder, no action
         break;
     }
   }
