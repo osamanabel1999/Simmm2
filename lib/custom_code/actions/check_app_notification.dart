@@ -14,7 +14,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 Future checkAppNotification(BuildContext context) async {
   // لينك جيت هاب بتاعك
@@ -283,7 +282,7 @@ void _showAnnouncementSheet(BuildContext context, Map<dynamic, dynamic> info,
   );
 }
 
-// 3. تصميم البانر الإعلاني الجديد الاحترافي (بالصورة والزرار المخصص)
+// 3. تصميم البانر الإعلاني (الصورة تملأ المكان بالكامل بدون خلفية فارغة وبدون قص)
 void _showPromoBannerSheet(BuildContext context, Map<dynamic, dynamic> info,
     int bannerId, SharedPreferences prefs) {
   final String imageUrl = info['image_url'] ?? '';
@@ -315,28 +314,18 @@ void _showPromoBannerSheet(BuildContext context, Map<dynamic, dynamic> info,
               ),
             ),
             const SizedBox(height: 20),
-            // عرض الصورة بشكل احترافي وكامل من دون أي قص مع خلفية متناسقة
+            // السر هنا: ClipRRect بيأطر الصورة بحواف دائرية والـ fitWidth بيظبطها بالمللي
             if (imageUrl.isNotEmpty)
-              Container(
-                width: double.infinity,
-                constraints: const BoxConstraints(
-                  maxHeight: 220, // أقصى ارتفاع مسموح للصورة لمنع تمدد النافذة
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(
-                      0xFF0B111A), // لون خلفية للدمج في حالة الصور الطولية
-                  borderRadius: BorderRadius.circular(16),
-                  border:
-                      Border.all(color: const Color(0xFF26364D), width: 1.5),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    fit: BoxFit
-                        .contain, // السر في عرض الصورة بالكامل دون قص أي طرف
-                    width: double.infinity,
-                    placeholder: (context, url) => Container(
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit
+                      .fitWidth, // العرض كامل، والارتفاع يتضبط تلقائي عشان يعرض الصورة كاملة
+                  width: double.infinity,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
                       height: 160,
                       color: const Color(0xFF101923),
                       child: const Center(
@@ -344,10 +333,10 @@ void _showPromoBannerSheet(BuildContext context, Map<dynamic, dynamic> info,
                           color: Color(0xFF639DF0),
                         ),
                       ),
-                    ),
-                    errorWidget: (context, url, error) =>
-                        const SizedBox.shrink(),
-                  ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox.shrink(),
                 ),
               ),
             if (imageUrl.isNotEmpty) const SizedBox(height: 20),
