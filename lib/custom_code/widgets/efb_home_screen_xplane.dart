@@ -1381,7 +1381,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
       crossAxisCount = constraints.maxWidth >= constraints.maxHeight ? 6 : 5;
     }
 
-    final double sidePadding = isTablet ? 24.0 : 16.0;
+    final double sidePadding = isTablet ? 32.0 : 16.0;
     final double gridIconSize = isTablet
         ? (constraints.maxWidth >= constraints.maxHeight ? 68 : 66)
         : 58;
@@ -1469,7 +1469,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                 isLargeWidget: true,
               ),
             ),
-            SizedBox(height: isTablet ? 9.0 : 2.0),
+            SizedBox(height: isTablet ? 9.0 : 4.0),
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
@@ -1478,13 +1478,13 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                   if (_isEditMode) _exitEditMode();
                 },
                 child: GridView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.fromLTRB(0, isTablet ? 5.0 : 0.0, 0, 10),
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.fromLTRB(0, isTablet ? 5.0 : 4.0, 0, 10),
                   itemCount: apps.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: isTablet ? 14.0 : 7.0,
-                    mainAxisSpacing: isTablet ? 10.0 : 5.0,
+                    crossAxisSpacing: isTablet ? 13.0 : 7.0,
+                    mainAxisSpacing: isTablet ? 9.0 : 5.0,
                     childAspectRatio: isTablet ? 0.84 : 0.78,
                   ),
                   itemBuilder: (context, index) {

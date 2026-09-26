@@ -428,40 +428,62 @@ class _ChecklistEFBmsfsState extends State<ChecklistEFBmsfs> {
         width: widget.width ?? double.infinity,
         height: widget.height ?? double.infinity,
         color: const Color(0xFF0B111A), // Deep Navy Background
-        child: Column(
+        child: Stack(
           children: [
-            // --- 1. Top Header Toggle ---
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: const BoxDecoration(
-                border: Border(
-                    bottom: BorderSide(color: Color(0xFF1E293B), width: 1.5)),
-                color: Color(0xFF080D14),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+            // المحتوى الرئيسي ملفوف بـ Positioned.fill لضمان أخذه كامل المساحة
+            Positioned.fill(
+              child: Column(
                 children: [
-                  _buildAircraftToggle('A320', _selectedAircraft == 'A320'),
-                  const SizedBox(width: 16),
-                  _buildAircraftToggle('B737', _selectedAircraft == 'B737'),
+                  // --- 1. Top Header Toggle ---
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                          bottom:
+                              BorderSide(color: Color(0xFF1E293B), width: 1.5)),
+                      color: Color(0xFF080D14),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildAircraftToggle(
+                            'A320', _selectedAircraft == 'A320'),
+                        const SizedBox(width: 16),
+                        _buildAircraftToggle(
+                            'B737', _selectedAircraft == 'B737'),
+                      ],
+                    ),
+                  ),
+
+                  // --- 2. Main Content (Masonry columns without gaps) ---
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: _buildChecklistLayout(
+                          isMobile,
+                          _selectedAircraft == 'A320'
+                              ? _a320Checklists
+                              : _b737Checklists,
+                          constraints.maxWidth,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
 
-            // --- 2. Main Content (Masonry columns without gaps) ---
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: _buildChecklistLayout(
-                    isMobile,
-                    _selectedAircraft == 'A320'
-                        ? _a320Checklists
-                        : _b737Checklists,
-                    constraints.maxWidth,
-                  ),
-                ),
+            // شريط السحب السفلي (Home Indicator)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: _buildHomeIndicator(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
               ),
             ),
           ],
@@ -701,6 +723,27 @@ class _ChecklistEFBmsfsState extends State<ChecklistEFBmsfs> {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- دالة إضافة شريط السحب السفلي المساعدة ---
+  Widget _buildHomeIndicator({required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
+        alignment: Alignment.center,
+        child: Container(
+          width: 130,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
       ),
