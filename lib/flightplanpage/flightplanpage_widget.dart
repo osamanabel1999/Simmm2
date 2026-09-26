@@ -105,28 +105,25 @@ class _FlightplanpageWidgetState extends State<FlightplanpageWidget> {
           centerTitle: true,
           elevation: 2.0,
         ),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Container(
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                height: 100.0,
+                decoration: BoxDecoration(
+                  color: FlutterFlowTheme.of(context).secondaryBackground,
+                ),
+                child: FlutterFlowPdfViewer(
+                  networkPath: FFAppState().PDFlinkSimbreif,
                   width: double.infinity,
-                  height: 100.0,
-                  decoration: BoxDecoration(
-                    color: FlutterFlowTheme.of(context).secondaryBackground,
-                  ),
-                  child: FlutterFlowPdfViewer(
-                    networkPath: FFAppState().PDFlinkSimbreif,
-                    width: double.infinity,
-                    height: double.infinity,
-                    horizontalScroll: false,
-                  ),
+                  height: double.infinity,
+                  horizontalScroll: false,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

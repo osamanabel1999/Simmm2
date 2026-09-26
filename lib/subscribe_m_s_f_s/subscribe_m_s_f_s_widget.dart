@@ -87,131 +87,128 @@ class _SubscribeMSFSWidgetState extends State<SubscribeMSFSWidget> {
           centerTitle: true,
           elevation: 2.0,
         ),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Container(
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                child: custom_widgets.Msfscheckout(
                   width: double.infinity,
                   height: double.infinity,
-                  child: custom_widgets.Msfscheckout(
-                    width: double.infinity,
-                    height: double.infinity,
-                    monthlyPrice: revenue_cat.offerings!.current!
-                        .getPackage('\$rc_monthly')!
-                        .storeProduct
-                        .priceString,
-                    yearlyPrice: revenue_cat.offerings!.current!
-                        .getPackage('\$rc_annual')!
-                        .storeProduct
-                        .priceString,
-                    lifetimePrice: revenue_cat.offerings!.current!
-                        .getPackage('\$rc_lifetime')!
-                        .storeProduct
-                        .priceString,
-                    onBuyMonthly: () async {
-                      _model.mSFSmonthly =
-                          await revenue_cat.purchasePackage('\$rc_monthly');
-                      if (_model.mSFSmonthly == true) {
-                        context.pushNamed(IPpageMSFSWidget.routeName);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Payment failed or was cancelled. Please try again.',
-                              style: TextStyle(
-                                color: FlutterFlowTheme.of(context).primaryText,
-                              ),
+                  monthlyPrice: revenue_cat.offerings!.current!
+                      .getPackage('\$rc_monthly')!
+                      .storeProduct
+                      .priceString,
+                  yearlyPrice: revenue_cat.offerings!.current!
+                      .getPackage('\$rc_annual')!
+                      .storeProduct
+                      .priceString,
+                  lifetimePrice: revenue_cat.offerings!.current!
+                      .getPackage('\$rc_lifetime')!
+                      .storeProduct
+                      .priceString,
+                  onBuyMonthly: () async {
+                    _model.mSFSmonthly =
+                        await revenue_cat.purchasePackage('\$rc_monthly');
+                    if (_model.mSFSmonthly == true) {
+                      context.pushNamed(IPpageMSFSWidget.routeName);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Payment failed or was cancelled. Please try again.',
+                            style: TextStyle(
+                              color: FlutterFlowTheme.of(context).primaryText,
                             ),
-                            duration: Duration(milliseconds: 4000),
-                            backgroundColor:
-                                FlutterFlowTheme.of(context).primaryBackground,
                           ),
-                        );
-                      }
+                          duration: Duration(milliseconds: 4000),
+                          backgroundColor:
+                              FlutterFlowTheme.of(context).primaryBackground,
+                        ),
+                      );
+                    }
 
-                      safeSetState(() {});
-                    },
-                    onBuyYearly: () async {
-                      _model.mSFSyearly =
-                          await revenue_cat.purchasePackage('\$rc_annual');
-                      if (_model.mSFSyearly == true) {
-                        context.pushNamed(IPpageMSFSWidget.routeName);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Payment failed or was cancelled. Please try again.',
-                              style: TextStyle(
-                                color: FlutterFlowTheme.of(context).primaryText,
-                              ),
+                    safeSetState(() {});
+                  },
+                  onBuyYearly: () async {
+                    _model.mSFSyearly =
+                        await revenue_cat.purchasePackage('\$rc_annual');
+                    if (_model.mSFSyearly == true) {
+                      context.pushNamed(IPpageMSFSWidget.routeName);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Payment failed or was cancelled. Please try again.',
+                            style: TextStyle(
+                              color: FlutterFlowTheme.of(context).primaryText,
                             ),
-                            duration: Duration(milliseconds: 4000),
-                            backgroundColor:
-                                FlutterFlowTheme.of(context).primaryBackground,
                           ),
-                        );
-                      }
+                          duration: Duration(milliseconds: 4000),
+                          backgroundColor:
+                              FlutterFlowTheme.of(context).primaryBackground,
+                        ),
+                      );
+                    }
 
-                      safeSetState(() {});
-                    },
-                    onBuyLifetime: () async {
-                      _model.mSFSLifTime =
-                          await revenue_cat.purchasePackage('\$rc_lifetime');
-                      if (_model.mSFSLifTime == true) {
-                        context.pushNamed(IPpageMSFSWidget.routeName);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Payment failed or was cancelled. Please try again.',
-                              style: TextStyle(
-                                color: FlutterFlowTheme.of(context).primaryText,
-                              ),
+                    safeSetState(() {});
+                  },
+                  onBuyLifetime: () async {
+                    _model.mSFSLifTime =
+                        await revenue_cat.purchasePackage('\$rc_lifetime');
+                    if (_model.mSFSLifTime == true) {
+                      context.pushNamed(IPpageMSFSWidget.routeName);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Payment failed or was cancelled. Please try again.',
+                            style: TextStyle(
+                              color: FlutterFlowTheme.of(context).primaryText,
                             ),
-                            duration: Duration(milliseconds: 4000),
-                            backgroundColor:
-                                FlutterFlowTheme.of(context).primaryBackground,
                           ),
-                        );
-                      }
+                          duration: Duration(milliseconds: 4000),
+                          backgroundColor:
+                              FlutterFlowTheme.of(context).primaryBackground,
+                        ),
+                      );
+                    }
 
-                      safeSetState(() {});
-                    },
-                    onContactUs: () async {
-                      await launchURL('https://discord.gg/3jJkuQeKaz');
-                    },
-                    onBuyBothSims: () async {
-                      context.pushNamed(
-                          SubscribePackageXplaneMSFSWidget.routeName);
-                    },
-                    onTermsOfUse: () async {
-                      context.pushNamed(TermsOFuseWidget.routeName);
-                    },
-                    onPrivacyPolicy: () async {
-                      context.pushNamed(PrivacyPolicyPageWidget.routeName);
-                    },
-                  ),
+                    safeSetState(() {});
+                  },
+                  onContactUs: () async {
+                    await launchURL('https://discord.gg/3jJkuQeKaz');
+                  },
+                  onBuyBothSims: () async {
+                    context
+                        .pushNamed(SubscribePackageXplaneMSFSWidget.routeName);
+                  },
+                  onTermsOfUse: () async {
+                    context.pushNamed(TermsOFuseWidget.routeName);
+                  },
+                  onPrivacyPolicy: () async {
+                    context.pushNamed(PrivacyPolicyPageWidget.routeName);
+                  },
                 ),
               ),
-              if (responsiveVisibility(
-                context: context,
-                phone: false,
-                tablet: false,
-                tabletLandscape: false,
-                desktop: false,
-              ))
-                FlutterFlowAdBanner(
-                  width: MediaQuery.sizeOf(context).width * 1.0,
-                  height: 50.0,
-                  showsTestAd: false,
-                  iOSAdUnitID: 'ca-app-pub-7880697829268273/6177072322',
-                  androidAdUnitID: 'ca-app-pub-7880697829268273/5581116466',
-                ),
-            ],
-          ),
+            ),
+            if (responsiveVisibility(
+              context: context,
+              phone: false,
+              tablet: false,
+              tabletLandscape: false,
+              desktop: false,
+            ))
+              FlutterFlowAdBanner(
+                width: MediaQuery.sizeOf(context).width * 1.0,
+                height: 50.0,
+                showsTestAd: false,
+                iOSAdUnitID: 'ca-app-pub-7880697829268273/6177072322',
+                androidAdUnitID: 'ca-app-pub-7880697829268273/5581116466',
+              ),
+          ],
         ),
       ),
     );

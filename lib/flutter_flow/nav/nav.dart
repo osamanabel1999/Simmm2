@@ -198,11 +198,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => PrivacyPolicyPageWidget(),
         ),
         FFRoute(
-          name: WebWidget.routeName,
-          path: WebWidget.routePath,
-          builder: (context, params) => WebWidget(),
-        ),
-        FFRoute(
           name: SubscribeXplaneWidget.routeName,
           path: SubscribeXplaneWidget.routePath,
           builder: (context, params) => SubscribeXplaneWidget(),
@@ -325,9 +320,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => HeadTrackMSFSWidget(),
         ),
         FFRoute(
-          name: TestWidget.routeName,
-          path: TestWidget.routePath,
-          builder: (context, params) => TestWidget(),
+          name: EFBappPagesxWidget.routeName,
+          path: EFBappPagesxWidget.routePath,
+          builder: (context, params) => EFBappPagesxWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

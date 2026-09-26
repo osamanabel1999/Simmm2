@@ -503,6 +503,12 @@ class FFAppState extends ChangeNotifier {
   set CurrentY(double value) {
     _CurrentY = value;
   }
+
+  double _EFBpageNumber = 0.0;
+  double get EFBpageNumber => _EFBpageNumber;
+  set EFBpageNumber(double value) {
+    _EFBpageNumber = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

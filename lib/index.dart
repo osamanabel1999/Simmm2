@@ -10,7 +10,6 @@ export '/pages/i_ppage_xplane/i_ppage_xplane_widget.dart'
 export '/terms_o_fuse/terms_o_fuse_widget.dart' show TermsOFuseWidget;
 export '/privacy_policy_page/privacy_policy_page_widget.dart'
     show PrivacyPolicyPageWidget;
-export '/web/web_widget.dart' show WebWidget;
 export '/subscribe_xplane/subscribe_xplane_widget.dart'
     show SubscribeXplaneWidget;
 export '/aboutt/aboutt_widget.dart' show AbouttWidget;
@@ -50,4 +49,4 @@ export '/head_track_xplane/head_track_xplane_widget.dart'
     show HeadTrackXplaneWidget;
 export '/head_track_m_s_f_s/head_track_m_s_f_s_widget.dart'
     show HeadTrackMSFSWidget;
-export '/test/test_widget.dart' show TestWidget;
+export '/e_f_bapp_pagesx/e_f_bapp_pagesx_widget.dart' show EFBappPagesxWidget;

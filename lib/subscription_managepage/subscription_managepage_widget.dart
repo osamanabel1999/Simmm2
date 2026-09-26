@@ -91,85 +91,82 @@ class _SubscriptionManagepageWidgetState
           centerTitle: true,
           elevation: 2.0,
         ),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Container(
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                child: custom_widgets.SubscriptionStatusCard(
                   width: double.infinity,
                   height: double.infinity,
-                  child: custom_widgets.SubscriptionStatusCard(
-                    width: double.infinity,
-                    height: double.infinity,
-                    status: getJsonField(
-                      FFAppState().usersubscription,
-                      r'''$.status''',
-                    ).toString(),
-                    simulatorType: getJsonField(
-                      FFAppState().usersubscription,
-                      r'''$.simulator_type''',
-                    ).toString(),
-                    expiryDate: getJsonField(
-                      FFAppState().usersubscription,
-                      r'''$.expiration_date''',
-                    ).toString(),
-                    priceText: getJsonField(
-                      FFAppState().usersubscription,
-                      r'''$.price_text''',
-                    ).toString(),
-                    planType: getJsonField(
-                      FFAppState().usersubscription,
-                      r'''$.plan_type''',
-                    ).toString(),
-                    onRestorePressed: () async {
-                      _model.restoreRes3 =
-                          await actions.restoreAllSubscriptions();
-                      FFAppState().isProUserXplane = getJsonField(
-                        _model.restoreRes3,
-                        r'''$.is_xplane_active''',
-                      );
-                      FFAppState().isProUserMSFS = getJsonField(
-                        _model.restoreRes3,
-                        r'''$.is_msfs_active''',
-                      );
-                      FFAppState().usersubscription = _model.restoreRes3!;
-                      safeSetState(() {});
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            getJsonField(
-                              _model.restoreRes3,
-                              r'''$.message''',
-                            ).toString(),
-                            style: TextStyle(
-                              color: FlutterFlowTheme.of(context).primaryText,
-                            ),
+                  status: getJsonField(
+                    FFAppState().usersubscription,
+                    r'''$.status''',
+                  ).toString(),
+                  simulatorType: getJsonField(
+                    FFAppState().usersubscription,
+                    r'''$.simulator_type''',
+                  ).toString(),
+                  expiryDate: getJsonField(
+                    FFAppState().usersubscription,
+                    r'''$.expiration_date''',
+                  ).toString(),
+                  priceText: getJsonField(
+                    FFAppState().usersubscription,
+                    r'''$.price_text''',
+                  ).toString(),
+                  planType: getJsonField(
+                    FFAppState().usersubscription,
+                    r'''$.plan_type''',
+                  ).toString(),
+                  onRestorePressed: () async {
+                    _model.restoreRes3 =
+                        await actions.restoreAllSubscriptions();
+                    FFAppState().isProUserXplane = getJsonField(
+                      _model.restoreRes3,
+                      r'''$.is_xplane_active''',
+                    );
+                    FFAppState().isProUserMSFS = getJsonField(
+                      _model.restoreRes3,
+                      r'''$.is_msfs_active''',
+                    );
+                    FFAppState().usersubscription = _model.restoreRes3!;
+                    safeSetState(() {});
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          getJsonField(
+                            _model.restoreRes3,
+                            r'''$.message''',
+                          ).toString(),
+                          style: TextStyle(
+                            color: FlutterFlowTheme.of(context).primaryText,
                           ),
-                          duration: Duration(milliseconds: 4000),
-                          backgroundColor:
-                              FlutterFlowTheme.of(context).secondaryBackground,
                         ),
-                      );
+                        duration: Duration(milliseconds: 4000),
+                        backgroundColor:
+                            FlutterFlowTheme.of(context).secondaryBackground,
+                      ),
+                    );
 
-                      safeSetState(() {});
-                    },
-                    onManageAppleSubscription: () async {
-                      await launchURL(
-                          'https://apps.apple.com/account/subscriptions');
-                    },
-                    onSupportPressed: () async {
-                      await launchURL('https://discord.gg/3jJkuQeKaz');
-                    },
-                    onPrivacyPolicyPressed: () async {
-                      context.pushNamed(PrivacyPolicyPageWidget.routeName);
-                    },
-                  ),
+                    safeSetState(() {});
+                  },
+                  onManageAppleSubscription: () async {
+                    await launchURL(
+                        'https://apps.apple.com/account/subscriptions');
+                  },
+                  onSupportPressed: () async {
+                    await launchURL('https://discord.gg/3jJkuQeKaz');
+                  },
+                  onPrivacyPolicyPressed: () async {
+                    context.pushNamed(PrivacyPolicyPageWidget.routeName);
+                  },
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

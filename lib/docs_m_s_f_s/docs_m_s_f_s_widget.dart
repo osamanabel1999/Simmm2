@@ -85,30 +85,27 @@ class _DocsMSFSWidgetState extends State<DocsMSFSWidget> {
           centerTitle: true,
           elevation: 2.0,
         ),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: FlutterFlowWebView(
-                  content:
-                      'https://osamanabel1999.github.io/Sim-Web-documention/#',
-                  bypass: false,
-                  width: MediaQuery.sizeOf(context).width * 1.0,
-                  height: MediaQuery.sizeOf(context).height * 1.0,
-                  verticalScroll: false,
-                  horizontalScroll: false,
-                ),
-              ),
-              FlutterFlowAdBanner(
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: FlutterFlowWebView(
+                content:
+                    'https://osamanabel1999.github.io/Sim-Web-documention/#',
+                bypass: false,
                 width: MediaQuery.sizeOf(context).width * 1.0,
-                height: 50.0,
-                showsTestAd: false,
-                iOSAdUnitID: 'ca-app-pub-7880697829268273/3797451760',
+                height: MediaQuery.sizeOf(context).height * 1.0,
+                verticalScroll: false,
+                horizontalScroll: false,
               ),
-            ],
-          ),
+            ),
+            FlutterFlowAdBanner(
+              width: MediaQuery.sizeOf(context).width * 1.0,
+              height: 50.0,
+              showsTestAd: false,
+              iOSAdUnitID: 'ca-app-pub-7880697829268273/3797451760',
+            ),
+          ],
         ),
       ),
     );

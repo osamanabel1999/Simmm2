@@ -101,33 +101,30 @@ class _SubscriptionManageForALLWidgetState
           centerTitle: true,
           elevation: 2.0,
         ),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Container(
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                child: custom_widgets.SmartSubscriptionWidget(
                   width: double.infinity,
                   height: double.infinity,
-                  child: custom_widgets.SmartSubscriptionWidget(
-                    width: double.infinity,
-                    height: double.infinity,
-                    onManageAppleSubscription: () async {
-                      await launchURL(
-                          'https://apps.apple.com/account/subscriptions');
-                    },
-                    onSupportPressed: () async {
-                      await launchURL('https://discord.gg/3jJkuQeKaz');
-                    },
-                    onPrivacyPolicyPressed: () async {
-                      context.pushNamed(PrivacyPolicyPageWidget.routeName);
-                    },
-                  ),
+                  onManageAppleSubscription: () async {
+                    await launchURL(
+                        'https://apps.apple.com/account/subscriptions');
+                  },
+                  onSupportPressed: () async {
+                    await launchURL('https://discord.gg/3jJkuQeKaz');
+                  },
+                  onPrivacyPolicyPressed: () async {
+                    context.pushNamed(PrivacyPolicyPageWidget.routeName);
+                  },
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

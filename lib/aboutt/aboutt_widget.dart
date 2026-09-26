@@ -83,46 +83,42 @@ class _AbouttWidgetState extends State<AbouttWidget> {
           centerTitle: true,
           elevation: 2.0,
         ),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            10.0, 0.0, 10.0, 0.0),
-                        child: Text(
-                          '\nAbout Simulator Station\n\nAt Simulator Station, we aim to be the ultimate hub for flight simulation enthusiasts. We bridge the gap between desktop simulation and cockpit reality by providing professional-grade tools that enhance training, immersion, and operational accuracy.\nOur mission is to empower every \"Virtual Pilot\" with the technology used in real-world aviation.\n\n1. What We Do\n\nSimulator Station is a premier companion application specifically engineered for the Zibo 737 and X-Plane 11/12 platforms. We provide a sophisticated digital flight deck experience through:\n\n• Full Aircraft Mastery: Seamless, real-time interaction with complex aircraft systems.\n\n• Virtual Flight Partner: An AI-driven Co-Pilot for interactive briefings and smart checklists.\n\n• Operational Excellence: Advanced tools for performance calculations, weather management, and emergency drill simulation.\n\n2. Why Choose Simulator Station?\n\nBuilt by aviation experts for the simulation community, our platform focuses on technical precision, stability, and a premium user experience. Whether you are practicing for your real-world pilot license or flying for fun, Simulator Station is your gateway to a professional flight deck.\n\n3. Contact Us\n\nWe are always here to support your journey through the skies. For any inquiries or technical support, feel free to reach out to us:\n\n• Location: Sheikh Zayed, Giza, Egypt.\n• Phone: 0106 440 7360\n• Email: semsimulator1@gmail.com\n',
-                          textAlign: TextAlign.start,
-                          style:
-                              FlutterFlowTheme.of(context).bodyMedium.override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    color: Color(0xFFE5E7EB),
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                        ),
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(10.0, 0.0, 10.0, 0.0),
+                      child: Text(
+                        '\nAbout Simulator Station\n\nAt Simulator Station, we aim to be the ultimate hub for flight simulation enthusiasts. We bridge the gap between desktop simulation and cockpit reality by providing professional-grade tools that enhance training, immersion, and operational accuracy.\nOur mission is to empower every \"Virtual Pilot\" with the technology used in real-world aviation.\n\n1. What We Do\n\nSimulator Station is a premier companion application specifically engineered for the Zibo 737 and X-Plane 11/12 platforms. We provide a sophisticated digital flight deck experience through:\n\n• Full Aircraft Mastery: Seamless, real-time interaction with complex aircraft systems.\n\n• Virtual Flight Partner: An AI-driven Co-Pilot for interactive briefings and smart checklists.\n\n• Operational Excellence: Advanced tools for performance calculations, weather management, and emergency drill simulation.\n\n2. Why Choose Simulator Station?\n\nBuilt by aviation experts for the simulation community, our platform focuses on technical precision, stability, and a premium user experience. Whether you are practicing for your real-world pilot license or flying for fun, Simulator Station is your gateway to a professional flight deck.\n\n3. Contact Us\n\nWe are always here to support your journey through the skies. For any inquiries or technical support, feel free to reach out to us:\n\n• Location: Sheikh Zayed, Giza, Egypt.\n• Phone: 0106 440 7360\n• Email: semsimulator1@gmail.com\n',
+                        textAlign: TextAlign.start,
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                              ),
+                              color: Color(0xFFE5E7EB),
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontStyle,
+                            ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

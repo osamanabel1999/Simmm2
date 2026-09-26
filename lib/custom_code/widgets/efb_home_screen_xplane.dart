@@ -18,6 +18,7 @@ import 'package:http/http.dart' as http;
 import 'dart:ui' as ui;
 import 'dart:math' as math;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class EfbHomeScreenXplane extends StatefulWidget {
   final double? width;
@@ -28,8 +29,30 @@ class EfbHomeScreenXplane extends StatefulWidget {
   final String iconNotams;
   final String iconScratchpad;
   final String iconSettings;
+  final String iconFlightPlan;
+  final String iconBriefing;
+  final String iconToPerf;
+  final String iconLdgPerf;
+  final String iconChecklist;
+  final String iconAiDispatcher;
+  final String iconCabinPa;
+  final String iconFlightCalc;
+  final String iconFlightBag;
+  final String iconBrowser;
+  final String iconSimControl;
   final Future<dynamic> Function()? onExitAction;
   final Future<dynamic> Function()? onSettingsAction;
+  final Future<dynamic> Function()? onFlightPlanAction;
+  final Future<dynamic> Function()? onBriefingAction;
+  final Future<dynamic> Function()? onToPerfAction;
+  final Future<dynamic> Function()? onLdgPerfAction;
+  final Future<dynamic> Function()? onChecklistAction;
+  final Future<dynamic> Function()? onAiDispatcherAction;
+  final Future<dynamic> Function()? onCabinPaAction;
+  final Future<dynamic> Function()? onFlightCalcAction;
+  final Future<dynamic> Function()? onFlightBagAction;
+  final Future<dynamic> Function()? onBrowserAction;
+  final Future<dynamic> Function()? onSimControlAction;
   final String simbriefUserId;
   const EfbHomeScreenXplane({
     Key? key,
@@ -46,8 +69,41 @@ class EfbHomeScreenXplane extends StatefulWidget {
         'https://dummyimage.com/256x256/101923/639DF0&text=Pad',
     this.iconSettings =
         'https://dummyimage.com/256x256/101923/639DF0&text=Settings',
+    this.iconFlightPlan =
+        'https://dummyimage.com/256x256/101923/639DF0&text=Flight+Plan',
+    this.iconBriefing =
+        'https://dummyimage.com/256x256/101923/639DF0&text=Briefing',
+    this.iconToPerf =
+        'https://dummyimage.com/256x256/101923/639DF0&text=T%2FO+PERF',
+    this.iconLdgPerf =
+        'https://dummyimage.com/256x256/101923/639DF0&text=LDG+PERF',
+    this.iconChecklist =
+        'https://dummyimage.com/256x256/101923/639DF0&text=Checklist',
+    this.iconAiDispatcher =
+        'https://dummyimage.com/256x256/101923/639DF0&text=AI+Dispatcher',
+    this.iconCabinPa =
+        'https://dummyimage.com/256x256/101923/639DF0&text=Cabin+PA',
+    this.iconFlightCalc =
+        'https://dummyimage.com/256x256/101923/639DF0&text=Flight+Calc',
+    this.iconFlightBag =
+        'https://dummyimage.com/256x256/101923/639DF0&text=FlightBag',
+    this.iconBrowser =
+        'https://dummyimage.com/256x256/101923/639DF0&text=Browser',
+    this.iconSimControl =
+        'https://dummyimage.com/256x256/101923/639DF0&text=Sim+Control',
     this.onExitAction,
     this.onSettingsAction,
+    this.onFlightPlanAction,
+    this.onBriefingAction,
+    this.onToPerfAction,
+    this.onLdgPerfAction,
+    this.onChecklistAction,
+    this.onAiDispatcherAction,
+    this.onCabinPaAction,
+    this.onFlightCalcAction,
+    this.onFlightBagAction,
+    this.onBrowserAction,
+    this.onSimControlAction,
     this.simbriefUserId = '',
   }) : super(key: key);
   @override
@@ -153,9 +209,11 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
           ..clear()
           ..addAll(saved ??
               <String>[
+                'Sim Control',
+                'Flight Plan',
                 'Airport WX',
                 'WX Charts',
-                'NOTAMs',
+                'Checklist',
                 'Scratchpad',
               ]);
         _dockLoaded = true;
@@ -166,9 +224,11 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
         _dockAppNames
           ..clear()
           ..addAll(<String>[
+            'Sim Control',
+            'Flight Plan',
             'Airport WX',
             'WX Charts',
-            'NOTAMs',
+            'Checklist',
             'Scratchpad',
           ]);
         _dockLoaded = true;
@@ -341,6 +401,14 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
 
   String _appImageUrl(String appName) {
     switch (appName) {
+      case 'Sim Control':
+        return widget.iconSimControl;
+      case 'AI Dispatcher':
+        return widget.iconAiDispatcher;
+      case 'Briefing':
+        return widget.iconBriefing;
+      case 'Flight Plan':
+        return widget.iconFlightPlan;
       case 'Airport WX':
         return widget.iconAirportWx;
       case 'WX Charts':
@@ -349,6 +417,20 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
         return widget.iconNotams;
       case 'Scratchpad':
         return widget.iconScratchpad;
+      case 'T/O PERF':
+        return widget.iconToPerf;
+      case 'LDG PERF':
+        return widget.iconLdgPerf;
+      case 'Flight Calc':
+        return widget.iconFlightCalc;
+      case 'Checklist':
+        return widget.iconChecklist;
+      case 'FlightBag':
+        return widget.iconFlightBag;
+      case 'Cabin PA':
+        return widget.iconCabinPa;
+      case 'Browser':
+        return widget.iconBrowser;
       case 'Settings':
         return widget.iconSettings;
       default:
@@ -358,11 +440,87 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
 
   void _handleAppTap(String appName) {
     if (_isEditMode) return;
-    if (appName == 'Settings') {
-      if (widget.onSettingsAction != null) {
-        widget.onSettingsAction!();
-      }
-      return;
+    switch (appName) {
+      case 'Sim Control':
+        if (widget.onSimControlAction != null) {
+          widget.onSimControlAction!();
+          return;
+        }
+        break;
+      case 'AI Dispatcher':
+        if (widget.onAiDispatcherAction != null) {
+          widget.onAiDispatcherAction!();
+          return;
+        }
+        break;
+      case 'Briefing':
+        if (widget.onBriefingAction != null) {
+          widget.onBriefingAction!();
+          return;
+        }
+        break;
+      case 'Flight Plan':
+        if (widget.onFlightPlanAction != null) {
+          widget.onFlightPlanAction!();
+          return;
+        }
+        break;
+      case 'Airport WX':
+        break;
+      case 'WX Charts':
+        break;
+      case 'NOTAMs':
+        break;
+      case 'Scratchpad':
+        break;
+      case 'T/O PERF':
+        if (widget.onToPerfAction != null) {
+          widget.onToPerfAction!();
+          return;
+        }
+        break;
+      case 'LDG PERF':
+        if (widget.onLdgPerfAction != null) {
+          widget.onLdgPerfAction!();
+          return;
+        }
+        break;
+      case 'Flight Calc':
+        if (widget.onFlightCalcAction != null) {
+          widget.onFlightCalcAction!();
+          return;
+        }
+        break;
+      case 'Checklist':
+        if (widget.onChecklistAction != null) {
+          widget.onChecklistAction!();
+          return;
+        }
+        break;
+      case 'FlightBag':
+        if (widget.onFlightBagAction != null) {
+          widget.onFlightBagAction!();
+          return;
+        }
+        break;
+      case 'Cabin PA':
+        if (widget.onCabinPaAction != null) {
+          widget.onCabinPaAction!();
+          return;
+        }
+        break;
+      case 'Browser':
+        if (widget.onBrowserAction != null) {
+          widget.onBrowserAction!();
+          return;
+        }
+        break;
+      case 'Settings':
+        if (widget.onSettingsAction != null) {
+          widget.onSettingsAction!();
+          return;
+        }
+        break;
     }
     _openApp(appName);
   }
@@ -664,10 +822,10 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size * 0.225),
         child: imageUrl.trim().isNotEmpty
-            ? Image.network(
+            ? CachedNetworkImage(
                 imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
+                errorWidget: (context, url, error) => Container(
                   color: const Color(0xFF101923),
                   child: Icon(
                     name == 'Settings'
@@ -1230,6 +1388,22 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
 
     final List<_EfbHomeApp> apps = <_EfbHomeApp>[
       _EfbHomeApp(
+        name: 'Sim Control',
+        imageUrl: widget.iconSimControl,
+      ),
+      _EfbHomeApp(
+        name: 'AI Dispatcher',
+        imageUrl: widget.iconAiDispatcher,
+      ),
+      _EfbHomeApp(
+        name: 'Briefing',
+        imageUrl: widget.iconBriefing,
+      ),
+      _EfbHomeApp(
+        name: 'Flight Plan',
+        imageUrl: widget.iconFlightPlan,
+      ),
+      _EfbHomeApp(
         name: 'Airport WX',
         imageUrl: widget.iconAirportWx,
       ),
@@ -1244,6 +1418,34 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
       _EfbHomeApp(
         name: 'Scratchpad',
         imageUrl: widget.iconScratchpad,
+      ),
+      _EfbHomeApp(
+        name: 'T/O PERF',
+        imageUrl: widget.iconToPerf,
+      ),
+      _EfbHomeApp(
+        name: 'LDG PERF',
+        imageUrl: widget.iconLdgPerf,
+      ),
+      _EfbHomeApp(
+        name: 'Flight Calc',
+        imageUrl: widget.iconFlightCalc,
+      ),
+      _EfbHomeApp(
+        name: 'Checklist',
+        imageUrl: widget.iconChecklist,
+      ),
+      _EfbHomeApp(
+        name: 'FlightBag',
+        imageUrl: widget.iconFlightBag,
+      ),
+      _EfbHomeApp(
+        name: 'Cabin PA',
+        imageUrl: widget.iconCabinPa,
+      ),
+      _EfbHomeApp(
+        name: 'Browser',
+        imageUrl: widget.iconBrowser,
       ),
       _EfbHomeApp(
         name: 'Settings',
@@ -1267,7 +1469,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                 isLargeWidget: true,
               ),
             ),
-            const SizedBox(height: 9),
+            SizedBox(height: isTablet ? 9.0 : 2.0),
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
@@ -1277,7 +1479,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                 },
                 child: GridView.builder(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
+                  padding: EdgeInsets.fromLTRB(0, isTablet ? 5.0 : 0.0, 0, 10),
                   itemCount: apps.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
@@ -1407,7 +1609,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                         _exitEditMode();
                       }
                     },
-                    child: Image.network(
+                    child: CachedNetworkImage(
                       widget.wallpaperUrl,
                       fit: BoxFit.cover,
                     ),
@@ -1593,10 +1795,10 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(size * 0.22),
                 child: settingsImageUrl.isNotEmpty
-                    ? Image.network(
+                    ? CachedNetworkImage(
                         settingsImageUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
+                        errorWidget: (context, url, error) => Container(
                           color: const Color(0xFF101923),
                           child: const Icon(
                             Icons.settings_rounded,
@@ -1664,10 +1866,10 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(size * 0.22),
-                child: Image.network(
+                child: CachedNetworkImage(
                   imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
+                  errorWidget: (context, url, error) => Container(
                     color: const Color(0xFF101923),
                     child: const Icon(Icons.flight, color: Color(0xFF639DF0)),
                   ),
@@ -5803,21 +6005,16 @@ class _AviationWeatherChartsState extends State<AviationWeatherCharts> {
               scaleEnabled: true,
               clipBehavior: Clip.none,
               child: Center(
-                child: Image.network(
+                child: CachedNetworkImage(
                   _chartUrl!,
                   fit: BoxFit.contain,
                   filterQuality: FilterQuality.high,
-                  loadingBuilder: (
+                  progressIndicatorBuilder: (
                     BuildContext context,
                     Widget child,
-                    ImageChunkEvent? loadingProgress,
+                    DownloadProgress loadingProgress,
                   ) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
-                    final int? total = loadingProgress.expectedTotalBytes;
-                    final int loaded = loadingProgress.cumulativeBytesLoaded;
-                    final double? value = total != null ? loaded / total : null;
+                    final double? value = loadingProgress.progress;
                     return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -5854,10 +6051,10 @@ class _AviationWeatherChartsState extends State<AviationWeatherCharts> {
                       ),
                     );
                   },
-                  errorBuilder: (
+                  errorWidget: (
                     BuildContext context,
                     Object error,
-                    StackTrace? stackTrace,
+                    Object error,
                   ) {
                     return _buildChartError();
                   },

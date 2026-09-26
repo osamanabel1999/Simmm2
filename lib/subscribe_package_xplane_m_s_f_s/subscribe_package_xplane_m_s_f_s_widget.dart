@@ -89,137 +89,134 @@ class _SubscribePackageXplaneMSFSWidgetState
           centerTitle: true,
           elevation: 2.0,
         ),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Container(
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                child: custom_widgets.UltimateBundleCheckout(
                   width: double.infinity,
                   height: double.infinity,
-                  child: custom_widgets.UltimateBundleCheckout(
-                    width: double.infinity,
-                    height: double.infinity,
-                    monthlyPrice: valueOrDefault<String>(
-                      revenue_cat.offerings!.current!
-                          .getPackage('msfs_xplane_monthly')!
-                          .storeProduct
-                          .priceString,
-                      '-',
-                    ),
-                    yearlyPrice: valueOrDefault<String>(
-                      revenue_cat.offerings!.current!
-                          .getPackage('X plane and MSFS monthly Pass')!
-                          .storeProduct
-                          .priceString,
-                      '-',
-                    ),
-                    lifetimePrice: valueOrDefault<String>(
-                      revenue_cat.offerings!.current!
-                          .getPackage('msfs_xplane_lifetime')!
-                          .storeProduct
-                          .priceString,
-                      '-',
-                    ),
-                    onBuyMonthly: () async {
-                      _model.mSFSandXplanemonthly = await revenue_cat
-                          .purchasePackage('msfs_xplane_monthly');
-                      if (_model.mSFSandXplanemonthly == true) {
-                        context.pushNamed(HomeMenuWidget.routeName);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Payment failed or was cancelled. Please try again.',
-                              style: TextStyle(
-                                color: FlutterFlowTheme.of(context).primaryText,
-                              ),
-                            ),
-                            duration: Duration(milliseconds: 4000),
-                            backgroundColor:
-                                FlutterFlowTheme.of(context).primaryBackground,
-                          ),
-                        );
-                      }
-
-                      safeSetState(() {});
-                    },
-                    onBuyYearly: () async {
-                      _model.mSFSandXplaneyearly1 = await revenue_cat
-                          .purchasePackage('X plane and MSFS monthly Pass');
-                      if (_model.mSFSandXplaneyearly1 == true) {
-                        context.pushNamed(HomeMenuWidget.routeName);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Payment failed or was cancelled. Please try again.',
-                              style: TextStyle(
-                                color: FlutterFlowTheme.of(context).primaryText,
-                              ),
-                            ),
-                            duration: Duration(milliseconds: 4000),
-                            backgroundColor:
-                                FlutterFlowTheme.of(context).primaryBackground,
-                          ),
-                        );
-                      }
-
-                      safeSetState(() {});
-                    },
-                    onBuyLifetime: () async {
-                      _model.mSFSandXplaneLifetime = await revenue_cat
-                          .purchasePackage('msfs_xplane_lifetime');
-                      if (_model.mSFSandXplaneLifetime == true) {
-                        context.pushNamed(HomeMenuWidget.routeName);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Payment failed or was cancelled. Please try again.',
-                              style: TextStyle(
-                                color: FlutterFlowTheme.of(context).primaryText,
-                              ),
-                            ),
-                            duration: Duration(milliseconds: 4000),
-                            backgroundColor:
-                                FlutterFlowTheme.of(context).primaryBackground,
-                          ),
-                        );
-                      }
-
-                      safeSetState(() {});
-                    },
-                    onContactUs: () async {
-                      await launchURL('https://discord.gg/3jJkuQeKaz');
-                    },
-                    onBuyBothSims: () async {
-                      context.pushNamed(TermsOFuseWidget.routeName);
-                    },
-                    onTermsOfUse: () async {},
-                    onPrivacyPolicy: () async {
-                      context.pushNamed(PrivacyPolicyPageWidget.routeName);
-                    },
+                  monthlyPrice: valueOrDefault<String>(
+                    revenue_cat.offerings!.current!
+                        .getPackage('msfs_xplane_monthly')!
+                        .storeProduct
+                        .priceString,
+                    '-',
                   ),
+                  yearlyPrice: valueOrDefault<String>(
+                    revenue_cat.offerings!.current!
+                        .getPackage('X plane and MSFS monthly Pass')!
+                        .storeProduct
+                        .priceString,
+                    '-',
+                  ),
+                  lifetimePrice: valueOrDefault<String>(
+                    revenue_cat.offerings!.current!
+                        .getPackage('msfs_xplane_lifetime')!
+                        .storeProduct
+                        .priceString,
+                    '-',
+                  ),
+                  onBuyMonthly: () async {
+                    _model.mSFSandXplanemonthly = await revenue_cat
+                        .purchasePackage('msfs_xplane_monthly');
+                    if (_model.mSFSandXplanemonthly == true) {
+                      context.pushNamed(HomeMenuWidget.routeName);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Payment failed or was cancelled. Please try again.',
+                            style: TextStyle(
+                              color: FlutterFlowTheme.of(context).primaryText,
+                            ),
+                          ),
+                          duration: Duration(milliseconds: 4000),
+                          backgroundColor:
+                              FlutterFlowTheme.of(context).primaryBackground,
+                        ),
+                      );
+                    }
+
+                    safeSetState(() {});
+                  },
+                  onBuyYearly: () async {
+                    _model.mSFSandXplaneyearly1 = await revenue_cat
+                        .purchasePackage('X plane and MSFS monthly Pass');
+                    if (_model.mSFSandXplaneyearly1 == true) {
+                      context.pushNamed(HomeMenuWidget.routeName);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Payment failed or was cancelled. Please try again.',
+                            style: TextStyle(
+                              color: FlutterFlowTheme.of(context).primaryText,
+                            ),
+                          ),
+                          duration: Duration(milliseconds: 4000),
+                          backgroundColor:
+                              FlutterFlowTheme.of(context).primaryBackground,
+                        ),
+                      );
+                    }
+
+                    safeSetState(() {});
+                  },
+                  onBuyLifetime: () async {
+                    _model.mSFSandXplaneLifetime = await revenue_cat
+                        .purchasePackage('msfs_xplane_lifetime');
+                    if (_model.mSFSandXplaneLifetime == true) {
+                      context.pushNamed(HomeMenuWidget.routeName);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Payment failed or was cancelled. Please try again.',
+                            style: TextStyle(
+                              color: FlutterFlowTheme.of(context).primaryText,
+                            ),
+                          ),
+                          duration: Duration(milliseconds: 4000),
+                          backgroundColor:
+                              FlutterFlowTheme.of(context).primaryBackground,
+                        ),
+                      );
+                    }
+
+                    safeSetState(() {});
+                  },
+                  onContactUs: () async {
+                    await launchURL('https://discord.gg/3jJkuQeKaz');
+                  },
+                  onBuyBothSims: () async {
+                    context.pushNamed(TermsOFuseWidget.routeName);
+                  },
+                  onTermsOfUse: () async {},
+                  onPrivacyPolicy: () async {
+                    context.pushNamed(PrivacyPolicyPageWidget.routeName);
+                  },
                 ),
               ),
-              if (responsiveVisibility(
-                context: context,
-                phone: false,
-                tablet: false,
-                tabletLandscape: false,
-                desktop: false,
-              ))
-                FlutterFlowAdBanner(
-                  width: MediaQuery.sizeOf(context).width * 1.0,
-                  height: 50.0,
-                  showsTestAd: false,
-                  iOSAdUnitID: 'ca-app-pub-7880697829268273/6177072322',
-                  androidAdUnitID: 'ca-app-pub-7880697829268273/5581116466',
-                ),
-            ],
-          ),
+            ),
+            if (responsiveVisibility(
+              context: context,
+              phone: false,
+              tablet: false,
+              tabletLandscape: false,
+              desktop: false,
+            ))
+              FlutterFlowAdBanner(
+                width: MediaQuery.sizeOf(context).width * 1.0,
+                height: 50.0,
+                showsTestAd: false,
+                iOSAdUnitID: 'ca-app-pub-7880697829268273/6177072322',
+                androidAdUnitID: 'ca-app-pub-7880697829268273/5581116466',
+              ),
+          ],
         ),
       ),
     );

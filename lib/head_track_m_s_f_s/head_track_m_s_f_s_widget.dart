@@ -87,24 +87,21 @@ class _HeadTrackMSFSWidgetState extends State<HeadTrackMSFSWidget> {
           centerTitle: true,
           elevation: 2.0,
         ),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Container(
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                child: custom_widgets.HeadTrackerWidgetMSFS(
                   width: double.infinity,
                   height: double.infinity,
-                  child: custom_widgets.HeadTrackerWidgetMSFS(
-                    width: double.infinity,
-                    height: double.infinity,
-                    targetIp: FFAppState().ipPC,
-                  ),
+                  targetIp: FFAppState().ipPC,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
