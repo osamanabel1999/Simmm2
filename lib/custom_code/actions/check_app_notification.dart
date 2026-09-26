@@ -14,6 +14,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 Future checkAppNotification(BuildContext context) async {
   // لينك جيت هاب بتاعك
@@ -314,17 +315,39 @@ void _showPromoBannerSheet(BuildContext context, Map<dynamic, dynamic> info,
               ),
             ),
             const SizedBox(height: 20),
-            // عرض الصورة بشكل احترافي بحواف دائرية
+            // عرض الصورة بشكل احترافي وكامل من دون أي قص مع خلفية متناسقة
             if (imageUrl.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  imageUrl,
-                  height: 160,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const SizedBox.shrink(),
+              Container(
+                width: double.infinity,
+                constraints: const BoxConstraints(
+                  maxHeight: 220, // أقصى ارتفاع مسموح للصورة لمنع تمدد النافذة
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(
+                      0xFF0B111A), // لون خلفية للدمج في حالة الصور الطولية
+                  borderRadius: BorderRadius.circular(16),
+                  border:
+                      Border.all(color: const Color(0xFF26364D), width: 1.5),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit
+                        .contain, // السر في عرض الصورة بالكامل دون قص أي طرف
+                    width: double.infinity,
+                    placeholder: (context, url) => Container(
+                      height: 160,
+                      color: const Color(0xFF101923),
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF639DF0),
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) =>
+                        const SizedBox.shrink(),
+                  ),
                 ),
               ),
             if (imageUrl.isNotEmpty) const SizedBox(height: 20),
