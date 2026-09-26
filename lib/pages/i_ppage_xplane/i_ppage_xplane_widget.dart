@@ -472,7 +472,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                           safeSetState(() {});
 
                           context.pushNamed(
-                            EFBappPagesXPlaneWidget.routeName,
+                            EFBxplaneWidget.routeName,
                             extra: <String, dynamic>{
                               '__transition_info__': TransitionInfo(
                                 hasTransition: true,
