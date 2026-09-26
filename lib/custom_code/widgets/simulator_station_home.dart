@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import 'package:cached_network_image/cached_network_image.dart';
+
 class SimulatorStationHome extends StatefulWidget {
   const SimulatorStationHome({
     Key? key,
@@ -59,99 +61,112 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
       width: widget.width ?? double.infinity,
       height: widget.height ?? double.infinity,
       color: bgColor,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // العنوان العلوي (SIMULATOR)
-            const SizedBox(height: 10),
-            Text(
-              'S I M U L A T O R',
-              style: TextStyle(
-                color: Colors.grey[400],
-                fontSize: 16,
-                letterSpacing: 10.0,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            // العنوان الرئيسي (STATION) بتأثير معدني
-            ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [Colors.white, Color(0xFF8C95A0), Colors.white],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ).createShader(bounds),
-              child: const Text(
-                'STATION',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2.0,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // التحقق مما إذا كانت الشاشة بالعرض (مثل الآيباد)
+          final bool isLandscape = constraints.maxWidth > constraints.maxHeight;
+
+          // تغيير نسب التمدد (flex) بناءً على اتجاه الشاشة لإعطاء الصور مساحة أكبر في العرض
+          final int imageFlex = isLandscape ? 15 : 8;
+          final int spaceFlex = isLandscape ? 1 : 2;
+          final double middleGap = isLandscape ? 10.0 : 20.0;
+
+          return Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // العنوان العلوي (SIMULATOR)
+                const SizedBox(height: 10),
+                Text(
+                  'S I M U L A T O R',
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: 16,
+                    letterSpacing: 10.0,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ),
-
-            const Spacer(flex: 1), // مسافة مرنة
-
-            // الخط الأزرق المضيء
-            _buildGlowingLine(),
-
-            const Spacer(flex: 1), // مسافة مرنة
-
-            // النص الوصفي
-            Text(
-              'CONNECT YOUR FAVORITE FLIGHT SIMULATOR\nAND TAKE FULL CONTROL.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 12,
-                letterSpacing: 2.0,
-                height: 1.8,
-              ),
-            ),
-
-            const Spacer(flex: 2), // مسافة مرنة
-
-            // الكونتينر الأول
-            Expanded(
-              flex: 8,
-              child: _buildImageContainer(widget.image1, widget.action1),
-            ),
-
-            const SizedBox(height: 20),
-
-            // الكونتينر الثاني
-            Expanded(
-              flex: 8,
-              child: _buildImageContainer(widget.image2, widget.action2),
-            ),
-
-            const Spacer(flex: 2), // مسافة مرنة
-
-            // النص السفلي (محمي من النزول لسطر تاني)
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                'C O N T R O L .  C O N N E C T .  F L Y .',
-                maxLines: 1, // إجباره على سطر واحد
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 10,
-                  letterSpacing: 6.0,
+                // العنوان الرئيسي (STATION) بتأثير معدني
+                ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [Colors.white, Color(0xFF8C95A0), Colors.white],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ).createShader(bounds),
+                  child: const Text(
+                    'STATION',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
                 ),
-              ),
+
+                Spacer(flex: spaceFlex), // مسافة مرنة
+
+                // الخط الأزرق المضيء
+                _buildGlowingLine(),
+
+                Spacer(flex: spaceFlex), // مسافة مرنة
+
+                // النص الوصفي
+                Text(
+                  'CONNECT YOUR FAVORITE FLIGHT SIMULATOR\nAND TAKE FULL CONTROL.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[500],
+                    fontSize: 12,
+                    letterSpacing: 2.0,
+                    height: 1.8,
+                  ),
+                ),
+
+                Spacer(flex: spaceFlex), // مسافة مرنة
+
+                // الكونتينر الأول
+                Expanded(
+                  flex: imageFlex,
+                  child: _buildImageContainer(widget.image1, widget.action1),
+                ),
+
+                SizedBox(height: middleGap),
+
+                // الكونتينر الثاني
+                Expanded(
+                  flex: imageFlex,
+                  child: _buildImageContainer(widget.image2, widget.action2),
+                ),
+
+                Spacer(flex: spaceFlex), // مسافة مرنة
+
+                // النص السفلي (محمي من النزول لسطر تاني)
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'C O N T R O L .  C O N N E C T .  F L Y .',
+                    maxLines: 1, // إجباره على سطر واحد
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 10,
+                      letterSpacing: 6.0,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // الخط الأزرق المضيء السفلي
+                _buildGlowingLine(),
+
+                const SizedBox(height: 10),
+              ],
             ),
-
-            const SizedBox(height: 20),
-
-            // الخط الأزرق المضيء السفلي
-            _buildGlowingLine(),
-
-            const SizedBox(height: 10),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -207,6 +222,8 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
+          color: const Color(
+              0xFF0B111A), // لون يندمج مع الخلفية لمنع ظهور فراغات قبيحة
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: borderColor, // توحيد الحواف
@@ -222,38 +239,33 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(14),
-          child: Image.network(
-            cleanUrl,
-            fit: BoxFit.cover, // يملأ الإطار بالكامل مهما اختلف الحجم
+          child: CachedNetworkImage(
+            imageUrl: cleanUrl,
+            fit: BoxFit.contain, // عرض الصورة بالكامل دون قص الأطراف
             width: double.infinity,
             height: double.infinity,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Container(
-                color: const Color(0xFF101923), // خلفية موحدة أثناء التحميل
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: blueAccent, // توحيد اللون
+            placeholder: (context, url) => Container(
+              color: const Color(0xFF101923), // خلفية موحدة أثناء التحميل
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: blueAccent, // توحيد اللون
+                ),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              color: const Color(0xFF101923), // خلفية موحدة عند الخطأ
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.broken_image, color: Colors.grey, size: 40),
+                  SizedBox(height: 8),
+                  Text(
+                    'Failed to load image',
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
-                ),
-              );
-            },
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                color: const Color(0xFF101923), // خلفية موحدة عند الخطأ
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.broken_image, color: Colors.grey, size: 40),
-                    SizedBox(height: 8),
-                    Text(
-                      'Failed to load image',
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                  ],
-                ),
-              );
-            },
+                ],
+              ),
+            ),
           ),
         ),
       ),
