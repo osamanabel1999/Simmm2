@@ -938,23 +938,30 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                               ],
                             ),
                           ),
-                          Container(
-                            width: double.infinity,
-                            height: 50.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                            ),
-                            child: FlutterFlowAdBanner(
-                              width: MediaQuery.sizeOf(context).width * 1.0,
+                          if (responsiveVisibility(
+                            context: context,
+                            phone: false,
+                            tablet: false,
+                            tabletLandscape: false,
+                            desktop: false,
+                          ))
+                            Container(
+                              width: double.infinity,
                               height: 50.0,
-                              showsTestAd: false,
-                              iOSAdUnitID:
-                                  'ca-app-pub-7880697829268273/6177072322',
-                              androidAdUnitID:
-                                  'ca-app-pub-7880697829268273/5581116466',
+                              decoration: BoxDecoration(
+                                color: FlutterFlowTheme.of(context)
+                                    .secondaryBackground,
+                              ),
+                              child: FlutterFlowAdBanner(
+                                width: MediaQuery.sizeOf(context).width * 1.0,
+                                height: 50.0,
+                                showsTestAd: false,
+                                iOSAdUnitID:
+                                    'ca-app-pub-7880697829268273/6177072322',
+                                androidAdUnitID:
+                                    'ca-app-pub-7880697829268273/5581116466',
+                              ),
                             ),
-                          ),
                           Expanded(
                             child: Padding(
                               padding: EdgeInsetsDirectional.fromSTEB(
@@ -42107,9 +42114,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         FFAppState().ipPC,
                                         'pause',
                                       );
-
-                                      context.pushNamed(
-                                          HeadTrackMSFSWidget.routeName);
                                     },
                                     freezeAction: () async {
                                       await actions.pauseAndFreezeController(
@@ -42117,13 +42121,9 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         'freeze',
                                       );
                                     },
-                                    flightPlanAction: () async {
-                                      FFAppState().TabNumber = 4;
-                                      safeSetState(() {});
-                                    },
-                                    doorsAction: () async {
-                                      FFAppState().TabNumber = 3;
-                                      safeSetState(() {});
+                                    headTrackerAction: () async {
+                                      context.pushNamed(
+                                          HeadTrackMSFSWidget.routeName);
                                     },
                                     pushbackAction: () async {
                                       FFAppState().TabNumber = 5000;
@@ -42133,28 +42133,12 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                       FFAppState().TabNumber = 5;
                                       safeSetState(() {});
                                     },
-                                    toPerfAction: () async {
-                                      FFAppState().TabNumber = 6;
-                                      safeSetState(() {});
-                                    },
-                                    ldgPerfAction: () async {
-                                      FFAppState().TabNumber = 7;
-                                      safeSetState(() {});
-                                    },
-                                    checklistAction: () async {
-                                      FFAppState().TabNumber = 8;
-                                      safeSetState(() {});
-                                    },
-                                    briefingAction: () async {
-                                      FFAppState().TabNumber = 9;
-                                      safeSetState(() {});
-                                    },
-                                    scratchAction: () async {
-                                      context
-                                          .pushNamed(EFBmsfsWidget.routeName);
-                                    },
                                     loadAction: () async {
                                       FFAppState().TabNumber = 15;
+                                      safeSetState(() {});
+                                    },
+                                    doorsAction: () async {
+                                      FFAppState().TabNumber = 3;
                                       safeSetState(() {});
                                     },
                                     failuresAction: () async {
@@ -42176,6 +42160,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                           backgroundColor: Color(0xFFE67E22),
                                         ),
                                       );
+                                    },
+                                    efbAction: () async {
+                                      context
+                                          .pushNamed(EFBmsfsWidget.routeName);
                                     },
                                     settingsAction: () async {
                                       FFAppState().TabNumber = 13;

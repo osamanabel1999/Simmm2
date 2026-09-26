@@ -49,5 +49,4 @@ export '/head_track_xplane/head_track_xplane_widget.dart'
     show HeadTrackXplaneWidget;
 export '/head_track_m_s_f_s/head_track_m_s_f_s_widget.dart'
     show HeadTrackMSFSWidget;
-export '/e_f_bapp_pages_x_plane/e_f_bapp_pages_x_plane_widget.dart'
-    show EFBappPagesXPlaneWidget;
+export '/e_f_bapp_pages/e_f_bapp_pages_widget.dart' show EFBappPagesWidget;

@@ -5,29 +5,28 @@ import '/custom_code/actions/index.dart' as actions;
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'e_f_bapp_pages_x_plane_model.dart';
-export 'e_f_bapp_pages_x_plane_model.dart';
+import 'e_f_bapp_pages_model.dart';
+export 'e_f_bapp_pages_model.dart';
 
-class EFBappPagesXPlaneWidget extends StatefulWidget {
-  const EFBappPagesXPlaneWidget({super.key});
+class EFBappPagesWidget extends StatefulWidget {
+  const EFBappPagesWidget({super.key});
 
-  static String routeName = 'EFBappPagesXPlane';
-  static String routePath = '/eFBappPagesXPlane';
+  static String routeName = 'EFBappPages';
+  static String routePath = '/eFBappPages';
 
   @override
-  State<EFBappPagesXPlaneWidget> createState() =>
-      _EFBappPagesXPlaneWidgetState();
+  State<EFBappPagesWidget> createState() => _EFBappPagesWidgetState();
 }
 
-class _EFBappPagesXPlaneWidgetState extends State<EFBappPagesXPlaneWidget> {
-  late EFBappPagesXPlaneModel _model;
+class _EFBappPagesWidgetState extends State<EFBappPagesWidget> {
+  late EFBappPagesModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => EFBappPagesXPlaneModel());
+    _model = createModel(context, () => EFBappPagesModel());
   }
 
   @override

@@ -18,17 +18,14 @@ class SimulatorBottomMenuXplane extends StatefulWidget {
     this.positionAction,
     this.pauseAction,
     this.freezeAction,
-    this.flightPlanAction,
-    this.weatherAction,
+    this.headTrackerAction,
     this.pushbackAction,
     this.mapAction,
-    this.toPerfAction,
-    this.ldgPerfAction,
-    this.checklistAction,
-    this.briefingAction,
-    this.fmcAction,
     this.loadAction,
+    this.weatherAction,
+    this.fmcAction,
     this.failuresAction,
+    this.efbAction,
     this.settingsAction,
   });
 
@@ -38,19 +35,16 @@ class SimulatorBottomMenuXplane extends StatefulWidget {
   final Future Function()? positionAction;
   final Future Function()? pauseAction;
   final Future Function()? freezeAction;
-  final Future Function()? flightPlanAction;
-  final Future Function()? weatherAction;
+  final Future Function()? headTrackerAction;
 
   final Future Function()? pushbackAction;
   final Future Function()? mapAction;
-  final Future Function()? toPerfAction;
-  final Future Function()? ldgPerfAction;
-  final Future Function()? checklistAction;
-
-  final Future Function()? briefingAction;
-  final Future Function()? fmcAction;
   final Future Function()? loadAction;
+  final Future Function()? weatherAction;
+
+  final Future Function()? fmcAction;
   final Future Function()? failuresAction;
+  final Future Function()? efbAction;
   final Future Function()? settingsAction;
 
   @override
@@ -73,24 +67,25 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
   static const Color _selectedBorder = Color(0xFF2C83EA);
 
   static const List<String> _labels = [
+    // Row 1
     'POSITION',
     'PAUSE',
     'FREEZE',
-    'FLIGHTPLAN',
-    'WEATHER',
+    'HEAD TRACKER',
+    // Row 2
     'PUSHBACK',
     'MAP',
-    'T/O PERF',
-    'LDG PERF',
-    'CHECKLIST',
-    'BRIEFING',
-    'FMC',
     'LOAD',
+    'WEATHER',
+    // Row 3
+    'FMC',
     'FAILURES',
     'EFB',
+    'SETTINGS',
   ];
 
   bool _isMomentaryButton(int index) {
+    // Indices 1 (PAUSE) and 2 (FREEZE) are momentary buttons
     return index == 1 || index == 2;
   }
 
@@ -136,21 +131,21 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
               children: [
                 Expanded(
                   child: _buildRow(
-                    0,
+                    0, // Starts at index 0
                     fontSize,
                   ),
                 ),
                 const SizedBox(height: 7.0),
                 Expanded(
                   child: _buildRow(
-                    5,
+                    4, // Starts at index 4
                     fontSize,
                   ),
                 ),
                 const SizedBox(height: 7.0),
                 Expanded(
                   child: _buildRow(
-                    10,
+                    8, // Starts at index 8
                     fontSize,
                   ),
                 ),
@@ -168,7 +163,7 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
   ) {
     return Row(
       children: List.generate(
-        5,
+        4, // 4 items per row instead of 5
         (column) {
           final index = startIndex + column;
 
@@ -176,7 +171,7 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
             child: Padding(
               padding: EdgeInsets.only(
                 left: column == 0 ? 0 : 3,
-                right: column == 4 ? 0 : 3,
+                right: column == 3 ? 0 : 3, // Changed from 4 to 3
               ),
               child: _buildButton(
                 index,
@@ -362,50 +357,38 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
         break;
 
       case 3:
-        await widget.flightPlanAction?.call();
+        await widget.headTrackerAction?.call();
         break;
 
       case 4:
-        await widget.weatherAction?.call();
-        break;
-
-      case 5:
         await widget.pushbackAction?.call();
         break;
 
-      case 6:
+      case 5:
         await widget.mapAction?.call();
         break;
 
-      case 7:
-        await widget.toPerfAction?.call();
-        break;
-
-      case 8:
-        await widget.ldgPerfAction?.call();
-        break;
-
-      case 9:
-        await widget.checklistAction?.call();
-        break;
-
-      case 10:
-        await widget.briefingAction?.call();
-        break;
-
-      case 11:
-        await widget.fmcAction?.call();
-        break;
-
-      case 12:
+      case 6:
         await widget.loadAction?.call();
         break;
 
-      case 13:
+      case 7:
+        await widget.weatherAction?.call();
+        break;
+
+      case 8:
+        await widget.fmcAction?.call();
+        break;
+
+      case 9:
         await widget.failuresAction?.call();
         break;
 
-      case 14:
+      case 10:
+        await widget.efbAction?.call();
+        break;
+
+      case 11:
         await widget.settingsAction?.call();
         break;
     }

@@ -98,12 +98,19 @@ class _DocsXplaneWidgetState extends State<DocsXplaneWidget> {
                 horizontalScroll: false,
               ),
             ),
-            FlutterFlowAdBanner(
-              width: MediaQuery.sizeOf(context).width * 1.0,
-              height: 50.0,
-              showsTestAd: false,
-              iOSAdUnitID: 'ca-app-pub-7880697829268273/4940152206',
-            ),
+            if (responsiveVisibility(
+              context: context,
+              phone: false,
+              tablet: false,
+              tabletLandscape: false,
+              desktop: false,
+            ))
+              FlutterFlowAdBanner(
+                width: MediaQuery.sizeOf(context).width * 1.0,
+                height: 50.0,
+                showsTestAd: false,
+                iOSAdUnitID: 'ca-app-pub-7880697829268273/4940152206',
+              ),
           ],
         ),
       ),

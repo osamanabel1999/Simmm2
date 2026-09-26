@@ -320,9 +320,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => HeadTrackMSFSWidget(),
         ),
         FFRoute(
-          name: EFBappPagesXPlaneWidget.routeName,
-          path: EFBappPagesXPlaneWidget.routePath,
-          builder: (context, params) => EFBappPagesXPlaneWidget(),
+          name: EFBappPagesWidget.routeName,
+          path: EFBappPagesWidget.routePath,
+          builder: (context, params) => EFBappPagesWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
