@@ -823,9 +823,9 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
         borderRadius: BorderRadius.circular(size * 0.225),
         child: imageUrl.trim().isNotEmpty
             ? CachedNetworkImage(
-                imageUrl,
+                imageUrl: imageUrl,
                 fit: BoxFit.cover,
-                errorWidget: (context, url, error) => Container(
+                errorWidget: (context, url, dynamic err) => Container(
                   color: const Color(0xFF101923),
                   child: Icon(
                     name == 'Settings'
@@ -1610,7 +1610,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                       }
                     },
                     child: CachedNetworkImage(
-                      widget.wallpaperUrl,
+                      imageUrl: widget.wallpaperUrl,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -1796,9 +1796,9 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                 borderRadius: BorderRadius.circular(size * 0.22),
                 child: settingsImageUrl.isNotEmpty
                     ? CachedNetworkImage(
-                        settingsImageUrl,
+                        imageUrl: settingsImageUrl,
                         fit: BoxFit.cover,
-                        errorWidget: (context, url, error) => Container(
+                        errorWidget: (context, url, dynamic err) => Container(
                           color: const Color(0xFF101923),
                           child: const Icon(
                             Icons.settings_rounded,
@@ -1867,9 +1867,9 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(size * 0.22),
                 child: CachedNetworkImage(
-                  imageUrl,
+                  imageUrl: imageUrl,
                   fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Container(
+                  errorWidget: (context, url, dynamic err) => Container(
                     color: const Color(0xFF101923),
                     child: const Icon(Icons.flight, color: Color(0xFF639DF0)),
                   ),
@@ -6006,15 +6006,15 @@ class _AviationWeatherChartsState extends State<AviationWeatherCharts> {
               clipBehavior: Clip.none,
               child: Center(
                 child: CachedNetworkImage(
-                  _chartUrl!,
+                  imageUrl: _chartUrl!,
                   fit: BoxFit.contain,
                   filterQuality: FilterQuality.high,
                   progressIndicatorBuilder: (
                     BuildContext context,
-                    Widget child,
-                    DownloadProgress loadingProgress,
+                    String url,
+                    DownloadProgress progress,
                   ) {
-                    final double? value = loadingProgress.progress;
+                    final double? value = progress.progress;
                     return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -6053,8 +6053,8 @@ class _AviationWeatherChartsState extends State<AviationWeatherCharts> {
                   },
                   errorWidget: (
                     BuildContext context,
-                    Object error,
-                    Object error,
+                    String url,
+                    dynamic err,
                   ) {
                     return _buildChartError();
                   },

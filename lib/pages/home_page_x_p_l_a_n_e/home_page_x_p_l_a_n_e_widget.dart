@@ -31582,8 +31582,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     FFAppState().ipPC,
                                   );
 
-                                  context
-                                      .pushNamed(EFBappPagesxWidget.routeName);
+                                  context.pushNamed(
+                                      EFBappPagesXPlaneWidget.routeName);
                                 },
                                 flightPlanAction: () async {
                                   FFAppState().TabNumber = 4;
