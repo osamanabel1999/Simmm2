@@ -977,7 +977,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
         isTablet ? 24.0 : 12.0,
         8.0,
         isTablet ? 24.0 : 12.0,
-        16.0,
+        6.0,
       ),
       child: Center(
         child: ClipRRect(
@@ -1469,7 +1469,7 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                 isLargeWidget: true,
               ),
             ),
-            SizedBox(height: isTablet ? 9.0 : 4.0),
+            SizedBox(height: 0.0),
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
@@ -1479,13 +1479,13 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                 },
                 child: GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.fromLTRB(0, isTablet ? 5.0 : 4.0, 0, 10),
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 5),
                   itemCount: apps.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: isTablet ? 13.0 : 7.0,
-                    mainAxisSpacing: isTablet ? 9.0 : 5.0,
-                    childAspectRatio: isTablet ? 0.84 : 0.78,
+                    crossAxisSpacing: isTablet ? 20.0 : 7.0,
+                    mainAxisSpacing: isTablet ? 6.0 : 3.0,
+                    childAspectRatio: isTablet ? 0.98 : 0.90,
                   ),
                   itemBuilder: (context, index) {
                     final _EfbHomeApp app = apps[index];
