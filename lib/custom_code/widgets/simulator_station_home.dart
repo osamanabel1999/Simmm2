@@ -66,10 +66,14 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
           // التحقق مما إذا كانت الشاشة بالعرض (مثل الآيباد)
           final bool isLandscape = constraints.maxWidth > constraints.maxHeight;
 
-          // تغيير نسب التمدد (flex) بناءً على اتجاه الشاشة لإعطاء الصور مساحة أكبر في العرض
+          // تغيير نسب التمدد (flex) بناءً على اتجاه الشاشة
           final int imageFlex = isLandscape ? 15 : 8;
           final int spaceFlex = isLandscape ? 1 : 2;
-          final double middleGap = isLandscape ? 10.0 : 20.0;
+          final double middleGap = isLandscape ? 15.0 : 20.0;
+
+          // نسبة أبعاد الكونتينر (عرض إلى طول) لمنع التشوه والمسافات الفارغة
+          // 2.4 للآيباد ليكون بانر عريض شيك، 1.8 للموبايل
+          final double bannerRatio = isLandscape ? 2.4 : 1.8;
 
           return Padding(
             padding:
@@ -127,18 +131,30 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
 
                 Spacer(flex: spaceFlex), // مسافة مرنة
 
-                // الكونتينر الأول
+                // الكونتينر الأول مع نسبة أبعاد ثابتة لمنع الحواف الفارغة
                 Expanded(
                   flex: imageFlex,
-                  child: _buildImageContainer(widget.image1, widget.action1),
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: bannerRatio,
+                      child:
+                          _buildImageContainer(widget.image1, widget.action1),
+                    ),
+                  ),
                 ),
 
                 SizedBox(height: middleGap),
 
-                // الكونتينر الثاني
+                // الكونتينر الثاني مع نسبة أبعاد ثابتة لمنع الحواف الفارغة
                 Expanded(
                   flex: imageFlex,
-                  child: _buildImageContainer(widget.image2, widget.action2),
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: bannerRatio,
+                      child:
+                          _buildImageContainer(widget.image2, widget.action2),
+                    ),
+                  ),
                 ),
 
                 Spacer(flex: spaceFlex), // مسافة مرنة
@@ -222,8 +238,7 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: const Color(
-              0xFF0B111A), // لون يندمج مع الخلفية لمنع ظهور فراغات قبيحة
+          color: const Color(0xFF0B111A), // لون يندمج مع الخلفية
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: borderColor, // توحيد الحواف
@@ -241,7 +256,8 @@ class _SimulatorStationHomeState extends State<SimulatorStationHome> {
           borderRadius: BorderRadius.circular(14),
           child: CachedNetworkImage(
             imageUrl: cleanUrl,
-            fit: BoxFit.contain, // عرض الصورة بالكامل دون قص الأطراف
+            // استخدام fill لضمان تغطية الكونتينر بالكامل بدون فراغات وبدون قص الأطراف
+            fit: BoxFit.fill,
             width: double.infinity,
             height: double.infinity,
             placeholder: (context, url) => Container(

@@ -471,7 +471,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                               _model.textFieldSimbreifIDTextController.text);
                           safeSetState(() {});
 
-                          context.pushNamed(HomePageMSFSWidget.routeName);
+                          context.pushNamed(EFBmsfsWidget.routeName);
                         },
                         text: 'Connect',
                         options: FFButtonOptions(

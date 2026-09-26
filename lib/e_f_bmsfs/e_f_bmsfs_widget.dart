@@ -52,8 +52,6 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
           child: custom_widgets.EfbHomeScreenXplane(
             width: double.infinity,
             height: double.infinity,
-            wallpaperUrl:
-                'https://raw.githubusercontent.com/osamanabel1999/App-assets/refs/heads/main/0B235E9F-F201-4F3D-9427-B0C9F254C522.png',
             iconAirportWx:
                 'https://raw.githubusercontent.com/osamanabel1999/App-assets/refs/heads/main/3A9717E3-7FE6-419C-BA85-42E69E2B60E6.png',
             iconWxCharts:
@@ -87,6 +85,10 @@ class _EFBmsfsWidgetState extends State<EFBmsfsWidget> {
                 'https://raw.githubusercontent.com/osamanabel1999/App-assets/refs/heads/main/F49C9F7E-47B2-488F-BD97-149AD77997E5.png',
             iconSimControl:
                 'https://raw.githubusercontent.com/osamanabel1999/App-assets/refs/heads/main/A912B194-F96A-4386-BCB2-9C6BDF4E5320.png',
+            wallpaperUrlIpad:
+                'https://raw.githubusercontent.com/osamanabel1999/fmc737-v1/refs/heads/main/6CFF747F-9A71-433C-BF66-67039D341C9C.png',
+            wallpaperUrlMobile:
+                'https://raw.githubusercontent.com/osamanabel1999/App-assets/refs/heads/main/A39AD003-AEAD-4A32-9839-40ACC3B67E9E.png',
             onExitAction: () async {
               context.safePop();
             },

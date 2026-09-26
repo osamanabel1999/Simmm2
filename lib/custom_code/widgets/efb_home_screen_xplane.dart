@@ -23,7 +23,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 class EfbHomeScreenXplane extends StatefulWidget {
   final double? width;
   final double? height;
-  final String wallpaperUrl;
+  final String wallpaperUrlIpad;
+  final String wallpaperUrlMobile;
   final String iconAirportWx;
   final String iconWxCharts;
   final String iconNotams;
@@ -58,8 +59,10 @@ class EfbHomeScreenXplane extends StatefulWidget {
     Key? key,
     this.width,
     this.height,
-    this.wallpaperUrl =
-        'https://dummyimage.com/1024x768/0b111a/ffffff&text=Wallpaper',
+    this.wallpaperUrlIpad =
+        'https://dummyimage.com/2048x1536/0b111a/ffffff&text=iPad+Wallpaper',
+    this.wallpaperUrlMobile =
+        'https://dummyimage.com/1080x1920/0b111a/ffffff&text=Mobile+Wallpaper',
     this.iconAirportWx = 'https://dummyimage.com/256x256/101923/639DF0&text=WX',
     this.iconWxCharts =
         'https://dummyimage.com/256x256/101923/639DF0&text=Charts',
@@ -1610,7 +1613,9 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
                       }
                     },
                     child: CachedNetworkImage(
-                      imageUrl: widget.wallpaperUrl,
+                      imageUrl: isTablet
+                          ? widget.wallpaperUrlIpad
+                          : widget.wallpaperUrlMobile,
                       fit: BoxFit.cover,
                     ),
                   ),
