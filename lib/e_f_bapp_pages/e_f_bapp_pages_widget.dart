@@ -3,6 +3,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
 import '/custom_code/widgets/index.dart' as custom_widgets;
+import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'e_f_bapp_pages_model.dart';
@@ -118,60 +119,6 @@ class _EFBappPagesWidgetState extends State<EFBappPagesWidget> {
                   ),
                 ),
               ),
-            if (FFAppState().EFBpageNumber == 4.0)
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: custom_widgets.ToPerformanceWidget(
-                    width: double.infinity,
-                    height: double.infinity,
-                    pilotId: FFAppState().SimbreifID.toString(),
-                    onCalculatePressed: (acType,
-                        gw,
-                        cg,
-                        config,
-                        aice,
-                        aircond,
-                        rwyLen,
-                        rwyHdg,
-                        slope,
-                        rwyCond,
-                        aptElev,
-                        qnh,
-                        temp,
-                        windDir,
-                        windSpd) async {},
-                  ),
-                ),
-              ),
-            if (FFAppState().EFBpageNumber == 5.0)
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: custom_widgets.LdaPerformanceWidget(
-                    width: double.infinity,
-                    height: double.infinity,
-                    pilotId: FFAppState().SimbreifID.toString(),
-                    onCalculatePressed: (acType,
-                        gw,
-                        aptElev,
-                        config,
-                        aice,
-                        revInop,
-                        rwyLen,
-                        rwyHdg,
-                        slope,
-                        rwyCond,
-                        autobrake,
-                        qnh,
-                        temp,
-                        windDir,
-                        windSpd) async {},
-                  ),
-                ),
-              ),
             if (FFAppState().EFBpageNumber == 7.0)
               Expanded(
                 child: Container(
@@ -264,6 +211,285 @@ class _EFBappPagesWidgetState extends State<EFBappPagesWidget> {
                       await actions.professionalAtis(
                         'ATIS',
                       );
+                    },
+                  ),
+                ),
+              ),
+            if (FFAppState().EFBpageNumber == 4.0)
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: custom_widgets.ToPerformanceWidget(
+                    width: double.infinity,
+                    height: double.infinity,
+                    pilotId: FFAppState().SimbreifID.toString(),
+                    onCalculatePressed: (acType,
+                        gw,
+                        cg,
+                        config,
+                        aice,
+                        aircond,
+                        rwyLen,
+                        rwyHdg,
+                        slope,
+                        rwyCond,
+                        aptElev,
+                        qnh,
+                        temp,
+                        windDir,
+                        windSpd) async {
+                      _model.speedsResult1 =
+                          await actions.calculateA320SpeedsFull(
+                        gw,
+                        config,
+                        aptElev,
+                        temp,
+                        rwyHdg,
+                        windDir,
+                        windSpd,
+                        rwyLen,
+                        slope,
+                        rwyCond,
+                        aircond,
+                        aice,
+                        cg,
+                        qnh,
+                      );
+                      FFAppState().RWYLENGHTtakeoff = rwyLen;
+                      safeSetState(() {});
+
+                      context.pushNamed(
+                        TOCalculationWidget.routeName,
+                        queryParameters: {
+                          'v1Val': serializeParam(
+                            getJsonField(
+                              _model.speedsResult1,
+                              r'''$.v1''',
+                            ),
+                            ParamType.int,
+                          ),
+                          'vRVal': serializeParam(
+                            getJsonField(
+                              _model.speedsResult1,
+                              r'''$.vr''',
+                            ),
+                            ParamType.int,
+                          ),
+                          'v2Val': serializeParam(
+                            getJsonField(
+                              _model.speedsResult1,
+                              r'''$.v2''',
+                            ),
+                            ParamType.int,
+                          ),
+                          'flexVal': serializeParam(
+                            getJsonField(
+                              _model.speedsResult1,
+                              r'''$.flex_temp''',
+                            ).toString(),
+                            ParamType.String,
+                          ),
+                          'fSpeed': serializeParam(
+                            getJsonField(
+                              _model.speedsResult1,
+                              r'''$.f_speed''',
+                            ),
+                            ParamType.int,
+                          ),
+                          'sSpeed': serializeParam(
+                            getJsonField(
+                              _model.speedsResult1,
+                              r'''$.s_speed''',
+                            ),
+                            ParamType.int,
+                          ),
+                          'oSpeed': serializeParam(
+                            getJsonField(
+                              _model.speedsResult1,
+                              r'''$.green_dot_speed''',
+                            ),
+                            ParamType.int,
+                          ),
+                          'thsVal': serializeParam(
+                            getJsonField(
+                              _model.speedsResult1,
+                              r'''$.ths''',
+                            ).toString(),
+                            ParamType.String,
+                          ),
+                          'eoACC': serializeParam(
+                            getJsonField(
+                              _model.speedsResult1,
+                              r'''$.eo_acc''',
+                            ),
+                            ParamType.double,
+                          ),
+                          'isSafe': serializeParam(
+                            false,
+                            ParamType.bool,
+                          ),
+                        }.withoutNulls,
+                      );
+
+                      safeSetState(() {});
+                    },
+                  ),
+                ),
+              ),
+            if (FFAppState().EFBpageNumber == 5.0)
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: custom_widgets.LdaPerformanceWidget(
+                    width: double.infinity,
+                    height: double.infinity,
+                    pilotId: FFAppState().SimbreifID.toString(),
+                    onCalculatePressed: (acType,
+                        gw,
+                        aptElev,
+                        config,
+                        aice,
+                        revInop,
+                        rwyLen,
+                        rwyHdg,
+                        slope,
+                        rwyCond,
+                        autobrake,
+                        qnh,
+                        temp,
+                        windDir,
+                        windSpd) async {
+                      _model.calculateA320LandingNew =
+                          await actions.calculateA320Landing(
+                        gw,
+                        aptElev,
+                        temp,
+                        qnh,
+                        windDir,
+                        windSpd,
+                        rwyHdg,
+                        config,
+                        rwyCond,
+                        autobrake,
+                        revInop,
+                        slope,
+                        rwyLen,
+                        aice,
+                      );
+                      FFAppState().RWYLENGHTlading = rwyLen;
+                      safeSetState(() {});
+
+                      context.pushNamed(
+                        LDGCalculationWidget.routeName,
+                        queryParameters: {
+                          'isSafe': serializeParam(
+                            false,
+                            ParamType.bool,
+                          ),
+                          'vapp': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.vapp''',
+                            ),
+                            ParamType.double,
+                          ),
+                          'vls': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.vls''',
+                            ),
+                            ParamType.double,
+                          ),
+                          'actualDistance': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.actual_distance''',
+                            ),
+                            ParamType.double,
+                          ),
+                          'oSpeedL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.o_speed''',
+                            ),
+                            ParamType.double,
+                          ),
+                          'sSpeedL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.s_speed''',
+                            ),
+                            ParamType.double,
+                          ),
+                          'fSpeedL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.f_speed''',
+                            ),
+                            ParamType.double,
+                          ),
+                          'qnhL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.qnh_display''',
+                            ),
+                            ParamType.double,
+                          ),
+                          'tempL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.temp_display''',
+                            ).toString(),
+                            ParamType.String,
+                          ),
+                          'windL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.wind_display''',
+                            ).toString(),
+                            ParamType.String,
+                          ),
+                          'ldgConfigL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.ldg_conf_display''',
+                            ).toString(),
+                            ParamType.String,
+                          ),
+                          'safeL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.is_safe''',
+                            ),
+                            ParamType.bool,
+                          ),
+                          'runwatStatusL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.runway_status_message''',
+                            ).toString(),
+                            ParamType.String,
+                          ),
+                          'runwayRemainingL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.remaining_runway''',
+                            ).toString(),
+                            ParamType.String,
+                          ),
+                          'forcedDistanceL': serializeParam(
+                            getJsonField(
+                              _model.calculateA320LandingNew,
+                              r'''$.factored_distance''',
+                            ),
+                            ParamType.double,
+                          ),
+                        }.withoutNulls,
+                      );
+
+                      safeSetState(() {});
                     },
                   ),
                 ),

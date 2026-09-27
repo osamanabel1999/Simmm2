@@ -85,65 +85,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   dynamic left45;
   // Stores action output result for [Custom Action - calculateRight45EntryPosition] action in HomePageXPLANE widget.
   dynamic right45;
-  // State field(s) for AircraftType widget.
-  String? aircraftTypeValue;
-  FormFieldController<String>? aircraftTypeValueController;
-  // State field(s) for GrossWeight widget.
-  FocusNode? grossWeightFocusNode;
-  TextEditingController? grossWeightTextController;
-  String? Function(BuildContext, String?)? grossWeightTextControllerValidator;
-  // State field(s) for CG widget.
-  FocusNode? cgFocusNode;
-  TextEditingController? cgTextController;
-  String? Function(BuildContext, String?)? cgTextControllerValidator;
-  // State field(s) for flapsIndex widget.
-  String? flapsIndexValue;
-  FormFieldController<String>? flapsIndexValueController;
-  // State field(s) for antiIceIndex widget.
-  String? antiIceIndexValue;
-  FormFieldController<String>? antiIceIndexValueController;
-  // State field(s) for isPacksOn widget.
-  String? isPacksOnValue;
-  FormFieldController<String>? isPacksOnValueController;
-  // State field(s) for RUNWAYLENGTHXPLANETAKEOFF widget.
-  FocusNode? runwaylengthxplanetakeoffFocusNode;
-  TextEditingController? runwaylengthxplanetakeoffTextController;
-  String? Function(BuildContext, String?)?
-      runwaylengthxplanetakeoffTextControllerValidator;
-  // State field(s) for RunwayHeading widget.
-  FocusNode? runwayHeadingFocusNode;
-  TextEditingController? runwayHeadingTextController;
-  String? Function(BuildContext, String?)? runwayHeadingTextControllerValidator;
-  // State field(s) for Slope widget.
-  FocusNode? slopeFocusNode;
-  TextEditingController? slopeTextController;
-  String? Function(BuildContext, String?)? slopeTextControllerValidator;
-  // State field(s) for isWet widget.
-  String? isWetValue;
-  FormFieldController<String>? isWetValueController;
-  // State field(s) for AirportElevation widget.
-  FocusNode? airportElevationFocusNode;
-  TextEditingController? airportElevationTextController;
-  String? Function(BuildContext, String?)?
-      airportElevationTextControllerValidator;
-  // State field(s) for QNH widget.
-  FocusNode? qnhFocusNode;
-  TextEditingController? qnhTextController;
-  String? Function(BuildContext, String?)? qnhTextControllerValidator;
-  // State field(s) for Temperature widget.
-  FocusNode? temperatureFocusNode;
-  TextEditingController? temperatureTextController;
-  String? Function(BuildContext, String?)? temperatureTextControllerValidator;
-  // State field(s) for winddirection widget.
-  FocusNode? winddirectionFocusNode;
-  TextEditingController? winddirectionTextController;
-  String? Function(BuildContext, String?)? winddirectionTextControllerValidator;
-  // State field(s) for WindSpeed widget.
-  FocusNode? windSpeedFocusNode;
-  TextEditingController? windSpeedTextController;
-  String? Function(BuildContext, String?)? windSpeedTextControllerValidator;
-  // Stores action output result for [Custom Action - calculateA320SpeedsFull] action in Button widget.
-  dynamic speedsResult;
   // Stores action output result for [Custom Action - calculateA320SpeedsFull] action in ToPerformanceWidget widget.
   dynamic speedsResult1;
   // Stores action output result for [Custom Action - calculateA320Landing] action in LdaPerformanceWidget widget.
@@ -270,36 +211,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   void dispose() {
     instantTimer?.cancel();
     instantTimer2?.cancel();
-    grossWeightFocusNode?.dispose();
-    grossWeightTextController?.dispose();
-
-    cgFocusNode?.dispose();
-    cgTextController?.dispose();
-
-    runwaylengthxplanetakeoffFocusNode?.dispose();
-    runwaylengthxplanetakeoffTextController?.dispose();
-
-    runwayHeadingFocusNode?.dispose();
-    runwayHeadingTextController?.dispose();
-
-    slopeFocusNode?.dispose();
-    slopeTextController?.dispose();
-
-    airportElevationFocusNode?.dispose();
-    airportElevationTextController?.dispose();
-
-    qnhFocusNode?.dispose();
-    qnhTextController?.dispose();
-
-    temperatureFocusNode?.dispose();
-    temperatureTextController?.dispose();
-
-    winddirectionFocusNode?.dispose();
-    winddirectionTextController?.dispose();
-
-    windSpeedFocusNode?.dispose();
-    windSpeedTextController?.dispose();
-
     textFieldTOPhighFocusNode?.dispose();
     textFieldTOPhighTextController?.dispose();
 
