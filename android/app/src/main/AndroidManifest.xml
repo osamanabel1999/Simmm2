@@ -1,8 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.captain.simulatorfly" xmlns:tools="http://schemas.android.com/tools">
+  <!-- Network & Internet -->
   <uses-permission android:name="android.permission.INTERNET"/>
+  <!-- Camera (For Head Tracking) -->
+  <uses-permission android:name="android.permission.CAMERA"/>
+  <!-- Microphone (For Interactive Cockpit Checklists) -->
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-  <uses-permission android:name="android.permission.INTERNET"/>
+  <!-- Storage / Photo Library (For Profile Pictures, Screenshots, and Audio files - Android 12 and below) -->
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  <!-- Granular Media Permissions (For Photos and Audio - Android 13+) -->
+  <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+  <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
   <application
     android:label="testysimm"
     tools:replace="android:label"

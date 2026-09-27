@@ -170,14 +170,6 @@ class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
   dynamic calculateA320Landing;
   // Stores action output result for [Custom Action - calculateA320Landing] action in LdaPerformanceWidget widget.
   dynamic calculateA320LandingNew;
-  // State field(s) for CODE widget.
-  FocusNode? codeFocusNode;
-  TextEditingController? codeTextController;
-  String? Function(BuildContext, String?)? codeTextControllerValidator;
-  // Stores action output result for [Backend Call - API (CheckLicense)] action in Button widget.
-  ApiCallResponse? checkResult;
-  // Stores action output result for [Backend Call - API (AddLicense)] action in Button widget.
-  ApiCallResponse? apiResult631;
   // State field(s) for airportICAO widget.
   FocusNode? airportICAOFocusNode;
   TextEditingController? airportICAOTextController;
@@ -285,9 +277,6 @@ class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
 
     windSpeedFocusNode2?.dispose();
     windSpeedTextController2?.dispose();
-
-    codeFocusNode?.dispose();
-    codeTextController?.dispose();
 
     airportICAOFocusNode?.dispose();
     airportICAOTextController?.dispose();

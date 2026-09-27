@@ -516,7 +516,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                         ),
                       ),
                     ),
-                  if (FFAppState().isProUserXplane == false)
+                  if ((FFAppState().isProUserXplane == false) && isiOS)
                     Text(
                       'Don\'t have active subscription?\n Upgrade now.',
                       textAlign: TextAlign.center,
@@ -539,7 +539,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                 .fontStyle,
                           ),
                     ),
-                  if (FFAppState().isProUserXplane == false)
+                  if ((FFAppState().isProUserXplane == false) && isiOS)
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(0.0, 18.0, 0.0, 0.0),
@@ -631,7 +631,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                         ),
                       ),
                     ),
-                  if (FFAppState().isProUserXplane == false)
+                  if ((FFAppState().isProUserXplane == false) && isiOS)
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 8.0),

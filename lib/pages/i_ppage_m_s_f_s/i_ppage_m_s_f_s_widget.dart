@@ -529,7 +529,8 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (FFAppState().isProUserMSFS == false)
+                              if ((FFAppState().isProUserMSFS == false) &&
+                                  isiOS)
                                 Text(
                                   'Don\'t have active subscription? \nUpgrade now.',
                                   textAlign: TextAlign.center,
@@ -562,7 +563,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                       ),
                     ],
                   ),
-                  if (FFAppState().isProUserMSFS == false)
+                  if ((FFAppState().isProUserMSFS == false) && isiOS)
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(0.0, 18.0, 0.0, 0.0),
@@ -654,7 +655,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                         ),
                       ),
                     ),
-                  if (FFAppState().isProUserMSFS == false)
+                  if ((FFAppState().isProUserMSFS == false) && isiOS)
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 8.0),

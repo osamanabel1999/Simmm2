@@ -1169,329 +1169,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                               mainAxisSize: MainAxisSize.max,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                if (FFAppState().TabNumber == 6)
-                                  Expanded(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                            child: custom_widgets
-                                                .ToPerformanceWidget(
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                              pilotId: FFAppState()
-                                                  .SimbreifID
-                                                  .toString(),
-                                              onCalculatePressed: (acType,
-                                                  gw,
-                                                  cg,
-                                                  config,
-                                                  aice,
-                                                  aircond,
-                                                  rwyLen,
-                                                  rwyHdg,
-                                                  slope,
-                                                  rwyCond,
-                                                  aptElev,
-                                                  qnh,
-                                                  temp,
-                                                  windDir,
-                                                  windSpd) async {
-                                                _model.speedsResult1 =
-                                                    await actions
-                                                        .calculateA320SpeedsFull(
-                                                  gw,
-                                                  config,
-                                                  aptElev,
-                                                  temp,
-                                                  rwyHdg,
-                                                  windDir,
-                                                  windSpd,
-                                                  rwyLen,
-                                                  slope,
-                                                  rwyCond,
-                                                  aircond,
-                                                  aice,
-                                                  cg,
-                                                  qnh,
-                                                );
-                                                FFAppState().RWYLENGHTtakeoff =
-                                                    rwyLen;
-                                                safeSetState(() {});
-
-                                                context.pushNamed(
-                                                  TOCalculationWidget.routeName,
-                                                  queryParameters: {
-                                                    'v1Val': serializeParam(
-                                                      getJsonField(
-                                                        _model.speedsResult1,
-                                                        r'''$.v1''',
-                                                      ),
-                                                      ParamType.int,
-                                                    ),
-                                                    'vRVal': serializeParam(
-                                                      getJsonField(
-                                                        _model.speedsResult1,
-                                                        r'''$.vr''',
-                                                      ),
-                                                      ParamType.int,
-                                                    ),
-                                                    'v2Val': serializeParam(
-                                                      getJsonField(
-                                                        _model.speedsResult1,
-                                                        r'''$.v2''',
-                                                      ),
-                                                      ParamType.int,
-                                                    ),
-                                                    'flexVal': serializeParam(
-                                                      getJsonField(
-                                                        _model.speedsResult1,
-                                                        r'''$.flex_temp''',
-                                                      ).toString(),
-                                                      ParamType.String,
-                                                    ),
-                                                    'fSpeed': serializeParam(
-                                                      getJsonField(
-                                                        _model.speedsResult1,
-                                                        r'''$.f_speed''',
-                                                      ),
-                                                      ParamType.int,
-                                                    ),
-                                                    'sSpeed': serializeParam(
-                                                      getJsonField(
-                                                        _model.speedsResult1,
-                                                        r'''$.s_speed''',
-                                                      ),
-                                                      ParamType.int,
-                                                    ),
-                                                    'oSpeed': serializeParam(
-                                                      getJsonField(
-                                                        _model.speedsResult1,
-                                                        r'''$.green_dot_speed''',
-                                                      ),
-                                                      ParamType.int,
-                                                    ),
-                                                    'thsVal': serializeParam(
-                                                      getJsonField(
-                                                        _model.speedsResult1,
-                                                        r'''$.ths''',
-                                                      ).toString(),
-                                                      ParamType.String,
-                                                    ),
-                                                    'eoACC': serializeParam(
-                                                      getJsonField(
-                                                        _model.speedsResult1,
-                                                        r'''$.eo_acc''',
-                                                      ),
-                                                      ParamType.double,
-                                                    ),
-                                                    'isSafe': serializeParam(
-                                                      false,
-                                                      ParamType.bool,
-                                                    ),
-                                                  }.withoutNulls,
-                                                );
-
-                                                safeSetState(() {});
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                if (FFAppState().TabNumber == 7)
-                                  Expanded(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                            child: custom_widgets
-                                                .LdaPerformanceWidget(
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                              pilotId: FFAppState()
-                                                  .SimbreifID
-                                                  .toString(),
-                                              onCalculatePressed: (acType,
-                                                  gw,
-                                                  aptElev,
-                                                  config,
-                                                  aice,
-                                                  revInop,
-                                                  rwyLen,
-                                                  rwyHdg,
-                                                  slope,
-                                                  rwyCond,
-                                                  autobrake,
-                                                  qnh,
-                                                  temp,
-                                                  windDir,
-                                                  windSpd) async {
-                                                _model.calculateA320LandingNew =
-                                                    await actions
-                                                        .calculateA320Landing(
-                                                  gw,
-                                                  aptElev,
-                                                  temp,
-                                                  qnh,
-                                                  windDir,
-                                                  windSpd,
-                                                  rwyHdg,
-                                                  config,
-                                                  rwyCond,
-                                                  autobrake,
-                                                  revInop,
-                                                  slope,
-                                                  rwyLen,
-                                                  aice,
-                                                );
-                                                FFAppState().RWYLENGHTlading =
-                                                    rwyLen;
-                                                safeSetState(() {});
-
-                                                context.pushNamed(
-                                                  LDGCalculationWidget
-                                                      .routeName,
-                                                  queryParameters: {
-                                                    'isSafe': serializeParam(
-                                                      false,
-                                                      ParamType.bool,
-                                                    ),
-                                                    'vapp': serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.vapp''',
-                                                      ),
-                                                      ParamType.double,
-                                                    ),
-                                                    'vls': serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.vls''',
-                                                      ),
-                                                      ParamType.double,
-                                                    ),
-                                                    'actualDistance':
-                                                        serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.actual_distance''',
-                                                      ),
-                                                      ParamType.double,
-                                                    ),
-                                                    'oSpeedL': serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.o_speed''',
-                                                      ),
-                                                      ParamType.double,
-                                                    ),
-                                                    'sSpeedL': serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.s_speed''',
-                                                      ),
-                                                      ParamType.double,
-                                                    ),
-                                                    'fSpeedL': serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.f_speed''',
-                                                      ),
-                                                      ParamType.double,
-                                                    ),
-                                                    'qnhL': serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.qnh_display''',
-                                                      ),
-                                                      ParamType.double,
-                                                    ),
-                                                    'tempL': serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.temp_display''',
-                                                      ).toString(),
-                                                      ParamType.String,
-                                                    ),
-                                                    'windL': serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.wind_display''',
-                                                      ).toString(),
-                                                      ParamType.String,
-                                                    ),
-                                                    'ldgConfigL':
-                                                        serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.ldg_conf_display''',
-                                                      ).toString(),
-                                                      ParamType.String,
-                                                    ),
-                                                    'safeL': serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.is_safe''',
-                                                      ),
-                                                      ParamType.bool,
-                                                    ),
-                                                    'runwatStatusL':
-                                                        serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.runway_status_message''',
-                                                      ).toString(),
-                                                      ParamType.String,
-                                                    ),
-                                                    'runwayRemainingL':
-                                                        serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.remaining_runway''',
-                                                      ).toString(),
-                                                      ParamType.String,
-                                                    ),
-                                                    'forcedDistanceL':
-                                                        serializeParam(
-                                                      getJsonField(
-                                                        _model
-                                                            .calculateA320LandingNew,
-                                                        r'''$.factored_distance''',
-                                                      ),
-                                                      ParamType.double,
-                                                    ),
-                                                  }.withoutNulls,
-                                                );
-
-                                                safeSetState(() {});
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 if (FFAppState().TabNumber == 5)
                                   Expanded(
                                     child: Column(
@@ -20191,121 +19868,116 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                         false);
                                                               }),
                                                             ),
-                                                            MouseRegion(
-                                                              opaque: false,
-                                                              cursor: SystemMouseCursors
-                                                                      .basic ??
-                                                                  MouseCursor
-                                                                      .defer,
-                                                              child:
-                                                                  AnimatedContainer(
-                                                                duration: Duration(
-                                                                    milliseconds:
-                                                                        150),
-                                                                curve: Curves
-                                                                    .easeInOut,
-                                                                width: double
-                                                                    .infinity,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: Color(
-                                                                      0xFF101923),
-                                                                  border: Border
-                                                                      .all(
+                                                            if (isiOS)
+                                                              MouseRegion(
+                                                                opaque: false,
+                                                                cursor: SystemMouseCursors
+                                                                        .basic ??
+                                                                    MouseCursor
+                                                                        .defer,
+                                                                child:
+                                                                    AnimatedContainer(
+                                                                  duration: Duration(
+                                                                      milliseconds:
+                                                                          150),
+                                                                  curve: Curves
+                                                                      .easeInOut,
+                                                                  width: double
+                                                                      .infinity,
+                                                                  decoration:
+                                                                      BoxDecoration(
                                                                     color: Color(
-                                                                        0xFF1C1111),
+                                                                        0xFF101923),
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Color(
+                                                                          0xFF1C1111),
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                                child: Padding(
-                                                                  padding: EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          0.0,
-                                                                          8.0,
-                                                                          0.0,
-                                                                          8.0),
                                                                   child:
-                                                                      InkWell(
-                                                                    splashColor:
-                                                                        Colors
-                                                                            .transparent,
-                                                                    focusColor:
-                                                                        Colors
-                                                                            .transparent,
-                                                                    hoverColor:
-                                                                        Colors
-                                                                            .transparent,
-                                                                    highlightColor:
-                                                                        Colors
-                                                                            .transparent,
-                                                                    onTap:
-                                                                        () async {
-                                                                      context.pushNamed(
-                                                                          SubscriptionManageForALLWidget
-                                                                              .routeName);
-                                                                    },
-                                                                    child: Row(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .max,
-                                                                      children: [
-                                                                        Padding(
-                                                                          padding: EdgeInsetsDirectional.fromSTEB(
-                                                                              12.0,
-                                                                              0.0,
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Icon(
-                                                                            Icons.monetization_on,
-                                                                            color:
-                                                                                Color(0xFFE5E7EB),
-                                                                            size:
-                                                                                20.0,
-                                                                          ),
-                                                                        ),
-                                                                        Expanded(
-                                                                          child:
-                                                                              Padding(
+                                                                      Padding(
+                                                                    padding: EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            0.0,
+                                                                            8.0,
+                                                                            0.0,
+                                                                            8.0),
+                                                                    child:
+                                                                        InkWell(
+                                                                      splashColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      focusColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      hoverColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      highlightColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      onTap:
+                                                                          () async {
+                                                                        context.pushNamed(
+                                                                            SubscriptionManageForALLWidget.routeName);
+                                                                      },
+                                                                      child:
+                                                                          Row(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.max,
+                                                                        children: [
+                                                                          Padding(
                                                                             padding: EdgeInsetsDirectional.fromSTEB(
                                                                                 12.0,
                                                                                 0.0,
                                                                                 0.0,
                                                                                 0.0),
                                                                             child:
-                                                                                Text(
-                                                                              'MY Subscription',
-                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                    font: GoogleFonts.plusJakartaSans(
+                                                                                Icon(
+                                                                              Icons.monetization_on,
+                                                                              color: Color(0xFFE5E7EB),
+                                                                              size: 20.0,
+                                                                            ),
+                                                                          ),
+                                                                          Expanded(
+                                                                            child:
+                                                                                Padding(
+                                                                              padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
+                                                                              child: Text(
+                                                                                'MY Subscription',
+                                                                                style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                      font: GoogleFonts.plusJakartaSans(
+                                                                                        fontWeight: FontWeight.w500,
+                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                      ),
+                                                                                      color: Color(0xFFE5E7EB),
+                                                                                      fontSize: 14.0,
+                                                                                      letterSpacing: 0.0,
                                                                                       fontWeight: FontWeight.w500,
                                                                                       fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                     ),
-                                                                                    color: Color(0xFFE5E7EB),
-                                                                                    fontSize: 14.0,
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FontWeight.w500,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
+                                                                              ),
                                                                             ),
                                                                           ),
-                                                                        ),
-                                                                      ],
+                                                                        ],
+                                                                      ),
                                                                     ),
                                                                   ),
                                                                 ),
+                                                                onEnter:
+                                                                    ((event) async {
+                                                                  safeSetState(() =>
+                                                                      _model.mouseRegionHovered3 =
+                                                                          true);
+                                                                }),
+                                                                onExit:
+                                                                    ((event) async {
+                                                                  safeSetState(() =>
+                                                                      _model.mouseRegionHovered3 =
+                                                                          false);
+                                                                }),
                                                               ),
-                                                              onEnter:
-                                                                  ((event) async {
-                                                                safeSetState(() =>
-                                                                    _model.mouseRegionHovered3 =
-                                                                        true);
-                                                              }),
-                                                              onExit:
-                                                                  ((event) async {
-                                                                safeSetState(() =>
-                                                                    _model.mouseRegionHovered3 =
-                                                                        false);
-                                                              }),
-                                                            ),
                                                             MouseRegion(
                                                               opaque: false,
                                                               cursor: SystemMouseCursors

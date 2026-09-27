@@ -85,10 +85,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   dynamic left45;
   // Stores action output result for [Custom Action - calculateRight45EntryPosition] action in HomePageXPLANE widget.
   dynamic right45;
-  // Stores action output result for [Custom Action - calculateA320SpeedsFull] action in ToPerformanceWidget widget.
-  dynamic speedsResult1;
-  // Stores action output result for [Custom Action - calculateA320Landing] action in LdaPerformanceWidget widget.
-  dynamic calculateA320LandingNew;
   // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in EFBRadarMap widget.
   dynamic vectorsResultTeleportonMAP;
   // State field(s) for TextFieldTOPhigh widget.
