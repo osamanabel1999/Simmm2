@@ -1,5 +1,6 @@
 import '/backend/api_requests/api_calls.dart';
 import '/components/failure_widget.dart';
+import '/flutter_flow/ff_builtin_enums.dart';
 import '/flutter_flow/flutter_flow_ad_banner.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -1335,6 +1336,31 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                   FFAppState().msfsTeleportSpd,
                                                 );
                                               },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                if (FFAppState().TabNumber == 130)
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          (FFCrossAxisAlignment.stretch)
+                                              .flutterValue,
+                                      textBaseline: TextBaseline.alphabetic,
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                            child:
+                                                custom_widgets.AcarsEfbWidget(
+                                              width: double.infinity,
+                                              height: double.infinity,
                                             ),
                                           ),
                                         ),
@@ -25350,7 +25376,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                   context.pushNamed(EFBxplaneWidget.routeName);
                                 },
                                 settingsAction: () async {
-                                  FFAppState().TabNumber = 13;
+                                  FFAppState().TabNumber = 130;
                                   safeSetState(() {});
                                 },
                               ),

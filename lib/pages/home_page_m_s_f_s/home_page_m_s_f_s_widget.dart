@@ -40603,6 +40603,31 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                           ],
                                         ),
                                       ),
+                                    if (FFAppState().TabNumber == 130)
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              (FFCrossAxisAlignment.stretch)
+                                                  .flutterValue,
+                                          textBaseline: TextBaseline.alphabetic,
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                child: custom_widgets
+                                                    .AcarsEfbWidget(
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -41591,7 +41616,7 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                           .pushNamed(EFBmsfsWidget.routeName);
                                     },
                                     settingsAction: () async {
-                                      FFAppState().TabNumber = 13;
+                                      FFAppState().TabNumber = 130;
                                       safeSetState(() {});
                                     },
                                   ),
