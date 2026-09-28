@@ -323,6 +323,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: EFBappPagesWidget.routeName,
           path: EFBappPagesWidget.routePath,
           builder: (context, params) => EFBappPagesWidget(),
+        ),
+        FFRoute(
+          name: IosWidget.routeName,
+          path: IosWidget.routePath,
+          builder: (context, params) => IosWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
