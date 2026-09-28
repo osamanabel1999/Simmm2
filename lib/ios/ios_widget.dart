@@ -83,7 +83,7 @@ class _IosWidgetState extends State<IosWidget> {
                     height: double.infinity,
                     appId: 'cb8d86db8e01476d932b9766b3468481',
                     token:
-                        '007eJxTYFD1eMPfdeqalJJnzz6PNVuVHl5S/fyC+3FS/fwZX5d4TpNQYEhOskixMEtJskg1MDQxN0uxNDZKsjQ3M0syNjGzMLEwNDy/K6shkJFh/fMgVkYGCATxuRjScjLTM0qK8vNzGRgAWcwi/A==',
+                        '007eJxTYNhw8RRzLu+6y4rrp09a0yJlYHOt/oeq4yd5E8+n8ybUt4ooMCQnWaRYmKUkWaQaGJqYm6VYGhslWZqbmSUZm5hZmFgYCn/dldUQyMjgqDeBiZEBAkF8Loa0nMz0jJKi/PxcBgYA9YEhBw==',
                     channelName: 'flightroom',
                   ),
                 ),
