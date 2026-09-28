@@ -457,7 +457,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                           .asValidator(context),
                     ),
                   ),
-                  if (FFAppState().isProUserMSFS == true)
+                  if ((FFAppState().isProUserMSFS == true) || isAndroid)
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 20.0),

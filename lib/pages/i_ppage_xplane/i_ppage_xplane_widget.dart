@@ -457,7 +457,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                           .asValidator(context),
                     ),
                   ),
-                  if (FFAppState().isProUserXplane == true)
+                  if ((FFAppState().isProUserXplane == true) || isAndroid)
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 20.0),

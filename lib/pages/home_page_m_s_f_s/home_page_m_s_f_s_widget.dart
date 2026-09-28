@@ -37568,104 +37568,104 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                                             false);
                                                                   }),
                                                                 ),
-                                                                MouseRegion(
-                                                                  opaque: false,
-                                                                  cursor: SystemMouseCursors
-                                                                          .basic ??
-                                                                      MouseCursor
-                                                                          .defer,
-                                                                  child:
-                                                                      AnimatedContainer(
-                                                                    duration: Duration(
-                                                                        milliseconds:
-                                                                            150),
-                                                                    curve: Curves
-                                                                        .easeInOut,
-                                                                    width: double
-                                                                        .infinity,
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      color: Color(
-                                                                          0xFF101923),
-                                                                      border:
-                                                                          Border
-                                                                              .all(
-                                                                        color: Color(
-                                                                            0xFF1C1111),
-                                                                      ),
-                                                                    ),
+                                                                if (isiOS)
+                                                                  MouseRegion(
+                                                                    opaque:
+                                                                        false,
+                                                                    cursor: SystemMouseCursors
+                                                                            .basic ??
+                                                                        MouseCursor
+                                                                            .defer,
                                                                     child:
-                                                                        Padding(
-                                                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                                                          0.0,
-                                                                          8.0,
-                                                                          0.0,
-                                                                          8.0),
+                                                                        AnimatedContainer(
+                                                                      duration: Duration(
+                                                                          milliseconds:
+                                                                              150),
+                                                                      curve: Curves
+                                                                          .easeInOut,
+                                                                      width: double
+                                                                          .infinity,
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        color: Color(
+                                                                            0xFF101923),
+                                                                        border:
+                                                                            Border.all(
+                                                                          color:
+                                                                              Color(0xFF1C1111),
+                                                                        ),
+                                                                      ),
                                                                       child:
-                                                                          InkWell(
-                                                                        splashColor:
-                                                                            Colors.transparent,
-                                                                        focusColor:
-                                                                            Colors.transparent,
-                                                                        hoverColor:
-                                                                            Colors.transparent,
-                                                                        highlightColor:
-                                                                            Colors.transparent,
-                                                                        onTap:
-                                                                            () async {
-                                                                          context
-                                                                              .pushNamed(SubscriptionManageForALLWidget.routeName);
-                                                                        },
+                                                                          Padding(
+                                                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                                                            0.0,
+                                                                            8.0,
+                                                                            0.0,
+                                                                            8.0),
                                                                         child:
-                                                                            Row(
-                                                                          mainAxisSize:
-                                                                              MainAxisSize.max,
-                                                                          children: [
-                                                                            Padding(
-                                                                              padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
-                                                                              child: Icon(
-                                                                                Icons.monetization_on_rounded,
-                                                                                color: Color(0xFFE5E7EB),
-                                                                                size: 20.0,
-                                                                              ),
-                                                                            ),
-                                                                            Expanded(
-                                                                              child: Padding(
+                                                                            InkWell(
+                                                                          splashColor:
+                                                                              Colors.transparent,
+                                                                          focusColor:
+                                                                              Colors.transparent,
+                                                                          hoverColor:
+                                                                              Colors.transparent,
+                                                                          highlightColor:
+                                                                              Colors.transparent,
+                                                                          onTap:
+                                                                              () async {
+                                                                            context.pushNamed(SubscriptionManageForALLWidget.routeName);
+                                                                          },
+                                                                          child:
+                                                                              Row(
+                                                                            mainAxisSize:
+                                                                                MainAxisSize.max,
+                                                                            children: [
+                                                                              Padding(
                                                                                 padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
-                                                                                child: Text(
-                                                                                  'MY Subscription',
-                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                        font: GoogleFonts.plusJakartaSans(
+                                                                                child: Icon(
+                                                                                  Icons.monetization_on_rounded,
+                                                                                  color: Color(0xFFE5E7EB),
+                                                                                  size: 20.0,
+                                                                                ),
+                                                                              ),
+                                                                              Expanded(
+                                                                                child: Padding(
+                                                                                  padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
+                                                                                  child: Text(
+                                                                                    'MY Subscription',
+                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                          font: GoogleFonts.plusJakartaSans(
+                                                                                            fontWeight: FontWeight.w500,
+                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                                          ),
+                                                                                          color: Color(0xFFE5E7EB),
+                                                                                          fontSize: 14.0,
+                                                                                          letterSpacing: 0.0,
                                                                                           fontWeight: FontWeight.w500,
                                                                                           fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                                                                                         ),
-                                                                                        color: Color(0xFFE5E7EB),
-                                                                                        fontSize: 14.0,
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FontWeight.w500,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                      ),
+                                                                                  ),
                                                                                 ),
                                                                               ),
-                                                                            ),
-                                                                          ],
+                                                                            ],
+                                                                          ),
                                                                         ),
                                                                       ),
                                                                     ),
+                                                                    onEnter:
+                                                                        ((event) async {
+                                                                      safeSetState(() =>
+                                                                          _model.mouseRegionHovered3 =
+                                                                              true);
+                                                                    }),
+                                                                    onExit:
+                                                                        ((event) async {
+                                                                      safeSetState(() =>
+                                                                          _model.mouseRegionHovered3 =
+                                                                              false);
+                                                                    }),
                                                                   ),
-                                                                  onEnter:
-                                                                      ((event) async {
-                                                                    safeSetState(() =>
-                                                                        _model.mouseRegionHovered3 =
-                                                                            true);
-                                                                  }),
-                                                                  onExit:
-                                                                      ((event) async {
-                                                                    safeSetState(() =>
-                                                                        _model.mouseRegionHovered3 =
-                                                                            false);
-                                                                  }),
-                                                                ),
                                                                 MouseRegion(
                                                                   opaque: false,
                                                                   cursor: SystemMouseCursors
