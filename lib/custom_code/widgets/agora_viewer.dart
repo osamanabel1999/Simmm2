@@ -58,6 +58,7 @@ class _AgoraViewerState extends State<AgoraViewer> {
 
   Future<void> initAgora() async {
     _addLog("بدء التشغيل...");
+    await Future.delayed(const Duration(milliseconds: 500));
 
     try {
       if (widget.appId.isEmpty || widget.token.isEmpty) {
@@ -65,7 +66,6 @@ class _AgoraViewerState extends State<AgoraViewer> {
         return;
       }
 
-      _addLog("جاري تهيئة Agora...");
       _engine = createAgoraRtcEngine();
 
       await _engine.initialize(RtcEngineContext(
@@ -103,11 +103,13 @@ class _AgoraViewerState extends State<AgoraViewer> {
         }),
       );
 
-      await _engine.enableVideo();
-      await _engine.enableAudio();
+      // تم حذف أوامر enableAudio و enableVideo نهائياً من هنا لمنع اختناق نظام iOS
 
       _addLog("جاري الانضمام للغرفة...");
-      await _engine.joinChannel(
+
+      // إضافة مؤقت زمني لكسر أي تعليق صامت
+      await _engine
+          .joinChannel(
         token: widget.token.trim(),
         channelId: widget.channelName.trim(),
         uid: 0,
@@ -115,10 +117,14 @@ class _AgoraViewerState extends State<AgoraViewer> {
           autoSubscribeVideo: true,
           autoSubscribeAudio: true,
           publishCameraTrack: false,
-          publishMicrophoneTrack: true,
-          clientRoleType: ClientRoleType.clientRoleBroadcaster,
+          publishMicrophoneTrack: false,
+          clientRoleType: ClientRoleType.clientRoleAudience,
         ),
-      );
+      )
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        throw Exception(
+            "فشل الانضمام: لا يوجد رد من سيرفرات Agora أو نظام iOS يمنع الاتصال");
+      });
     } catch (e) {
       _addLog("استثناء فادح ❌: $e");
     }
