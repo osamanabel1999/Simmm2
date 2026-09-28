@@ -25322,6 +25322,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     'sim/operation/pause_toggle',
                                     FFAppState().ipPC,
                                   );
+
+                                  context.pushNamed(IosWidget.routeName);
                                 },
                                 freezeAction: () async {
                                   await actions.sendXPlaneCommand(
