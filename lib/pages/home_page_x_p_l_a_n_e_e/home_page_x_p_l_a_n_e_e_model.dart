@@ -3,10 +3,10 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
 import '/flutter_flow/instant_timer.dart';
 import '/index.dart';
-import 'home_page_x_p_l_a_n_e_widget.dart' show HomePageXPLANEWidget;
+import 'home_page_x_p_l_a_n_e_e_widget.dart' show HomePageXPLANEEWidget;
 import 'package:flutter/material.dart';
 
-class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
+class HomePageXPLANEEModel extends FlutterFlowModel<HomePageXPLANEEWidget> {
   ///  Local state fields for this page.
 
   int currentStep = 1;
@@ -19,71 +19,71 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
 
   ///  State fields for stateful widgets in this page.
 
-  // Stores action output result for [Backend Call - API (GetAirportInfo)] action in HomePageXPLANE widget.
+  // Stores action output result for [Backend Call - API (GetAirportInfo)] action in HomePageXPLANEE widget.
   ApiCallResponse? airportResulxxxxx;
-  // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageXPLANE widget.
+  // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageXPLANEE widget.
   ApiCallResponse? simbreifResponse;
-  // Stores action output result for [Backend Call - API (getMetarRaw)] action in HomePageXPLANE widget.
+  // Stores action output result for [Backend Call - API (getMetarRaw)] action in HomePageXPLANEE widget.
   ApiCallResponse? metarResult;
-  // Stores action output result for [Backend Call - API (getTafRaw)] action in HomePageXPLANE widget.
+  // Stores action output result for [Backend Call - API (getTafRaw)] action in HomePageXPLANEE widget.
   ApiCallResponse? tafResult;
   InstantTimer? instantTimer;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANEE widget.
   double? headingoutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANEE widget.
   double? xoutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANEE widget.
   double? zoutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANEE widget.
   double? youtput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANEE widget.
   double? lAToutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANEE widget.
   double? lONoutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANEE widget.
   double? sPDoutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANEE widget.
   double? aLToutput;
   InstantTimer? instantTimer2;
-  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANEE widget.
   dynamic autoResult;
-  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANEE widget.
   dynamic autoResultGate;
-  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANEE widget.
   dynamic autoResultGateChart;
-  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANEE widget.
   dynamic autoResultNVAIDS;
-  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANEE widget.
   dynamic autoResultTeleportonMap;
-  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANEE widget.
   dynamic sevenNMfinall;
-  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANEE widget.
   dynamic fiftenNMfinall;
-  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANEE widget.
   dynamic gateselectedXplane;
-  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANEE widget.
   dynamic tenNMfinall;
-  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANEE widget.
   dynamic cuisingFinal;
-  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANEE widget.
   dynamic zeroNMfinall;
-  // Stores action output result for [Custom Action - calculateRightDownwindPosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateRightDownwindPosition] action in HomePageXPLANEE widget.
   dynamic rightDownwind;
-  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANEE widget.
   dynamic teleportOnMAP;
-  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANEE widget.
   dynamic chartGateselectedXplane;
-  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - moveAircraftBackward] action in HomePageXPLANEE widget.
   dynamic nAVAIDSselectedXplane;
-  // Stores action output result for [Custom Action - calculateBaseLegPosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateBaseLegPosition] action in HomePageXPLANEE widget.
   dynamic leftbase;
-  // Stores action output result for [Custom Action - calculateLeftDownwindPosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateLeftDownwindPosition] action in HomePageXPLANEE widget.
   dynamic leftDownwind;
-  // Stores action output result for [Custom Action - calculateRightBasePosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateRightBasePosition] action in HomePageXPLANEE widget.
   dynamic rightBase;
-  // Stores action output result for [Custom Action - calculateLeft45EntryPosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateLeft45EntryPosition] action in HomePageXPLANEE widget.
   dynamic left45;
-  // Stores action output result for [Custom Action - calculateRight45EntryPosition] action in HomePageXPLANE widget.
+  // Stores action output result for [Custom Action - calculateRight45EntryPosition] action in HomePageXPLANEE widget.
   dynamic right45;
   // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in EFBRadarMap widget.
   dynamic vectorsResultTeleportonMAP;
