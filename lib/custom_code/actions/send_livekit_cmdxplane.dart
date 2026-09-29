@@ -9,28 +9,25 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import '/custom_code/widgets/index.dart'; // Imports other custom widgets
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
 
-// 👇 رجعنا المتغير هنا عشان فلاتر فلو يرضى يشوفه والإيرورات تختفي!
+// تعريف المتغير العام عشان الأكشن والشاشة يشوفوا بعض
 Room? globalLiveKitRoom_xplane;
 
 Future sendLivekitCmdxplane(String commandName) async {
   if (globalLiveKitRoom_xplane == null ||
       globalLiveKitRoom_xplane!.localParticipant == null) {
-    debugPrint("⚠️ لم يتم الاتصال بالغرفة!");
+    debugPrint("⚠️ الأكشن الخارجي: لم يتم الاتصال بالغرفة! المتغير فارغ.");
     return;
   }
 
   try {
     final data = utf8.encode(commandName);
-    await globalLiveKitRoom_xplane!.localParticipant?.publishData(
-      data,
-      topic: 'cmd',
-    );
-    debugPrint("✅ تم إرسال الأمر بنجاح: $commandName");
+    await globalLiveKitRoom_xplane!.localParticipant
+        ?.publishData(data, topic: 'cmd');
+    debugPrint("✅ الأكشن الخارجي: تم إرسال الأمر بنجاح: $commandName");
   } catch (e) {
-    debugPrint("❌ خطأ في الإرسال: $e");
+    debugPrint("❌ الأكشن الخارجي: خطأ في الإرسال: $e");
   }
 }

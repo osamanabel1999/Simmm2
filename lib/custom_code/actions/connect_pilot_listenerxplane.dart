@@ -26,7 +26,6 @@ Future connectPilotListenerxplane(
 
   try {
     final cleanRoomCode = roomCode.trim();
-
     final jwt = JWT({
       'name': 'Pilot_Listener_${DateTime.now().millisecondsSinceEpoch}',
       'video': {
@@ -34,7 +33,7 @@ Future connectPilotListenerxplane(
         'roomJoin': true,
         'canPublish': false,
         'canSubscribe': true,
-        'canPublishData': true, // إذن استقبال البيانات اللي كان ناقص
+        'canPublishData': true,
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp': (DateTime.now().add(const Duration(hours: 4)))
@@ -49,32 +48,36 @@ Future connectPilotListenerxplane(
     if (pilotRoomxplane != null) {
       await pilotRoomxplane!.disconnect();
     }
-    pilotListenerxplane?.dispose();
 
     pilotRoomxplane = Room();
     pilotListenerxplane = pilotRoomxplane!.createListener();
 
+    // رادار الاستقبال القوي
     pilotListenerxplane!.on<DataReceivedEvent>((event) {
+      debugPrint("🔥 [رادار الطيار]: التقطت إشارة في الموجة: ${event.topic}");
       if (event.topic == 'cmd') {
         try {
           final command = utf8.decode(event.data);
-
-          FFAppState().update(() {
-            FFAppState().receivedCommand = command;
-          });
+          debugPrint("🎯 [رادار الطيار]: الكلمة هي: $command");
 
           if (command == 'TEST') {
             if (onTestCommand != null) {
-              // إجبار ظهور السناك بار على الشاشة
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                onTestCommand();
-              });
+              debugPrint("✅ [رادار الطيار]: جاري تنفيذ الضغطة الوهمية!");
+              onTestCommand();
+            } else {
+              debugPrint(
+                  "⚠️ [رادار الطيار]: الكلمة وصلت بس انت مش حاطط أكشن في onTestCommand!");
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          debugPrint("❌ [رادار الطيار]: خطأ في قراءة الكلمة: $e");
+        }
       }
     });
 
     await pilotRoomxplane!.connect(livekitUrl, token);
-  } catch (e) {}
+    debugPrint("✅ [رادار الطيار]: متصل ومستعد بغرفة: $cleanRoomCode");
+  } catch (e) {
+    debugPrint("❌ [رادار الطيار]: فشل الاتصال: $e");
+  }
 }
