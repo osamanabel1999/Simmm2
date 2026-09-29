@@ -61,7 +61,7 @@ dependencies:
   path_provider_linux: 2.2.1
   path_provider_platform_interface: 2.1.2
   path_provider_windows: 2.3.0
-  pdfx: 2.9.2
+  pdfx: any
   permission_handler: ^11.3.1 # 👈 تم إضافة مكتبة الصلاحيات المنقذة هنا
   photo_view: 0.15.0
   plugin_platform_interface: 2.1.8
