@@ -14,8 +14,11 @@ import '/custom_code/widgets/index.dart'; // Imports other custom widgets
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
 
+// 👇 رجعنا تعريف المتغير هنا عشان الأكشن يقدر يشوفه ويشتغل صح
+Room? globalLiveKitRoom_xplane;
+
 Future sendLivekitCmdxplane(String commandName) async {
-  // 1. التأكد إن الغرفة متصلة ومفتوحة (المتغير مقروء الآن من ملف الشاشة)
+  // 1. التأكد إن الغرفة متصلة ومفتوحة
   if (globalLiveKitRoom_xplane == null ||
       globalLiveKitRoom_xplane!.localParticipant == null) {
     debugPrint("⚠️ لم يتم الاتصال بالغرفة بعد!");
@@ -23,14 +26,14 @@ Future sendLivekitCmdxplane(String commandName) async {
   }
 
   try {
-    // 2. تجهيز رسالة الأمر (كود خفيف جداً يطير في أجزاء من الثانية)
+    // 2. تجهيز رسالة الأمر
     final message = jsonEncode({
       'target': 'XPLANE',
       'action': commandName,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     });
 
-    // 3. إرسال الأمر عبر كابل الاتصال المفتوح (تم حذف reliability)
+    // 3. إرسال الأمر عبر كابل الاتصال المفتوح
     final data = utf8.encode(message);
     await globalLiveKitRoom_xplane!.localParticipant?.publishData(data);
 
