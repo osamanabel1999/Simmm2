@@ -98,7 +98,11 @@ class _IOSinstructorWidgetState extends State<IOSinstructorWidget> {
                   child: custom_widgets.LiveKitViewer(
                     width: double.infinity,
                     height: double.infinity,
-                    onTestClick: () async {},
+                    onTestClick: () async {
+                      await actions.sendLivekitCmdxplane(
+                        'TEST',
+                      );
+                    },
                   ),
                 ),
               ),

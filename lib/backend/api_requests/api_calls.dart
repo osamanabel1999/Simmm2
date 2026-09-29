@@ -164,7 +164,7 @@ class AddLicenseCall {
     final ffApiRequestBody = '''
 {
   "fields": {
-    "LicenseKey": "${escapeStringForJson(newKey)}"
+    "LicenseKey": ${newKey == null ? 'null' : '"${escapeStringForJson(newKey)}"'}
   }
 }''';
     return ApiManager.instance.makeApiCall(

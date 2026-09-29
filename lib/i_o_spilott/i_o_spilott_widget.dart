@@ -176,7 +176,7 @@ class _IOSpilottWidgetState extends State<IOSpilottWidget> {
                     ),
               ),
               Text(
-                'Hello Worldn',
+                'Hello wow',
                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                       font: GoogleFonts.inter(
                         fontWeight:
