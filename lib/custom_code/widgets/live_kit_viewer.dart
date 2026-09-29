@@ -13,6 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
+// 👇 السطر السحري اللي كان ناقص وحل الـ 3 إيرورات!
+Room? globalLiveKitRoom_xplane;
+
 class LiveKitViewer extends StatefulWidget {
   const LiveKitViewer({
     Key? key,
@@ -59,7 +62,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
         'roomJoin': true,
         'canPublish': true,
         'canSubscribe': true,
-        'canPublishData': true, // 👈 الإذن اللي ضفناه عشان يقدر يبعت الأوامر
+        'canPublishData': true, // الإذن اللي ضفناه عشان يقدر يبعت الأوامر
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp': (DateTime.now().add(const Duration(hours: 4)))

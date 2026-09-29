@@ -9,10 +9,11 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import '/custom_code/widgets/index.dart'; // Imports other custom widgets
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
 
-Room? globalLiveKitRoom_xplane;
+// ❌ مفيش تعريف للمتغير هنا عشان ميضربش إيرور تكرار، الأكشن هيشوفه من ملف الشاشة فوراً
 
 Future sendLivekitCmdxplane(String commandName) async {
   if (globalLiveKitRoom_xplane == null ||
@@ -22,7 +23,6 @@ Future sendLivekitCmdxplane(String commandName) async {
   }
 
   try {
-    // إرسال الكلمة مباشرة في مسار 'cmd'
     final data = utf8.encode(commandName);
     await globalLiveKitRoom_xplane!.localParticipant?.publishData(
       data,
