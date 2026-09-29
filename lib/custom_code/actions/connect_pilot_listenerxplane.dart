@@ -45,25 +45,32 @@ Future connectPilotListenerxplane(
 
     final token = jwt.sign(SecretKey(apiSecret));
 
+    // 1. تنظيف أي اتصال أو رادار قديم
     if (pilotRoomxplane != null) {
       await pilotRoomxplane!.disconnect();
     }
+    pilotListenerxplane?.dispose();
 
     pilotRoomxplane = Room();
     pilotListenerxplane = pilotRoomxplane!.createListener();
 
-    // رادار الاستقبال القوي
+    // 2. رادار الاستقبال المظبوط
     pilotListenerxplane!.on<DataReceivedEvent>((event) {
       debugPrint("🔥 [رادار الطيار]: التقطت إشارة في الموجة: ${event.topic}");
-      if (event.topic == 'cmd') {
+
+      // استقبال سواء بموجة cmd أو بدون موجة لضمان عدم الضياع
+      if (event.topic == 'cmd' || event.topic == null) {
         try {
-          final command = utf8.decode(event.data);
+          final command = utf8.decode(event.data).trim();
           debugPrint("🎯 [رادار الطيار]: الكلمة هي: $command");
 
           if (command == 'TEST') {
             if (onTestCommand != null) {
-              debugPrint("✅ [رادار الطيار]: جاري تنفيذ الضغطة الوهمية!");
-              onTestCommand();
+              debugPrint("✅ [رادار الطيار]: جاري إجبار السناك بار على الظهور!");
+              // 🔥 هذا السطر يجبر فلاتر على عرض السناك بار على الشاشة فوراً
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                onTestCommand();
+              });
             } else {
               debugPrint(
                   "⚠️ [رادار الطيار]: الكلمة وصلت بس انت مش حاطط أكشن في onTestCommand!");

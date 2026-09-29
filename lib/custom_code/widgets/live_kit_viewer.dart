@@ -14,12 +14,15 @@ import 'package:livekit_client/livekit_client.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'dart:convert';
 
+// 👇 السطر ده هو اللي هيحل الإيرورين اللي في الصورة فوراً!
+Room? globalLiveKitRoom_xplane;
+
 class LiveKitViewer extends StatefulWidget {
   const LiveKitViewer({
     Key? key,
     this.width,
     this.height,
-    this.onTestClick, // 👈 الباراميتر الجديد اللي طلبته للأكشن
+    this.onTestClick,
   }) : super(key: key);
 
   final double? width;
@@ -45,7 +48,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
   final TextEditingController _roomController = TextEditingController();
   final List<String> _logs = [];
 
-  // دالة ذكية لإضافة اللوجز في الشاشة قدام عينك
   void _addLog(String msg) {
     if (!mounted) return;
     setState(() {
@@ -62,7 +64,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
         'roomJoin': true,
         'canPublish': true,
         'canSubscribe': true,
-        'canPublishData': true, // إذن الإرسال
+        'canPublishData': true,
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp': (DateTime.now().add(const Duration(hours: 4)))
@@ -86,7 +88,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       final token = _generateToken(roomName);
       _room = Room();
 
-      // 👈 هنا بنربط الغرفة بالمتغير الخارجي عشان الأكشن الخارجي يشوفه!
+      // تم ربط المتغير بنجاح
       globalLiveKitRoom_xplane = _room;
 
       _addLog("جاري الاتصال بالغرفة...");
@@ -103,7 +105,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     }
   }
 
-  // 👇 الدالة الجديدة اللي بتبعت البيانات من جوه الشاشة مباشرة (مستحيل تفشل)
   Future<void> _sendTestCommand() async {
     if (_room == null || _room!.localParticipant == null) {
       _addLog("⚠️ مفيش اتصال عشان نبعت!");
@@ -116,7 +117,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       _addLog("🚀 تم طيران الأمر TEST بنجاح!");
 
       if (widget.onTestClick != null) {
-        widget.onTestClick!(); // تشغيل الأكشن الإضافي لو حبيت
+        widget.onTestClick!();
       }
     } catch (e) {
       _addLog("❌ فشل الإرسال: $e");
@@ -140,7 +141,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       color: Colors.black87,
       child: Column(
         children: [
-          // شريط التحكم
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -178,8 +178,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
               ],
             ),
           ),
-
-          // شاشة Logs الذكية عشان تعرف المشكلة فين
           Expanded(
             child: Container(
               margin: const EdgeInsets.all(8),
