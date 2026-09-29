@@ -61,9 +61,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               : HomeMenuWidget(),
         ),
         FFRoute(
-          name: HomePageXPLANEEWidget.routeName,
-          path: HomePageXPLANEEWidget.routePath,
-          builder: (context, params) => HomePageXPLANEEWidget(),
+          name: HomePageXPLANEWidget.routeName,
+          path: HomePageXPLANEWidget.routePath,
+          builder: (context, params) => HomePageXPLANEWidget(),
         ),
         FFRoute(
           name: TOCalculationWidget.routeName,
@@ -325,9 +325,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => EFBappPagesWidget(),
         ),
         FFRoute(
-          name: IOSlWidget.routeName,
-          path: IOSlWidget.routePath,
-          builder: (context, params) => IOSlWidget(),
+          name: IOSinstructorWidget.routeName,
+          path: IOSinstructorWidget.routePath,
+          builder: (context, params) => IOSinstructorWidget(),
+        ),
+        FFRoute(
+          name: IOSpilotWidget.routeName,
+          path: IOSpilotWidget.routePath,
+          builder: (context, params) => IOSpilotWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

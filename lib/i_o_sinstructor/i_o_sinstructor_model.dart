@@ -1,8 +1,8 @@
 import '/flutter_flow/flutter_flow_util.dart';
-import 'i_o_sl_widget.dart' show IOSlWidget;
+import 'i_o_sinstructor_widget.dart' show IOSinstructorWidget;
 import 'package:flutter/material.dart';
 
-class IOSlModel extends FlutterFlowModel<IOSlWidget> {
+class IOSinstructorModel extends FlutterFlowModel<IOSinstructorWidget> {
   @override
   void initState(BuildContext context) {}
 

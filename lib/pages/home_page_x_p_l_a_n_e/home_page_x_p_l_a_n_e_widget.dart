@@ -21,28 +21,28 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
-import 'home_page_x_p_l_a_n_e_e_model.dart';
-export 'home_page_x_p_l_a_n_e_e_model.dart';
+import 'home_page_x_p_l_a_n_e_model.dart';
+export 'home_page_x_p_l_a_n_e_model.dart';
 
-class HomePageXPLANEEWidget extends StatefulWidget {
-  const HomePageXPLANEEWidget({super.key});
+class HomePageXPLANEWidget extends StatefulWidget {
+  const HomePageXPLANEWidget({super.key});
 
-  static String routeName = 'HomePageXPLANEE';
-  static String routePath = '/homePageXPLANEE';
+  static String routeName = 'HomePageXPLANE';
+  static String routePath = '/homePageXPLANE';
 
   @override
-  State<HomePageXPLANEEWidget> createState() => _HomePageXPLANEEWidgetState();
+  State<HomePageXPLANEWidget> createState() => _HomePageXPLANEWidgetState();
 }
 
-class _HomePageXPLANEEWidgetState extends State<HomePageXPLANEEWidget> {
-  late HomePageXPLANEEModel _model;
+class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
+  late HomePageXPLANEModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => HomePageXPLANEEModel());
+    _model = createModel(context, () => HomePageXPLANEModel());
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
@@ -25323,13 +25323,16 @@ class _HomePageXPLANEEWidgetState extends State<HomePageXPLANEEWidget> {
                                     FFAppState().ipPC,
                                   );
 
-                                  context.pushNamed(IOSlWidget.routeName);
+                                  context
+                                      .pushNamed(IOSinstructorWidget.routeName);
                                 },
                                 freezeAction: () async {
                                   await actions.sendXPlaneCommand(
                                     'sim/operation/freeze_toggle',
                                     FFAppState().ipPC,
                                   );
+
+                                  context.pushNamed(IOSpilotWidget.routeName);
                                 },
                                 headTrackerAction: () async {
                                   context.pushNamed(

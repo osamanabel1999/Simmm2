@@ -89,6 +89,9 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
 
       _room = Room();
 
+      // 👈 التعديل السحري: تمرير كابل الاتصال للمتغير العام عشان الزراير تشوفه
+      globalLiveKitRoom_xplane = _room;
+
       _addLog("2. تسجيل المراقبة...");
       _listener = _room!.createListener();
 
@@ -150,7 +153,10 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     _addLog("جاري الخروج...");
     await _room?.disconnect();
     _listener?.dispose();
+
     _room = null;
+    // 👈 التعديل التاني: تفريغ كابل الاتصال لما الطيار يقفل عشان ميعملش خطأ
+    globalLiveKitRoom_xplane = null;
 
     if (mounted) {
       setState(() {
@@ -167,6 +173,10 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
   void dispose() {
     _listener?.dispose();
     _room?.disconnect();
+
+    // 👈 تأكيد التفريغ عند تدمير الشاشة بالكامل
+    globalLiveKitRoom_xplane = null;
+
     _roomController.dispose();
     super.dispose();
   }

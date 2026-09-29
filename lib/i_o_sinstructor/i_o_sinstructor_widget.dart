@@ -1,31 +1,33 @@
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
+import '/custom_code/actions/index.dart' as actions;
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'i_o_sl_model.dart';
-export 'i_o_sl_model.dart';
+import 'i_o_sinstructor_model.dart';
+export 'i_o_sinstructor_model.dart';
 
-class IOSlWidget extends StatefulWidget {
-  const IOSlWidget({super.key});
+class IOSinstructorWidget extends StatefulWidget {
+  const IOSinstructorWidget({super.key});
 
-  static String routeName = 'IOSl';
-  static String routePath = '/iOSl';
+  static String routeName = 'IOSinstructor';
+  static String routePath = '/iOSinstructor';
 
   @override
-  State<IOSlWidget> createState() => _IOSlWidgetState();
+  State<IOSinstructorWidget> createState() => _IOSinstructorWidgetState();
 }
 
-class _IOSlWidgetState extends State<IOSlWidget> {
-  late IOSlModel _model;
+class _IOSinstructorWidgetState extends State<IOSinstructorWidget> {
+  late IOSinstructorModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => IOSlModel());
+    _model = createModel(context, () => IOSinstructorModel());
   }
 
   @override
@@ -97,6 +99,38 @@ class _IOSlWidgetState extends State<IOSlWidget> {
                     width: double.infinity,
                     height: double.infinity,
                   ),
+                ),
+              ),
+              FFButtonWidget(
+                onPressed: () async {
+                  await actions.sendLivekitCmdxplane(
+                    'TEST',
+                  );
+                },
+                text: 'Button',
+                options: FFButtonOptions(
+                  height: 40.0,
+                  padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                  iconPadding:
+                      EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                  color: FlutterFlowTheme.of(context).primary,
+                  textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                        font: GoogleFonts.interTight(
+                          fontWeight: FlutterFlowTheme.of(context)
+                              .titleSmall
+                              .fontWeight,
+                          fontStyle:
+                              FlutterFlowTheme.of(context).titleSmall.fontStyle,
+                        ),
+                        color: Colors.white,
+                        letterSpacing: 0.0,
+                        fontWeight:
+                            FlutterFlowTheme.of(context).titleSmall.fontWeight,
+                        fontStyle:
+                            FlutterFlowTheme.of(context).titleSmall.fontStyle,
+                      ),
+                  elevation: 0.0,
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
             ],

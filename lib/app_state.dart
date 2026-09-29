@@ -509,6 +509,12 @@ class FFAppState extends ChangeNotifier {
   set EFBpageNumber(double value) {
     _EFBpageNumber = value;
   }
+
+  String _receivedCommand = '';
+  String get receivedCommand => _receivedCommand;
+  set receivedCommand(String value) {
+    _receivedCommand = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

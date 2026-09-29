@@ -1,6 +1,6 @@
 // Export pages
-export '/pages/home_page_x_p_l_a_n_e_e/home_page_x_p_l_a_n_e_e_widget.dart'
-    show HomePageXPLANEEWidget;
+export '/pages/home_page_x_p_l_a_n_e/home_page_x_p_l_a_n_e_widget.dart'
+    show HomePageXPLANEWidget;
 export '/t_o_calculation/t_o_calculation_widget.dart' show TOCalculationWidget;
 export '/pages/l_d_g_calculation/l_d_g_calculation_widget.dart'
     show LDGCalculationWidget;
@@ -50,4 +50,5 @@ export '/head_track_xplane/head_track_xplane_widget.dart'
 export '/head_track_m_s_f_s/head_track_m_s_f_s_widget.dart'
     show HeadTrackMSFSWidget;
 export '/e_f_bapp_pages/e_f_bapp_pages_widget.dart' show EFBappPagesWidget;
-export '/i_o_sl/i_o_sl_widget.dart' show IOSlWidget;
+export '/i_o_sinstructor/i_o_sinstructor_widget.dart' show IOSinstructorWidget;
+export '/i_o_spilot/i_o_spilot_widget.dart' show IOSpilotWidget;
