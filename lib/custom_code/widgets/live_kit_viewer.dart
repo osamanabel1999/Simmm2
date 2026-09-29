@@ -13,8 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
-// 👇 السطر السحري اللي كان ناقص وحل الـ 3 إيرورات!
-Room? globalLiveKitRoom_xplane;
+// تم إزالة المتغير من هنا عشان ميحصلش تكرار ويضرب إيرور، وتم تنظيفه من الأسفل أيضاً
 
 class LiveKitViewer extends StatefulWidget {
   const LiveKitViewer({
@@ -62,7 +61,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
         'roomJoin': true,
         'canPublish': true,
         'canSubscribe': true,
-        'canPublishData': true, // الإذن اللي ضفناه عشان يقدر يبعت الأوامر
+        'canPublishData': true,
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp': (DateTime.now().add(const Duration(hours: 4)))
@@ -89,7 +88,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       final token = _generateToken(roomName, "iPad_Copilot");
 
       _room = Room();
-      globalLiveKitRoom_xplane = _room;
 
       _addLog("2. تسجيل المراقبة...");
       _listener = _room!.createListener();
@@ -151,7 +149,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     await _room?.disconnect();
     _listener?.dispose();
     _room = null;
-    globalLiveKitRoom_xplane = null;
 
     if (mounted) {
       setState(() {
@@ -168,7 +165,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
   void dispose() {
     _listener?.dispose();
     _room?.disconnect();
-    globalLiveKitRoom_xplane = null;
     _roomController.dispose();
     super.dispose();
   }

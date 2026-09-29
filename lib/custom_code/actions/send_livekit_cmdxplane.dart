@@ -13,7 +13,8 @@ import '/custom_code/widgets/index.dart'; // Imports other custom widgets
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
 
-// ❌ مفيش تعريف للمتغير هنا عشان ميضربش إيرور تكرار، الأكشن هيشوفه من ملف الشاشة فوراً
+// 👇 رجعنا المتغير هنا عشان فلاتر فلو يرضى يشوفه والإيرورات تختفي!
+Room? globalLiveKitRoom_xplane;
 
 Future sendLivekitCmdxplane(String commandName) async {
   if (globalLiveKitRoom_xplane == null ||
