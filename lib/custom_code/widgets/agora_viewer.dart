@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:permission_handler/permission_handler.dart'; // 👈 الباكدج المنقذة
 
 class AgoraViewer extends StatefulWidget {
   const AgoraViewer({
@@ -27,7 +28,6 @@ class AgoraViewer extends StatefulWidget {
 }
 
 class _AgoraViewerState extends State<AgoraViewer> {
-  // بيانات الغرفة الثابتة لضمان أقصى استقرار
   static const String _kAppId = "cb8d86db8e01476d932b9766b3468481";
   static const String _kToken =
       "007eJxTYNhw8RRzLu+6y4rrp09a0yJlYHOt/oeq4yd5E8+n8ybUt4ooMCQnWaRYmKUkWaQaGJqYm6VYGhslWZqbmSUZm5hZmFgYCn/dldUQyMjgqDeBiZEBAkF8Loa0nMz0jJKi/PxcBgYA9YEhBw==";
@@ -64,9 +64,14 @@ class _AgoraViewerState extends State<AgoraViewer> {
       _isConnecting = true;
     });
 
-    _addLog("جاري تهيئة محرك Agora...");
-
     try {
+      _addLog("جاري طلب الصلاحيات من نظام iOS...");
+
+      // 👈 الحل القاطع: إجبار إظهار نافذة الصلاحيات قبل التهيئة
+      await [Permission.microphone, Permission.camera].request();
+
+      _addLog("تم تأكيد الصلاحيات. جاري تهيئة محرك Agora...");
+
       _engine = createAgoraRtcEngine();
 
       await _engine!.initialize(const RtcEngineContext(
@@ -75,21 +80,15 @@ class _AgoraViewerState extends State<AgoraViewer> {
       ));
       _addLog("تمت التهيئة بنجاح ✅");
 
-      // تسجيل مستمعات الأحداث التفصيلية لمراقبة كل صغيرة وكبيرة
       _engine!.registerEventHandler(
         RtcEngineEventHandler(
-          // خطأ عام من Agora
           onError: (ErrorCodeType err, String msg) {
-            _addLog("❌ خطأ من Agora: $err | التفاصيل: $msg");
+            _addLog("❌ خطأ من Agora: $err | $msg");
           },
-
-          // تغير حالة الاتصال بالسيرفر
           onConnectionStateChanged: (RtcConnection connection,
               ConnectionStateType state, ConnectionChangedReasonType reason) {
-            _addLog("📡 حالة الشبكة: ${state.name} | السبب: ${reason.name}");
+            _addLog("📡 حالة الشبكة: ${state.name}");
           },
-
-          // نجاح الانضمام
           onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
             _addLog("✅ متصل بالغرفة رسمياً: ${connection.channelId}");
             if (mounted) {
@@ -99,59 +98,37 @@ class _AgoraViewerState extends State<AgoraViewer> {
               });
             }
           },
-
-          // انضمام جهاز اللابتوب
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-            _addLog("💻 تم رصد اللابتوب! المعرّف (UID): $remoteUid");
+            _addLog("💻 تم رصد اللابتوب! المعرّف: $remoteUid");
             if (mounted) {
               setState(() {
                 _remoteUid = remoteUid;
               });
             }
           },
-
-          // مراقبة فيديو اللابتوب وفك التشفير
           onRemoteVideoStateChanged: (RtcConnection connection,
               int remoteUid,
               RemoteVideoState state,
               RemoteVideoStateReason reason,
               int elapsed) {
-            _addLog(
-                "🎥 حالة فيديو اللابتوب: ${state.name} (السبب: ${reason.name})");
+            _addLog("🎥 فيديو اللابتوب: ${state.name}");
           },
-
-          // مراقبة صوت اللابتوب
-          onRemoteAudioStateChanged: (RtcConnection connection,
-              int remoteUid,
-              RemoteAudioState state,
-              RemoteAudioStateReason reason,
-              int elapsed) {
-            _addLog("🔊 حالة صوت اللابتوب: ${state.name}");
-          },
-
-          // مغادرة اللابتوب
           onUserOffline: (RtcConnection connection, int remoteUid,
               UserOfflineReasonType reason) {
-            _addLog("🚪 اللابتوب غادر الغرفة (${reason.name})");
+            _addLog("🚪 اللابتوب غادر الغرفة");
             if (mounted) {
               setState(() {
                 _remoteUid = null;
               });
             }
           },
-
-          // تنبيه بخصوص صلاحية التوكن
-          onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
-            _addLog("⚠️ تحذير: التوكن قارب على الانتهاء!");
-          },
         ),
       );
 
-      // تفعيل استقبال الفيديو والصوت
       await _engine!.enableVideo();
       await _engine!.enableAudio();
 
-      _addLog("جاري إرسال طلب الانضمام إلى $_kChannel...");
+      _addLog("جاري إرسال طلب الانضمام...");
 
       await _engine!.joinChannel(
         token: _kToken,
@@ -165,9 +142,8 @@ class _AgoraViewerState extends State<AgoraViewer> {
           clientRoleType: ClientRoleType.clientRoleAudience,
         ),
       );
-    } catch (e, stack) {
+    } catch (e) {
       _addLog("❌ استثناء فادح: $e");
-      debugPrint("Stack: $stack");
       if (mounted) {
         setState(() {
           _isConnecting = false;
@@ -177,7 +153,7 @@ class _AgoraViewerState extends State<AgoraViewer> {
   }
 
   Future<void> _leaveStream() async {
-    _addLog("جاري قطع الاتصال وتنظيف الذاكرة...");
+    _addLog("جاري قطع الاتصال...");
     try {
       if (_engine != null) {
         await _engine!.leaveChannel();
@@ -214,7 +190,6 @@ class _AgoraViewerState extends State<AgoraViewer> {
       color: const Color(0xFF121212),
       child: Column(
         children: [
-          // شاشة عرض الفيديو الرئيسية
           Expanded(
             flex: 6,
             child: Container(
@@ -255,10 +230,9 @@ class _AgoraViewerState extends State<AgoraViewer> {
                               ? 'جاري الاتصال بالسيرفر... ⏳'
                               : _isJoined
                                   ? 'متصل بالغرفة ✅ في انتظار بث اللابتوب...'
-                                  : 'اضغط Join لبدء الاتصال بالبث',
+                                  : 'اضغط Join لبدء الاتصال',
                           style: const TextStyle(
                               color: Colors.white70, fontSize: 16),
-                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
@@ -266,8 +240,6 @@ class _AgoraViewerState extends State<AgoraViewer> {
               ),
             ),
           ),
-
-          // لوحة أزرار التحكم
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
@@ -282,93 +254,65 @@ class _AgoraViewerState extends State<AgoraViewer> {
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2),
-                          )
+                                color: Colors.white, strokeWidth: 2))
                         : const Icon(Icons.play_arrow),
                     label: Text(
                         _isConnecting ? "جاري الاتصال..." : "Join Room 🚀"),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                    ),
+                        backgroundColor: Colors.blueAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12)),
                   ),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton.icon(
                   onPressed: (_isJoined || _isConnecting) ? _leaveStream : null,
                   icon: const Icon(Icons.stop),
-                  label: const Text("Leave / Reset 🛑"),
+                  label: const Text("Leave 🛑"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent.shade700,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
+                      backgroundColor: Colors.redAccent.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 16)),
                 ),
               ],
             ),
           ),
-
-          // لوحة السجلات اللحظية المفتوحة (Deep Logs)
           Expanded(
             flex: 4,
             child: Container(
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.85),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white12),
-              ),
+                  color: Colors.black.withOpacity(0.85),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.white12)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "📋 سجل العمليات اللحظي (Live Diagnostics):",
-                        style: TextStyle(
-                            color: Colors.amber,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        "${_logs.length} أحداث",
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 11),
-                      ),
-                    ],
-                  ),
+                  const Text("📋 سجل العمليات اللحظي:",
+                      style: TextStyle(
+                          color: Colors.amber,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold)),
                   const Divider(color: Colors.white24, height: 10),
                   Expanded(
                     child: ListView.builder(
                       itemCount: _logs.length,
                       itemBuilder: (context, index) {
                         final log = _logs[index];
-                        Color color = Colors.greenAccent;
-                        if (log.contains("❌") || log.contains("خطأ")) {
-                          color = Colors.redAccent;
-                        } else if (log.contains("⚠️")) {
-                          color = Colors.amberAccent;
-                        } else if (log.contains("📡") || log.contains("🎥")) {
-                          color = Colors.lightBlueAccent;
-                        }
-
+                        Color color = log.contains("❌")
+                            ? Colors.redAccent
+                            : (log.contains("✅")
+                                ? Colors.greenAccent
+                                : Colors.lightBlueAccent);
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2.0),
-                          child: Text(
-                            log,
-                            style: TextStyle(
-                                color: color,
-                                fontSize: 11,
-                                fontFamily: 'monospace'),
-                          ),
+                          child: Text(log,
+                              style: TextStyle(
+                                  color: color,
+                                  fontSize: 11,
+                                  fontFamily: 'monospace')),
                         );
                       },
                     ),

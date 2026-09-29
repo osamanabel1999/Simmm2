@@ -4,28 +4,28 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'ios_model.dart';
-export 'ios_model.dart';
+import 'i_o_sh_model.dart';
+export 'i_o_sh_model.dart';
 
-class IosWidget extends StatefulWidget {
-  const IosWidget({super.key});
+class IOShWidget extends StatefulWidget {
+  const IOShWidget({super.key});
 
-  static String routeName = 'IOS';
-  static String routePath = '/ios';
+  static String routeName = 'IOSh';
+  static String routePath = '/iOSh';
 
   @override
-  State<IosWidget> createState() => _IosWidgetState();
+  State<IOShWidget> createState() => _IOShWidgetState();
 }
 
-class _IosWidgetState extends State<IosWidget> {
-  late IosModel _model;
+class _IOShWidgetState extends State<IOShWidget> {
+  late IOShModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => IosModel());
+    _model = createModel(context, () => IOShModel());
   }
 
   @override
