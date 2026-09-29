@@ -9,39 +9,45 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import '/custom_code/widgets/index.dart'; // 👈 السطر ده اللي بيخلي الأكشن يشوف المتغيرات
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
 
-// 🔥 الصندوق السحري الموحد: بيشيل الاتصال وبيشيل كوبري الـ Logs
-class SharedLiveKit {
-  static Room? room;
-  static void Function(String)?
-      onLog; // 👈 ده الكوبري اللي هيبعت الرسايل للشاشة
-}
-
 Future sendLivekitCmdxplane(String commandName) async {
-  if (SharedLiveKit.room == null ||
-      SharedLiveKit.room!.localParticipant == null) {
+  // بنبص في المتغير اللي الشاشة حطت فيه الاتصال
+  if (globalLiveKitRoom_xplane == null ||
+      globalLiveKitRoom_xplane!.localParticipant == null) {
     debugPrint("⚠️ [الأكشن الخارجي]: لم يتم الاتصال بالغرفة!");
-    // إرسال اللوج للشاشة لو كانت مفتوحة
-    SharedLiveKit.onLog
-        ?.call("⚠️ الزرار الخارجي: مش هقدر ابعت، الغرفة مش متصلة!");
+
+    // إرسال اللوج للشاشة
+    if (globalLiveKitLog_xplane != null) {
+      globalLiveKitLog_xplane!(
+          "⚠️ الزرار الخارجي: مش هقدر ابعت، الغرفة مش متصلة!");
+    }
     return;
   }
 
   try {
-    SharedLiveKit.onLog?.call("⏳ الزرار الخارجي: جاري إرسال $commandName ...");
+    if (globalLiveKitLog_xplane != null) {
+      globalLiveKitLog_xplane!("⏳ الزرار الخارجي: جاري إرسال $commandName ...");
+    }
 
     final data = utf8.encode(commandName);
-    await SharedLiveKit.room!.localParticipant?.publishData(
+    await globalLiveKitRoom_xplane!.localParticipant?.publishData(
       data,
       topic: 'cmd',
     );
 
     debugPrint("✅ [الأكشن الخارجي]: تم إرسال الأمر بنجاح: $commandName");
-    SharedLiveKit.onLog?.call("🚀 الزرار الخارجي: تم طيران الأمر بنجاح!");
+
+    if (globalLiveKitLog_xplane != null) {
+      globalLiveKitLog_xplane!("🚀 الزرار الخارجي: تم طيران الأمر بنجاح!");
+    }
   } catch (e) {
     debugPrint("❌ [الأكشن الخارجي]: خطأ في الإرسال: $e");
-    SharedLiveKit.onLog?.call("❌ الزرار الخارجي: فشل الإرسال!");
+
+    if (globalLiveKitLog_xplane != null) {
+      globalLiveKitLog_xplane!("❌ الزرار الخارجي: فشل الإرسال!");
+    }
   }
 }

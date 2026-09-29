@@ -14,6 +14,10 @@ import 'package:livekit_client/livekit_client.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'dart:convert';
 
+// 🔥 المتغيرات دي هنا في الشارع عشان الأكشن الخارجي يشوفها من غير أي إيرور
+Room? globalLiveKitRoom_xplane;
+void Function(String)? globalLiveKitLog_xplane;
+
 class LiveKitViewer extends StatefulWidget {
   const LiveKitViewer({
     Key? key,
@@ -39,8 +43,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
 
   Room? _room;
   VideoTrack? _remoteVideoTrack;
-  EventsListener<RoomEvent>?
-      _listener; // 👈 رجعنا رادار الشاشة عشان يلقط الفيديو
+  EventsListener<RoomEvent>? _listener;
   bool _isConnected = false;
   bool _isConnecting = false;
 
@@ -50,8 +53,8 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
   @override
   void initState() {
     super.initState();
-    // 🔥 هنا بنقول للزرار الخارجي: "لو عايز تطبع حاجة، ابعتها للدالة دي وهتظهر في الشاشة"
-    SharedLiveKit.onLog = _addLog;
+    // ربط دالة اللوجز بالمتغير الخارجي عشان الزرار الخارجي يقدر يكتب هنا
+    globalLiveKitLog_xplane = _addLog;
   }
 
   void _addLog(String msg) {
@@ -93,9 +96,10 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     try {
       final token = _generateToken(roomName);
       _room = Room();
-      SharedLiveKit.room = _room;
 
-      // 👇 تشغيل مراقبة شاشة اللابتوب (Video Track)
+      // ربط الغرفة بالمتغير الخارجي
+      globalLiveKitRoom_xplane = _room;
+
       _listener = _room!.createListener();
       _listener!.on<TrackSubscribedEvent>((event) {
         if (event.track is VideoTrack) {
@@ -152,12 +156,14 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     await _room?.disconnect();
     _listener?.dispose();
     _room = null;
-    SharedLiveKit.room = null;
+
+    // تنظيف
+    globalLiveKitRoom_xplane = null;
 
     setState(() {
       _isConnected = false;
       _isConnecting = false;
-      _remoteVideoTrack = null; // تفريغ الشاشة
+      _remoteVideoTrack = null;
     });
     _addLog("🛑 تم الخروج");
   }
@@ -165,7 +171,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
   @override
   void dispose() {
     _listener?.dispose();
-    SharedLiveKit.onLog = null; // تنظيف الكوبري عند غلق الشاشة
+    globalLiveKitLog_xplane = null; // تنظيف الكوبري
     super.dispose();
   }
 
@@ -175,7 +181,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       color: Colors.black87,
       child: Column(
         children: [
-          // 1. شريط التحكم
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -213,8 +218,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
               ],
             ),
           ),
-
-          // 2. شاشة عرض بث اللابتوب (VideoTrack) - واخدة مساحة أكبر
           Expanded(
             flex: 3,
             child: Container(
@@ -236,8 +239,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
                     ),
             ),
           ),
-
-          // 3. شاشة الـ Logs - واخدة مساحة أصغر تحت الفيديو
           Expanded(
             flex: 1,
             child: Container(
