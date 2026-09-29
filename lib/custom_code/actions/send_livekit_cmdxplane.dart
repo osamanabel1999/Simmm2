@@ -9,17 +9,17 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import '/custom_code/widgets/index.dart'; // 👈 السطر ده اللي بيخلي الأكشن يشوف المتغيرات
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
 
+// 🔥 المتغيرات هنا اهي، وهنجبر الشاشة تقراهم من الملف ده بالعافية
+Room? globalLiveKitRoom_xplane;
+void Function(String)? globalLiveKitLog_xplane;
+
 Future sendLivekitCmdxplane(String commandName) async {
-  // بنبص في المتغير اللي الشاشة حطت فيه الاتصال
   if (globalLiveKitRoom_xplane == null ||
       globalLiveKitRoom_xplane!.localParticipant == null) {
     debugPrint("⚠️ [الأكشن الخارجي]: لم يتم الاتصال بالغرفة!");
-
-    // إرسال اللوج للشاشة
     if (globalLiveKitLog_xplane != null) {
       globalLiveKitLog_xplane!(
           "⚠️ الزرار الخارجي: مش هقدر ابعت، الغرفة مش متصلة!");
@@ -39,13 +39,11 @@ Future sendLivekitCmdxplane(String commandName) async {
     );
 
     debugPrint("✅ [الأكشن الخارجي]: تم إرسال الأمر بنجاح: $commandName");
-
     if (globalLiveKitLog_xplane != null) {
       globalLiveKitLog_xplane!("🚀 الزرار الخارجي: تم طيران الأمر بنجاح!");
     }
   } catch (e) {
     debugPrint("❌ [الأكشن الخارجي]: خطأ في الإرسال: $e");
-
     if (globalLiveKitLog_xplane != null) {
       globalLiveKitLog_xplane!("❌ الزرار الخارجي: فشل الإرسال!");
     }

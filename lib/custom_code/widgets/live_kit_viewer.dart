@@ -14,9 +14,8 @@ import 'package:livekit_client/livekit_client.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'dart:convert';
 
-// 🔥 المتغيرات دي هنا في الشارع عشان الأكشن الخارجي يشوفها من غير أي إيرور
-Room? globalLiveKitRoom_xplane;
-void Function(String)? globalLiveKitLog_xplane;
+// 🔥 السطر السحري اللي بيستدعي ملف الأكشن حرفياً عشان نقرأ المتغيرات اللي جواه غصب عن فلاتر فلو
+import '/custom_code/actions/send_livekit_cmdxplane.dart';
 
 class LiveKitViewer extends StatefulWidget {
   const LiveKitViewer({
@@ -53,7 +52,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
   @override
   void initState() {
     super.initState();
-    // ربط دالة اللوجز بالمتغير الخارجي عشان الزرار الخارجي يقدر يكتب هنا
+    // بنربط اللوجز بالمتغير اللي موجود في ملف الأكشن
     globalLiveKitLog_xplane = _addLog;
   }
 
@@ -97,7 +96,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       final token = _generateToken(roomName);
       _room = Room();
 
-      // ربط الغرفة بالمتغير الخارجي
+      // 🔥 الشاشة دلوقتي بتبعت الاتصال للمتغير اللي موجود في الأكشن عشان الزرار الخارجي يلاقيه
       globalLiveKitRoom_xplane = _room;
 
       _listener = _room!.createListener();
@@ -171,7 +170,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
   @override
   void dispose() {
     _listener?.dispose();
-    globalLiveKitLog_xplane = null; // تنظيف الكوبري
+    globalLiveKitLog_xplane = null;
     super.dispose();
   }
 
