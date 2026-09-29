@@ -58,7 +58,6 @@ class _AgoraViewerState extends State<AgoraViewer> {
 
   Future<void> initAgora() async {
     _addLog("بدء التشغيل...");
-    await Future.delayed(const Duration(milliseconds: 500));
 
     try {
       if (widget.appId.isEmpty || widget.token.isEmpty) {
@@ -89,7 +88,7 @@ class _AgoraViewerState extends State<AgoraViewer> {
           _addLog("اللابتوب انضم 💻: $remoteUid");
           if (mounted) {
             setState(() {
-              _remoteUid = remoteUid;
+              _remoteUid = remoteUid; // تم التقاط إشارة اللابتوب
             });
           }
         }, onUserOffline: (RtcConnection connection, int remoteUid,
@@ -103,13 +102,14 @@ class _AgoraViewerState extends State<AgoraViewer> {
         }),
       );
 
-      // تم حذف أوامر enableAudio و enableVideo نهائياً من هنا لمنع اختناق نظام iOS
+      // 👉 الخطأ كان هنا: تم إعادة تفعيل محرك الفيديو والصوت (عشان الآيباد يفتح عينه ويستقبل الشاشة) 👈
+      await _engine.enableVideo();
+      await _engine.enableAudio();
 
       _addLog("جاري الانضمام للغرفة...");
 
-      // إضافة مؤقت زمني لكسر أي تعليق صامت
-      await _engine
-          .joinChannel(
+      // الدخول كمستمع عشان نتجنب تعليقة المايك
+      await _engine.joinChannel(
         token: widget.token.trim(),
         channelId: widget.channelName.trim(),
         uid: 0,
@@ -120,11 +120,7 @@ class _AgoraViewerState extends State<AgoraViewer> {
           publishMicrophoneTrack: false,
           clientRoleType: ClientRoleType.clientRoleAudience,
         ),
-      )
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw Exception(
-            "فشل الانضمام: لا يوجد رد من سيرفرات Agora أو نظام iOS يمنع الاتصال");
-      });
+      );
     } catch (e) {
       _addLog("استثناء فادح ❌: $e");
     }
@@ -152,8 +148,14 @@ class _AgoraViewerState extends State<AgoraViewer> {
                 ? AgoraVideoView(
                     controller: VideoViewController.remote(
                       rtcEngine: _engine,
-                      canvas: VideoCanvas(uid: _remoteUid),
+                      canvas: VideoCanvas(
+                        uid: _remoteUid,
+                        renderMode: RenderModeType
+                            .renderModeFit, // 👉 عشان الشاشة تترسم كاملة بدون ما تتقص 👈
+                      ),
                       connection: RtcConnection(channelId: widget.channelName),
+                      useFlutterTexture:
+                          true, // 👉 التعديل السحري اللي بيمنع الشاشة السوداء في أجهزة أبل 👈
                     ),
                   )
                 : Text(
