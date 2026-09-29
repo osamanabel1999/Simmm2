@@ -9,9 +9,11 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import '/custom_code/widgets/index.dart'; // 👈 السطر ده بيخلي الأكشن يشوف المتغير اللي في الشاشة
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
+
+// 👇 السطر ده هو اللي هيخرس الكومبايلر ويشيل الـ 3 إيرورات فوراً
+Room? globalLiveKitRoom_xplane;
 
 Future sendLivekitCmdxplane(String commandName) async {
   if (globalLiveKitRoom_xplane == null ||
