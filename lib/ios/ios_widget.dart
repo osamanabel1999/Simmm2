@@ -96,10 +96,6 @@ class _IosWidgetState extends State<IosWidget> {
                   child: custom_widgets.AgoraViewer(
                     width: double.infinity,
                     height: double.infinity,
-                    appId: 'cb8d86db8e01476d932b9766b3468481',
-                    token:
-                        '007eJxTYNhw8RRzLu+6y4rrp09a0yJlYHOt/oeq4yd5E8+n8ybUt4ooMCQnWaRYmKUkWaQaGJqYm6VYGhslWZqbmSUZm5hZmFgYCn/dldUQyMjgqDeBiZEBAkF8Loa0nMz0jJKi/PxcBgYA9YEhBw==',
-                    channelName: 'flightroom',
                   ),
                 ),
               ),
