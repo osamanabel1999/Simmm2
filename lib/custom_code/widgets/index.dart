@@ -62,4 +62,4 @@ export '/custom_code/widgets/efb_calculators_screen.dart'
 export '/custom_code/widgets/efb_library_screen.dart' show EfbLibraryScreen;
 export '/custom_code/widgets/efb_browser_screen.dart' show EfbBrowserScreen;
 export '/custom_code/widgets/acars_efb_widget.dart' show AcarsEfbWidget;
-export '/custom_code/widgets/agora_viewer.dart' show AgoraViewer;
+export '/custom_code/widgets/live_kit_viewer.dart' show LiveKitViewer;

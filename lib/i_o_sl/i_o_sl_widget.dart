@@ -4,28 +4,28 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'i_o_sh_model.dart';
-export 'i_o_sh_model.dart';
+import 'i_o_sl_model.dart';
+export 'i_o_sl_model.dart';
 
-class IOShWidget extends StatefulWidget {
-  const IOShWidget({super.key});
+class IOSlWidget extends StatefulWidget {
+  const IOSlWidget({super.key});
 
-  static String routeName = 'IOSh';
-  static String routePath = '/iOSh';
+  static String routeName = 'IOSl';
+  static String routePath = '/iOSl';
 
   @override
-  State<IOShWidget> createState() => _IOShWidgetState();
+  State<IOSlWidget> createState() => _IOSlWidgetState();
 }
 
-class _IOShWidgetState extends State<IOShWidget> {
-  late IOShModel _model;
+class _IOSlWidgetState extends State<IOSlWidget> {
+  late IOSlModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => IOShModel());
+    _model = createModel(context, () => IOSlModel());
   }
 
   @override
@@ -93,7 +93,7 @@ class _IOShWidgetState extends State<IOShWidget> {
                 child: Container(
                   width: double.infinity,
                   height: double.infinity,
-                  child: custom_widgets.AgoraViewer(
+                  child: custom_widgets.LiveKitViewer(
                     width: double.infinity,
                     height: double.infinity,
                   ),
