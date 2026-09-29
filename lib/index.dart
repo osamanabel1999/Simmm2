@@ -51,4 +51,4 @@ export '/head_track_m_s_f_s/head_track_m_s_f_s_widget.dart'
     show HeadTrackMSFSWidget;
 export '/e_f_bapp_pages/e_f_bapp_pages_widget.dart' show EFBappPagesWidget;
 export '/i_o_sinstructor/i_o_sinstructor_widget.dart' show IOSinstructorWidget;
-export '/i_o_spilot/i_o_spilot_widget.dart' show IOSpilotWidget;
+export '/i_o_spilott/i_o_spilott_widget.dart' show IOSpilottWidget;

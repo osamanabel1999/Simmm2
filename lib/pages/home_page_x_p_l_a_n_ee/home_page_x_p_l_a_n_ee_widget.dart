@@ -25332,7 +25332,7 @@ class _HomePageXPLANEeWidgetState extends State<HomePageXPLANEeWidget> {
                                     FFAppState().ipPC,
                                   );
 
-                                  context.pushNamed(IOSpilotWidget.routeName);
+                                  context.pushNamed(IOSpilottWidget.routeName);
                                 },
                                 headTrackerAction: () async {
                                   context.pushNamed(

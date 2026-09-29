@@ -7,28 +7,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'i_o_spilot_model.dart';
-export 'i_o_spilot_model.dart';
+import 'i_o_spilott_model.dart';
+export 'i_o_spilott_model.dart';
 
-class IOSpilotWidget extends StatefulWidget {
-  const IOSpilotWidget({super.key});
+class IOSpilottWidget extends StatefulWidget {
+  const IOSpilottWidget({super.key});
 
-  static String routeName = 'IOSpilot';
-  static String routePath = '/iOSpilot';
+  static String routeName = 'IOSpilott';
+  static String routePath = '/iOSpilott';
 
   @override
-  State<IOSpilotWidget> createState() => _IOSpilotWidgetState();
+  State<IOSpilottWidget> createState() => _IOSpilottWidgetState();
 }
 
-class _IOSpilotWidgetState extends State<IOSpilotWidget> {
-  late IOSpilotModel _model;
+class _IOSpilottWidgetState extends State<IOSpilottWidget> {
+  late IOSpilottModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => IOSpilotModel());
+    _model = createModel(context, () => IOSpilottModel());
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
@@ -157,7 +157,26 @@ class _IOSpilotWidgetState extends State<IOSpilotWidget> {
                 ),
               ),
               Text(
-                FFAppState().receivedCommand,
+                valueOrDefault<String>(
+                  FFAppState().receivedCommand,
+                  '!',
+                ),
+                style: FlutterFlowTheme.of(context).bodyMedium.override(
+                      font: GoogleFonts.inter(
+                        fontWeight:
+                            FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                        fontStyle:
+                            FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                      ),
+                      letterSpacing: 0.0,
+                      fontWeight:
+                          FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                      fontStyle:
+                          FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                    ),
+              ),
+              Text(
+                'Hello World',
                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                       font: GoogleFonts.inter(
                         fontWeight:

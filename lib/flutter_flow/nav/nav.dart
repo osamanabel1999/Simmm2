@@ -330,9 +330,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => IOSinstructorWidget(),
         ),
         FFRoute(
-          name: IOSpilotWidget.routeName,
-          path: IOSpilotWidget.routePath,
-          builder: (context, params) => IOSpilotWidget(),
+          name: IOSpilottWidget.routeName,
+          path: IOSpilottWidget.routePath,
+          builder: (context, params) => IOSpilottWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

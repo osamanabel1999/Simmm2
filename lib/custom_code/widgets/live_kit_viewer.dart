@@ -13,9 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
-// 👇 هذا هو السطر الذي يحل المشكلة (تعريف المتغير كمتغير عام على مستوى التطبيق)
-Room? globalLiveKitRoom_xplane;
-
 class LiveKitViewer extends StatefulWidget {
   const LiveKitViewer({
     Key? key,
@@ -31,7 +28,6 @@ class LiveKitViewer extends StatefulWidget {
 }
 
 class _LiveKitViewerState extends State<LiveKitViewer> {
-  // بياناتك من LiveKit
   static const String _livekitUrl =
       'wss://simulator-station-ham7e1yr.livekit.cloud';
   static const String _apiKey = 'API5SxFp3ddtWz9';
@@ -55,7 +51,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     debugPrint("LiveKit: $msg");
   }
 
-  // دالة توليد التوكن داخلياً
   String _generateToken(String roomName, String participantName) {
     final jwt = JWT({
       'name': participantName,
@@ -64,6 +59,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
         'roomJoin': true,
         'canPublish': true,
         'canSubscribe': true,
+        'canPublishData': true, // 👈 الإذن اللي ضفناه عشان يقدر يبعت الأوامر
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp': (DateTime.now().add(const Duration(hours: 4)))
@@ -72,7 +68,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       'iss': _apiKey,
       'sub': participantName,
     });
-
     return jwt.sign(SecretKey(_apiSecret));
   }
 
@@ -91,8 +86,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       final token = _generateToken(roomName, "iPad_Copilot");
 
       _room = Room();
-
-      // تمرير كابل الاتصال للمتغير العام
       globalLiveKitRoom_xplane = _room;
 
       _addLog("2. تسجيل المراقبة...");
@@ -140,7 +133,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
 
   Future<void> _toggleMic() async {
     if (_room == null || _room!.localParticipant == null) return;
-
     try {
       final newState = !_isMicOn;
       await _room!.localParticipant!.setMicrophoneEnabled(newState);
@@ -155,9 +147,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     _addLog("جاري الخروج...");
     await _room?.disconnect();
     _listener?.dispose();
-
     _room = null;
-    // تفريغ كابل الاتصال عند الخروج
     globalLiveKitRoom_xplane = null;
 
     if (mounted) {
@@ -175,10 +165,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
   void dispose() {
     _listener?.dispose();
     _room?.disconnect();
-
-    // تأكيد التفريغ عند تدمير الشاشة
     globalLiveKitRoom_xplane = null;
-
     _roomController.dispose();
     super.dispose();
   }
@@ -200,7 +187,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
                     controller: _roomController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: "اسم أو كود الغرفة (مثال: flight123)",
+                      hintText: "اسم أو كود الغرفة",
                       hintStyle: const TextStyle(color: Colors.white54),
                       fillColor: Colors.black,
                       filled: true,
@@ -223,19 +210,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
                   child: Text(
                       _isConnecting ? "⏳" : (_isConnected ? "Leave" : "Join")),
                 ),
-                if (_isConnected) ...[
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _toggleMic,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isMicOn ? Colors.blue : Colors.grey,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 20),
-                    ),
-                    child: Icon(_isMicOn ? Icons.mic : Icons.mic_off,
-                        color: Colors.white),
-                  ),
-                ]
               ],
             ),
           ),
@@ -258,25 +232,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
                         style: const TextStyle(color: Colors.white54),
                       ),
                     ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              color: Colors.black54,
-              child: ListView.builder(
-                itemCount: _logs.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    child: Text(_logs[index],
-                        style: const TextStyle(
-                            color: Colors.greenAccent, fontSize: 11)),
-                  );
-                },
-              ),
             ),
           ),
         ],
