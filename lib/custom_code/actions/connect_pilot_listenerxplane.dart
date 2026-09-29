@@ -25,14 +25,18 @@ Future connectPilotListenerxplane(
   const String livekitUrl = 'wss://simulator-station-ham7e1yr.livekit.cloud';
 
   try {
-    // 1. توليد التوكن للطيار (مسموح له بالاستماع للغرفة)
+    // 1. تنظيف كود الغرفة من أي مسافات بالغلط (عشان نضمن إنهم في نفس الغرفة 100%)
+    final cleanRoomCode = roomCode.trim();
+
+    // 2. توكن بصلاحيات كاملة مؤقتاً لضمان عدم حظر سيرفر LiveKit للبيانات
     final jwt = JWT({
       'name': 'Pilot_Listener_${DateTime.now().millisecondsSinceEpoch}',
       'video': {
-        'room': roomCode,
+        'room': cleanRoomCode,
         'roomJoin': true,
-        'canPublish': false,
+        'canPublish': true, // تم تعديلها لتجنب حظر البيانات
         'canSubscribe': true,
+        'canPublishData': true, // إضافة صلاحية قراءة البيانات
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp': (DateTime.now().add(const Duration(hours: 4)))
@@ -44,47 +48,43 @@ Future connectPilotListenerxplane(
 
     final token = jwt.sign(SecretKey(apiSecret));
 
-    // 2. تنظيف أي اتصال أو رادار قديم منعاً للتداخل
     if (pilotRoomxplane != null) {
       await pilotRoomxplane!.disconnect();
     }
     pilotListenerxplane?.dispose();
 
     pilotRoomxplane = Room();
-
-    // 3. إنشاء الرادار بالطريقة الرسمية الصحيحة المعتمدة في LiveKit Flutter
     pilotListenerxplane = pilotRoomxplane!.createListener();
 
-    // الاستماع الحقيقي المعتمد لبيانات الـ Data Channels
     pilotListenerxplane!.on<DataReceivedEvent>((event) {
       try {
         final messageString = utf8.decode(event.data);
-        debugPrint("📡 [الرادار استقبل بيانات]: $messageString");
-
         final messageJson = jsonDecode(messageString);
 
         if (messageJson['target'] == 'XPLANE') {
           final action = messageJson['action'];
-          debugPrint("🎯 [تم مطابقة الهدف XPLANE] والأمر هو: $action");
+
+          // 🔥 إجبار تحديث الذاكرة عشان لو السناك بار فشل، النص في الشاشة يتغير وتتأكد إنها شغالة
+          FFAppState().update(() {
+            FFAppState().receivedCommand = action;
+          });
 
           if (action == 'TEST') {
             if (onTestCommand != null) {
-              onTestCommand(); // 🔥 تنفيذ الضغطة الوهمية وإظهار السناك بار
-              debugPrint("🔥 [تم تنفيذ الضغطة الوهمية بنجاح!]");
-            } else {
-              debugPrint(
-                  "⚠️ [تنبيه] الأمر TEST وصل، لكن مفيش أكشن مربوط في onTestCommand!");
+              // 🔥 التعديل الأهم: إجبار فلاتر إنه يشغل (السناك بار) على واجهة المستخدم الرئيسية غصب عنه!
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                onTestCommand();
+              });
             }
           }
         }
       } catch (e) {
-        debugPrint("❌ [خطأ في قراءة البيانات الواردة]: $e");
+        debugPrint("❌ [خطأ]: $e");
       }
     });
 
-    // 4. الاتصال الفعلي بالغرفة
     await pilotRoomxplane!.connect(livekitUrl, token);
-    debugPrint("✅ [الرادار] الطيار متصل بنجاح بغرفة: $roomCode");
+    debugPrint("✅ [الرادار] متصل بغرفة: $cleanRoomCode");
   } catch (e) {
     debugPrint("❌ [الرادار] فشل الاتصال: $e");
   }
