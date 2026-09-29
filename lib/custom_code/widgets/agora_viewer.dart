@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import 'package:permission_handler/permission_handler.dart'; // 👈 الباكدج المنقذة
+import 'package:permission_handler/permission_handler.dart';
 
 class AgoraViewer extends StatefulWidget {
   const AgoraViewer({
@@ -54,7 +54,7 @@ class _AgoraViewerState extends State<AgoraViewer> {
   @override
   void initState() {
     super.initState();
-    _addLog("الشاشة جاهزة. اضغط Join للاتصال 🚀");
+    _addLog("الشاشة الناتيف جاهزة. اضغط Join 🚀");
   }
 
   Future<void> _joinStream() async {
@@ -65,71 +65,74 @@ class _AgoraViewerState extends State<AgoraViewer> {
     });
 
     try {
-      _addLog("جاري طلب الصلاحيات من نظام iOS...");
-
-      // 👈 الحل القاطع: إجبار إظهار نافذة الصلاحيات قبل التهيئة
+      _addLog("1. جاري طلب الصلاحيات...");
       await [Permission.microphone, Permission.camera].request();
 
-      _addLog("تم تأكيد الصلاحيات. جاري تهيئة محرك Agora...");
+      _addLog("2. تنظيف الذاكرة من أي تجميد سابق...");
+      try {
+        // إنشاء المحرك وتدميره فوراً لقتل أي Sessions معلقة من نظام أبل
+        _engine = createAgoraRtcEngine();
+        await _engine!.release();
+      } catch (_) {}
+
+      // إعطاء iOS نصف ثانية ليستوعب تنظيف الذاكرة
+      await Future.delayed(const Duration(milliseconds: 500));
 
       _engine = createAgoraRtcEngine();
 
-      await _engine!.initialize(const RtcEngineContext(
-        appId: _kAppId,
-        channelProfile: ChannelProfileType.channelProfileCommunication,
-      ));
-      _addLog("تمت التهيئة بنجاح ✅");
-
+      _addLog("3. تسجيل المراقبة قبل التهيئة...");
       _engine!.registerEventHandler(
         RtcEngineEventHandler(
-          onError: (ErrorCodeType err, String msg) {
-            _addLog("❌ خطأ من Agora: $err | $msg");
-          },
-          onConnectionStateChanged: (RtcConnection connection,
-              ConnectionStateType state, ConnectionChangedReasonType reason) {
-            _addLog("📡 حالة الشبكة: ${state.name}");
-          },
+          onError: (ErrorCodeType err, String msg) =>
+              _addLog("❌ خطأ: $err | $msg"),
           onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-            _addLog("✅ متصل بالغرفة رسمياً: ${connection.channelId}");
-            if (mounted) {
+            _addLog("✅ متصل بالغرفة بنجاح!");
+            if (mounted)
               setState(() {
                 _isJoined = true;
                 _isConnecting = false;
               });
-            }
           },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-            _addLog("💻 تم رصد اللابتوب! المعرّف: $remoteUid");
-            if (mounted) {
-              setState(() {
-                _remoteUid = remoteUid;
-              });
-            }
+            _addLog("💻 اللابتوب بدأ البث! UID: $remoteUid");
+            if (mounted) setState(() => _remoteUid = remoteUid);
           },
-          onRemoteVideoStateChanged: (RtcConnection connection,
-              int remoteUid,
-              RemoteVideoState state,
-              RemoteVideoStateReason reason,
-              int elapsed) {
+          onRemoteVideoStateChanged:
+              (connection, remoteUid, state, reason, elapsed) {
             _addLog("🎥 فيديو اللابتوب: ${state.name}");
           },
           onUserOffline: (RtcConnection connection, int remoteUid,
               UserOfflineReasonType reason) {
-            _addLog("🚪 اللابتوب غادر الغرفة");
-            if (mounted) {
-              setState(() {
-                _remoteUid = null;
-              });
-            }
+            _addLog("🚪 اللابتوب غادر");
+            if (mounted) setState(() => _remoteUid = null);
           },
         ),
       );
 
+      _addLog("4. جاري تهيئة محرك Agora...");
+      try {
+        // 👈 السر هنا: لو أبل علقت السطر ده أكتر من ثانيتين، هنتخطاه بالقوة!
+        await _engine!
+            .initialize(const RtcEngineContext(
+              appId: _kAppId,
+              channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
+            ))
+            .timeout(const Duration(seconds: 2));
+        _addLog("✅ تمت التهيئة بشكل طبيعي");
+      } catch (e) {
+        _addLog("⚠️ نظام iOS علق التهيئة.. تم التخطي الإجباري!");
+      }
+
+      _addLog("5. ضبط إعدادات المستمع وإلغاء المايك...");
+      await _engine!.setClientRole(role: ClientRoleType.clientRoleAudience);
       await _engine!.enableVideo();
       await _engine!.enableAudio();
 
-      _addLog("جاري إرسال طلب الانضمام...");
+      // 👈 إجبار قفل مايك الآيباد برمجياً عشان أبل ماتعملش Block للصوت
+      await _engine!.enableLocalAudio(false);
+      await _engine!.enableLocalVideo(false);
 
+      _addLog("6. جاري اقتحام الغرفة...");
       await _engine!.joinChannel(
         token: _kToken,
         channelId: _kChannel,
@@ -143,33 +146,31 @@ class _AgoraViewerState extends State<AgoraViewer> {
         ),
       );
     } catch (e) {
-      _addLog("❌ استثناء فادح: $e");
-      if (mounted) {
+      _addLog("❌ فشل نهائي: $e");
+      if (mounted)
         setState(() {
           _isConnecting = false;
         });
-      }
     }
   }
 
   Future<void> _leaveStream() async {
-    _addLog("جاري قطع الاتصال...");
+    _addLog("جاري الخروج وتنظيف المحرك...");
     try {
       if (_engine != null) {
         await _engine!.leaveChannel();
         await _engine!.release();
         _engine = null;
       }
-      if (mounted) {
+      if (mounted)
         setState(() {
           _isJoined = false;
           _isConnecting = false;
           _remoteUid = null;
         });
-      }
-      _addLog("تم قطع الاتصال بالكامل 🛑");
+      _addLog("تم الخروج بنجاح 🛑");
     } catch (e) {
-      _addLog("خطأ أثناء الفصل: $e");
+      _addLog("خطأ أثناء الخروج: $e");
     }
   }
 
@@ -227,10 +228,10 @@ class _AgoraViewerState extends State<AgoraViewer> {
                         const SizedBox(height: 12),
                         Text(
                           _isConnecting
-                              ? 'جاري الاتصال بالسيرفر... ⏳'
+                              ? 'جاري كسر حماية السيرفر... ⏳'
                               : _isJoined
-                                  ? 'متصل بالغرفة ✅ في انتظار بث اللابتوب...'
-                                  : 'اضغط Join لبدء الاتصال',
+                                  ? 'متصل ✅ في انتظار شاشة اللابتوب...'
+                                  : 'اضغط Join لبدء الاتصال الناتيف',
                           style: const TextStyle(
                               color: Colors.white70, fontSize: 16),
                         ),
@@ -255,7 +256,7 @@ class _AgoraViewerState extends State<AgoraViewer> {
                             height: 18,
                             child: CircularProgressIndicator(
                                 color: Colors.white, strokeWidth: 2))
-                        : const Icon(Icons.play_arrow),
+                        : const Icon(Icons.flash_on),
                     label: Text(
                         _isConnecting ? "جاري الاتصال..." : "Join Room 🚀"),
                     style: ElevatedButton.styleFrom(
@@ -305,7 +306,9 @@ class _AgoraViewerState extends State<AgoraViewer> {
                             ? Colors.redAccent
                             : (log.contains("✅")
                                 ? Colors.greenAccent
-                                : Colors.lightBlueAccent);
+                                : (log.contains("⚠️")
+                                    ? Colors.amberAccent
+                                    : Colors.lightBlueAccent));
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2.0),
                           child: Text(log,
