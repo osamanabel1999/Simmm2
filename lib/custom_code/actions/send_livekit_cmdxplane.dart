@@ -10,16 +10,12 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import '/custom_code/widgets/index.dart'; // Imports other custom widgets
-import '/custom_code/actions/index.dart'; // Imports custom actions
 
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
 
-// متغير عام يحتفظ بالاتصال المفتوح
-Room? globalLiveKitRoom_xplane;
-
 Future sendLivekitCmdxplane(String commandName) async {
-  // 1. التأكد إن الغرفة متصلة ومفتوحة
+  // 1. التأكد إن الغرفة متصلة ومفتوحة (المتغير مقروء الآن من ملف الشاشة)
   if (globalLiveKitRoom_xplane == null ||
       globalLiveKitRoom_xplane!.localParticipant == null) {
     debugPrint("⚠️ لم يتم الاتصال بالغرفة بعد!");
@@ -34,12 +30,9 @@ Future sendLivekitCmdxplane(String commandName) async {
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     });
 
-    // 3. إرسال الأمر عبر كابل الاتصال المفتوح
+    // 3. إرسال الأمر عبر كابل الاتصال المفتوح (تم حذف reliability)
     final data = utf8.encode(message);
-    await globalLiveKitRoom_xplane!.localParticipant?.publishData(
-      data,
-      reliability: Reliability.reliable, // لضمان وصول الأمر
-    );
+    await globalLiveKitRoom_xplane!.localParticipant?.publishData(data);
 
     debugPrint("✅ تم إرسال الأمر بنجاح: $commandName");
   } catch (e) {

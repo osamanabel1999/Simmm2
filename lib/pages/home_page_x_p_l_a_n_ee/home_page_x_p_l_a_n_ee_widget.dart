@@ -21,28 +21,28 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
-import 'home_page_x_p_l_a_n_e_model.dart';
-export 'home_page_x_p_l_a_n_e_model.dart';
+import 'home_page_x_p_l_a_n_ee_model.dart';
+export 'home_page_x_p_l_a_n_ee_model.dart';
 
-class HomePageXPLANEWidget extends StatefulWidget {
-  const HomePageXPLANEWidget({super.key});
+class HomePageXPLANEeWidget extends StatefulWidget {
+  const HomePageXPLANEeWidget({super.key});
 
-  static String routeName = 'HomePageXPLANE';
-  static String routePath = '/homePageXPLANE';
+  static String routeName = 'HomePageXPLANEe';
+  static String routePath = '/homePageXPLANEe';
 
   @override
-  State<HomePageXPLANEWidget> createState() => _HomePageXPLANEWidgetState();
+  State<HomePageXPLANEeWidget> createState() => _HomePageXPLANEeWidgetState();
 }
 
-class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
-  late HomePageXPLANEModel _model;
+class _HomePageXPLANEeWidgetState extends State<HomePageXPLANEeWidget> {
+  late HomePageXPLANEeModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => HomePageXPLANEModel());
+    _model = createModel(context, () => HomePageXPLANEeModel());
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {

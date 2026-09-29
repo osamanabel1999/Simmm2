@@ -13,6 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
+// 👇 هذا هو السطر الذي يحل المشكلة (تعريف المتغير كمتغير عام على مستوى التطبيق)
+Room? globalLiveKitRoom_xplane;
+
 class LiveKitViewer extends StatefulWidget {
   const LiveKitViewer({
     Key? key,
@@ -52,7 +55,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     debugPrint("LiveKit: $msg");
   }
 
-  // دالة توليد التوكن داخلياً (بدون سيرفر خارجي)
+  // دالة توليد التوكن داخلياً
   String _generateToken(String roomName, String participantName) {
     final jwt = JWT({
       'name': participantName,
@@ -89,7 +92,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
 
       _room = Room();
 
-      // 👈 التعديل السحري: تمرير كابل الاتصال للمتغير العام عشان الزراير تشوفه
+      // تمرير كابل الاتصال للمتغير العام
       globalLiveKitRoom_xplane = _room;
 
       _addLog("2. تسجيل المراقبة...");
@@ -118,7 +121,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
 
       _addLog("✅ تم الاتصال بنجاح!");
 
-      // الآيباد يدخل والمايك مقفول كبداية
       await _room!.localParticipant?.setMicrophoneEnabled(false);
       await _room!.localParticipant?.setCameraEnabled(false);
 
@@ -155,7 +157,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     _listener?.dispose();
 
     _room = null;
-    // 👈 التعديل التاني: تفريغ كابل الاتصال لما الطيار يقفل عشان ميعملش خطأ
+    // تفريغ كابل الاتصال عند الخروج
     globalLiveKitRoom_xplane = null;
 
     if (mounted) {
@@ -174,7 +176,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     _listener?.dispose();
     _room?.disconnect();
 
-    // 👈 تأكيد التفريغ عند تدمير الشاشة بالكامل
+    // تأكيد التفريغ عند تدمير الشاشة
     globalLiveKitRoom_xplane = null;
 
     _roomController.dispose();
@@ -189,7 +191,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       color: Colors.black87,
       child: Column(
         children: [
-          // شريط التحكم العلوي
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -238,8 +239,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
               ],
             ),
           ),
-
-          // شاشة عرض البث
           Expanded(
             flex: 7,
             child: Container(
@@ -261,8 +260,6 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
                     ),
             ),
           ),
-
-          // السجل (Logs)
           Expanded(
             flex: 2,
             child: Container(
