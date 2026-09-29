@@ -12,24 +12,36 @@ import 'package:flutter/material.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
 
-// 👇 السطر ده هو اللي هيخرس الكومبايلر ويشيل الـ 3 إيرورات فوراً
-Room? globalLiveKitRoom_xplane;
+// 🔥 الصندوق السحري الموحد: بيشيل الاتصال وبيشيل كوبري الـ Logs
+class SharedLiveKit {
+  static Room? room;
+  static void Function(String)?
+      onLog; // 👈 ده الكوبري اللي هيبعت الرسايل للشاشة
+}
 
 Future sendLivekitCmdxplane(String commandName) async {
-  if (globalLiveKitRoom_xplane == null ||
-      globalLiveKitRoom_xplane!.localParticipant == null) {
-    debugPrint("⚠️ لم يتم الاتصال بالغرفة!");
+  if (SharedLiveKit.room == null ||
+      SharedLiveKit.room!.localParticipant == null) {
+    debugPrint("⚠️ [الأكشن الخارجي]: لم يتم الاتصال بالغرفة!");
+    // إرسال اللوج للشاشة لو كانت مفتوحة
+    SharedLiveKit.onLog
+        ?.call("⚠️ الزرار الخارجي: مش هقدر ابعت، الغرفة مش متصلة!");
     return;
   }
 
   try {
+    SharedLiveKit.onLog?.call("⏳ الزرار الخارجي: جاري إرسال $commandName ...");
+
     final data = utf8.encode(commandName);
-    await globalLiveKitRoom_xplane!.localParticipant?.publishData(
+    await SharedLiveKit.room!.localParticipant?.publishData(
       data,
       topic: 'cmd',
     );
-    debugPrint("✅ تم إرسال الأمر بنجاح: $commandName");
+
+    debugPrint("✅ [الأكشن الخارجي]: تم إرسال الأمر بنجاح: $commandName");
+    SharedLiveKit.onLog?.call("🚀 الزرار الخارجي: تم طيران الأمر بنجاح!");
   } catch (e) {
-    debugPrint("❌ خطأ في الإرسال: $e");
+    debugPrint("❌ [الأكشن الخارجي]: خطأ في الإرسال: $e");
+    SharedLiveKit.onLog?.call("❌ الزرار الخارجي: فشل الإرسال!");
   }
 }

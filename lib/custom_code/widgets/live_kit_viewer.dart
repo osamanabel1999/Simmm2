@@ -14,9 +14,6 @@ import 'package:livekit_client/livekit_client.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'dart:convert';
 
-// 👇 السطر ده هو اللي هيحل الإيرورين اللي في الصورة فوراً!
-Room? globalLiveKitRoom_xplane;
-
 class LiveKitViewer extends StatefulWidget {
   const LiveKitViewer({
     Key? key,
@@ -42,11 +39,20 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
 
   Room? _room;
   VideoTrack? _remoteVideoTrack;
+  EventsListener<RoomEvent>?
+      _listener; // 👈 رجعنا رادار الشاشة عشان يلقط الفيديو
   bool _isConnected = false;
   bool _isConnecting = false;
 
   final TextEditingController _roomController = TextEditingController();
   final List<String> _logs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // 🔥 هنا بنقول للزرار الخارجي: "لو عايز تطبع حاجة، ابعتها للدالة دي وهتظهر في الشاشة"
+    SharedLiveKit.onLog = _addLog;
+  }
 
   void _addLog(String msg) {
     if (!mounted) return;
@@ -87,9 +93,27 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
     try {
       final token = _generateToken(roomName);
       _room = Room();
+      SharedLiveKit.room = _room;
 
-      // تم ربط المتغير بنجاح
-      globalLiveKitRoom_xplane = _room;
+      // 👇 تشغيل مراقبة شاشة اللابتوب (Video Track)
+      _listener = _room!.createListener();
+      _listener!.on<TrackSubscribedEvent>((event) {
+        if (event.track is VideoTrack) {
+          _addLog("🎥 تم استلام شير سكرين اللابتوب بنجاح!");
+          setState(() {
+            _remoteVideoTrack = event.track as VideoTrack;
+          });
+        }
+      });
+
+      _listener!.on<TrackUnsubscribedEvent>((event) {
+        if (event.track is VideoTrack) {
+          _addLog("❌ اللابتوب قفل البث");
+          setState(() {
+            _remoteVideoTrack = null;
+          });
+        }
+      });
 
       _addLog("جاري الاتصال بالغرفة...");
       await _room!.connect(_livekitUrl, token);
@@ -111,10 +135,10 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       return;
     }
     try {
-      _addLog("⏳ جاري إرسال TEST...");
+      _addLog("⏳ جاري إرسال TEST داخلي...");
       final data = utf8.encode('TEST');
       await _room!.localParticipant!.publishData(data, topic: 'cmd');
-      _addLog("🚀 تم طيران الأمر TEST بنجاح!");
+      _addLog("🚀 تم الإرسال من الزرار الداخلي!");
 
       if (widget.onTestClick != null) {
         widget.onTestClick!();
@@ -126,13 +150,23 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
 
   Future<void> _leaveRoom() async {
     await _room?.disconnect();
+    _listener?.dispose();
     _room = null;
-    globalLiveKitRoom_xplane = null;
+    SharedLiveKit.room = null;
+
     setState(() {
       _isConnected = false;
       _isConnecting = false;
+      _remoteVideoTrack = null; // تفريغ الشاشة
     });
     _addLog("🛑 تم الخروج");
+  }
+
+  @override
+  void dispose() {
+    _listener?.dispose();
+    SharedLiveKit.onLog = null; // تنظيف الكوبري عند غلق الشاشة
+    super.dispose();
   }
 
   @override
@@ -141,6 +175,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
       color: Colors.black87,
       child: Column(
         children: [
+          // 1. شريط التحكم
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -169,7 +204,7 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
                       onPressed: _sendTestCommand,
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange),
-                      child: const Text("🚀 إرسال TEST",
+                      child: const Text("🚀 إرسال",
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.white)),
@@ -178,14 +213,44 @@ class _LiveKitViewerState extends State<LiveKitViewer> {
               ],
             ),
           ),
+
+          // 2. شاشة عرض بث اللابتوب (VideoTrack) - واخدة مساحة أكبر
           Expanded(
+            flex: 3,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white24),
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.black,
+              ),
+              child: _remoteVideoTrack != null
+                  ? VideoTrackRenderer(_remoteVideoTrack!)
+                  : Center(
+                      child: Text(
+                        _isConnected
+                            ? "في انتظار بث الشاشة من اللابتوب..."
+                            : "غير متصل بالغرفة",
+                        style: const TextStyle(color: Colors.white54),
+                      ),
+                    ),
+            ),
+          ),
+
+          // 3. شاشة الـ Logs - واخدة مساحة أصغر تحت الفيديو
+          Expanded(
+            flex: 1,
             child: Container(
               margin: const EdgeInsets.all(8),
-              color: Colors.black54,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.black54,
+              ),
               child: ListView.builder(
                 itemCount: _logs.length,
                 itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.all(4.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 2.0),
                   child: Text(_logs[index],
                       style: const TextStyle(
                           color: Colors.greenAccent, fontSize: 13)),
