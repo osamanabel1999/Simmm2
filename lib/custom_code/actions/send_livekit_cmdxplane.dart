@@ -11,41 +11,39 @@ import 'package:flutter/material.dart';
 
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
-
-// 🔥 المتغيرات هنا اهي، وهنجبر الشاشة تقراهم من الملف ده بالعافية
-Room? globalLiveKitRoom_xplane;
-void Function(String)? globalLiveKitLog_xplane;
+// 🔥 السطر ده هو السر: بيجيب المتغيرات الحقيقية من ملف الويجيت
+import '/custom_code/widgets/index.dart' as my_widgets;
 
 Future sendLivekitCmdxplane(String commandName) async {
-  if (globalLiveKitRoom_xplane == null ||
-      globalLiveKitRoom_xplane!.localParticipant == null) {
+  // بنقرا الغرفة من الويجيت مباشرة مش بنخترع غرفة جديدة
+  if (my_widgets.globalLiveKitRoom_xplane == null ||
+      my_widgets.globalLiveKitRoom_xplane!.localParticipant == null) {
     debugPrint("⚠️ [الأكشن الخارجي]: لم يتم الاتصال بالغرفة!");
-    if (globalLiveKitLog_xplane != null) {
-      globalLiveKitLog_xplane!(
-          "⚠️ الزرار الخارجي: مش هقدر ابعت، الغرفة مش متصلة!");
+    if (my_widgets.globalLiveKitLog_xplane != null) {
+      my_widgets.globalLiveKitLog_xplane!("⚠️ مش هقدر ابعت، الغرفة مش متصلة!");
     }
     return;
   }
 
   try {
-    if (globalLiveKitLog_xplane != null) {
-      globalLiveKitLog_xplane!("⏳ الزرار الخارجي: جاري إرسال $commandName ...");
+    if (my_widgets.globalLiveKitLog_xplane != null) {
+      my_widgets.globalLiveKitLog_xplane!("⏳ جاري إرسال $commandName ...");
     }
 
     final data = utf8.encode(commandName);
-    await globalLiveKitRoom_xplane!.localParticipant?.publishData(
+    await my_widgets.globalLiveKitRoom_xplane!.localParticipant?.publishData(
       data,
       topic: 'cmd',
     );
 
     debugPrint("✅ [الأكشن الخارجي]: تم إرسال الأمر بنجاح: $commandName");
-    if (globalLiveKitLog_xplane != null) {
-      globalLiveKitLog_xplane!("🚀 الزرار الخارجي: تم طيران الأمر بنجاح!");
+    if (my_widgets.globalLiveKitLog_xplane != null) {
+      my_widgets.globalLiveKitLog_xplane!("🚀 تم طيران الأمر بنجاح!");
     }
   } catch (e) {
     debugPrint("❌ [الأكشن الخارجي]: خطأ في الإرسال: $e");
-    if (globalLiveKitLog_xplane != null) {
-      globalLiveKitLog_xplane!("❌ الزرار الخارجي: فشل الإرسال!");
+    if (my_widgets.globalLiveKitLog_xplane != null) {
+      my_widgets.globalLiveKitLog_xplane!("❌ فشل الإرسال!");
     }
   }
 }
