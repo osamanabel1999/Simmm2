@@ -11,39 +11,38 @@ import 'package:flutter/material.dart';
 
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
-// 🔥 السطر ده هو السر: بيجيب المتغيرات الحقيقية من ملف الويجيت
-import '/custom_code/widgets/index.dart' as my_widgets;
+import '/custom_code/widgets/index.dart'; // سطر الإمبورت العادي
 
 Future sendLivekitCmdxplane(String commandName) async {
-  // بنقرا الغرفة من الويجيت مباشرة مش بنخترع غرفة جديدة
-  if (my_widgets.globalLiveKitRoom_xplane == null ||
-      my_widgets.globalLiveKitRoom_xplane!.localParticipant == null) {
+  // بنستخدم المتغيرات العالمية اللي متعرفة في ملف الويجيت
+  if (globalLiveKitRoom_xplane == null ||
+      globalLiveKitRoom_xplane!.localParticipant == null) {
     debugPrint("⚠️ [الأكشن الخارجي]: لم يتم الاتصال بالغرفة!");
-    if (my_widgets.globalLiveKitLog_xplane != null) {
-      my_widgets.globalLiveKitLog_xplane!("⚠️ مش هقدر ابعت، الغرفة مش متصلة!");
+    if (globalLiveKitLog_xplane != null) {
+      globalLiveKitLog_xplane!("⚠️ مش هقدر ابعت، الغرفة مش متصلة!");
     }
     return;
   }
 
   try {
-    if (my_widgets.globalLiveKitLog_xplane != null) {
-      my_widgets.globalLiveKitLog_xplane!("⏳ جاري إرسال $commandName ...");
+    if (globalLiveKitLog_xplane != null) {
+      globalLiveKitLog_xplane!("⏳ جاري إرسال $commandName ...");
     }
 
     final data = utf8.encode(commandName);
-    await my_widgets.globalLiveKitRoom_xplane!.localParticipant?.publishData(
+    await globalLiveKitRoom_xplane!.localParticipant?.publishData(
       data,
       topic: 'cmd',
     );
 
     debugPrint("✅ [الأكشن الخارجي]: تم إرسال الأمر بنجاح: $commandName");
-    if (my_widgets.globalLiveKitLog_xplane != null) {
-      my_widgets.globalLiveKitLog_xplane!("🚀 تم طيران الأمر بنجاح!");
+    if (globalLiveKitLog_xplane != null) {
+      globalLiveKitLog_xplane!("🚀 تم طيران الأمر بنجاح!");
     }
   } catch (e) {
     debugPrint("❌ [الأكشن الخارجي]: خطأ في الإرسال: $e");
-    if (my_widgets.globalLiveKitLog_xplane != null) {
-      my_widgets.globalLiveKitLog_xplane!("❌ فشل الإرسال!");
+    if (globalLiveKitLog_xplane != null) {
+      globalLiveKitLog_xplane!("❌ فشل الإرسال!");
     }
   }
 }
