@@ -52,3 +52,5 @@ export '/head_track_m_s_f_s/head_track_m_s_f_s_widget.dart'
 export '/e_f_bapp_pages/e_f_bapp_pages_widget.dart' show EFBappPagesWidget;
 export '/i_o_sinstructor/i_o_sinstructor_widget.dart' show IOSinstructorWidget;
 export '/i_o_spilott/i_o_spilott_widget.dart' show IOSpilottWidget;
+export '/pages/home_page_x_p_l_a_n_einstructor/home_page_x_p_l_a_n_einstructor_widget.dart'
+    show HomePageXPLANEinstructorWidget;

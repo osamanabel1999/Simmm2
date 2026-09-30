@@ -21,1527 +21,33 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
-import 'home_page_x_p_l_a_n_e_model.dart';
-export 'home_page_x_p_l_a_n_e_model.dart';
+import 'home_page_x_p_l_a_n_einstructor_model.dart';
+export 'home_page_x_p_l_a_n_einstructor_model.dart';
 
-class HomePageXPLANEWidget extends StatefulWidget {
-  const HomePageXPLANEWidget({super.key});
+class HomePageXPLANEinstructorWidget extends StatefulWidget {
+  const HomePageXPLANEinstructorWidget({super.key});
 
-  static String routeName = 'HomePageXPLANE';
-  static String routePath = '/homePageXPLANE';
+  static String routeName = 'HomePageXPLANEinstructor';
+  static String routePath = '/homePageXPLANEinstructor';
 
   @override
-  State<HomePageXPLANEWidget> createState() => _HomePageXPLANEWidgetState();
+  State<HomePageXPLANEinstructorWidget> createState() =>
+      _HomePageXPLANEinstructorWidgetState();
 }
 
-class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
-  late HomePageXPLANEModel _model;
+class _HomePageXPLANEinstructorWidgetState
+    extends State<HomePageXPLANEinstructorWidget> {
+  late HomePageXPLANEinstructorModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => HomePageXPLANEModel());
+    _model = createModel(context, () => HomePageXPLANEinstructorModel());
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await actions.connectPilotFailuresPartOne(
-        'MSR111',
-        () async {
-          await actions.sendXPlaneCommand(
-            'sim/operation/failures/rel_engfai0',
-            FFAppState().ipPC,
-          );
-          FFAppState().addToActiveFailures(1);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_engfai1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(2);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_engfir0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(3);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_engfir1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(4);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_engfai0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(5);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_engfai1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(6);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_oilt_ind_0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(7);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_oilt_ind_1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(8);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_oilp_ind_0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(9);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_oilp_ind_1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(10);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_revloc0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(11);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_revloc1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(12);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_revdep0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(13);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_revdep1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(14);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_aftbur0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(15);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_aftbur1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(16);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_comsta0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(17);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_comsta1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(18);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_apu',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(19);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_apu_fire',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(20);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_depres_fast',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(200);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bleed_air_lft',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(21);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bleed_air_rgt',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(22);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_APU_press',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(23);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_batter0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(24);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_batter1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(25);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_esys',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(26);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_esys2',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(27);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_genera0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(28);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_genera1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(29);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bat0_lo',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(30);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bat1_lo',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(31);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bat0_hi',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(32);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bat1_hi',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(33);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuepmp0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(34);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuepmp1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(35);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_FF_ind0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(36);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_FF_ind1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(37);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fp_ind_0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(38);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fp_ind_1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(39);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_block0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(40);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_block1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(41);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_block2',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(42);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_block3',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(43);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_block4',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(44);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuelcap',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(45);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_water',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(46);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_type',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(47);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_g_fuel',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(48);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydpmp',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(49);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydpmp2',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(50);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydleak',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(51);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydleak2',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(52);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydoverp',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(53);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydoverp2',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(54);
-          safeSetState(() {});
-        },
-        () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydpmp_ele',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(55);
-          safeSetState(() {});
-        },
-      );
       _model.airportResulxxxxx = await GetAirportInfoCall.call();
 
       _model.simbreifResponse = await GetSimBriefFlightCall.call(
@@ -6482,9 +4988,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_engfai0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG1_FLAMEOUT',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -6578,36 +5083,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .transparent,
                                                           onTap: () async {
                                                             await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_engfai1',
-                                                              FFAppState().ipPC,
+                                                                .sendLivekitCmdxplane(
+                                                              'ENG2_FLAMEOUT',
                                                             );
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     2);
                                                             safeSetState(() {});
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              SnackBar(
-                                                                content: Text(
-                                                                  '2',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
-                                                                  ),
-                                                                ),
-                                                                duration: Duration(
-                                                                    milliseconds:
-                                                                        4000),
-                                                                backgroundColor:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondary,
-                                                              ),
-                                                            );
                                                           },
                                                           child: Container(
                                                             width: MediaQuery
@@ -6688,9 +5170,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_engfir0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG1_FIRE',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -6782,9 +5263,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_engfir1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG2_FIRE',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -6874,9 +5354,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .transparent,
                                                           onTap: () async {
                                                             await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_engfai0',
-                                                              FFAppState().ipPC,
+                                                                .sendLivekitCmdxplane(
+                                                              'ENG1_FAIL',
                                                             );
                                                             FFAppState()
                                                                 .addToActiveFailures(
@@ -6958,49 +5437,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_engfai1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG2_FAIL',
                                                           );
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_engfai1',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   6);
@@ -7087,9 +5526,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_oilt_ind_0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG1_OIL_TEMP',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -7181,9 +5619,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .transparent,
                                                           onTap: () async {
                                                             await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_oilt_ind_1',
-                                                              FFAppState().ipPC,
+                                                                .sendLivekitCmdxplane(
+                                                              'ENG2_OIL_TEMP',
                                                             );
                                                             FFAppState()
                                                                 .addToActiveFailures(
@@ -7267,9 +5704,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_oilp_ind_0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG1_OIL_PRESS',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -7357,9 +5793,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_oilp_ind_1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG2_OIL_PRESS',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -7449,9 +5884,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .transparent,
                                                           onTap: () async {
                                                             await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_revloc0',
-                                                              FFAppState().ipPC,
+                                                                .sendLivekitCmdxplane(
+                                                              'REV_LOCK_1',
                                                             );
                                                             FFAppState()
                                                                 .addToActiveFailures(
@@ -7533,9 +5967,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_revloc1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'REV_LOCK_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -7623,9 +6056,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_revdep0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'REV_DEP_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -7715,9 +6147,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .transparent,
                                                           onTap: () async {
                                                             await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_revdep1',
-                                                              FFAppState().ipPC,
+                                                                .sendLivekitCmdxplane(
+                                                              'REV_DEP_2',
                                                             );
                                                             FFAppState()
                                                                 .addToActiveFailures(
@@ -7799,9 +6230,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_aftbur0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'AFTER_BURNER_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -7889,36 +6319,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_aftbur1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'AFTER_BURNER_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   16);
                                                           safeSetState(() {});
-                                                          ScaffoldMessenger.of(
-                                                                  context)
-                                                              .showSnackBar(
-                                                            SnackBar(
-                                                              content: Text(
-                                                                '1',
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
-                                                                ),
-                                                              ),
-                                                              duration: Duration(
-                                                                  milliseconds:
-                                                                      4000),
-                                                              backgroundColor:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondary,
-                                                            ),
-                                                          );
                                                         },
                                                         child: Container(
                                                           width: 134.7,
@@ -7995,9 +6402,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_comsta0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'COMP_STALL_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -8079,9 +6485,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_comsta1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'COMP_STALL_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -11223,9 +9628,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .transparent,
                                                           onTap: () async {
                                                             await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_apu',
-                                                              FFAppState().ipPC,
+                                                                .sendLivekitCmdxplane(
+                                                              'APU_FAIL',
                                                             );
                                                             FFAppState()
                                                                 .addToActiveFailures(
@@ -11306,9 +9710,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .transparent,
                                                           onTap: () async {
                                                             await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_apu_fire',
-                                                              FFAppState().ipPC,
+                                                                .sendLivekitCmdxplane(
+                                                              'APU_FIRE',
                                                             );
                                                             FFAppState()
                                                                 .addToActiveFailures(
@@ -11389,9 +9792,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                               .transparent,
                                                           onTap: () async {
                                                             await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_depres_fast',
-                                                              FFAppState().ipPC,
+                                                                .sendLivekitCmdxplane(
+                                                              'RAPID_DEPRES',
                                                             );
                                                             FFAppState()
                                                                 .addToActiveFailures(
@@ -11511,9 +9913,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bleed_air_lft',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'L_BLEED_LEAK',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -11595,9 +9996,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bleed_air_rgt',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'R_BLEED_LEAK',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -11679,9 +10079,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_APU_press',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'APU_BLEED_FAULT',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -11799,9 +10198,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_batter0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'BAT_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -11883,9 +10281,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_batter1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'BAT_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -11967,9 +10364,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_esys',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'AC_BUS_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12057,9 +10453,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_esys2',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'AC_BUS_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12141,9 +10536,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_genera0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'L_ENG_GEN',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12225,9 +10619,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_genera1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'R_ENG_GEN',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12315,9 +10708,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bat0_lo',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'BAT_1_LOW_VOLT',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12399,9 +10791,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bat1_lo',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'BAT_2_LOW_VOLT',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12483,9 +10874,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bat0_hi',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'BAT_1_HIGH_VOLT',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12573,9 +10963,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bat1_hi',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'BAT_2_HIGH_VOLT',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12693,9 +11082,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuepmp0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG_FUEL_PUMP_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12777,9 +11165,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuepmp1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG_FUEL_PUMP_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12861,9 +11248,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_FF_ind0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_FLOW_IND_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12899,7 +11285,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .center,
                                                             children: [
                                                               Text(
-                                                                'FUEL FLOW INDICATOR 1',
+                                                                'FURL FLOW INDICATOR 1',
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
@@ -12951,9 +11337,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_FF_ind1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_FLOW_IND_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -12989,7 +11374,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .center,
                                                             children: [
                                                               Text(
-                                                                'FUEL FLOW INDICATOR 2',
+                                                                'FURL FLOW INDICATOR 2',
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
@@ -13035,9 +11420,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fp_ind_0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_PRESS_IND_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13119,9 +11503,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fp_ind_1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_PRESS_IND_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13209,9 +11592,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_block0',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_VENT_BLK_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13293,9 +11675,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_block1',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_VENT_BLK_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13377,9 +11758,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_block2',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_VENT_BLK_3',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13467,9 +11847,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_block3',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_VENT_BLK_4',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13551,9 +11930,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_block4',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_VENT_BLK_5',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13635,9 +12013,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuelcap',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_CAP_LEFT_OFF',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13725,9 +12102,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_water',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'WATER_IN_FUEL',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13809,9 +12185,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_type',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'WRONG_FUEL_GAS',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13893,9 +12268,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_type',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'FUEL_QTY_SENSOR',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -14014,9 +12388,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydpmp',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG_HYD_PUMP_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -14098,9 +12471,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydpmp2',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ENG_HYD_PUMP_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -14182,9 +12554,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydleak',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'LEAK_HYD_SYS_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -14272,9 +12643,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydleak2',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'LEAK_HYD_SYS_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -14356,9 +12726,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydoverp',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'OVERPRESS_HYD_1',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -14440,9 +12809,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydoverp2',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'OVERPRESS_HYD_2',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -14531,9 +12899,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                             Colors.transparent,
                                                         onTap: () async {
                                                           await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydpmp_ele',
-                                                            FFAppState().ipPC,
+                                                              .sendLivekitCmdxplane(
+                                                            'ELEC_PUMP_FAIL',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -14651,45 +13018,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_servo_rudd',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            '..',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   56);
@@ -25055,6 +23387,14 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                             ),
                           ),
                         ],
+                      ),
+                      Container(
+                        width: double.infinity,
+                        height: 10.0,
+                        child: custom_widgets.LiveKitViewer(
+                          width: double.infinity,
+                          height: 10.0,
+                        ),
                       ),
                     ],
                   ),

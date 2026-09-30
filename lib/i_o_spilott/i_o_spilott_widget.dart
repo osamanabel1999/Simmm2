@@ -2,9 +2,7 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import '/custom_code/actions/index.dart' as actions;
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'i_o_spilott_model.dart';
@@ -29,27 +27,6 @@ class _IOSpilottWidgetState extends State<IOSpilottWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => IOSpilottModel());
-
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await actions.connectPilotListenerxplane(
-        'MSR111',
-        () async {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'done',
-                style: TextStyle(
-                  color: FlutterFlowTheme.of(context).primaryText,
-                ),
-              ),
-              duration: Duration(milliseconds: 4000),
-              backgroundColor: Color(0xFF3941D2),
-            ),
-          );
-        },
-      );
-    });
   }
 
   @override
@@ -176,7 +153,7 @@ class _IOSpilottWidgetState extends State<IOSpilottWidget> {
                     ),
               ),
               Text(
-                'Hello C',
+                'Hello CN',
                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                       font: GoogleFonts.inter(
                         fontWeight:

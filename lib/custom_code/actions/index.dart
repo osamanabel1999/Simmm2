@@ -169,5 +169,5 @@ export '/custom_code/actions/check_app_notification.dart'
     show checkAppNotification;
 export '/custom_code/actions/send_livekit_cmdxplane.dart'
     show sendLivekitCmdxplane;
-export '/custom_code/actions/connect_pilot_listenerxplane.dart'
-    show connectPilotListenerxplane;
+export '/custom_code/actions/connect_pilot_failures_part_one.dart'
+    show connectPilotFailuresPartOne;
