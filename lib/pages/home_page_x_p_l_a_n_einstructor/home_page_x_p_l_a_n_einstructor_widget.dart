@@ -1,5 +1,4 @@
 import '/backend/api_requests/api_calls.dart';
-import '/components/failure_widget.dart';
 import '/flutter_flow/ff_builtin_enums.dart';
 import '/flutter_flow/flutter_flow_ad_banner.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
@@ -20,7 +19,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webviewx_plus/webviewx_plus.dart';
 import 'home_page_x_p_l_a_n_einstructor_model.dart';
 export 'home_page_x_p_l_a_n_einstructor_model.dart';
 
@@ -13020,7 +13018,7 @@ class _HomePageXPLANEinstructorWidgetState
                                                         onTap: () async {
                                                           await actions
                                                               .sendLivekitCmdxplane(
-                                                            '..',
+                                                            'YAW_DAMPER',
                                                           );
                                                           FFAppState()
                                                               .addToActiveFailures(
@@ -13101,45 +13099,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_otto',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'AUTO_PILOT_COMPUTER',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   57);
@@ -13219,45 +13182,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_servo_thro',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'AUTO_THROTTLE',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   58);
@@ -13374,46 +13302,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await showModalBottomSheet(
-                                                              isScrollControlled:
-                                                                  true,
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              enableDrag: false,
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return WebViewAware(
-                                                                  child:
-                                                                      GestureDetector(
-                                                                    onTap: () {
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .unfocus();
-                                                                      FocusManager
-                                                                          .instance
-                                                                          .primaryFocus
-                                                                          ?.unfocus();
-                                                                    },
-                                                                    child:
-                                                                        Padding(
-                                                                      padding: MediaQuery
-                                                                          .viewInsetsOf(
-                                                                              context),
-                                                                      child:
-                                                                          FailureWidget(
-                                                                        targetDataRef:
-                                                                            'sim/operation/failures/rel_flap_act',
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ).then((value) =>
-                                                                safeSetState(
-                                                                    () {}));
-
+                                                            await actions
+                                                                .sendLivekitCmdxplane(
+                                                              'FLAP_ACTUATOR_SYSTEM',
+                                                            );
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     59);
@@ -13492,46 +13384,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await showModalBottomSheet(
-                                                              isScrollControlled:
-                                                                  true,
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              enableDrag: false,
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return WebViewAware(
-                                                                  child:
-                                                                      GestureDetector(
-                                                                    onTap: () {
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .unfocus();
-                                                                      FocusManager
-                                                                          .instance
-                                                                          .primaryFocus
-                                                                          ?.unfocus();
-                                                                    },
-                                                                    child:
-                                                                        Padding(
-                                                                      padding: MediaQuery
-                                                                          .viewInsetsOf(
-                                                                              context),
-                                                                      child:
-                                                                          FailureWidget(
-                                                                        targetDataRef:
-                                                                            'sim/operation/failures/rel_fc_slt',
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ).then((value) =>
-                                                                safeSetState(
-                                                                    () {}));
-
+                                                            await actions
+                                                                .sendLivekitCmdxplane(
+                                                              'SLATS',
+                                                            );
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     60);
@@ -13610,46 +13466,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await showModalBottomSheet(
-                                                              isScrollControlled:
-                                                                  true,
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              enableDrag: false,
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return WebViewAware(
-                                                                  child:
-                                                                      GestureDetector(
-                                                                    onTap: () {
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .unfocus();
-                                                                      FocusManager
-                                                                          .instance
-                                                                          .primaryFocus
-                                                                          ?.unfocus();
-                                                                    },
-                                                                    child:
-                                                                        Padding(
-                                                                      padding: MediaQuery
-                                                                          .viewInsetsOf(
-                                                                              context),
-                                                                      child:
-                                                                          FailureWidget(
-                                                                        targetDataRef:
-                                                                            'sim/operation/failures/rel_fc_L_flp',
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ).then((value) =>
-                                                                safeSetState(
-                                                                    () {}));
-
+                                                            await actions
+                                                                .sendLivekitCmdxplane(
+                                                              'LEFT_FLAP',
+                                                            );
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     61);
@@ -13734,46 +13554,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await showModalBottomSheet(
-                                                              isScrollControlled:
-                                                                  true,
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              enableDrag: false,
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return WebViewAware(
-                                                                  child:
-                                                                      GestureDetector(
-                                                                    onTap: () {
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .unfocus();
-                                                                      FocusManager
-                                                                          .instance
-                                                                          .primaryFocus
-                                                                          ?.unfocus();
-                                                                    },
-                                                                    child:
-                                                                        Padding(
-                                                                      padding: MediaQuery
-                                                                          .viewInsetsOf(
-                                                                              context),
-                                                                      child:
-                                                                          FailureWidget(
-                                                                        targetDataRef:
-                                                                            'sim/operation/failures/rel_fc_R_flp',
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ).then((value) =>
-                                                                safeSetState(
-                                                                    () {}));
-
+                                                            await actions
+                                                                .sendLivekitCmdxplane(
+                                                              'RIGHT_FLAP',
+                                                            );
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     62);
@@ -13852,46 +13636,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await showModalBottomSheet(
-                                                              isScrollControlled:
-                                                                  true,
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              enableDrag: false,
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return WebViewAware(
-                                                                  child:
-                                                                      GestureDetector(
-                                                                    onTap: () {
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .unfocus();
-                                                                      FocusManager
-                                                                          .instance
-                                                                          .primaryFocus
-                                                                          ?.unfocus();
-                                                                    },
-                                                                    child:
-                                                                        Padding(
-                                                                      padding: MediaQuery
-                                                                          .viewInsetsOf(
-                                                                              context),
-                                                                      child:
-                                                                          FailureWidget(
-                                                                        targetDataRef:
-                                                                            'sim/operation/failures/rel_trim_rud',
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ).then((value) =>
-                                                                safeSetState(
-                                                                    () {}));
-
+                                                            await actions
+                                                                .sendLivekitCmdxplane(
+                                                              'RUDDER_TRIM_ACTUATOR',
+                                                            );
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     63);
@@ -13970,46 +13718,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await showModalBottomSheet(
-                                                              isScrollControlled:
-                                                                  true,
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              enableDrag: false,
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return WebViewAware(
-                                                                  child:
-                                                                      GestureDetector(
-                                                                    onTap: () {
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .unfocus();
-                                                                      FocusManager
-                                                                          .instance
-                                                                          .primaryFocus
-                                                                          ?.unfocus();
-                                                                    },
-                                                                    child:
-                                                                        Padding(
-                                                                      padding: MediaQuery
-                                                                          .viewInsetsOf(
-                                                                              context),
-                                                                      child:
-                                                                          FailureWidget(
-                                                                        targetDataRef:
-                                                                            'sim/operation/failures/rel_trim_elv',
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ).then((value) =>
-                                                                safeSetState(
-                                                                    () {}));
-
+                                                            await actions
+                                                                .sendLivekitCmdxplane(
+                                                              'ELEVATOR_TRIM_ACTUATOR',
+                                                            );
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     64);
@@ -14094,46 +13806,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await showModalBottomSheet(
-                                                              isScrollControlled:
-                                                                  true,
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              enableDrag: false,
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return WebViewAware(
-                                                                  child:
-                                                                      GestureDetector(
-                                                                    onTap: () {
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .unfocus();
-                                                                      FocusManager
-                                                                          .instance
-                                                                          .primaryFocus
-                                                                          ?.unfocus();
-                                                                    },
-                                                                    child:
-                                                                        Padding(
-                                                                      padding: MediaQuery
-                                                                          .viewInsetsOf(
-                                                                              context),
-                                                                      child:
-                                                                          FailureWidget(
-                                                                        targetDataRef:
-                                                                            'sim/operation/failures/rel_trim_ail',
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ).then((value) =>
-                                                                safeSetState(
-                                                                    () {}));
-
+                                                            await actions
+                                                                .sendLivekitCmdxplane(
+                                                              'AILERON_TRIM_ACTUATOR',
+                                                            );
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     65);
@@ -14250,45 +13926,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lagear1',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'NOSE_GEAR_JAM',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   66);
@@ -14368,45 +14009,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lagear2',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'LEFT_MLG_JAM',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   67);
@@ -14486,45 +14092,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lagear3',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'RIGHT_MLG_JAM',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   68);
@@ -14610,45 +14181,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_gear_act',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'GEAR_ACTUATOR_SYSTEM',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   69);
@@ -14728,45 +14264,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_gear_ind',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'GEAR_INDICATOR_SYSTEM',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   70);
@@ -14846,45 +14347,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lbrakes',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'LEFT_BRAKE',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   71);
@@ -14970,45 +14436,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_rbrakes',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'RIGHT_BRAKE',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   72);
@@ -15088,45 +14519,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_tire2',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'LEFT_MLG_TIRE',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   73);
@@ -15206,45 +14602,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_tire3',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'RIGHT_MLG_TIRE',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   74);
@@ -15330,45 +14691,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_tire1',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'NOSE_WHEEL_TIRE',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   75);
@@ -15483,45 +14809,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_bird_strike',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'BIRD_STRIKE',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   91);
@@ -15601,45 +14892,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_wind_shear',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'MICROBURST',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   92);
@@ -15721,45 +14977,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_smoke_cpit',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'SMOKE_IN_COCKPIT',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   93);
@@ -15847,45 +15068,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_rwy_lites',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'RUNWAY_LIGHTS',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   94);
@@ -15965,45 +15151,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_vasi',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'PAPI_LIGHTS',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   95);
@@ -16083,45 +15234,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_brown_out',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'BROWN_OUT',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   96);
@@ -16209,45 +15325,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lites_ins',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'INSTRUMENTS_LIGHTS',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   97);
@@ -16327,45 +15408,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_clights',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'FLOOD_LIGHTS',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   98);
@@ -16445,45 +15491,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lites_hud',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'TAXI_LIGHTS_1',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   99);
@@ -16569,45 +15580,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lites_land',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'LDG_LIGHTS',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   100);
@@ -16687,45 +15663,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lites_taxi',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'TAXI_LIGHTS_2',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   101);
@@ -16805,45 +15746,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lites_strobe',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'STROBE_LIGHTS',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   102);
@@ -16929,45 +15835,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lites_beac',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'BEACON_LIGHTS',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   103);
@@ -17047,45 +15918,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_lites_nav',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'NAVIGATION_LIGHTS',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   104);
@@ -17165,45 +16001,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_door_open',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'DOOR_STILL_OPEN',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   105);
@@ -17303,12 +16104,20 @@ class _HomePageXPLANEinstructorWidgetState
                                                     .padLeft(3, '0');
                                               }(FFAppState().currentHeading)}°',
                                               viewAction: () async {
+                                                await actions
+                                                    .sendLivekitCmdxplane(
+                                                  'PB_VIEW_PLAN',
+                                                );
                                                 await actions.sendXPlaneCommand(
                                                   'BetterPushback/cab_camera',
                                                   FFAppState().ipPC,
                                                 );
                                               },
                                               planAction: () async {
+                                                await actions
+                                                    .sendLivekitCmdxplane(
+                                                  'PB_CONNECT',
+                                                );
                                                 await actions.sendXPlaneCommand(
                                                   'BetterPushback/start_planner',
                                                   FFAppState().ipPC,
@@ -17321,18 +16130,30 @@ class _HomePageXPLANEinstructorWidgetState
                                                 );
                                               },
                                               reconnectAction: () async {
+                                                await actions
+                                                    .sendLivekitCmdxplane(
+                                                  'PB_RECONNECT',
+                                                );
                                                 await actions.sendXPlaneCommand(
                                                   'BetterPushback/reconnect',
                                                   FFAppState().ipPC,
                                                 );
                                               },
                                               disconnectAction: () async {
+                                                await actions
+                                                    .sendLivekitCmdxplane(
+                                                  'PB_DISCONNECT',
+                                                );
                                                 await actions.sendXPlaneCommand(
                                                   'BetterPushback/disconnect',
                                                   FFAppState().ipPC,
                                                 );
                                               },
                                               stopAction: () async {
+                                                await actions
+                                                    .sendLivekitCmdxplane(
+                                                  'PB_STOP',
+                                                );
                                                 await actions.sendXPlaneCommand(
                                                   'BetterPushback/reconnect',
                                                   FFAppState().ipPC,
@@ -17363,6 +16184,11 @@ class _HomePageXPLANEinstructorWidgetState
                                               height: double.infinity,
                                               updateTotalFuel:
                                                   (fuelValue) async {
+                                                await actions
+                                                    .sendLivekitSliderxplane(
+                                                  'FUEL_TOTAL',
+                                                  fuelValue,
+                                                );
                                                 await actions.setXPlaneDataRef(
                                                   'sim/flightmodel/weight/m_fuel_total',
                                                   fuelValue,
@@ -17371,6 +16197,11 @@ class _HomePageXPLANEinstructorWidgetState
                                               },
                                               updateCenterFuel:
                                                   (fuelValue) async {
+                                                await actions
+                                                    .sendLivekitSliderxplane(
+                                                  'FUEL_CENTER',
+                                                  fuelValue,
+                                                );
                                                 await actions.setXPlaneDataRef(
                                                   'sim/flightmodel/weight/m_fuel2',
                                                   fuelValue,
@@ -17379,6 +16210,11 @@ class _HomePageXPLANEinstructorWidgetState
                                               },
                                               updateLInnerFuel:
                                                   (fuelValue) async {
+                                                await actions
+                                                    .sendLivekitSliderxplane(
+                                                  'FUEL_L_INNER',
+                                                  fuelValue,
+                                                );
                                                 await actions.setXPlaneDataRef(
                                                   'sim/flightmodel/weight/m_fuel[1]',
                                                   fuelValue,
@@ -17387,6 +16223,11 @@ class _HomePageXPLANEinstructorWidgetState
                                               },
                                               updateRInnerFuel:
                                                   (fuelValue) async {
+                                                await actions
+                                                    .sendLivekitSliderxplane(
+                                                  'FUEL_R_INNER',
+                                                  fuelValue,
+                                                );
                                                 await actions.setXPlaneDataRef(
                                                   'sim/flightmodel/weight/m_fuel[2]',
                                                   fuelValue,
@@ -17395,6 +16236,11 @@ class _HomePageXPLANEinstructorWidgetState
                                               },
                                               updateLOuterFuel:
                                                   (fuelValue) async {
+                                                await actions
+                                                    .sendLivekitSliderxplane(
+                                                  'FUEL_L_OUT',
+                                                  fuelValue,
+                                                );
                                                 await actions.setXPlaneDataRef(
                                                   'sim/flightmodel/weight/m_fuel[4]',
                                                   fuelValue,
@@ -17403,6 +16249,11 @@ class _HomePageXPLANEinstructorWidgetState
                                               },
                                               updateROuterFuel:
                                                   (fuelValue) async {
+                                                await actions
+                                                    .sendLivekitSliderxplane(
+                                                  'FUEL_R_OUTER',
+                                                  fuelValue,
+                                                );
                                                 await actions.setXPlaneDataRef(
                                                   'sim/flightmodel/weight/m_fuel[4]',
                                                   fuelValue,
@@ -18723,45 +17574,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_g_comrad1',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'COM_1',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   76);
@@ -18841,45 +17657,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_g_comrad2',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'COM_2',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   77);
@@ -18959,45 +17740,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_nav1',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'NAV_1',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   78);
@@ -19083,45 +17829,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_nav2',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'NAV_2',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   79);
@@ -19201,45 +17912,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_adf1',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'ADF_1',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   80);
@@ -19319,45 +17995,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_adf2',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'ADF_2',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   81);
@@ -19443,45 +18084,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_gps',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'GPS_1',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   82);
@@ -19561,45 +18167,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_gps2',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'GPS_2',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   83);
@@ -19679,45 +18250,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_dme',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'DME',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   84);
@@ -19803,45 +18339,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_loc',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'LOC_ANTENNAE',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   85);
@@ -19921,45 +18422,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_gls',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'GS_ANTENNAE',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   86);
@@ -20039,45 +18505,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_gp',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'WAAS_GP_RECEIVER',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   87);
@@ -20163,45 +18594,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_marker',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'MARKER_BEACONS',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   89);
@@ -20281,45 +18677,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            enableDrag: false,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return WebViewAware(
-                                                                child:
-                                                                    GestureDetector(
-                                                                  onTap: () {
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    FocusManager
-                                                                        .instance
-                                                                        .primaryFocus
-                                                                        ?.unfocus();
-                                                                  },
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: MediaQuery
-                                                                        .viewInsetsOf(
-                                                                            context),
-                                                                    child:
-                                                                        FailureWidget(
-                                                                      targetDataRef:
-                                                                          'sim/operation/failures/rel_xpndr',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-
+                                                          await actions
+                                                              .sendLivekitCmdxplane(
+                                                            'TRANSPORTER',
+                                                          );
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   90);
@@ -23313,47 +21674,66 @@ class _HomePageXPLANEinstructorWidgetState
                                 height:
                                     MediaQuery.sizeOf(context).height * 0.11,
                                 positionAction: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_POSITION',
+                                  );
                                   FFAppState().TabNumber = 1;
                                   safeSetState(() {});
                                 },
                                 pauseAction: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_PAUSE',
+                                  );
                                   await actions.sendXPlaneCommand(
                                     'sim/operation/pause_toggle',
                                     FFAppState().ipPC,
                                   );
-
-                                  context
-                                      .pushNamed(IOSinstructorWidget.routeName);
                                 },
                                 freezeAction: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_FREEZE',
+                                  );
                                   await actions.sendXPlaneCommand(
                                     'sim/operation/freeze_toggle',
                                     FFAppState().ipPC,
                                   );
-
-                                  context.pushNamed(IOSpilottWidget.routeName);
                                 },
                                 headTrackerAction: () async {
                                   context.pushNamed(
                                       HeadTrackXplaneWidget.routeName);
                                 },
                                 pushbackAction: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_PUSHBACK',
+                                  );
                                   FFAppState().TabNumber = 5000;
                                   safeSetState(() {});
                                 },
                                 mapAction: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_MAP',
+                                  );
                                   FFAppState().TabNumber = 5;
                                   safeSetState(() {});
                                 },
                                 loadAction: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_LOAD',
+                                  );
                                   FFAppState().TabNumber = 15;
                                   safeSetState(() {});
                                 },
                                 weatherAction: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_WEATHER',
+                                  );
                                   FFAppState().TabNumber = 3;
                                   safeSetState(() {});
                                 },
                                 fmcAction: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_FMC',
+                                  );
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
@@ -23373,6 +21753,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   safeSetState(() {});
                                 },
                                 failuresAction: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_FAILURES',
+                                  );
                                   FFAppState().TabNumber = 12;
                                   safeSetState(() {});
                                 },
@@ -23417,6 +21800,9 @@ class _HomePageXPLANEinstructorWidgetState
                                 hoverColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
                                 onTap: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_ENGINE',
+                                  );
                                   FFAppState().FailureSubTab = 1;
                                   safeSetState(() {});
                                 },
@@ -23476,6 +21862,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
+                                    await actions.sendLivekitCmdxplane(
+                                      'MENU_APU',
+                                    );
                                     FFAppState().FailureSubTab = 2;
                                     safeSetState(() {});
                                   },
@@ -23539,6 +21928,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
+                                    await actions.sendLivekitCmdxplane(
+                                      'MENU_BLEED',
+                                    );
                                     FFAppState().FailureSubTab = 3;
                                     safeSetState(() {});
                                   },
@@ -23602,6 +21994,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
+                                    await actions.sendLivekitCmdxplane(
+                                      'MENU_ELEC',
+                                    );
                                     FFAppState().FailureSubTab = 4;
                                     safeSetState(() {});
                                   },
@@ -23662,6 +22057,9 @@ class _HomePageXPLANEinstructorWidgetState
                                 hoverColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
                                 onTap: () async {
+                                  await actions.sendLivekitCmdxplane(
+                                    'MENU_FUEL',
+                                  );
                                   FFAppState().FailureSubTab = 5;
                                   safeSetState(() {});
                                 },
@@ -23721,6 +22119,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
+                                    await actions.sendLivekitCmdxplane(
+                                      'MENU_HYDRAULIC',
+                                    );
                                     FFAppState().FailureSubTab = 6;
                                     safeSetState(() {});
                                   },
@@ -23785,6 +22186,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
+                                    await actions.sendLivekitCmdxplane(
+                                      'MENU_AUTO_FLT',
+                                    );
                                     FFAppState().FailureSubTab = 8;
                                     safeSetState(() {});
                                   },
@@ -23849,6 +22253,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
+                                    await actions.sendLivekitCmdxplane(
+                                      'MENU_FLT_CTRL',
+                                    );
                                     FFAppState().FailureSubTab = 10;
                                     safeSetState(() {});
                                   },
@@ -23913,6 +22320,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
+                                    await actions.sendLivekitCmdxplane(
+                                      'MENU_LDG_GEAR',
+                                    );
                                     FFAppState().FailureSubTab = 11;
                                     safeSetState(() {});
                                   },
@@ -23977,6 +22387,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
+                                    await actions.sendLivekitCmdxplane(
+                                      'MENU_NAVIGATION',
+                                    );
                                     FFAppState().FailureSubTab = 13;
                                     safeSetState(() {});
                                   },
@@ -24041,6 +22454,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
+                                    await actions.sendLivekitCmdxplane(
+                                      'MENU_WORLD',
+                                    );
                                     FFAppState().FailureSubTab = 14;
                                     safeSetState(() {});
                                   },
@@ -24104,12 +22520,11 @@ class _HomePageXPLANEinstructorWidgetState
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
+                                    await actions.sendLivekitCmdxplane(
+                                      'FIX_ALL',
+                                    );
                                     _model.currentStep = 114;
                                     safeSetState(() {});
-                                    await actions.sendXPlaneCommand(
-                                      'sim/operation/fix_all_systems',
-                                      FFAppState().ipPC,
-                                    );
                                     FFAppState().ActiveFailures = [];
                                     safeSetState(() {});
                                   },

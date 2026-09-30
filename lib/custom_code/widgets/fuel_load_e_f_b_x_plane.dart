@@ -22,12 +22,22 @@ class FuelLoadEFBXPlane extends StatefulWidget {
     Key? key,
     this.width,
     this.height,
+
+    // الأكشنز القديمة بتاعتك زي ما هي
     this.updateTotalFuel,
     this.updateCenterFuel,
     this.updateLInnerFuel,
     this.updateRInnerFuel,
     this.updateLOuterFuel,
     this.updateROuterFuel,
+
+    // 🔥 الـ 6 باراميترات الجداد لاستقبال الأرقام من بره
+    this.incomingTotalFuel,
+    this.incomingCenterFuel,
+    this.incomingLInnerFuel,
+    this.incomingRInnerFuel,
+    this.incomingLOuterFuel,
+    this.incomingROuterFuel,
   }) : super(key: key);
 
   final double? width;
@@ -40,6 +50,14 @@ class FuelLoadEFBXPlane extends StatefulWidget {
   final Future Function(double fuelValue)? updateRInnerFuel;
   final Future Function(double fuelValue)? updateLOuterFuel;
   final Future Function(double fuelValue)? updateROuterFuel;
+
+  // المتغيرات الجديدة اللي هتستقبل الرقم
+  final double? incomingTotalFuel;
+  final double? incomingCenterFuel;
+  final double? incomingLInnerFuel;
+  final double? incomingRInnerFuel;
+  final double? incomingLOuterFuel;
+  final double? incomingROuterFuel;
 
   @override
   _FuelLoadEFBXPlaneState createState() => _FuelLoadEFBXPlaneState();
@@ -73,6 +91,38 @@ class _FuelLoadEFBXPlaneState extends State<FuelLoadEFBXPlane> {
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  // 🔥 الدالة السحرية اللي بتراقب الباراميترات الجديدة وتحرك السلايدر
+  @override
+  void didUpdateWidget(FuelLoadEFBXPlane oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // لو جالنا رقم جديد من بره مش بيساوي اللي عندنا، حدث السلايدر فوراً
+    if (widget.incomingTotalFuel != null &&
+        widget.incomingTotalFuel != oldWidget.incomingTotalFuel) {
+      _onTotalFuelChanged(widget.incomingTotalFuel!);
+    }
+    if (widget.incomingCenterFuel != null &&
+        widget.incomingCenterFuel != oldWidget.incomingCenterFuel) {
+      _onIndividualTankChanged('center', widget.incomingCenterFuel!);
+    }
+    if (widget.incomingLInnerFuel != null &&
+        widget.incomingLInnerFuel != oldWidget.incomingLInnerFuel) {
+      _onIndividualTankChanged('lInner', widget.incomingLInnerFuel!);
+    }
+    if (widget.incomingRInnerFuel != null &&
+        widget.incomingRInnerFuel != oldWidget.incomingRInnerFuel) {
+      _onIndividualTankChanged('rInner', widget.incomingRInnerFuel!);
+    }
+    if (widget.incomingLOuterFuel != null &&
+        widget.incomingLOuterFuel != oldWidget.incomingLOuterFuel) {
+      _onIndividualTankChanged('lOuter', widget.incomingLOuterFuel!);
+    }
+    if (widget.incomingROuterFuel != null &&
+        widget.incomingROuterFuel != oldWidget.incomingROuterFuel) {
+      _onIndividualTankChanged('rOuter', widget.incomingROuterFuel!);
+    }
   }
 
   Future<void> _loadData() async {

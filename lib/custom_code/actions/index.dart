@@ -171,3 +171,11 @@ export '/custom_code/actions/send_livekit_cmdxplane.dart'
     show sendLivekitCmdxplane;
 export '/custom_code/actions/connect_pilot_failures_part_one.dart'
     show connectPilotFailuresPartOne;
+export '/custom_code/actions/connect_pilot_failures_part_two.dart'
+    show connectPilotFailuresPartTwo;
+export '/custom_code/actions/connect_pilot_controlsxplane.dart'
+    show connectPilotControlsxplane;
+export '/custom_code/actions/send_livekit_sliderxplane.dart'
+    show sendLivekitSliderxplane;
+export '/custom_code/actions/connect_pilot_slidersxplane.dart'
+    show connectPilotSlidersxplane;

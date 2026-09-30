@@ -46,6 +46,593 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      await actions.connectPilotControlsxplane(
+        'MSR111',
+        () async {
+          FFAppState().TabNumber = 1;
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/pause_toggle',
+            FFAppState().ipPC,
+          );
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/freeze_toggle',
+            FFAppState().ipPC,
+          );
+        },
+        () async {
+          FFAppState().TabNumber = 5000;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().TabNumber = 5;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().TabNumber = 15;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().TabNumber = 3;
+          safeSetState(() {});
+        },
+        () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'FMC operations are currently optimized for B737 Zibo only. A320 MCDU integration is coming soon. Stay tuned!',
+                style: TextStyle(
+                  color: FlutterFlowTheme.of(context).primaryText,
+                ),
+              ),
+              duration: Duration(milliseconds: 5000),
+              backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+            ),
+          );
+          FFAppState().TabNumber = 10;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().TabNumber = 12;
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'BetterPushback/cab_camera',
+            FFAppState().ipPC,
+          );
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'BetterPushback/start_planner',
+            FFAppState().ipPC,
+          );
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'BetterPushback/connect_first',
+            FFAppState().ipPC,
+          );
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'BetterPushback/reconnect',
+            FFAppState().ipPC,
+          );
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'BetterPushback/disconnect',
+            FFAppState().ipPC,
+          );
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'BetterPushback/reconnect',
+            FFAppState().ipPC,
+          );
+        },
+      );
+      await actions.connectPilotSlidersxplane(
+        'MSR111',
+        (fuelValue) async {
+          FFAppState().appFuelTotal = fuelValue;
+          safeSetState(() {});
+        },
+        (fuelValue) async {
+          FFAppState().appFuelCenter = fuelValue;
+          safeSetState(() {});
+        },
+        (fuelValue) async {
+          FFAppState().appFuelLInner = fuelValue;
+          safeSetState(() {});
+        },
+        (fuelValue) async {
+          FFAppState().appFuelRInner = fuelValue;
+          safeSetState(() {});
+        },
+        (fuelValue) async {
+          FFAppState().appFuelLOuter = fuelValue;
+          safeSetState(() {});
+        },
+        (fuelValue) async {
+          FFAppState().appFuelROuter = fuelValue;
+          safeSetState(() {});
+        },
+      );
+      await actions.connectPilotFailuresPartTwo(
+        'MSR111',
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_servo_rudd',
+            FFAppState().ipPC,
+          );
+          await showModalBottomSheet(
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            enableDrag: false,
+            context: context,
+            builder: (context) {
+              return WebViewAware(
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).unfocus();
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  },
+                  child: Padding(
+                    padding: MediaQuery.viewInsetsOf(context),
+                    child: FailureWidget(
+                      targetDataRef: 'sim/operation/failures/rel_servo_rudd',
+                    ),
+                  ),
+                ),
+              );
+            },
+          ).then((value) => safeSetState(() {}));
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_otto',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(57);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_servo_thro',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(58);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_flap_act',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(59);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fc_slt',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(60);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fc_L_flp',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(61);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fc_R_flp',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(62);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_trim_rud',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(63);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_trim_elv',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(64);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_trim_ail',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(65);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lagear1',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(66);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lagear2',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(67);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lagear3',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(68);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_gear_act',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(69);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_gear_ind',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(70);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lbrakes',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(71);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_rbrakes',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(72);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_tire2',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(73);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_tire3',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(74);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_tire1',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(75);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_g_comrad1',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(76);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_g_comrad2',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(77);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_nav1',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(78);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_nav2',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(79);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_adf1',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(80);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_adf2',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(81);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_gps',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(82);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_gps2',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(83);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_dme',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(84);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_loc',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(85);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_gls',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(86);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_gp',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(87);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_marker',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(89);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_xpndr',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(90);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_bird_strike',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(91);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_wind_shear',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(92);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_smoke_cpit',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(93);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_rwy_lites',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(94);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_vasi',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(95);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_brown_out',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(96);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lites_ins',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(97);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_clights',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(98);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lites_hud',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(99);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lites_land',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(100);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lites_taxi',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(101);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lites_strobe',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(102);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lites_beac',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(103);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_lites_nav',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(104);
+          safeSetState(() {});
+        },
+        () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_door_open',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(105);
+          safeSetState(() {});
+        },
+        () async {
+          _model.currentStep = 114;
+          safeSetState(() {});
+          await actions.sendXPlaneCommand(
+            'sim/operation/fix_all_systems',
+            FFAppState().ipPC,
+          );
+          FFAppState().ActiveFailures = [];
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 1;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 2;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 3;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 4;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 2;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 6;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 8;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 10;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 11;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 13;
+          safeSetState(() {});
+        },
+        () async {
+          FFAppState().FailureSubTab = 14;
+          safeSetState(() {});
+        },
+      );
       await actions.connectPilotFailuresPartOne(
         'MSR111',
         () async {
@@ -63,18 +650,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
           );
           FFAppState().addToActiveFailures(2);
           safeSetState(() {});
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '2',
-                style: TextStyle(
-                  color: FlutterFlowTheme.of(context).primaryText,
-                ),
-              ),
-              duration: Duration(milliseconds: 4000),
-              backgroundColor: FlutterFlowTheme.of(context).secondary,
-            ),
-          );
         },
         () async {
           await actions.sendXPlaneCommand(
@@ -105,29 +680,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
             'sim/operation/failures/rel_engfai1',
             FFAppState().ipPC,
           );
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_engfai1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
           FFAppState().addToActiveFailures(6);
           safeSetState(() {});
         },
@@ -149,36 +701,17 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
         },
         () async {
           await actions.sendXPlaneCommand(
-            'sim/operation/failures/rel_oilp_ind_1',
+            'sim/operation/failures/rel_oilp_ind_0',
             FFAppState().ipPC,
           );
-          FFAppState().addToActiveFailures(10);
+          FFAppState().addToActiveFailures(9);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_oilp_ind_1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_oilp_ind_1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(10);
           safeSetState(() {});
         },
@@ -229,18 +762,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
           );
           FFAppState().addToActiveFailures(16);
           safeSetState(() {});
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '1',
-                style: TextStyle(
-                  color: FlutterFlowTheme.of(context).primaryText,
-                ),
-              ),
-              duration: Duration(milliseconds: 4000),
-              backgroundColor: FlutterFlowTheme.of(context).secondary,
-            ),
-          );
         },
         () async {
           await actions.sendXPlaneCommand(
@@ -19879,6 +20400,18 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                 .FuelLoadEFBXPlane(
                                               width: double.infinity,
                                               height: double.infinity,
+                                              incomingTotalFuel:
+                                                  FFAppState().appFuelTotal,
+                                              incomingCenterFuel:
+                                                  FFAppState().appFuelCenter,
+                                              incomingLInnerFuel:
+                                                  FFAppState().appFuelLInner,
+                                              incomingRInnerFuel:
+                                                  FFAppState().appFuelRInner,
+                                              incomingLOuterFuel:
+                                                  FFAppState().appFuelLOuter,
+                                              incomingROuterFuel:
+                                                  FFAppState().appFuelROuter,
                                               updateTotalFuel:
                                                   (fuelValue) async {
                                                 await actions.setXPlaneDataRef(
@@ -25848,8 +26381,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     'sim/operation/freeze_toggle',
                                     FFAppState().ipPC,
                                   );
-
-                                  context.pushNamed(IOSpilottWidget.routeName);
                                 },
                                 headTrackerAction: () async {
                                   context.pushNamed(

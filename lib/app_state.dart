@@ -515,6 +515,42 @@ class FFAppState extends ChangeNotifier {
   set receivedCommand(String value) {
     _receivedCommand = value;
   }
+
+  double _appFuelTotal = 0.0;
+  double get appFuelTotal => _appFuelTotal;
+  set appFuelTotal(double value) {
+    _appFuelTotal = value;
+  }
+
+  double _appFuelCenter = 0.0;
+  double get appFuelCenter => _appFuelCenter;
+  set appFuelCenter(double value) {
+    _appFuelCenter = value;
+  }
+
+  double _appFuelLInner = 0.0;
+  double get appFuelLInner => _appFuelLInner;
+  set appFuelLInner(double value) {
+    _appFuelLInner = value;
+  }
+
+  double _appFuelRInner = 0.0;
+  double get appFuelRInner => _appFuelRInner;
+  set appFuelRInner(double value) {
+    _appFuelRInner = value;
+  }
+
+  double _appFuelLOuter = 0.0;
+  double get appFuelLOuter => _appFuelLOuter;
+  set appFuelLOuter(double value) {
+    _appFuelLOuter = value;
+  }
+
+  double _appFuelROuter = 0.0;
+  double get appFuelROuter => _appFuelROuter;
+  set appFuelROuter(double value) {
+    _appFuelROuter = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {
