@@ -24990,8 +24990,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     FFAppState().ipPC,
                                   );
 
-                                  context
-                                      .pushNamed(IOSinstructorWidget.routeName);
+                                  context.pushNamed(
+                                      HomePageXPLANEinstructorWidget.routeName);
                                 },
                                 freezeAction: () async {
                                   await actions.sendXPlaneCommand(
