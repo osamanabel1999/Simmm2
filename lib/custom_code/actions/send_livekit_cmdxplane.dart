@@ -11,15 +11,17 @@ import 'package:flutter/material.dart';
 
 import 'package:livekit_client/livekit_client.dart';
 import 'dart:convert';
-import '/custom_code/widgets/index.dart'; // سطر الإمبورت العادي
+
+// 🔥 المتغيرات بتتعرف هنا، والويجيت هو اللي هييجي يملاها
+Room? globalLiveKitRoom_xplane;
+void Function(String)? globalLiveKitLog_xplane;
 
 Future sendLivekitCmdxplane(String commandName) async {
-  // بنستخدم المتغيرات العالمية اللي متعرفة في ملف الويجيت
   if (globalLiveKitRoom_xplane == null ||
       globalLiveKitRoom_xplane!.localParticipant == null) {
     debugPrint("⚠️ [الأكشن الخارجي]: لم يتم الاتصال بالغرفة!");
     if (globalLiveKitLog_xplane != null) {
-      globalLiveKitLog_xplane!("⚠️ مش هقدر ابعت، الغرفة مش متصلة!");
+      globalLiveKitLog_xplane!("⚠️ الأكشن: مش هقدر ابعت، الغرفة مش متصلة!");
     }
     return;
   }

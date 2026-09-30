@@ -14,9 +14,8 @@ import 'package:livekit_client/livekit_client.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'dart:convert';
 
-// 🌐 Global variables for external actions
-Room? globalLiveKitRoom_xplane;
-void Function(String)? globalLiveKitLog_xplane;
+// 🔥 السطر السحري اللي بيكسر حماية فلاتر فلو ويستدعي ملف الأكشن عشان يربط الزراير بالشاشة
+import '/custom_code/actions/send_livekit_cmdxplane.dart';
 
 class LiveKitViewer extends StatefulWidget {
   const LiveKitViewer({
@@ -103,6 +102,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
   @override
   void initState() {
     super.initState();
+    // 🔥 بنربط اللوجز بالمتغير اللي موجود في الأكشن عشان ضغطة الزرار تظهر هنا
     globalLiveKitLog_xplane = _addLog;
   }
 
@@ -145,6 +145,8 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
     try {
       final token = _generateToken(roomName);
       _room = Room();
+
+      // 🔥 الشاشة بتدي الغرفة للمتغير اللي في الأكشن عشان الزراير تعرف تبعت
       globalLiveKitRoom_xplane = _room;
 
       _listener = _room!.createListener();
@@ -190,7 +192,10 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
     await _room?.disconnect();
     _listener?.dispose();
     _room = null;
+
+    // 🔥 تنظيف المتغيرات لما نقفل
     globalLiveKitRoom_xplane = null;
+
     setState(() {
       _isConnected = false;
       _isConnecting = false;
