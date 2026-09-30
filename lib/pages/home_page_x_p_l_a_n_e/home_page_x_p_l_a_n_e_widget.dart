@@ -57,114 +57,54 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_engfai1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_engfai1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(2);
           safeSetState(() {});
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '2',
+                style: TextStyle(
+                  color: FlutterFlowTheme.of(context).primaryText,
+                ),
+              ),
+              duration: Duration(milliseconds: 4000),
+              backgroundColor: FlutterFlowTheme.of(context).secondary,
+            ),
+          );
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_engfir0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_engfir0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(3);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_engfir1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_engfir1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(4);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_engfai0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_engfai0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(5);
           safeSetState(() {});
         },
         () async {
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_engfai1',
+            FFAppState().ipPC,
+          );
           await showModalBottomSheet(
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
@@ -192,84 +132,27 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_oilt_ind_0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_oilt_ind_0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(7);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_oilt_ind_1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_oilt_ind_1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(8);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_oilp_ind_0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
-          FFAppState().addToActiveFailures(9);
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_oilp_ind_1',
+            FFAppState().ipPC,
+          );
+          FFAppState().addToActiveFailures(10);
           safeSetState(() {});
         },
         () async {
@@ -300,1244 +183,382 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_revloc0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_revloc0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(11);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_revloc1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_revloc1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(12);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_revdep0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_revdep0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(13);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_revdep1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_revdep1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(14);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_aftbur0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_aftbur0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(15);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_aftbur1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_aftbur1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(16);
           safeSetState(() {});
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '1',
+                style: TextStyle(
+                  color: FlutterFlowTheme.of(context).primaryText,
+                ),
+              ),
+              duration: Duration(milliseconds: 4000),
+              backgroundColor: FlutterFlowTheme.of(context).secondary,
+            ),
+          );
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_comsta0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_comsta0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(17);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_comsta1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_comsta1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(18);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_apu',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_apu',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(19);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_apu_fire',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_apu_fire',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(20);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_depres_fast',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_depres_fast',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(200);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bleed_air_lft',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_bleed_air_lft',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(21);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bleed_air_rgt',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_bleed_air_rgt',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(22);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_APU_press',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_APU_press',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(23);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_batter0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_batter0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(24);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_batter1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_batter1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(25);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_esys',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_esys',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(26);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_esys2',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_esys2',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(27);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_genera0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_genera0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(28);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_genera1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_genera1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(29);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bat0_lo',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_bat0_lo',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(30);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bat1_lo',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_bat1_lo',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(31);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bat0_hi',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_bat0_hi',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(32);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_bat1_hi',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_bat1_hi',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(33);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuepmp0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuepmp0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(34);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuepmp1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuepmp1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(35);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_FF_ind0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_FF_ind0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(36);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_FF_ind1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_FF_ind1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(37);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fp_ind_0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fp_ind_0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(38);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fp_ind_1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fp_ind_1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(39);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_block0',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuel_block0',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(40);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_block1',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuel_block1',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(41);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_block2',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuel_block2',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(42);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_block3',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuel_block3',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(43);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_block4',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuel_block4',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(44);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuelcap',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuelcap',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(45);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_water',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuel_water',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(46);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_fuel_type',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuel_type',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(47);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_g_fuel',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_fuel_type',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(48);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydpmp',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_hydpmp',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(49);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydpmp2',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_hydpmp2',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(50);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydleak',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_hydleak',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(51);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydleak2',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_hydleak2',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(52);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydoverp',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_hydoverp',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(53);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydoverp2',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_hydoverp2',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(54);
           safeSetState(() {});
         },
         () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_hydpmp_ele',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
-
+          await actions.sendXPlaneCommand(
+            'sim/operation/failures/rel_hydpmp_ele',
+            FFAppState().ipPC,
+          );
           FFAppState().addToActiveFailures(55);
           safeSetState(() {});
         },
@@ -6481,11 +5502,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_engfai0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_engfai0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   1);
@@ -6577,37 +5632,50 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_engfai1',
-                                                              FFAppState().ipPC,
-                                                            );
+                                                            await showModalBottomSheet(
+                                                              isScrollControlled:
+                                                                  true,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              enableDrag: false,
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return WebViewAware(
+                                                                  child:
+                                                                      GestureDetector(
+                                                                    onTap: () {
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      FocusManager
+                                                                          .instance
+                                                                          .primaryFocus
+                                                                          ?.unfocus();
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: MediaQuery
+                                                                          .viewInsetsOf(
+                                                                              context),
+                                                                      child:
+                                                                          FailureWidget(
+                                                                        targetDataRef:
+                                                                            'sim/operation/failures/rel_engfai1',
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ).then((value) =>
+                                                                safeSetState(
+                                                                    () {}));
+
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     2);
                                                             safeSetState(() {});
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              SnackBar(
-                                                                content: Text(
-                                                                  '2',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
-                                                                  ),
-                                                                ),
-                                                                duration: Duration(
-                                                                    milliseconds:
-                                                                        4000),
-                                                                backgroundColor:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondary,
-                                                              ),
-                                                            );
                                                           },
                                                           child: Container(
                                                             width: MediaQuery
@@ -6687,11 +5755,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_engfir0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_engfir0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   3);
@@ -6781,11 +5883,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_engfir1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_engfir1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   4);
@@ -6873,11 +6009,46 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_engfai0',
-                                                              FFAppState().ipPC,
-                                                            );
+                                                            await showModalBottomSheet(
+                                                              isScrollControlled:
+                                                                  true,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              enableDrag: false,
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return WebViewAware(
+                                                                  child:
+                                                                      GestureDetector(
+                                                                    onTap: () {
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      FocusManager
+                                                                          .instance
+                                                                          .primaryFocus
+                                                                          ?.unfocus();
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: MediaQuery
+                                                                          .viewInsetsOf(
+                                                                              context),
+                                                                      child:
+                                                                          FailureWidget(
+                                                                        targetDataRef:
+                                                                            'sim/operation/failures/rel_engfai0',
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ).then((value) =>
+                                                                safeSetState(
+                                                                    () {}));
+
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     5);
@@ -6957,11 +6128,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_engfai1',
-                                                            FFAppState().ipPC,
-                                                          );
                                                           await showModalBottomSheet(
                                                             isScrollControlled:
                                                                 true,
@@ -7086,11 +6252,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_oilt_ind_0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_oilt_ind_0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   7);
@@ -7180,11 +6380,46 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_oilt_ind_1',
-                                                              FFAppState().ipPC,
-                                                            );
+                                                            await showModalBottomSheet(
+                                                              isScrollControlled:
+                                                                  true,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              enableDrag: false,
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return WebViewAware(
+                                                                  child:
+                                                                      GestureDetector(
+                                                                    onTap: () {
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      FocusManager
+                                                                          .instance
+                                                                          .primaryFocus
+                                                                          ?.unfocus();
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: MediaQuery
+                                                                          .viewInsetsOf(
+                                                                              context),
+                                                                      child:
+                                                                          FailureWidget(
+                                                                        targetDataRef:
+                                                                            'sim/operation/failures/rel_oilt_ind_1',
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ).then((value) =>
+                                                                safeSetState(
+                                                                    () {}));
+
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     8);
@@ -7266,11 +6501,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_oilp_ind_0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_oilp_ind_0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   9);
@@ -7356,11 +6625,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_oilp_ind_1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_oilp_ind_1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   10);
@@ -7448,11 +6751,46 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_revloc0',
-                                                              FFAppState().ipPC,
-                                                            );
+                                                            await showModalBottomSheet(
+                                                              isScrollControlled:
+                                                                  true,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              enableDrag: false,
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return WebViewAware(
+                                                                  child:
+                                                                      GestureDetector(
+                                                                    onTap: () {
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      FocusManager
+                                                                          .instance
+                                                                          .primaryFocus
+                                                                          ?.unfocus();
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: MediaQuery
+                                                                          .viewInsetsOf(
+                                                                              context),
+                                                                      child:
+                                                                          FailureWidget(
+                                                                        targetDataRef:
+                                                                            'sim/operation/failures/rel_revloc0',
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ).then((value) =>
+                                                                safeSetState(
+                                                                    () {}));
+
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     11);
@@ -7532,11 +6870,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_revloc1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_revloc1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   12);
@@ -7622,11 +6994,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_revdep0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_revdep0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   13);
@@ -7714,11 +7120,46 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_revdep1',
-                                                              FFAppState().ipPC,
-                                                            );
+                                                            await showModalBottomSheet(
+                                                              isScrollControlled:
+                                                                  true,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              enableDrag: false,
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return WebViewAware(
+                                                                  child:
+                                                                      GestureDetector(
+                                                                    onTap: () {
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      FocusManager
+                                                                          .instance
+                                                                          .primaryFocus
+                                                                          ?.unfocus();
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: MediaQuery
+                                                                          .viewInsetsOf(
+                                                                              context),
+                                                                      child:
+                                                                          FailureWidget(
+                                                                        targetDataRef:
+                                                                            'sim/operation/failures/rel_revdep1',
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ).then((value) =>
+                                                                safeSetState(
+                                                                    () {}));
+
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     14);
@@ -7798,11 +7239,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_aftbur0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_aftbur0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   15);
@@ -7888,37 +7363,49 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_aftbur1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_aftbur1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   16);
                                                           safeSetState(() {});
-                                                          ScaffoldMessenger.of(
-                                                                  context)
-                                                              .showSnackBar(
-                                                            SnackBar(
-                                                              content: Text(
-                                                                '1',
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
-                                                                ),
-                                                              ),
-                                                              duration: Duration(
-                                                                  milliseconds:
-                                                                      4000),
-                                                              backgroundColor:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondary,
-                                                            ),
-                                                          );
                                                         },
                                                         child: Container(
                                                           width: 134.7,
@@ -7994,11 +7481,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_comsta0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_comsta0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   17);
@@ -8078,11 +7599,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_comsta1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_comsta1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   18);
@@ -11222,11 +10777,46 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_apu',
-                                                              FFAppState().ipPC,
-                                                            );
+                                                            await showModalBottomSheet(
+                                                              isScrollControlled:
+                                                                  true,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              enableDrag: false,
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return WebViewAware(
+                                                                  child:
+                                                                      GestureDetector(
+                                                                    onTap: () {
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      FocusManager
+                                                                          .instance
+                                                                          .primaryFocus
+                                                                          ?.unfocus();
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: MediaQuery
+                                                                          .viewInsetsOf(
+                                                                              context),
+                                                                      child:
+                                                                          FailureWidget(
+                                                                        targetDataRef:
+                                                                            'sim/operation/failures/rel_apu',
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ).then((value) =>
+                                                                safeSetState(
+                                                                    () {}));
+
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     19);
@@ -11305,11 +10895,46 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_apu_fire',
-                                                              FFAppState().ipPC,
-                                                            );
+                                                            await showModalBottomSheet(
+                                                              isScrollControlled:
+                                                                  true,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              enableDrag: false,
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return WebViewAware(
+                                                                  child:
+                                                                      GestureDetector(
+                                                                    onTap: () {
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      FocusManager
+                                                                          .instance
+                                                                          .primaryFocus
+                                                                          ?.unfocus();
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: MediaQuery
+                                                                          .viewInsetsOf(
+                                                                              context),
+                                                                      child:
+                                                                          FailureWidget(
+                                                                        targetDataRef:
+                                                                            'sim/operation/failures/rel_apu_fire',
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ).then((value) =>
+                                                                safeSetState(
+                                                                    () {}));
+
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     20);
@@ -11388,11 +11013,46 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           highlightColor: Colors
                                                               .transparent,
                                                           onTap: () async {
-                                                            await actions
-                                                                .sendXPlaneCommand(
-                                                              'sim/operation/failures/rel_depres_fast',
-                                                              FFAppState().ipPC,
-                                                            );
+                                                            await showModalBottomSheet(
+                                                              isScrollControlled:
+                                                                  true,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              enableDrag: false,
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return WebViewAware(
+                                                                  child:
+                                                                      GestureDetector(
+                                                                    onTap: () {
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      FocusManager
+                                                                          .instance
+                                                                          .primaryFocus
+                                                                          ?.unfocus();
+                                                                    },
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: MediaQuery
+                                                                          .viewInsetsOf(
+                                                                              context),
+                                                                      child:
+                                                                          FailureWidget(
+                                                                        targetDataRef:
+                                                                            'sim/operation/failures/rel_depres_fast',
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ).then((value) =>
+                                                                safeSetState(
+                                                                    () {}));
+
                                                             FFAppState()
                                                                 .addToActiveFailures(
                                                                     200);
@@ -11510,11 +11170,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bleed_air_lft',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_bleed_air_lft',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   21);
@@ -11594,11 +11288,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bleed_air_rgt',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_bleed_air_rgt',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   22);
@@ -11678,11 +11406,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_APU_press',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_APU_press',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   23);
@@ -11798,11 +11560,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_batter0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_batter0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   24);
@@ -11882,11 +11678,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_batter1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_batter1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   25);
@@ -11966,11 +11796,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_esys',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_esys',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   26);
@@ -12056,11 +11920,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_esys2',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_esys2',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   27);
@@ -12140,11 +12038,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_genera0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_genera0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   28);
@@ -12224,11 +12156,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_genera1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_genera1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   29);
@@ -12314,11 +12280,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bat0_lo',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_bat0_lo',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   30);
@@ -12398,11 +12398,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bat1_lo',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_bat1_lo',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   31);
@@ -12482,11 +12516,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bat0_hi',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_bat0_hi',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   32);
@@ -12572,11 +12640,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_bat1_hi',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_bat1_hi',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   33);
@@ -12692,11 +12794,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuepmp0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fuepmp0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   34);
@@ -12776,11 +12912,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuepmp1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fuepmp1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   35);
@@ -12860,11 +13030,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_FF_ind0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_FF_ind0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   36);
@@ -12899,7 +13103,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .center,
                                                             children: [
                                                               Text(
-                                                                'FUEL FLOW INDICATOR 1',
+                                                                'FURL FLOW INDICATOR 1',
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
@@ -12950,11 +13154,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_FF_ind1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_FF_ind1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   37);
@@ -12989,7 +13227,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                     .center,
                                                             children: [
                                                               Text(
-                                                                'FUEL FLOW INDICATOR 2',
+                                                                'FURL FLOW INDICATOR 2',
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
@@ -13034,11 +13272,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fp_ind_0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fp_ind_0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   38);
@@ -13118,11 +13390,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fp_ind_1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fp_ind_1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   39);
@@ -13208,11 +13514,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_block0',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fuel_block0',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   40);
@@ -13292,11 +13632,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_block1',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fuel_block1',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   41);
@@ -13376,11 +13750,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_block2',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fuel_block2',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   42);
@@ -13466,11 +13874,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_block3',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fuel_block3',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   43);
@@ -13550,11 +13992,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_block4',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fuel_block4',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   44);
@@ -13634,11 +14110,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuelcap',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fuelcap',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   45);
@@ -13724,11 +14234,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_water',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fuel_water',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   46);
@@ -13808,11 +14352,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_type',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_fuel_type',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   47);
@@ -13892,11 +14470,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_fuel_type',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_g_fuel',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   48);
@@ -14013,11 +14625,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydpmp',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_hydpmp',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   49);
@@ -14097,11 +14743,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydpmp2',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_hydpmp2',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   50);
@@ -14181,11 +14861,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydleak',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_hydleak',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   51);
@@ -14271,11 +14985,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydleak2',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_hydleak2',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   52);
@@ -14355,11 +15103,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydoverp',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_hydoverp',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   53);
@@ -14439,11 +15221,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydoverp2',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_hydoverp2',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   54);
@@ -14530,11 +15346,45 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                         highlightColor:
                                                             Colors.transparent,
                                                         onTap: () async {
-                                                          await actions
-                                                              .sendXPlaneCommand(
-                                                            'sim/operation/failures/rel_hydpmp_ele',
-                                                            FFAppState().ipPC,
-                                                          );
+                                                          await showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            enableDrag: false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return WebViewAware(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    FocusManager
+                                                                        .instance
+                                                                        .primaryFocus
+                                                                        ?.unfocus();
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: MediaQuery
+                                                                        .viewInsetsOf(
+                                                                            context),
+                                                                    child:
+                                                                        FailureWidget(
+                                                                      targetDataRef:
+                                                                          'sim/operation/failures/rel_hydpmp_ele',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              safeSetState(
+                                                                  () {}));
+
                                                           FFAppState()
                                                               .addToActiveFailures(
                                                                   55);
