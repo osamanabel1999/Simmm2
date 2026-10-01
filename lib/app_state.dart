@@ -551,6 +551,96 @@ class FFAppState extends ChangeNotifier {
   set appFuelROuter(double value) {
     _appFuelROuter = value;
   }
+
+  String _syncIcao = '';
+  String get syncIcao => _syncIcao;
+  set syncIcao(String value) {
+    _syncIcao = value;
+  }
+
+  String _syncRunway = '';
+  String get syncRunway => _syncRunway;
+  set syncRunway(String value) {
+    _syncRunway = value;
+  }
+
+  String _syncGate = '';
+  String get syncGate => _syncGate;
+  set syncGate(String value) {
+    _syncGate = value;
+  }
+
+  String _syncChartGate = '';
+  String get syncChartGate => _syncChartGate;
+  set syncChartGate(String value) {
+    _syncChartGate = value;
+  }
+
+  double _syncTeleportHdg = 0.0;
+  double get syncTeleportHdg => _syncTeleportHdg;
+  set syncTeleportHdg(double value) {
+    _syncTeleportHdg = value;
+  }
+
+  String _syncCommand = '';
+  String get syncCommand => _syncCommand;
+  set syncCommand(String value) {
+    _syncCommand = value;
+  }
+
+  double _syncSimTime = 0.0;
+  double get syncSimTime => _syncSimTime;
+  set syncSimTime(double value) {
+    _syncSimTime = value;
+  }
+
+  double _syncGroundSpeed = 0.0;
+  double get syncGroundSpeed => _syncGroundSpeed;
+  set syncGroundSpeed(double value) {
+    _syncGroundSpeed = value;
+  }
+
+  double _syncSetSpeed = 0.0;
+  double get syncSetSpeed => _syncSetSpeed;
+  set syncSetSpeed(double value) {
+    _syncSetSpeed = value;
+  }
+
+  double _syncTeleportRadial = 0.0;
+  double get syncTeleportRadial => _syncTeleportRadial;
+  set syncTeleportRadial(double value) {
+    _syncTeleportRadial = value;
+  }
+
+  double _syncTeleportDist = 0.0;
+  double get syncTeleportDist => _syncTeleportDist;
+  set syncTeleportDist(double value) {
+    _syncTeleportDist = value;
+  }
+
+  double _syncTeleportAlt = 0.0;
+  double get syncTeleportAlt => _syncTeleportAlt;
+  set syncTeleportAlt(double value) {
+    _syncTeleportAlt = value;
+  }
+
+  double _syncTeleportSpd = 0.0;
+  double get syncTeleportSpd => _syncTeleportSpd;
+  set syncTeleportSpd(double value) {
+    _syncTeleportSpd = value;
+  }
+
+  int _syncMode = 0;
+  int get syncMode => _syncMode;
+  set syncMode(int value) {
+    _syncMode = value;
+  }
+
+  String _syncNavaidSearch = '';
+  String get syncNavaidSearch => _syncNavaidSearch;
+  set syncNavaidSearch(String value) {
+    _syncNavaidSearch = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

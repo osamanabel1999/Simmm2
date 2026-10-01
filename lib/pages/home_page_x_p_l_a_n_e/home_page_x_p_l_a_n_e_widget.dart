@@ -46,6 +46,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      await actions.connectPilotPositionxplane(
+        'MSR111',
+      );
       await actions.connectPilotControlsxplane(
         'MSR111',
         () async {
@@ -23547,6 +23550,33 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                   FFAppState().currentLAT,
                                               aircraftLongitude:
                                                   FFAppState().currentLON,
+                                              syncIcao: FFAppState().syncIcao,
+                                              syncRunway:
+                                                  FFAppState().syncRunway,
+                                              syncGate: FFAppState().syncGate,
+                                              syncChartGate:
+                                                  FFAppState().syncChartGate,
+                                              syncNavaidSearch:
+                                                  FFAppState().syncNavaidSearch,
+                                              syncCommand:
+                                                  FFAppState().syncCommand,
+                                              syncSimTime:
+                                                  FFAppState().syncSimTime,
+                                              syncGroundSpeed:
+                                                  FFAppState().syncGroundSpeed,
+                                              syncSetSpeed:
+                                                  FFAppState().syncSetSpeed,
+                                              syncTeleportRadial: FFAppState()
+                                                  .syncTeleportRadial,
+                                              syncTeleportHdg:
+                                                  FFAppState().syncTeleportHdg,
+                                              syncTeleportDist:
+                                                  FFAppState().syncTeleportDist,
+                                              syncTeleportAlt:
+                                                  FFAppState().syncTeleportAlt,
+                                              syncTeleportSpd:
+                                                  FFAppState().syncTeleportSpd,
+                                              syncMode: FFAppState().syncMode,
                                               onRunwaySelected:
                                                   (lat, lon, heading) async {
                                                 _model.elevationDataXplaneRWY1 =

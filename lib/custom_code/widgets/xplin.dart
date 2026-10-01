@@ -3360,6 +3360,21 @@ class Xplin extends StatefulWidget {
   final Future Function()? onPlaneLeftDownwindTap;
   final Future Function()? onPlaneRightDownwindTap;
   final Future Function()? onPlaneCruiseTap;
+  final String? syncIcao;
+  final String? syncRunway;
+  final String? syncGate;
+  final String? syncChartGate;
+  final String? syncNavaidSearch;
+  final String? syncCommand;
+  final double? syncSimTime;
+  final double? syncGroundSpeed;
+  final double? syncSetSpeed;
+  final double? syncTeleportRadial;
+  final double? syncTeleportHdg;
+  final double? syncTeleportDist;
+  final double? syncTeleportAlt;
+  final double? syncTeleportSpd;
+  final int? syncMode;
 
   const Xplin(
       {Key? key,
@@ -3391,7 +3406,22 @@ class Xplin extends StatefulWidget {
       this.onPlaneHoldRightTap,
       this.onPlaneLeftDownwindTap,
       this.onPlaneRightDownwindTap,
-      this.onPlaneCruiseTap})
+      this.onPlaneCruiseTap,
+      this.syncIcao,
+      this.syncRunway,
+      this.syncGate,
+      this.syncChartGate,
+      this.syncNavaidSearch,
+      this.syncCommand,
+      this.syncSimTime,
+      this.syncGroundSpeed,
+      this.syncSetSpeed,
+      this.syncTeleportRadial,
+      this.syncTeleportHdg,
+      this.syncTeleportDist,
+      this.syncTeleportAlt,
+      this.syncTeleportSpd,
+      this.syncMode})
       : super(key: key);
 
   @override
@@ -3434,6 +3464,93 @@ class _XplinState extends State<Xplin> {
       }
     };
     FFAppState().addListener(_appStateListener!);
+  }
+
+  @override
+  void didUpdateWidget(covariant Xplin oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.syncIcao != null && widget.syncIcao != oldWidget.syncIcao) {
+      _icaoController.text = widget.syncIcao!;
+      _handleSearch();
+    }
+
+    if (widget.syncMode != null && widget.syncMode != oldWidget.syncMode) {
+      setState(() => _selectedMode = widget.syncMode!);
+    }
+
+    if (widget.syncSimTime != null &&
+        widget.syncSimTime != oldWidget.syncSimTime) {
+      setState(() => _simulatorTimeSeconds = widget.syncSimTime!);
+      if (widget.onSimulatorTimeChanged != null)
+        widget.onSimulatorTimeChanged!(widget.syncSimTime!);
+    }
+
+    if (widget.syncGroundSpeed != null &&
+        widget.syncGroundSpeed != oldWidget.syncGroundSpeed) {
+      setState(() => _groundSpeed = widget.syncGroundSpeed!);
+      if (widget.onGroundSpeedChanged != null)
+        widget.onGroundSpeedChanged!(widget.syncGroundSpeed!);
+    }
+
+    if (widget.syncSetSpeed != null &&
+        widget.syncSetSpeed != oldWidget.syncSetSpeed &&
+        widget.syncSetSpeed! > 0) {
+      _speedController.text = widget.syncSetSpeed.toString();
+      if (widget.onSpeedSet != null) widget.onSpeedSet!(widget.syncSetSpeed!);
+    }
+
+    if (widget.syncRunway != null &&
+        widget.syncRunway != oldWidget.syncRunway) {
+      try {
+        final rw = _runways.firstWhere((r) => r['name'] == widget.syncRunway);
+        _selectRunway(rw);
+      } catch (e) {}
+    }
+
+    if (widget.syncGate != null && widget.syncGate != oldWidget.syncGate) {
+      try {
+        final index =
+            _gatesList.indexWhere((g) => g['name'] == widget.syncGate);
+        if (index != -1) {
+          setState(() => _selectedGateIndex = index);
+          final gate = _gatesList[index];
+          if (widget.onGateSelected != null)
+            widget.onGateSelected!(gate['lat'], gate['lon'], gate['heading']);
+        }
+      } catch (e) {}
+    }
+
+    if (widget.syncCommand != null &&
+        widget.syncCommand != oldWidget.syncCommand) {
+      final cmd = widget.syncCommand!;
+      if (cmd.startsWith('CMD_TAKEOFF_CONFIG'))
+        widget.onTakeoffConfigTap?.call();
+      else if (cmd.startsWith('CMD_LANDING_CONFIG'))
+        widget.onLandingConfigTap?.call();
+      else if (cmd.startsWith('CMD_15NM'))
+        widget.onPlane15nmTap?.call();
+      else if (cmd.startsWith('CMD_10NM'))
+        widget.onPlane10nmTap?.call();
+      else if (cmd.startsWith('CMD_7NM'))
+        widget.onPlane7nmTap?.call();
+      else if (cmd.startsWith('CMD_4NM_TAKEOFF'))
+        widget.onPlane4nmTap?.call();
+      else if (cmd.startsWith('CMD_CRUISE'))
+        widget.onPlaneCruiseTap?.call();
+      else if (cmd.startsWith('CMD_LEFT_BASE'))
+        widget.onPlaneHoldLeftTap?.call();
+      else if (cmd.startsWith('CMD_LEFT_DOWNWIND'))
+        widget.onPlaneLeftDownwindTap?.call();
+      else if (cmd.startsWith('CMD_RIGHT_BASE'))
+        widget.onPlaneHoldRightTap?.call();
+      else if (cmd.startsWith('CMD_RIGHT_DOWNWIND'))
+        widget.onPlaneRightDownwindTap?.call();
+      else if (cmd.startsWith('CMD_TELEPORT_EXECUTE')) {
+        if (widget.onNavaidTeleportTap != null)
+          widget.onNavaidTeleportTap?.call();
+      }
+    }
   }
 
   @override

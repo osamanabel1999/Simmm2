@@ -179,3 +179,5 @@ export '/custom_code/actions/send_livekit_sliderxplane.dart'
     show sendLivekitSliderxplane;
 export '/custom_code/actions/connect_pilot_slidersxplane.dart'
     show connectPilotSlidersxplane;
+export '/custom_code/actions/connect_pilot_positionxplane.dart'
+    show connectPilotPositionxplane;
