@@ -46,7 +46,8 @@ Future connectPilotSlidersxplane(
               .millisecondsSinceEpoch ~/
           1000,
       'iss': apiKey,
-      'sub': 'Pilot_Listener',
+      // 🔥 التعديل الجذري: إعطاء هوية مستقلة للسلايدر عشان ميطردش
+      'sub': 'Pilot_Listener_Sliders',
     });
 
     final token = jwt.sign(SecretKey(apiSecret));

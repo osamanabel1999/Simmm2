@@ -171,28 +171,8 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
             'sim/operation/failures/rel_servo_rudd',
             FFAppState().ipPC,
           );
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            enableDrag: false,
-            context: context,
-            builder: (context) {
-              return WebViewAware(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: FailureWidget(
-                      targetDataRef: 'sim/operation/failures/rel_servo_rudd',
-                    ),
-                  ),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
+          FFAppState().addToActiveFailures(57);
+          safeSetState(() {});
         },
         () async {
           await actions.sendXPlaneCommand(

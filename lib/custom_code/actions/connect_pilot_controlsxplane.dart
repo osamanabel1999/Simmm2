@@ -63,7 +63,8 @@ Future connectPilotControlsxplane(
               .millisecondsSinceEpoch ~/
           1000,
       'iss': apiKey,
-      'sub': 'Pilot_Listener',
+      // 🔥 التعديل هنا فقط: إعطاء هوية مختلفة ليعمل مع باقي الرادارات في نفس الوقت
+      'sub': 'Pilot_Listener_Controls',
     });
 
     final token = jwt.sign(SecretKey(apiSecret));

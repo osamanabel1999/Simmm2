@@ -127,7 +127,8 @@ Future connectPilotFailuresPartTwo(
               .millisecondsSinceEpoch ~/
           1000,
       'iss': apiKey,
-      'sub': 'Pilot_Listener',
+      // 🔥 التعديل هنا فقط: إعطاء هوية مختلفة لهذا الرادار
+      'sub': 'Pilot_Listener_P2',
     });
 
     final token = jwt.sign(SecretKey(apiSecret));

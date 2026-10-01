@@ -18,12 +18,23 @@ Future sendLivekitSliderxplane(String commandName, double sliderValue) async {
   if (main_sender.globalLiveKitRoom_xplane == null ||
       main_sender.globalLiveKitRoom_xplane!.localParticipant == null) {
     debugPrint("⚠️ [سلايدر]: لم يتم الاتصال بالغرفة!");
+    // 🔥 طباعة الخطأ على الشاشة
+    if (main_sender.globalLiveKitLog_xplane != null) {
+      main_sender
+          .globalLiveKitLog_xplane!("⚠️ السلايدر: لم يتم الاتصال بالغرفة!");
+    }
     return;
   }
 
   try {
     // دمج الكلمة مع الرقم باستخدام نقطتين (مثال: FUEL_CENTER:75.5)
     final dataString = "$commandName:$sliderValue";
+
+    // 🔥 طباعة جاري الإرسال على الشاشة
+    if (main_sender.globalLiveKitLog_xplane != null) {
+      main_sender.globalLiveKitLog_xplane!("⏳ جاري إرسال: $dataString ...");
+    }
+
     final data = utf8.encode(dataString);
 
     await main_sender.globalLiveKitRoom_xplane!.localParticipant?.publishData(
@@ -32,7 +43,15 @@ Future sendLivekitSliderxplane(String commandName, double sliderValue) async {
     );
 
     debugPrint("✅ [سلايدر]: تم إرسال القيمة بنجاح: $dataString");
+    // 🔥 طباعة نجاح الإرسال على الشاشة
+    if (main_sender.globalLiveKitLog_xplane != null) {
+      main_sender.globalLiveKitLog_xplane!("🚀 تم تحديث الوقود بنجاح!");
+    }
   } catch (e) {
     debugPrint("❌ [سلايدر]: خطأ في الإرسال: $e");
+    // 🔥 طباعة الفشل على الشاشة
+    if (main_sender.globalLiveKitLog_xplane != null) {
+      main_sender.globalLiveKitLog_xplane!("❌ فشل إرسال قيمة الوقود!");
+    }
   }
 }
