@@ -16,20 +16,44 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // --- ألوان EFB الاحترافية الموحدة ---
-const Color efbBg = Color(0xFF030508); // Darkest background
-const Color efbCard = Color(0xFF0C1421); // Card background
-const Color efbBorder = Color(0xFF1E324A); // Standard border
-const Color efbTextMuted = Color(0xFF6B87A8); // Muted bluish text
-const Color efbAccent = Color(0xFF4A90E2); // Main highlight blue
-const Color efbButtonDark = Color(0xFF16263B); // Dark button fill
+const Color efbBg = Color(0xFF030508);
+const Color efbCard = Color(0xFF0C1421);
+const Color efbBorder = Color(0xFF1E324A);
+const Color efbTextMuted = Color(0xFF6B87A8);
+const Color efbAccent = Color(0xFF4A90E2);
+const Color efbButtonDark = Color(0xFF16263B);
 const Color efbWhite = Colors.white;
 
-// --- ألوان الحالات (Status Colors) ---
-const Color cDanger = Color(0xFFFF453A); // Red (Unable/Error)
-const Color cWarn = Color(0xFFFFD60A); // Yellow (Standby)
-const Color cGood = Color(0xFF32D74B); // Green (Wilco/Online)
-const Color cWeather = Color(0xFF7AA5D2); // Weather/Info Blue
-const Color cRoger = Color(0xFF8B9FB6); // Roger (Greyish Blue)
+const Color cDanger = Color(0xFFFF453A);
+const Color cWarn = Color(0xFFFFD60A);
+const Color cGood = Color(0xFF32D74B);
+const Color cWeather = Color(0xFF7AA5D2);
+const Color cRoger = Color(0xFF8B9FB6);
+
+// ==========================================
+// STATIC SESSION MEMORY (يحفظ البيانات أثناء التنقل داخل التطبيق)
+// ==========================================
+class _AcarsSession {
+  static List<Map<String, String>> mailbox = [];
+  static bool isOnline = false;
+  static bool isVatsim = true;
+  static bool telexIsAtc = false;
+  static String logonCode = "";
+  static String callsign = "";
+  static String telexTo = "";
+  static String telexMsg = "";
+  static String cpdlcStation = "";
+  static String icao = "";
+  static String ocWpt = "";
+  static String ocTime = "";
+  static String ocFl = "";
+  static String ocSpd = "";
+  static String ocNext = "";
+  static String ocEto = "";
+  static String ocFuel = "";
+  static String ocTemp = "";
+  static String quickReqInput = "";
+}
 
 class AcarsEfbWidget extends StatefulWidget {
   const AcarsEfbWidget({
@@ -50,23 +74,13 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   @override
   bool get wantKeepAlive => true;
 
-  // --- Controllers & State ---
+  // --- Controllers ---
   final TextEditingController _logonCodeCtrl = TextEditingController();
   final TextEditingController _callsignCtrl = TextEditingController();
-
-  // Validation States
-  bool _logonError = false;
-  bool _callsignError = false;
-
-  // Telex Controllers
   final TextEditingController _telexToCtrl = TextEditingController();
   final TextEditingController _telexMsgCtrl = TextEditingController();
-  bool _telexIsAtc = false;
-
   final TextEditingController _cpdlcStationCtrl = TextEditingController();
   final TextEditingController _icaoCtrl = TextEditingController();
-
-  // Oceanic Controllers
   final TextEditingController _ocWpt = TextEditingController();
   final TextEditingController _ocTime = TextEditingController();
   final TextEditingController _ocFl = TextEditingController();
@@ -75,59 +89,105 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   final TextEditingController _ocEto = TextEditingController();
   final TextEditingController _ocFuel = TextEditingController();
   final TextEditingController _ocTemp = TextEditingController();
-
-  bool _posRepAttempted = false;
-
-  // Quick ATC State
-  String? _activeQuickReq;
   final TextEditingController _quickReqInputCtrl = TextEditingController();
 
+  // Validation States
+  bool _logonError = false;
+  bool _callsignError = false;
+  bool _posRepAttempted = false;
+
+  // Local State References
+  bool _telexIsAtc = false;
   bool _isVatsim = true;
   bool _isOnline = false;
+  String? _activeQuickReq;
+  List<Map<String, String>> _mailbox = [];
+  int _mobileTabIndex = 0;
+
   Timer? _pollingTimer;
   final AudioPlayer _audioPlayer = AudioPlayer();
-
-  List<Map<String, String>> _mailbox = [];
   final String _hoppieUrl = 'http://www.hoppie.nl/acars/system/connect.html';
-
-  // 🔥 متغير جديد للموبايل للتحكم في الشاشات (Tabs)
-  int _mobileTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadLogonCode();
 
+    // استرجاع البيانات من الذاكرة الحية (لمنع المسح عند تغيير الصفحة)
+    _mailbox = _AcarsSession.mailbox;
+    _isOnline = _AcarsSession.isOnline;
+    _isVatsim = _AcarsSession.isVatsim;
+    _telexIsAtc = _AcarsSession.telexIsAtc;
+
+    _logonCodeCtrl.text = _AcarsSession.logonCode;
+    _callsignCtrl.text = _AcarsSession.callsign;
+    _telexToCtrl.text = _AcarsSession.telexTo;
+    _telexMsgCtrl.text = _AcarsSession.telexMsg;
+    _cpdlcStationCtrl.text = _AcarsSession.cpdlcStation;
+    _icaoCtrl.text = _AcarsSession.icao;
+    _ocWpt.text = _AcarsSession.ocWpt;
+    _ocTime.text = _AcarsSession.ocTime;
+    _ocFl.text = _AcarsSession.ocFl;
+    _ocSpd.text = _AcarsSession.ocSpd;
+    _ocNext.text = _AcarsSession.ocNext;
+    _ocEto.text = _AcarsSession.ocEto;
+    _ocFuel.text = _AcarsSession.ocFuel;
+    _ocTemp.text = _AcarsSession.ocTemp;
+    _quickReqInputCtrl.text = _AcarsSession.quickReqInput;
+
+    _loadLogonData();
+
+    // Listeners to update memory automatically
     _logonCodeCtrl.addListener(() {
-      _saveLogonCode(_logonCodeCtrl.text);
-      if (_logonCodeCtrl.text.isNotEmpty && _logonError) {
+      _AcarsSession.logonCode = _logonCodeCtrl.text;
+      _saveLogonData();
+      if (_logonCodeCtrl.text.isNotEmpty && _logonError)
         setState(() => _logonError = false);
-      }
     });
 
     _callsignCtrl.addListener(() {
-      if (_callsignCtrl.text.isNotEmpty && _callsignError) {
+      _AcarsSession.callsign = _callsignCtrl.text;
+      _saveLogonData();
+      if (_callsignCtrl.text.isNotEmpty && _callsignError)
         setState(() => _callsignError = false);
-      }
     });
+
+    _telexToCtrl.addListener(() => _AcarsSession.telexTo = _telexToCtrl.text);
+    _telexMsgCtrl
+        .addListener(() => _AcarsSession.telexMsg = _telexMsgCtrl.text);
+    _cpdlcStationCtrl
+        .addListener(() => _AcarsSession.cpdlcStation = _cpdlcStationCtrl.text);
+    _icaoCtrl.addListener(() => _AcarsSession.icao = _icaoCtrl.text);
+    _ocWpt.addListener(() => _AcarsSession.ocWpt = _ocWpt.text);
+    _ocTime.addListener(() => _AcarsSession.ocTime = _ocTime.text);
+    _ocFl.addListener(() => _AcarsSession.ocFl = _ocFl.text);
+    _ocSpd.addListener(() => _AcarsSession.ocSpd = _ocSpd.text);
+    _ocNext.addListener(() => _AcarsSession.ocNext = _ocNext.text);
+    _ocEto.addListener(() => _AcarsSession.ocEto = _ocEto.text);
+    _ocFuel.addListener(() => _AcarsSession.ocFuel = _ocFuel.text);
+    _ocTemp.addListener(() => _AcarsSession.ocTemp = _ocTemp.text);
+    _quickReqInputCtrl.addListener(
+        () => _AcarsSession.quickReqInput = _quickReqInputCtrl.text);
 
     _pollingTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
       if (_isOnline) _checkInbox('poll');
     });
   }
 
-  Future<void> _saveLogonCode(String code) async {
+  Future<void> _saveLogonData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('saved_logon_code', code);
+    await prefs.setString('saved_logon_code', _logonCodeCtrl.text);
+    await prefs.setString('saved_callsign', _callsignCtrl.text);
   }
 
-  Future<void> _loadLogonCode() async {
+  Future<void> _loadLogonData() async {
     final prefs = await SharedPreferences.getInstance();
     String? savedCode = prefs.getString('saved_logon_code');
+    String? savedCallsign = prefs.getString('saved_callsign');
     if (savedCode != null && savedCode.isNotEmpty) {
-      setState(() {
-        _logonCodeCtrl.text = savedCode;
-      });
+      setState(() => _logonCodeCtrl.text = savedCode);
+    }
+    if (savedCallsign != null && savedCallsign.isNotEmpty) {
+      setState(() => _callsignCtrl.text = savedCallsign);
     }
   }
 
@@ -186,7 +246,10 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
 
       String body = response.body.trim();
       if (response.statusCode == 200 && body.startsWith('ok')) {
-        setState(() => _isOnline = true);
+        setState(() {
+          _isOnline = true;
+          _AcarsSession.isOnline = true;
+        });
 
         if (showInMailbox && type != 'ping') {
           _addToMailbox("OUT", "To $target: $packet");
@@ -201,7 +264,10 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
         _showError("Failed to send message. Server rejected.");
       }
     } catch (e) {
-      setState(() => _isOnline = false);
+      setState(() {
+        _isOnline = false;
+        _AcarsSession.isOnline = false;
+      });
       _showError("Connection Error. Check your internet.");
     }
   }
@@ -225,7 +291,10 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
 
       String body = response.body.trim();
       if (response.statusCode == 200 && body.startsWith('ok')) {
-        setState(() => _isOnline = true);
+        setState(() {
+          _isOnline = true;
+          _AcarsSession.isOnline = true;
+        });
 
         if (body.length > 3 && body.contains('{')) {
           String content =
@@ -261,7 +330,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
       builder: (context) => Positioned(
         top: 60.0,
         left: MediaQuery.of(context).size.width * 0.1,
-        width: MediaQuery.of(context).size.width * 0.8, // Responsive width
+        width: MediaQuery.of(context).size.width * 0.8,
         child: Material(
           color: Colors.transparent,
           child: Container(
@@ -318,7 +387,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   }
 
   // ==========================================
-  // MAIN BUILDER (LayoutBuilder for Responsiveness)
+  // MAIN BUILDER (بدون SafeArea كما طلبت)
   // ==========================================
   @override
   Widget build(BuildContext context) {
@@ -329,24 +398,21 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
       color: efbBg,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // إذا كان العرض أقل من 800 نعرض الموبايل، غير كده نعرض الآيباد
-              if (constraints.maxWidth < 800) {
-                return _buildMobileLayout();
-              } else {
-                return _buildTabletLayout();
-              }
-            },
-          ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth < 800) {
+              return _buildMobileLayout();
+            } else {
+              return _buildTabletLayout();
+            }
+          },
         ),
       ),
     );
   }
 
   // ==========================================
-  // TABLET / IPAD LAYOUT (Untouched)
+  // TABLET / IPAD LAYOUT (معدل لمنع التداخل)
   // ==========================================
   Widget _buildTabletLayout() {
     return Padding(
@@ -359,11 +425,20 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // عمود 1: الرسائل يتمدد بحرية
                 Expanded(flex: 3, child: _buildMailboxAndTelex()),
                 const SizedBox(width: 12),
-                Expanded(flex: 3, child: _buildQuickRequestsAndWeather()),
+                // عمود 2: Scrollable لمنع التداخل للأسفل
+                Expanded(
+                    flex: 3,
+                    child: SingleChildScrollView(
+                        child: _buildQuickRequestsAndWeather())),
                 const SizedBox(width: 12),
-                Expanded(flex: 3, child: _buildCpdlcAndOceanic()),
+                // عمود 3: Scrollable لمنع التداخل للأسفل
+                Expanded(
+                    flex: 3,
+                    child:
+                        SingleChildScrollView(child: _buildCpdlcAndOceanic())),
               ],
             ),
           ),
@@ -373,7 +448,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   }
 
   // ==========================================
-  // MOBILE SMART LAYOUT (New & Highly Professional)
+  // MOBILE SMART LAYOUT
   // ==========================================
   Widget _buildMobileLayout() {
     return Column(
@@ -453,10 +528,15 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                     border: Border.all(color: efbBorder)),
                 child: ToggleButtons(
                   isSelected: [_isVatsim, !_isVatsim],
-                  onPressed: (index) => setState(() => _isVatsim = index == 0),
+                  onPressed: (index) {
+                    setState(() {
+                      _isVatsim = index == 0;
+                      _AcarsSession.isVatsim = _isVatsim;
+                    });
+                  },
                   color: efbTextMuted,
                   selectedColor: efbWhite,
-                  fillColor: efbAccent.withOpacity(0.3),
+                  fillColor: efbAccent, // اللون أزرق فاتح واضح جداً
                   borderRadius: BorderRadius.circular(5),
                   constraints:
                       const BoxConstraints(minHeight: 38, minWidth: 45),
@@ -535,12 +615,11 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
     }
   }
 
-  // Mobile Views (Safe Fixed Heights to prevent overflow)
   Widget _buildMobileMailboxTab() {
     return Column(
       children: [
         SizedBox(
-          height: 300, // Fixed height for scrolling safely
+          height: 300,
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -615,10 +694,12 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                             icon: Icons.refresh, textColor: efbWhite)),
                     const SizedBox(width: 8),
                     Expanded(
-                        child: _buildActionBtn(
-                            "CLEAR",
-                            () => setState(() => _mailbox.clear()),
-                            efbButtonDark,
+                        child: _buildActionBtn("CLEAR", () {
+                      setState(() {
+                        _mailbox.clear();
+                        _AcarsSession.mailbox.clear();
+                      });
+                    }, efbButtonDark,
                             icon: Icons.delete_outline,
                             textColor: efbTextMuted)),
                   ],
@@ -659,11 +740,15 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                         border: Border.all(color: efbBorder)),
                     child: ToggleButtons(
                       isSelected: [_telexIsAtc, !_telexIsAtc],
-                      onPressed: (index) =>
-                          setState(() => _telexIsAtc = index == 0),
+                      onPressed: (index) {
+                        setState(() {
+                          _telexIsAtc = index == 0;
+                          _AcarsSession.telexIsAtc = _telexIsAtc;
+                        });
+                      },
                       color: efbTextMuted,
                       selectedColor: efbWhite,
-                      fillColor: efbAccent.withOpacity(0.3),
+                      fillColor: efbAccent, // أزرق صريح واضح
                       borderRadius: BorderRadius.circular(5),
                       constraints:
                           const BoxConstraints(minHeight: 36, minWidth: 50),
@@ -718,7 +803,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   }
 
   Widget _buildMobileQuickAtcTab() {
-    return _buildQuickRequestsAndWeather(); // Safe to reuse because it expands naturally without Expanded wrapper errors
+    return _buildQuickRequestsAndWeather();
   }
 
   Widget _buildMobileCpdlcTab() {
@@ -749,7 +834,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                 children: [
                   Expanded(
                       child: _buildModernInput(
-                          _cpdlcStationCtrl, "Logon Station")),
+                          _cpdlcStationCtrl, "Logon Station (e.g. HECC)")),
                   const SizedBox(width: 10),
                   _buildActionBtn(
                       "LOGON",
@@ -825,7 +910,6 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                 ],
               ),
               const SizedBox(height: 12),
-              // 🔥 Mobile specific grid ratio to prevent text cutoffs
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -854,11 +938,8 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
               ),
               const SizedBox(height: 12),
               _buildActionBtn("SEND POS REP", () {
-                setState(() {
-                  _posRepAttempted = true;
-                });
+                setState(() => _posRepAttempted = true);
                 if (!_validateLogon()) return;
-
                 if (_ocWpt.text.isEmpty ||
                     _ocTime.text.isEmpty ||
                     _ocFl.text.isEmpty ||
@@ -870,14 +951,10 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                   _showError("⚠️ All fields are required for Position Report.");
                   return;
                 }
-
                 String report =
                     "POS REP: ${_ocWpt.text} AT ${_ocTime.text}, FL${_ocFl.text}, M${_ocSpd.text}. EST ${_ocNext.text} AT ${_ocEto.text}. FUEL ${_ocFuel.text}, TEMP ${_ocTemp.text}";
                 _sendMessage(_cpdlcStationCtrl.text, 'telex', report);
-
-                setState(() {
-                  _posRepAttempted = false;
-                });
+                setState(() => _posRepAttempted = false);
               }, efbAccent, icon: Icons.send, textColor: efbWhite),
             ],
           ),
@@ -887,7 +964,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   }
 
   // ==========================================
-  // SHARED WIDGETS (Used by both Tablet and Mobile)
+  // SHARED WIDGETS
   // ==========================================
 
   Widget _buildHeader() {
@@ -938,10 +1015,15 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                     border: Border.all(color: efbBorder)),
                 child: ToggleButtons(
                   isSelected: [_isVatsim, !_isVatsim],
-                  onPressed: (index) => setState(() => _isVatsim = index == 0),
+                  onPressed: (index) {
+                    setState(() {
+                      _isVatsim = index == 0;
+                      _AcarsSession.isVatsim = _isVatsim;
+                    });
+                  },
                   color: efbTextMuted,
                   selectedColor: efbWhite,
-                  fillColor: efbAccent.withOpacity(0.3),
+                  fillColor: efbAccent, // أزرق صريح واضح
                   borderRadius: BorderRadius.circular(5),
                   constraints:
                       const BoxConstraints(minHeight: 38, minWidth: 60),
@@ -1041,10 +1123,12 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                             icon: Icons.refresh, textColor: efbWhite)),
                     const SizedBox(width: 8),
                     Expanded(
-                        child: _buildActionBtn(
-                            "CLEAR",
-                            () => setState(() => _mailbox.clear()),
-                            efbButtonDark,
+                        child: _buildActionBtn("CLEAR", () {
+                      setState(() {
+                        _mailbox.clear();
+                        _AcarsSession.mailbox.clear();
+                      });
+                    }, efbButtonDark,
                             icon: Icons.delete_outline,
                             textColor: efbTextMuted)),
                   ],
@@ -1075,6 +1159,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                 ],
               ),
               const SizedBox(height: 12),
+              // الخانة اللي كانت مفقودة في الآيباد رجعت تاني أهي
               Row(
                 children: [
                   const Text("TO:  ",
@@ -1083,21 +1168,25 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                           fontWeight: FontWeight.bold,
                           fontSize: 12)),
                   Container(
-                    height: 36,
+                    height: 38,
                     decoration: BoxDecoration(
                         color: efbBg,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(color: efbBorder)),
                     child: ToggleButtons(
                       isSelected: [_telexIsAtc, !_telexIsAtc],
-                      onPressed: (index) =>
-                          setState(() => _telexIsAtc = index == 0),
+                      onPressed: (index) {
+                        setState(() {
+                          _telexIsAtc = index == 0;
+                          _AcarsSession.telexIsAtc = _telexIsAtc;
+                        });
+                      },
                       color: efbTextMuted,
                       selectedColor: efbWhite,
-                      fillColor: efbAccent.withOpacity(0.3),
+                      fillColor: efbAccent, // أزرق صريح واضح جداً
                       borderRadius: BorderRadius.circular(5),
                       constraints:
-                          const BoxConstraints(minHeight: 36, minWidth: 60),
+                          const BoxConstraints(minHeight: 38, minWidth: 60),
                       children: const [
                         Text("ATC",
                             style: TextStyle(
@@ -1108,6 +1197,10 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                      child: _buildModernInput(_telexToCtrl,
+                          _telexIsAtc ? "ATC Station" : "Callsign")),
                 ],
               ),
               const SizedBox(height: 10),
@@ -1269,7 +1362,6 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Quick ATC
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -1338,7 +1430,6 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
           ),
         ),
         const SizedBox(height: 12),
-        // Weather & ATIS
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -1388,7 +1479,10 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                       _showError("⚠️ Enter ICAO code first.");
                       return;
                     }
-                    _sendMessage('SERVER', 'inforeq', 'ATIS ${_icaoCtrl.text}');
+                    // تم حل مشكلة ATIS برمجياً ليتوافق مع السيرفرات
+                    String atisType = _isVatsim ? 'VATATIS' : 'IVAATIS';
+                    _sendMessage(
+                        'SERVER', 'inforeq', '$atisType ${_icaoCtrl.text}');
                   }),
                 ],
               )
@@ -1407,10 +1501,9 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: efbBg,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: efbBorder),
-          ),
+              color: efbBg,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: efbBorder)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1445,10 +1538,9 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color, width: 1.5),
-          ),
+              color: color.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: color, width: 1.5)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1495,7 +1587,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                 children: [
                   Expanded(
                       child: _buildModernInput(
-                          _cpdlcStationCtrl, "Logon Station")),
+                          _cpdlcStationCtrl, "Logon Station (e.g. HECC)")),
                   const SizedBox(width: 10),
                   _buildActionBtn(
                       "LOGON",
@@ -1599,12 +1691,8 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
               ),
               const SizedBox(height: 12),
               _buildActionBtn("SEND POS REP", () {
-                setState(() {
-                  _posRepAttempted = true;
-                });
-
+                setState(() => _posRepAttempted = true);
                 if (!_validateLogon()) return;
-
                 if (_ocWpt.text.isEmpty ||
                     _ocTime.text.isEmpty ||
                     _ocFl.text.isEmpty ||
@@ -1616,14 +1704,10 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                   _showError("⚠️ All fields are required for Position Report.");
                   return;
                 }
-
                 String report =
                     "POS REP: ${_ocWpt.text} AT ${_ocTime.text}, FL${_ocFl.text}, M${_ocSpd.text}. EST ${_ocNext.text} AT ${_ocEto.text}. FUEL ${_ocFuel.text}, TEMP ${_ocTemp.text}";
                 _sendMessage(_cpdlcStationCtrl.text, 'telex', report);
-
-                setState(() {
-                  _posRepAttempted = false;
-                });
+                setState(() => _posRepAttempted = false);
               }, efbAccent, icon: Icons.send, textColor: efbWhite),
             ],
           ),
@@ -1644,9 +1728,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                 fontSize: 10,
                 fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Expanded(
-          child: _buildModernInput(ctrl, hint, isError: isError),
-        ),
+        Expanded(child: _buildModernInput(ctrl, hint, isError: isError)),
       ],
     );
   }
@@ -1696,10 +1778,9 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
           foregroundColor: textColor ?? efbWhite,
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-            side: BorderSide(
-                color: borderColor ?? Colors.transparent, width: 1.0),
-          ),
+              borderRadius: BorderRadius.circular(6),
+              side: BorderSide(
+                  color: borderColor ?? Colors.transparent, width: 1.0)),
           elevation: 0,
         ),
         onPressed: onTap,
@@ -1708,7 +1789,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
           children: [
             if (icon != null) ...[
               Icon(icon, size: 16),
-              const SizedBox(width: 6),
+              const SizedBox(width: 6)
             ],
             Text(label,
                 style: const TextStyle(
