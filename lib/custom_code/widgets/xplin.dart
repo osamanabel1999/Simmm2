@@ -1459,12 +1459,26 @@ class NavaidTeleportWidget extends StatefulWidget {
   // Live simulator aircraft position used for real-time Navaid distances.
   final double? aircraftLatitude;
   final double? aircraftLongitude;
+  final String? syncNavaidSearch;
+  final String? syncCommand;
+  final double? syncTeleportRadial;
+  final double? syncTeleportHdg;
+  final double? syncTeleportDist;
+  final double? syncTeleportAlt;
+  final double? syncTeleportSpd;
 
   const NavaidTeleportWidget({
     Key? key,
     this.onTeleportTap,
     this.aircraftLatitude,
     this.aircraftLongitude,
+    this.syncNavaidSearch,
+    this.syncCommand,
+    this.syncTeleportRadial,
+    this.syncTeleportHdg,
+    this.syncTeleportDist,
+    this.syncTeleportAlt,
+    this.syncTeleportSpd,
   }) : super(key: key);
   @override
   _NavaidTeleportWidgetState createState() => _NavaidTeleportWidgetState();
@@ -1484,6 +1498,32 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   double _dialAngle = 60.0;
   double _targetLat = 0.0;
   double _targetLon = 0.0;
+
+  @override
+  void didUpdateWidget(covariant NavaidTeleportWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.syncNavaidSearch != null &&
+        widget.syncNavaidSearch != oldWidget.syncNavaidSearch) {
+      _searchCtrl.text = widget.syncNavaidSearch!;
+      _onSearchChanged(widget.syncNavaidSearch!);
+    }
+    if (widget.syncCommand != null &&
+        widget.syncCommand != oldWidget.syncCommand &&
+        widget.syncCommand!.startsWith('CMD_TELEPORT_EXECUTE')) {
+      if (widget.syncTeleportRadial != null)
+        _radialCtrl.text = widget.syncTeleportRadial.toString();
+      if (widget.syncTeleportHdg != null)
+        _hdgCtrl.text = widget.syncTeleportHdg.toString();
+      if (widget.syncTeleportDist != null)
+        _distCtrl.text = widget.syncTeleportDist.toString();
+      if (widget.syncTeleportAlt != null)
+        _altCtrl.text = widget.syncTeleportAlt.toString();
+      if (widget.syncTeleportSpd != null)
+        _spdCtrl.text = widget.syncTeleportSpd.toString();
+      _recalcTarget();
+      if (widget.onTeleportTap != null) widget.onTeleportTap!.call();
+    }
+  }
 
   @override
   void dispose() {
@@ -3482,6 +3522,9 @@ class _XplinState extends State<Xplin> {
     if (widget.syncSimTime != null &&
         widget.syncSimTime != oldWidget.syncSimTime) {
       setState(() => _simulatorTimeSeconds = widget.syncSimTime!);
+      FFAppState().update(() {
+        FFAppState().efbSimulatorTimeSeconds = widget.syncSimTime!;
+      });
       if (widget.onSimulatorTimeChanged != null)
         widget.onSimulatorTimeChanged!(widget.syncSimTime!);
     }
@@ -3489,6 +3532,9 @@ class _XplinState extends State<Xplin> {
     if (widget.syncGroundSpeed != null &&
         widget.syncGroundSpeed != oldWidget.syncGroundSpeed) {
       setState(() => _groundSpeed = widget.syncGroundSpeed!);
+      FFAppState().update(() {
+        FFAppState().efbGroundSpeed = widget.syncGroundSpeed!;
+      });
       if (widget.onGroundSpeedChanged != null)
         widget.onGroundSpeedChanged!(widget.syncGroundSpeed!);
     }
@@ -3517,6 +3563,18 @@ class _XplinState extends State<Xplin> {
           final gate = _gatesList[index];
           if (widget.onGateSelected != null)
             widget.onGateSelected!(gate['lat'], gate['lon'], gate['heading']);
+        }
+      } catch (e) {}
+    }
+
+    if (widget.syncChartGate != null &&
+        widget.syncChartGate != oldWidget.syncChartGate) {
+      try {
+        final gate =
+            _gatesList.firstWhere((g) => g['name'] == widget.syncChartGate);
+        if (widget.onChartGateSelected != null) {
+          widget.onChartGateSelected!(
+              gate['name'], gate['lat'], gate['lon'], gate['heading']);
         }
       } catch (e) {}
     }
@@ -4448,7 +4506,14 @@ class _XplinState extends State<Xplin> {
                       child: NavaidTeleportWidget(
                           onTeleportTap: widget.onNavaidTeleportTap,
                           aircraftLatitude: widget.aircraftLatitude,
-                          aircraftLongitude: widget.aircraftLongitude),
+                          aircraftLongitude: widget.aircraftLongitude,
+                          syncNavaidSearch: widget.syncNavaidSearch,
+                          syncCommand: widget.syncCommand,
+                          syncTeleportRadial: widget.syncTeleportRadial,
+                          syncTeleportHdg: widget.syncTeleportHdg,
+                          syncTeleportDist: widget.syncTeleportDist,
+                          syncTeleportAlt: widget.syncTeleportAlt,
+                          syncTeleportSpd: widget.syncTeleportSpd),
                     ),
                     if (_selectedMode == 3 || _selectedMode == 4)
                       const Center(
@@ -4606,7 +4671,14 @@ class _XplinState extends State<Xplin> {
                           child: NavaidTeleportWidget(
                               onTeleportTap: widget.onNavaidTeleportTap,
                               aircraftLatitude: widget.aircraftLatitude,
-                              aircraftLongitude: widget.aircraftLongitude)),
+                              aircraftLongitude: widget.aircraftLongitude,
+                              syncNavaidSearch: widget.syncNavaidSearch,
+                              syncCommand: widget.syncCommand,
+                              syncTeleportRadial: widget.syncTeleportRadial,
+                              syncTeleportHdg: widget.syncTeleportHdg,
+                              syncTeleportDist: widget.syncTeleportDist,
+                              syncTeleportAlt: widget.syncTeleportAlt,
+                              syncTeleportSpd: widget.syncTeleportSpd)),
                       if (_selectedMode == 3 || _selectedMode == 4)
                         const Center(
                             child: Text("SELECT A MODE",

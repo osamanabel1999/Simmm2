@@ -86,7 +86,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
 
   bool _isConnected = false;
   bool _isConnecting = false;
-  bool _isMicOn = false;
+  bool _isMicOn = true;
   bool _showLogs = true;
 
   final TextEditingController _roomController = TextEditingController();
@@ -102,7 +102,6 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
   @override
   void initState() {
     super.initState();
-    // 🔥 بنربط اللوجز بالمتغير اللي موجود في الأكشن عشان ضغطة الزرار تظهر هنا
     globalLiveKitLog_xplane = _addLog;
   }
 
@@ -137,7 +136,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
   Future<void> _joinRoom() async {
     final roomName = _roomController.text.trim();
     if (roomName.isEmpty) {
-      _addLog("⚠️ PLEASE ENTER ROOM ID");
+      _addLog("⚠️ PLEASE ENTER SESSION ID");
       return;
     }
     setState(() => _isConnecting = true);
@@ -146,13 +145,12 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
       final token = _generateToken(roomName);
       _room = Room();
 
-      // 🔥 الشاشة بتدي الغرفة للمتغير اللي في الأكشن عشان الزراير تعرف تبعت
       globalLiveKitRoom_xplane = _room;
 
       _listener = _room!.createListener();
       _listener!.on<TrackSubscribedEvent>((event) {
         if (event.track is VideoTrack) {
-          _addLog("🎥 VIDEO FEED ESTABLISHED");
+          _addLog("🎥 VIDEO DATALINK ESTABLISHED");
           setState(() {
             _remoteVideoTrack = event.track as VideoTrack;
           });
@@ -160,27 +158,26 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
       });
       _listener!.on<TrackUnsubscribedEvent>((event) {
         if (event.track is VideoTrack) {
-          _addLog("❌ VIDEO FEED LOST");
+          _addLog("❌ VIDEO DATALINK LOST");
           setState(() {
             _remoteVideoTrack = null;
           });
         }
       });
 
-      _addLog("CONNECTING TO SERVER...");
+      _addLog("CONNECTING TO PILOT DEVICE...");
       await _room!.connect(_livekitUrl, token);
 
-      // Force Mic Off initially
-      await _room!.localParticipant?.setMicrophoneEnabled(false);
+      await _room!.localParticipant?.setMicrophoneEnabled(true);
       await _room!.localParticipant?.setCameraEnabled(false);
-      _isMicOn = false;
+      _isMicOn = true;
 
-      _addLog("✅ SECURE CONNECTION ESTABLISHED");
+      _addLog("✅ SECURE DATALINK ESTABLISHED");
 
       setState(() {
         _isConnected = true;
         _isConnecting = false;
-        _showLogs = false; // 🔥 Auto-hide logs to show full video cleanly!
+        _showLogs = false;
       });
     } catch (e) {
       _addLog("❌ CONNECTION FAILED: $e");
@@ -193,16 +190,15 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
     _listener?.dispose();
     _room = null;
 
-    // 🔥 تنظيف المتغيرات لما نقفل
     globalLiveKitRoom_xplane = null;
 
     setState(() {
       _isConnected = false;
       _isConnecting = false;
       _remoteVideoTrack = null;
-      _showLogs = true; // Show logs again on disconnect
+      _showLogs = true;
     });
-    _addLog("🛑 DISCONNECTED");
+    _addLog("🛑 DATALINK SEVERED");
   }
 
   Future<void> _toggleMic() async {
@@ -211,7 +207,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
       final newState = !_isMicOn;
       await _room!.localParticipant!.setMicrophoneEnabled(newState);
       setState(() => _isMicOn = newState);
-      _addLog(newState ? "🎤 MIC LIVE" : "🔇 MIC MUTED");
+      _addLog(newState ? "🎤 MIC HOT" : "🔇 MIC MUTED");
     } catch (e) {
       _addLog("❌ MIC ERROR: $e");
     }
@@ -244,22 +240,26 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
           width: width,
           height: height,
           decoration: BoxDecoration(
-            color: const Color(0xFF121212), // Deep EFB Dark
-            borderRadius: BorderRadius.circular(_isMaximized ? 0 : 12),
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF0C1421), Color(0xFF030508)],
+            ),
+            borderRadius: BorderRadius.circular(_isMaximized ? 0 : 10),
             border: _isMaximized
                 ? null
-                : Border.all(color: const Color(0xFF2C2C2E), width: 1.5),
+                : Border.all(color: const Color(0xFF1E324A), width: 1.5),
             boxShadow: _isMaximized
                 ? []
                 : [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.6),
-                        blurRadius: 20,
-                        spreadRadius: 5)
+                        color: const Color(0xFF5A94E3).withOpacity(0.15),
+                        blurRadius: 30,
+                        spreadRadius: 2)
                   ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(_isMaximized ? 0 : 10),
+            borderRadius: BorderRadius.circular(_isMaximized ? 0 : 8),
             child: Column(
               children: [
                 // 1. Sleek Header Bar
@@ -278,19 +278,19 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                     height: 38,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: const BoxDecoration(
-                      color: Color(0xFF1C1C1E), // Apple Dark Mode gray
+                      color: Color(0xFF070B14),
                       border: Border(
                           bottom:
-                              BorderSide(color: Color(0xFF333333), width: 1)),
+                              BorderSide(color: Color(0xFF1E324A), width: 1.5)),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.drag_indicator,
-                            color: Colors.white30, size: 16),
+                            color: Color(0xFF537396), size: 16),
                         const SizedBox(width: 8),
-                        const Text("LIVE MONITORING",
+                        const Text("INSTRUCTOR OPERATING STATION",
                             style: TextStyle(
-                                color: Colors.white70,
+                                color: Color(0xFFA6C2DF),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.5)),
@@ -301,8 +301,8 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                           IconButton(
                             icon: Icon(_isMicOn ? Icons.mic : Icons.mic_off,
                                 color: _isMicOn
-                                    ? const Color(0xFF32D74B)
-                                    : const Color(0xFFFF453A),
+                                    ? const Color(0xFF4A90E2)
+                                    : const Color(0xFF537396),
                                 size: 16),
                             onPressed: _toggleMic,
                             tooltip: "Toggle Mic",
@@ -313,8 +313,8 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                         IconButton(
                           icon: Icon(Icons.terminal,
                               color: _showLogs
-                                  ? const Color(0xFF0A84FF)
-                                  : Colors.white54,
+                                  ? const Color(0xFF7AA5D2)
+                                  : const Color(0xFF537396),
                               size: 16),
                           onPressed: () =>
                               setState(() => _showLogs = !_showLogs),
@@ -328,7 +328,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                               _isMaximized
                                   ? Icons.fullscreen_exit
                                   : Icons.fullscreen,
-                              color: Colors.white70,
+                              color: const Color(0xFF7AA5D2),
                               size: 16),
                           onPressed: () =>
                               setState(() => _isMaximized = !_isMaximized),
@@ -340,7 +340,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                         if (_isConnected)
                           IconButton(
                             icon: const Icon(Icons.power_settings_new,
-                                color: Color(0xFFFF453A), size: 16),
+                                color: Colors.redAccent, size: 16),
                             onPressed: _leaveRoom,
                             tooltip: "Disconnect",
                             constraints: const BoxConstraints(),
@@ -362,7 +362,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                               ? VideoTrackRenderer(_remoteVideoTrack!)
                               : const Center(
                                   child: CircularProgressIndicator(
-                                      color: Color(0xFF0A84FF),
+                                      color: Color(0xFF7AA5D2),
                                       strokeWidth: 2)),
                         )
                       else
@@ -372,56 +372,82 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.flight_takeoff,
-                                    size: 40, color: Color(0xFF0A84FF)),
+                                const Icon(Icons.satellite_alt,
+                                    size: 44, color: Color(0xFF4A90E2)),
                                 const SizedBox(height: 20),
-                                TextField(
-                                  controller: _roomController,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      letterSpacing: 2),
-                                  textAlign: TextAlign.center,
-                                  decoration: InputDecoration(
-                                    hintText: "ROOM ID",
-                                    hintStyle: const TextStyle(
-                                        color: Colors.white30,
+                                SizedBox(
+                                  height: 48,
+                                  child: TextField(
+                                    controller: _roomController,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
                                         letterSpacing: 2),
-                                    filled: true,
-                                    fillColor: const Color(0xFF1C1C1E),
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(6),
-                                        borderSide: BorderSide.none),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        vertical: 12),
+                                    textAlign: TextAlign.center,
+                                    decoration: InputDecoration(
+                                      hintText: "PILOT SESSION ID",
+                                      hintStyle: const TextStyle(
+                                          color: Color(0xFF455A75),
+                                          letterSpacing: 1.5,
+                                          fontSize: 11),
+                                      filled: true,
+                                      fillColor: const Color(0xFF0A121E),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: const BorderSide(
+                                              color: Color(0xFF1E324A))),
+                                      enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: const BorderSide(
+                                              color: Color(0xFF1E324A))),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: const BorderSide(
+                                              color: Color(0xFF4A90E2),
+                                              width: 1.5)),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 0),
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 16),
                                 SizedBox(
                                   width: double.infinity,
-                                  child: ElevatedButton(
+                                  height: 46,
+                                  child: ElevatedButton.icon(
                                     onPressed: _isConnecting ? null : _joinRoom,
+                                    icon: _isConnecting
+                                        ? const SizedBox.shrink()
+                                        : const Icon(Icons.login,
+                                            color: Color(0xFF7AA5D2), size: 18),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF0A84FF),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 14),
+                                      backgroundColor: const Color(0xFF16263B),
+                                      elevation: 0,
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(6)),
+                                              BorderRadius.circular(8),
+                                          side: const BorderSide(
+                                              color: Color(0xFF5A94E3),
+                                              width: 1.0)),
                                     ),
-                                    child: _isConnecting
+                                    label: _isConnecting
                                         ? const SizedBox(
-                                            width: 14,
-                                            height: 14,
+                                            width: 16,
+                                            height: 16,
                                             child: CircularProgressIndicator(
-                                                color: Colors.white,
+                                                color: Color(0xFF7AA5D2),
                                                 strokeWidth: 2))
-                                        : const Text("CONNECT TO SIMULATOR",
+                                        : const Text("JOIN PILOT SESSION",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                letterSpacing: 1.2,
-                                                color: Colors.white,
-                                                fontSize: 11)),
+                                                letterSpacing: 1.0,
+                                                color: Color(0xFF7AA5D2),
+                                                fontSize: 12)),
                                   ),
                                 )
                               ],
@@ -432,25 +458,39 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                       // Logs Overlay
                       if (_showLogs)
                         Positioned(
-                          left: 0, right: 0, bottom: 0,
-                          height: _isConnected
-                              ? 90
-                              : 120, // Takes less space if video is running
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: _isConnected ? 90 : 120,
                           child: Container(
-                            color: Colors.black.withOpacity(0.85),
+                            decoration: BoxDecoration(
+                                color: const Color(0xFF030508).withOpacity(0.9),
+                                border: const Border(
+                                    top: BorderSide(
+                                        color: Color(0xFF1E324A), width: 1.0))),
                             child: ListView.builder(
-                              padding: const EdgeInsets.all(6),
+                              padding: const EdgeInsets.all(8),
                               itemCount: _logs.length,
-                              itemBuilder: (context, index) => Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 1.5),
-                                child: Text(_logs[index],
-                                    style: const TextStyle(
-                                        color: Color(0xFF32D74B),
-                                        fontSize: 10,
-                                        fontFamily:
-                                            'Courier')), // Hacker/Aviation green
-                              ),
+                              itemBuilder: (context, index) {
+                                final msg = _logs[index];
+                                Color textColor = const Color(0xFFA6C2DF);
+                                if (msg.contains("✅") || msg.contains("🚀"))
+                                  textColor = const Color(0xFFF09819);
+                                else if (msg.contains("❌") ||
+                                    msg.contains("⚠️"))
+                                  textColor = Colors.redAccent;
+
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                  child: Text(msg,
+                                      style: TextStyle(
+                                          color: textColor,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Courier')),
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -479,8 +519,8 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                                   padding: EdgeInsets.all(4.0),
                                   child: Icon(Icons.open_in_full,
                                       size: 12,
-                                      color:
-                                          Colors.white30), // Resize indicator
+                                      color: Color(
+                                          0xFF537396)), // Resize indicator
                                 ),
                               ),
                             ),

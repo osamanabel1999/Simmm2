@@ -15,20 +15,21 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// --- ألوان EFB الاحترافية ---
-const Color efbBg = Color(0xFF0B111A);
-const Color efbCard = Color(0xFF101923);
-const Color efbBorder = Color(0xFF26364D);
-const Color efbTextMuted = Color(0xFF8B949E);
-const Color efbAccent = Color(0xFF639DF0);
-const Color efbButtonDark = Color(0xFF15335E);
-const Color efbWhite = Color(0xFFFFFFFF);
+// --- ألوان EFB الاحترافية الموحدة ---
+const Color efbBg = Color(0xFF030508); // Darkest background
+const Color efbCard = Color(0xFF0C1421); // Card background
+const Color efbBorder = Color(0xFF1E324A); // Standard border
+const Color efbTextMuted = Color(0xFF6B87A8); // Muted bluish text
+const Color efbAccent = Color(0xFF4A90E2); // Main highlight blue
+const Color efbButtonDark = Color(0xFF16263B); // Dark button fill
+const Color efbWhite = Colors.white;
 
-// --- ألوان Smart Text ---
-const Color cDanger = Color(0xFFFF5252);
-const Color cWarn = Color(0xFFFFD740);
-const Color cWeather = Color(0xFF18FFFF);
-const Color cGood = Color(0xFF69F0AE);
+// --- ألوان الحالات (Status Colors) ---
+const Color cDanger = Color(0xFFFF453A); // Red (Unable/Error)
+const Color cWarn = Color(0xFFFFD60A); // Yellow (Standby)
+const Color cGood = Color(0xFF32D74B); // Green (Wilco/Online)
+const Color cWeather = Color(0xFF7AA5D2); // Weather/Info Blue
+const Color cRoger = Color(0xFF8B9FB6); // Roger (Greyish Blue)
 
 class AcarsEfbWidget extends StatefulWidget {
   const AcarsEfbWidget({
@@ -53,6 +54,10 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   final TextEditingController _logonCodeCtrl = TextEditingController();
   final TextEditingController _callsignCtrl = TextEditingController();
 
+  // Validation States
+  bool _logonError = false;
+  bool _callsignError = false;
+
   // Telex Controllers
   final TextEditingController _telexToCtrl = TextEditingController();
   final TextEditingController _telexMsgCtrl = TextEditingController();
@@ -73,8 +78,8 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
 
   bool _posRepAttempted = false;
 
-  // Quick ATC State (النظام الجديد)
-  String? _activeQuickReq; // يحدد أي زر تم الضغط عليه
+  // Quick ATC State
+  String? _activeQuickReq;
   final TextEditingController _quickReqInputCtrl = TextEditingController();
 
   bool _isVatsim = true;
@@ -85,6 +90,9 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   List<Map<String, String>> _mailbox = [];
   final String _hoppieUrl = 'http://www.hoppie.nl/acars/system/connect.html';
 
+  // 🔥 متغير جديد للموبايل للتحكم في الشاشات (Tabs)
+  int _mobileTabIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -92,6 +100,15 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
 
     _logonCodeCtrl.addListener(() {
       _saveLogonCode(_logonCodeCtrl.text);
+      if (_logonCodeCtrl.text.isNotEmpty && _logonError) {
+        setState(() => _logonError = false);
+      }
+    });
+
+    _callsignCtrl.addListener(() {
+      if (_callsignCtrl.text.isNotEmpty && _callsignError) {
+        setState(() => _callsignError = false);
+      }
     });
 
     _pollingTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
@@ -122,13 +139,28 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
     super.dispose();
   }
 
-  // --- Core API Logic ---
+  bool _validateLogon() {
+    bool hasError = false;
+    if (_logonCodeCtrl.text.trim().isEmpty) {
+      _logonError = true;
+      hasError = true;
+    }
+    if (_callsignCtrl.text.trim().isEmpty) {
+      _callsignError = true;
+      hasError = true;
+    }
+
+    if (hasError) {
+      setState(() {});
+      _showError("CALLSIGN AND LOGON CODE ARE REQUIRED!");
+      return false;
+    }
+    return true;
+  }
+
   Future<void> _sendMessage(String to, String type, String packet,
       {bool showInMailbox = true}) async {
-    if (_logonCodeCtrl.text.isEmpty || _callsignCtrl.text.isEmpty) {
-      _showError("Enter Logon Code & Callsign first.");
-      return;
-    }
+    if (!_validateLogon()) return;
 
     String target = to.trim().toUpperCase();
     if (!_isVatsim &&
@@ -166,16 +198,17 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
           _addToMailbox("IN", content);
         }
       } else {
-        _showError("Failed to send message.");
+        _showError("Failed to send message. Server rejected.");
       }
     } catch (e) {
       setState(() => _isOnline = false);
-      _showError("Connection Error.");
+      _showError("Connection Error. Check your internet.");
     }
   }
 
   Future<void> _checkInbox(String pollType) async {
-    if (_logonCodeCtrl.text.isEmpty || _callsignCtrl.text.isEmpty) return;
+    if (_logonCodeCtrl.text.trim().isEmpty || _callsignCtrl.text.trim().isEmpty)
+      return;
 
     try {
       final response = await http.post(
@@ -227,17 +260,22 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
     OverlayEntry overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: 60.0,
-        left: MediaQuery.of(context).size.width * 0.35,
-        width: MediaQuery.of(context).size.width * 0.3,
+        left: MediaQuery.of(context).size.width * 0.1,
+        width: MediaQuery.of(context).size.width * 0.8, // Responsive width
         child: Material(
           color: Colors.transparent,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
             decoration: BoxDecoration(
-              color: efbCard.withOpacity(0.95),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: cWeather, width: 1.5),
-            ),
+                color: efbCard.withOpacity(0.95),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: cWeather, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.5),
+                      blurRadius: 10,
+                      spreadRadius: 2)
+                ]),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -245,7 +283,9 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                 SizedBox(width: 10),
                 Text("NEW ATC MESSAGE",
                     style: TextStyle(
-                        color: cWeather, fontWeight: FontWeight.bold)),
+                        color: cWeather,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2)),
               ],
             ),
           ),
@@ -257,11 +297,29 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg), backgroundColor: cDanger));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Row(
+        children: [
+          const Icon(Icons.error_outline, color: Colors.white, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+              child: Text(msg,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13))),
+        ],
+      ),
+      backgroundColor: cDanger,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 4),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    ));
   }
 
-  // --- UI Builders ---
+  // ==========================================
+  // MAIN BUILDER (LayoutBuilder for Responsiveness)
+  // ==========================================
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -272,31 +330,565 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // إذا كان العرض أقل من 800 نعرض الموبايل، غير كده نعرض الآيباد
+              if (constraints.maxWidth < 800) {
+                return _buildMobileLayout();
+              } else {
+                return _buildTabletLayout();
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ==========================================
+  // TABLET / IPAD LAYOUT (Untouched)
+  // ==========================================
+  Widget _buildTabletLayout() {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(flex: 3, child: _buildMailboxAndTelex()),
-                      const SizedBox(width: 12),
-                      Expanded(flex: 2, child: _buildQuickRequestsAndWeather()),
-                      const SizedBox(width: 12),
-                      Expanded(flex: 3, child: _buildCpdlcAndOceanic()),
-                    ],
-                  ),
-                ),
+                Expanded(flex: 3, child: _buildMailboxAndTelex()),
+                const SizedBox(width: 12),
+                Expanded(flex: 3, child: _buildQuickRequestsAndWeather()),
+                const SizedBox(width: 12),
+                Expanded(flex: 3, child: _buildCpdlcAndOceanic()),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================
+  // MOBILE SMART LAYOUT (New & Highly Professional)
+  // ==========================================
+  Widget _buildMobileLayout() {
+    return Column(
+      children: [
+        _buildMobileHeader(),
+        _buildMobileTabBar(),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SingleChildScrollView(
+              child: _getMobileTabContent(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileHeader() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          color: efbCard,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: efbBorder)),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.circle,
+                      color: _isOnline ? cGood : cDanger, size: 10),
+                  const SizedBox(width: 6),
+                  Text(_isOnline ? "ONLINE" : "OFFLINE",
+                      style: TextStyle(
+                          color: _isOnline ? cGood : cDanger,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                          fontSize: 10)),
+                ],
+              ),
+              const Row(children: [
+                Icon(Icons.flight, color: efbAccent, size: 14),
+                SizedBox(width: 6),
+                Text("DATALINK",
+                    style: TextStyle(
+                        color: efbWhite,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2)),
+              ]),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: _buildModernInput(_callsignCtrl, "Callsign",
+                    isError: _callsignError),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: _buildModernInput(_logonCodeCtrl, "Logon Code",
+                    obscure: true, isError: _logonError),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                height: 38,
+                decoration: BoxDecoration(
+                    color: efbBg,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: efbBorder)),
+                child: ToggleButtons(
+                  isSelected: [_isVatsim, !_isVatsim],
+                  onPressed: (index) => setState(() => _isVatsim = index == 0),
+                  color: efbTextMuted,
+                  selectedColor: efbWhite,
+                  fillColor: efbAccent.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(5),
+                  constraints:
+                      const BoxConstraints(minHeight: 38, minWidth: 45),
+                  children: const [
+                    Text("VAT",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 10)),
+                    Text("IVA",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 10))
+                  ],
+                ),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileTabBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      height: 40,
+      decoration: BoxDecoration(
+        color: efbCard,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: efbBorder),
+      ),
+      child: Row(
+        children: [
+          _buildMobileTabBtn(0, "📡 COMM"),
+          Container(width: 1, color: efbBorder),
+          _buildMobileTabBtn(1, "✈️ ATC/WX"),
+          Container(width: 1, color: efbBorder),
+          _buildMobileTabBtn(2, "🌍 OCEANIC"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileTabBtn(int index, String title) {
+    bool isActive = _mobileTabIndex == index;
+    return Expanded(
+      child: InkWell(
+        onTap: () => setState(() => _mobileTabIndex = index),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isActive ? efbAccent.withOpacity(0.15) : Colors.transparent,
+            borderRadius: BorderRadius.circular(7),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            title,
+            style: TextStyle(
+              color: isActive ? efbWhite : efbTextMuted,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              fontSize: 11,
             ),
           ),
         ),
       ),
     );
   }
+
+  Widget _getMobileTabContent() {
+    switch (_mobileTabIndex) {
+      case 0:
+        return _buildMobileMailboxTab();
+      case 1:
+        return _buildMobileQuickAtcTab();
+      case 2:
+        return _buildMobileCpdlcTab();
+      default:
+        return Container();
+    }
+  }
+
+  // Mobile Views (Safe Fixed Heights to prevent overflow)
+  Widget _buildMobileMailboxTab() {
+    return Column(
+      children: [
+        SizedBox(
+          height: 300, // Fixed height for scrolling safely
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+                color: efbCard,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: efbBorder)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: const [
+                    Icon(Icons.mail_outline, color: efbTextMuted, size: 16),
+                    SizedBox(width: 8),
+                    Text("MAILBOX",
+                        style: TextStyle(
+                            color: efbTextMuted,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Divider(color: efbBorder, thickness: 1.0),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _mailbox.length,
+                    itemBuilder: (context, index) {
+                      final msg = _mailbox[index];
+                      bool isIn = msg['dir'] == "IN";
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8.0),
+                        padding: const EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                            color: efbBg,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: efbBorder)),
+                        child: RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                                fontFamily: 'Courier', fontSize: 12),
+                            children: [
+                              TextSpan(
+                                  text: "${msg['time']}   ",
+                                  style: const TextStyle(color: efbTextMuted)),
+                              TextSpan(
+                                  text: isIn ? "ATC   " : "OUT   ",
+                                  style: TextStyle(
+                                      color: isIn ? cWeather : efbAccent,
+                                      fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                  text: msg['msg'],
+                                  style: const TextStyle(color: efbWhite)),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                        child: _buildActionBtn(
+                            "PEEK", () => _checkInbox('peek'), efbButtonDark,
+                            icon: Icons.visibility_outlined,
+                            textColor: efbWhite)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                        child: _buildActionBtn(
+                            "POLL", () => _checkInbox('poll'), efbButtonDark,
+                            icon: Icons.refresh, textColor: efbWhite)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                        child: _buildActionBtn(
+                            "CLEAR",
+                            () => setState(() => _mailbox.clear()),
+                            efbButtonDark,
+                            icon: Icons.delete_outline,
+                            textColor: efbTextMuted)),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+              color: efbCard,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: efbBorder)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.chat_outlined, color: efbTextMuted, size: 16),
+                  SizedBox(width: 8),
+                  Text("TELEX (FREE TEXT)",
+                      style: TextStyle(
+                          color: efbTextMuted,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Container(
+                    height: 38,
+                    decoration: BoxDecoration(
+                        color: efbBg,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: efbBorder)),
+                    child: ToggleButtons(
+                      isSelected: [_telexIsAtc, !_telexIsAtc],
+                      onPressed: (index) =>
+                          setState(() => _telexIsAtc = index == 0),
+                      color: efbTextMuted,
+                      selectedColor: efbWhite,
+                      fillColor: efbAccent.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(5),
+                      constraints:
+                          const BoxConstraints(minHeight: 36, minWidth: 50),
+                      children: const [
+                        Text("ATC",
+                            style: TextStyle(
+                                fontSize: 11, fontWeight: FontWeight.bold)),
+                        Text("AIRLINE",
+                            style: TextStyle(
+                                fontSize: 11, fontWeight: FontWeight.bold))
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                      child: _buildModernInput(_telexToCtrl,
+                          _telexIsAtc ? "ATC Station" : "Callsign")),
+                ],
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _telexMsgCtrl,
+                style: const TextStyle(color: efbWhite, fontSize: 13),
+                decoration: InputDecoration(
+                  hintText: "Enter free text message...",
+                  hintStyle: const TextStyle(color: efbTextMuted, fontSize: 12),
+                  filled: true,
+                  fillColor: efbBg,
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: efbBorder),
+                      borderRadius: BorderRadius.circular(6)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: efbAccent),
+                      borderRadius: BorderRadius.circular(6)),
+                  contentPadding: const EdgeInsets.all(12),
+                ),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 10),
+              _buildActionBtn("SEND", () {
+                _sendMessage(
+                    _telexIsAtc ? _cpdlcStationCtrl.text : _telexToCtrl.text,
+                    'telex',
+                    _telexMsgCtrl.text);
+                _telexMsgCtrl.clear();
+              }, efbAccent, icon: Icons.send, textColor: efbWhite),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileQuickAtcTab() {
+    return _buildQuickRequestsAndWeather(); // Safe to reuse because it expands naturally without Expanded wrapper errors
+  }
+
+  Widget _buildMobileCpdlcTab() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+              color: efbCard,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: efbBorder)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.radar_outlined, color: efbTextMuted, size: 16),
+                  SizedBox(width: 8),
+                  Text("CPDLC STATION",
+                      style: TextStyle(
+                          color: efbTextMuted,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                      child: _buildModernInput(
+                          _cpdlcStationCtrl, "Logon Station")),
+                  const SizedBox(width: 10),
+                  _buildActionBtn(
+                      "LOGON",
+                      () => _sendMessage(_cpdlcStationCtrl.text, 'ping', ''),
+                      efbAccent,
+                      textColor: efbWhite)
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text("URGENT CPDLC RESPONSE",
+                  style: TextStyle(
+                      color: efbTextMuted,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  _buildCpdlcBtn(
+                      "WILCO",
+                      Icons.check_circle_outline,
+                      cGood,
+                      () => _sendMessage(
+                          _cpdlcStationCtrl.text, 'cpdlc', 'WILCO')),
+                  const SizedBox(width: 10),
+                  _buildCpdlcBtn(
+                      "STANDBY",
+                      Icons.access_time,
+                      cWarn,
+                      () => _sendMessage(
+                          _cpdlcStationCtrl.text, 'cpdlc', 'STANDBY')),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  _buildCpdlcBtn(
+                      "UNABLE",
+                      Icons.cancel_outlined,
+                      cDanger,
+                      () => _sendMessage(
+                          _cpdlcStationCtrl.text, 'cpdlc', 'UNABLE')),
+                  const SizedBox(width: 10),
+                  _buildCpdlcBtn(
+                      "ROGER",
+                      Icons.chat_bubble_outline,
+                      cRoger,
+                      () => _sendMessage(
+                          _cpdlcStationCtrl.text, 'cpdlc', 'ROGER')),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+              color: efbCard,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: efbBorder)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.language, color: efbTextMuted, size: 16),
+                  SizedBox(width: 8),
+                  Text("OCEANIC POS REP",
+                      style: TextStyle(
+                          color: efbTextMuted,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // 🔥 Mobile specific grid ratio to prevent text cutoffs
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                childAspectRatio: 1.8,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                children: [
+                  _buildLabeledInput("WPT", _ocWpt, "e.g. NAT A",
+                      isError: _posRepAttempted && _ocWpt.text.isEmpty),
+                  _buildLabeledInput("TIME", _ocTime, "HHMMZ",
+                      isError: _posRepAttempted && _ocTime.text.isEmpty),
+                  _buildLabeledInput("FL", _ocFl, "e.g. 350",
+                      isError: _posRepAttempted && _ocFl.text.isEmpty),
+                  _buildLabeledInput("SPD", _ocSpd, "e.g. 480",
+                      isError: _posRepAttempted && _ocSpd.text.isEmpty),
+                  _buildLabeledInput("NEXT", _ocNext, "e.g. RNP",
+                      isError: _posRepAttempted && _ocNext.text.isEmpty),
+                  _buildLabeledInput("ETO", _ocEto, "HHMMZ",
+                      isError: _posRepAttempted && _ocEto.text.isEmpty),
+                  _buildLabeledInput("FUEL", _ocFuel, "e.g. 12.5",
+                      isError: _posRepAttempted && _ocFuel.text.isEmpty),
+                  _buildLabeledInput("TEMP", _ocTemp, "e.g. -50",
+                      isError: _posRepAttempted && _ocTemp.text.isEmpty),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildActionBtn("SEND POS REP", () {
+                setState(() {
+                  _posRepAttempted = true;
+                });
+                if (!_validateLogon()) return;
+
+                if (_ocWpt.text.isEmpty ||
+                    _ocTime.text.isEmpty ||
+                    _ocFl.text.isEmpty ||
+                    _ocSpd.text.isEmpty ||
+                    _ocNext.text.isEmpty ||
+                    _ocEto.text.isEmpty ||
+                    _ocFuel.text.isEmpty ||
+                    _ocTemp.text.isEmpty) {
+                  _showError("⚠️ All fields are required for Position Report.");
+                  return;
+                }
+
+                String report =
+                    "POS REP: ${_ocWpt.text} AT ${_ocTime.text}, FL${_ocFl.text}, M${_ocSpd.text}. EST ${_ocNext.text} AT ${_ocEto.text}. FUEL ${_ocFuel.text}, TEMP ${_ocTemp.text}";
+                _sendMessage(_cpdlcStationCtrl.text, 'telex', report);
+
+                setState(() {
+                  _posRepAttempted = false;
+                });
+              }, efbAccent, icon: Icons.send, textColor: efbWhite),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================
+  // SHARED WIDGETS (Used by both Tablet and Mobile)
+  // ==========================================
 
   Widget _buildHeader() {
     return Container(
@@ -310,29 +902,36 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
         children: [
           Row(
             children: [
-              Icon(Icons.circle, color: _isOnline ? cGood : cDanger, size: 14),
+              Icon(Icons.circle, color: _isOnline ? cGood : cDanger, size: 12),
               const SizedBox(width: 8),
-              Text(_isOnline ? "DATALINK ONLINE" : "OFFLINE",
-                  style: const TextStyle(
-                      color: efbWhite,
+              Text(_isOnline ? "ONLINE" : "OFFLINE",
+                  style: TextStyle(
+                      color: _isOnline ? cGood : cDanger,
                       fontWeight: FontWeight.bold,
-                      fontSize: 13)),
+                      letterSpacing: 1.0,
+                      fontSize: 12)),
             ],
           ),
-          const Text("ACARS / CPDLC SYSTEM",
-              style: TextStyle(
-                  color: efbAccent,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5)),
+          Row(children: const [
+            Icon(Icons.flight, color: efbAccent, size: 18),
+            SizedBox(width: 8),
+            Text("ACARS / CPDLC DATALINK",
+                style: TextStyle(
+                    color: efbWhite,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5)),
+          ]),
           Row(
             children: [
-              _buildModernInput(_logonCodeCtrl, "Logon Code",
-                  obscure: true, width: 120),
+              _buildModernInput(_callsignCtrl, "Callsign (e.g. MSR123)",
+                  width: 140, isError: _callsignError),
               const SizedBox(width: 10),
-              _buildModernInput(_callsignCtrl, "Callsign", width: 100),
+              _buildModernInput(_logonCodeCtrl, "Logon Code",
+                  obscure: true, width: 110, isError: _logonError),
               const SizedBox(width: 10),
               Container(
+                height: 38,
                 decoration: BoxDecoration(
                     color: efbBg,
                     borderRadius: BorderRadius.circular(6),
@@ -341,14 +940,18 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                   isSelected: [_isVatsim, !_isVatsim],
                   onPressed: (index) => setState(() => _isVatsim = index == 0),
                   color: efbTextMuted,
-                  selectedColor: efbBg,
-                  fillColor: efbAccent,
+                  selectedColor: efbWhite,
+                  fillColor: efbAccent.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(5),
                   constraints:
                       const BoxConstraints(minHeight: 38, minWidth: 60),
                   children: const [
-                    Text("VAT", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("IVA", style: TextStyle(fontWeight: FontWeight.bold))
+                    Text("VATSIM",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 11)),
+                    Text("IVAO",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 11))
                   ],
                 ),
               )
@@ -372,10 +975,20 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text("MAILBOX",
-                    style: TextStyle(
-                        color: efbTextMuted, fontWeight: FontWeight.bold)),
-                const Divider(color: efbBorder, thickness: 1.5),
+                Row(
+                  children: const [
+                    Icon(Icons.mail_outline, color: efbTextMuted, size: 16),
+                    SizedBox(width: 8),
+                    Text("MAILBOX",
+                        style: TextStyle(
+                            color: efbTextMuted,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Divider(color: efbBorder, thickness: 1.0),
+                const SizedBox(height: 8),
                 Expanded(
                   child: ListView.builder(
                     itemCount: _mailbox.length,
@@ -384,23 +997,23 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                       bool isIn = msg['dir'] == "IN";
                       return Container(
                         margin: const EdgeInsets.only(bottom: 8.0),
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(10.0),
                         decoration: BoxDecoration(
                             color: efbBg,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: efbBorder)),
                         child: RichText(
                           text: TextSpan(
                             style: const TextStyle(
-                                fontFamily: 'Courier', fontSize: 14),
+                                fontFamily: 'Courier', fontSize: 12),
                             children: [
                               TextSpan(
-                                  text: "[${msg['time']}] ",
+                                  text: "${msg['time']}   ",
                                   style: const TextStyle(color: efbTextMuted)),
                               TextSpan(
-                                  text: "${msg['dir']} > ",
+                                  text: isIn ? "ATC   " : "OUT   ",
                                   style: TextStyle(
-                                      color: isIn ? cGood : efbAccent,
+                                      color: isIn ? cWeather : efbAccent,
                                       fontWeight: FontWeight.bold)),
                               TextSpan(
                                   text: msg['msg'],
@@ -412,24 +1025,28 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                     },
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Expanded(
                         child: _buildActionBtn(
                             "PEEK", () => _checkInbox('peek'), efbButtonDark,
+                            icon: Icons.visibility_outlined,
                             textColor: efbWhite)),
                     const SizedBox(width: 8),
                     Expanded(
                         child: _buildActionBtn(
-                            "POLL", () => _checkInbox('poll'), efbAccent,
-                            textColor: efbBg)),
+                            "POLL", () => _checkInbox('poll'), efbButtonDark,
+                            icon: Icons.refresh, textColor: efbWhite)),
                     const SizedBox(width: 8),
                     Expanded(
-                        child: _buildActionBtn("CLEAR",
-                            () => setState(() => _mailbox.clear()), efbBg,
-                            borderColor: cDanger, textColor: cDanger)),
+                        child: _buildActionBtn(
+                            "CLEAR",
+                            () => setState(() => _mailbox.clear()),
+                            efbButtonDark,
+                            icon: Icons.delete_outline,
+                            textColor: efbTextMuted)),
                   ],
                 )
               ],
@@ -446,15 +1063,25 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text("TELEX (FREE TEXT)",
-                  style: TextStyle(
-                      color: efbTextMuted, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
+              Row(
+                children: const [
+                  Icon(Icons.chat_outlined, color: efbTextMuted, size: 16),
+                  SizedBox(width: 8),
+                  Text("TELEX (FREE TEXT)",
+                      style: TextStyle(
+                          color: efbTextMuted,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0)),
+                ],
+              ),
+              const SizedBox(height: 12),
               Row(
                 children: [
-                  const Text("TO: ",
+                  const Text("TO:  ",
                       style: TextStyle(
-                          color: efbTextMuted, fontWeight: FontWeight.bold)),
+                          color: efbTextMuted,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12)),
                   Container(
                     height: 36,
                     decoration: BoxDecoration(
@@ -462,34 +1089,34 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(color: efbBorder)),
                     child: ToggleButtons(
-                      isSelected: [!_telexIsAtc, _telexIsAtc],
+                      isSelected: [_telexIsAtc, !_telexIsAtc],
                       onPressed: (index) =>
-                          setState(() => _telexIsAtc = index == 1),
+                          setState(() => _telexIsAtc = index == 0),
                       color: efbTextMuted,
-                      selectedColor: efbBg,
-                      fillColor: efbWhite,
+                      selectedColor: efbWhite,
+                      fillColor: efbAccent.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(5),
                       constraints:
                           const BoxConstraints(minHeight: 36, minWidth: 60),
                       children: const [
-                        Text("A/C", style: TextStyle(fontSize: 12)),
-                        Text("ATC", style: TextStyle(fontSize: 12))
+                        Text("ATC",
+                            style: TextStyle(
+                                fontSize: 11, fontWeight: FontWeight.bold)),
+                        Text("AIRLINE",
+                            style: TextStyle(
+                                fontSize: 11, fontWeight: FontWeight.bold))
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                      child: _buildModernInput(_telexToCtrl,
-                          _telexIsAtc ? "ATC Station" : "Callsign")),
                 ],
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: _telexMsgCtrl,
-                style: const TextStyle(color: efbWhite),
+                style: const TextStyle(color: efbWhite, fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: "Enter message...",
-                  hintStyle: const TextStyle(color: efbTextMuted),
+                  hintText: "Enter free text message...",
+                  hintStyle: const TextStyle(color: efbTextMuted, fontSize: 12),
                   filled: true,
                   fillColor: efbBg,
                   enabledBorder: OutlineInputBorder(
@@ -503,10 +1130,13 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                 maxLines: 2,
               ),
               const SizedBox(height: 10),
-              _buildActionBtn("SEND TELEX", () {
-                _sendMessage(_telexToCtrl.text, 'telex', _telexMsgCtrl.text);
+              _buildActionBtn("SEND", () {
+                _sendMessage(
+                    _telexIsAtc ? _cpdlcStationCtrl.text : _telexToCtrl.text,
+                    'telex',
+                    _telexMsgCtrl.text);
                 _telexMsgCtrl.clear();
-              }, efbAccent, textColor: efbBg),
+              }, efbAccent, icon: Icons.send, textColor: efbWhite),
             ],
           ),
         ),
@@ -514,29 +1144,65 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
     );
   }
 
-  // --- دوال وتصميم نظام الـ Quick ATC الجديد ---
-  Widget _buildQuickAtcBtn(String id, String label) {
+  Widget _buildAtcPadBtn(String id, String label, IconData icon) {
     bool isActive = _activeQuickReq == id;
-    return _buildActionBtn(
-      label,
-      () {
-        setState(() {
-          if (isActive) {
-            _activeQuickReq = null; // إغلاق الخانة إذا ضغطت عليه مرة أخرى
-          } else {
-            _activeQuickReq = id;
-            _quickReqInputCtrl.clear();
-          }
-        });
-      },
-      isActive ? efbAccent : efbButtonDark,
-      textColor: isActive ? efbBg : efbWhite,
+    return Expanded(
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            if (isActive) {
+              _activeQuickReq = null;
+            } else {
+              _activeQuickReq = id;
+              _quickReqInputCtrl.clear();
+            }
+          });
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          height: 85,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isActive ? efbAccent.withOpacity(0.15) : efbBg,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+                color: isActive ? efbAccent : efbBorder,
+                width: isActive ? 1.5 : 1.0),
+          ),
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon,
+                        color: isActive ? efbWhite : efbTextMuted, size: 28),
+                    const SizedBox(height: 8),
+                    Text(label,
+                        style: TextStyle(
+                            color: isActive ? efbWhite : efbTextMuted,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5)),
+                  ],
+                ),
+              ),
+              const Align(
+                alignment: Alignment.centerRight,
+                child: Icon(Icons.chevron_right, color: efbBorder, size: 18),
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   void _sendQuickReq() {
+    if (!_validateLogon()) return;
     if (_quickReqInputCtrl.text.isEmpty) {
-      _showError("Please enter required data.");
+      _showError("⚠️ Please enter required data in the field.");
       return;
     }
     String msg = "";
@@ -585,15 +1251,15 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   String _getQuickReqPlaceholder() {
     switch (_activeQuickReq) {
       case 'PDC':
-        return "Stand & ATIS";
+        return "Stand & ATIS...";
       case 'PUSH':
-        return "Gate / Stand";
+        return "Gate / Stand...";
       case 'TAXI':
-        return "Current Position";
+        return "Current Position...";
       case 'LVL':
-        return "Flight Level";
+        return "Flight Level...";
       case 'DIR':
-        return "Waypoint";
+        return "Waypoint...";
       default:
         return "";
     }
@@ -613,39 +1279,48 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text("QUICK ATC REQUESTS",
-                  style: TextStyle(
-                      color: efbTextMuted, fontWeight: FontWeight.bold)),
+              Row(
+                children: const [
+                  Icon(Icons.headset_mic_outlined,
+                      color: efbTextMuted, size: 16),
+                  SizedBox(width: 8),
+                  Text("QUICK ATC REQUESTS",
+                      style: TextStyle(
+                          color: efbTextMuted,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0)),
+                ],
+              ),
               const SizedBox(height: 12),
-
-              // ترتيب الأزرار لتبدو احترافية ولا تأخذ مساحة كبيرة
               Row(
                 children: [
-                  Expanded(child: _buildQuickAtcBtn('PDC', 'PDC')),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildQuickAtcBtn('PUSH', 'PUSH / START')),
+                  _buildAtcPadBtn('PDC', 'PDC REQ', Icons.description_outlined),
+                  const SizedBox(width: 10),
+                  _buildAtcPadBtn('PUSH', 'REQ PUSH / START', Icons.flight),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Row(
                 children: [
-                  Expanded(child: _buildQuickAtcBtn('TAXI', 'TAXI')),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildQuickAtcBtn('LVL', 'LVL CHG')),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildQuickAtcBtn('DIR', 'DIRECT')),
+                  _buildAtcPadBtn('TAXI', 'REQ TAXI', Icons.flight_takeoff),
+                  const SizedBox(width: 10),
+                  _buildAtcPadBtn('LVL', 'REQ LEVEL', Icons.swap_vert),
                 ],
               ),
-
-              // الخانات التي تظهر داخل الصفحة (Inline Expansion)
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  _buildAtcPadBtn('DIR', 'REQ DIRECT', Icons.route_outlined),
+                ],
+              ),
               if (_activeQuickReq != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 const Divider(color: efbBorder, thickness: 1),
                 const SizedBox(height: 8),
                 Text(_getQuickReqHint(),
                     style: const TextStyle(
                         color: efbAccent,
-                        fontSize: 11,
+                        fontSize: 10,
                         fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Row(
@@ -654,8 +1329,8 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                         child: _buildModernInput(
                             _quickReqInputCtrl, _getQuickReqPlaceholder())),
                     const SizedBox(width: 8),
-                    _buildActionBtn("SEND", _sendQuickReq, cGood,
-                        textColor: efbBg),
+                    _buildActionBtn("SEND", _sendQuickReq, efbAccent,
+                        textColor: efbWhite),
                   ],
                 ),
               ]
@@ -663,7 +1338,7 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
           ),
         ),
         const SizedBox(height: 12),
-        // Weather
+        // Weather & ATIS
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -673,42 +1348,122 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text("WEATHER & ATIS",
-                  style: TextStyle(
-                      color: efbTextMuted, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              _buildModernInput(_icaoCtrl, "ICAO (e.g. HECA)"),
-              const SizedBox(height: 10),
+              Row(
+                children: const [
+                  Icon(Icons.wb_cloudy_outlined, color: efbTextMuted, size: 16),
+                  SizedBox(width: 8),
+                  Text("WEATHER & ATIS",
+                      style: TextStyle(
+                          color: efbTextMuted,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildModernInput(_icaoCtrl, "ICAO (e.g. HECA)",
+                  icon: Icons.search),
+              const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                      child: _buildActionBtn(
-                          "METAR",
-                          () =>
-                              _sendMessage('METAR', 'inforeq', _icaoCtrl.text),
-                          efbButtonDark,
-                          textColor: cWeather)),
-                  const SizedBox(width: 6),
-                  Expanded(
-                      child: _buildActionBtn(
-                          "TAF",
-                          () => _sendMessage('TAF', 'inforeq', _icaoCtrl.text),
-                          efbButtonDark,
-                          textColor: cWeather)),
-                  const SizedBox(width: 6),
-                  Expanded(
-                      child: _buildActionBtn(
-                          "D-ATIS",
-                          () => _sendMessage(_icaoCtrl.text, 'inforeq', 'ATIS'),
-                          efbButtonDark,
-                          textColor: cWeather)),
+                  _buildWeatherBtn("METAR", Icons.cloud_outlined, () {
+                    if (_icaoCtrl.text.isEmpty) {
+                      _showError("⚠️ Enter ICAO code first.");
+                      return;
+                    }
+                    _sendMessage(
+                        'SERVER', 'inforeq', 'METAR ${_icaoCtrl.text}');
+                  }),
+                  const SizedBox(width: 8),
+                  _buildWeatherBtn("TAF", Icons.description_outlined, () {
+                    if (_icaoCtrl.text.isEmpty) {
+                      _showError("⚠️ Enter ICAO code first.");
+                      return;
+                    }
+                    _sendMessage('SERVER', 'inforeq', 'TAF ${_icaoCtrl.text}');
+                  }),
+                  const SizedBox(width: 8),
+                  _buildWeatherBtn("D-ATIS", Icons.cell_tower, () {
+                    if (_icaoCtrl.text.isEmpty) {
+                      _showError("⚠️ Enter ICAO code first.");
+                      return;
+                    }
+                    _sendMessage('SERVER', 'inforeq', 'ATIS ${_icaoCtrl.text}');
+                  }),
                 ],
               )
             ],
           ),
         )
       ],
+    );
+  }
+
+  Widget _buildWeatherBtn(String label, IconData icon, VoidCallback onTap) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: efbBg,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: efbBorder),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: efbWhite, size: 22),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(label,
+                      style: const TextStyle(
+                          color: efbWhite,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.chevron_right,
+                      color: efbTextMuted, size: 12),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCpdlcBtn(
+      String label, IconData icon, Color color, VoidCallback onTap) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: color, width: 1.5),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: 24),
+              const SizedBox(height: 8),
+              Text(label,
+                  style: TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                      letterSpacing: 0.5)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -724,154 +1479,194 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text("CPDLC STATION",
-                  style: TextStyle(
-                      color: efbTextMuted, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
               Row(
-                children: [
-                  Expanded(
-                      child: _buildModernInput(
-                          _cpdlcStationCtrl, "Station (e.g. EGLL)")),
-                  const SizedBox(width: 10),
-                  _buildActionBtn(
-                      "LOGON",
-                      () => _sendMessage(_cpdlcStationCtrl.text, 'ping', ''),
-                      efbAccent,
-                      textColor: efbBg)
+                children: const [
+                  Icon(Icons.radar_outlined, color: efbTextMuted, size: 16),
+                  SizedBox(width: 8),
+                  Text("CPDLC STATION",
+                      style: TextStyle(
+                          color: efbTextMuted,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0)),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
-                      child: _buildActionBtn(
-                          "WILCO",
-                          () => _sendMessage(
-                              _cpdlcStationCtrl.text, 'cpdlc', 'WILCO'),
-                          efbBg,
-                          borderColor: cGood,
-                          textColor: cGood)),
-                  const SizedBox(width: 6),
-                  Expanded(
-                      child: _buildActionBtn(
-                          "STANDBY",
-                          () => _sendMessage(
-                              _cpdlcStationCtrl.text, 'cpdlc', 'STANDBY'),
-                          efbBg,
-                          borderColor: cWarn,
-                          textColor: cWarn)),
+                      child: _buildModernInput(
+                          _cpdlcStationCtrl, "Logon Station")),
+                  const SizedBox(width: 10),
+                  _buildActionBtn(
+                      "LOGON",
+                      () => _sendMessage(_cpdlcStationCtrl.text, 'ping', ''),
+                      efbAccent,
+                      textColor: efbWhite)
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 16),
+              const Text("URGENT CPDLC RESPONSE",
+                  style: TextStyle(
+                      color: efbTextMuted,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  Expanded(
-                      child: _buildActionBtn(
-                          "UNABLE",
-                          () => _sendMessage(
-                              _cpdlcStationCtrl.text, 'cpdlc', 'UNABLE'),
-                          efbBg,
-                          borderColor: cDanger,
-                          textColor: cDanger)),
-                  const SizedBox(width: 6),
-                  Expanded(
-                      child: _buildActionBtn(
-                          "ROGER",
-                          () => _sendMessage(
-                              _cpdlcStationCtrl.text, 'cpdlc', 'ROGER'),
-                          efbBg,
-                          borderColor: efbWhite,
-                          textColor: efbWhite)),
+                  _buildCpdlcBtn(
+                      "WILCO",
+                      Icons.check_circle_outline,
+                      cGood,
+                      () => _sendMessage(
+                          _cpdlcStationCtrl.text, 'cpdlc', 'WILCO')),
+                  const SizedBox(width: 10),
+                  _buildCpdlcBtn(
+                      "STANDBY",
+                      Icons.access_time,
+                      cWarn,
+                      () => _sendMessage(
+                          _cpdlcStationCtrl.text, 'cpdlc', 'STANDBY')),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  _buildCpdlcBtn(
+                      "UNABLE",
+                      Icons.cancel_outlined,
+                      cDanger,
+                      () => _sendMessage(
+                          _cpdlcStationCtrl.text, 'cpdlc', 'UNABLE')),
+                  const SizedBox(width: 10),
+                  _buildCpdlcBtn(
+                      "ROGER",
+                      Icons.chat_bubble_outline,
+                      cRoger,
+                      () => _sendMessage(
+                          _cpdlcStationCtrl.text, 'cpdlc', 'ROGER')),
                 ],
               ),
             ],
           ),
         ),
         const SizedBox(height: 12),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-                color: efbCard,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: efbBorder)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text("OCEANIC POS REP",
-                    style: TextStyle(
-                        color: efbTextMuted, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    childAspectRatio: 2.2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    children: [
-                      _buildModernInput(_ocWpt, "WPT",
-                          isError: _posRepAttempted && _ocWpt.text.isEmpty),
-                      _buildModernInput(_ocTime, "TIME(Z)",
-                          isError: _posRepAttempted && _ocTime.text.isEmpty),
-                      _buildModernInput(_ocFl, "FL",
-                          isError: _posRepAttempted && _ocFl.text.isEmpty),
-                      _buildModernInput(_ocSpd, "MACH/SPD",
-                          isError: _posRepAttempted && _ocSpd.text.isEmpty),
-                      _buildModernInput(_ocNext, "NEXT WPT",
-                          isError: _posRepAttempted && _ocNext.text.isEmpty),
-                      _buildModernInput(_ocEto, "ETO(Z)",
-                          isError: _posRepAttempted && _ocEto.text.isEmpty),
-                      _buildModernInput(_ocFuel, "FUEL",
-                          isError: _posRepAttempted && _ocFuel.text.isEmpty),
-                      _buildModernInput(_ocTemp, "SAT/TAT",
-                          isError: _posRepAttempted && _ocTemp.text.isEmpty),
-                    ],
-                  ),
-                ),
-                _buildActionBtn("SEND POS REP", () {
-                  setState(() {
-                    _posRepAttempted = true;
-                  });
-                  if (_ocWpt.text.isEmpty ||
-                      _ocTime.text.isEmpty ||
-                      _ocFl.text.isEmpty ||
-                      _ocSpd.text.isEmpty ||
-                      _ocNext.text.isEmpty ||
-                      _ocEto.text.isEmpty ||
-                      _ocFuel.text.isEmpty ||
-                      _ocTemp.text.isEmpty) {
-                    _showError("All fields are required for Position Report.");
-                    return;
-                  }
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+              color: efbCard,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: efbBorder)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.language, color: efbTextMuted, size: 16),
+                  SizedBox(width: 8),
+                  Text("OCEANIC POS REP",
+                      style: TextStyle(
+                          color: efbTextMuted,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                childAspectRatio: 1.8,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                children: [
+                  _buildLabeledInput("WPT", _ocWpt, "e.g. NAT A",
+                      isError: _posRepAttempted && _ocWpt.text.isEmpty),
+                  _buildLabeledInput("TIME", _ocTime, "HHMMZ",
+                      isError: _posRepAttempted && _ocTime.text.isEmpty),
+                  _buildLabeledInput("FL", _ocFl, "e.g. 350",
+                      isError: _posRepAttempted && _ocFl.text.isEmpty),
+                  _buildLabeledInput("SPD", _ocSpd, "e.g. 480",
+                      isError: _posRepAttempted && _ocSpd.text.isEmpty),
+                  _buildLabeledInput("NEXT", _ocNext, "e.g. RNP",
+                      isError: _posRepAttempted && _ocNext.text.isEmpty),
+                  _buildLabeledInput("ETO", _ocEto, "HHMMZ",
+                      isError: _posRepAttempted && _ocEto.text.isEmpty),
+                  _buildLabeledInput("FUEL", _ocFuel, "e.g. 12.5",
+                      isError: _posRepAttempted && _ocFuel.text.isEmpty),
+                  _buildLabeledInput("TEMP", _ocTemp, "e.g. -50",
+                      isError: _posRepAttempted && _ocTemp.text.isEmpty),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildActionBtn("SEND POS REP", () {
+                setState(() {
+                  _posRepAttempted = true;
+                });
 
-                  String report =
-                      "POS REP: ${_ocWpt.text} AT ${_ocTime.text}, FL${_ocFl.text}, M${_ocSpd.text}. EST ${_ocNext.text} AT ${_ocEto.text}. FUEL ${_ocFuel.text}, TEMP ${_ocTemp.text}";
-                  _sendMessage(_cpdlcStationCtrl.text, 'telex', report);
+                if (!_validateLogon()) return;
 
-                  setState(() {
-                    _posRepAttempted = false;
-                  });
-                }, cGood, textColor: efbBg),
-              ],
-            ),
+                if (_ocWpt.text.isEmpty ||
+                    _ocTime.text.isEmpty ||
+                    _ocFl.text.isEmpty ||
+                    _ocSpd.text.isEmpty ||
+                    _ocNext.text.isEmpty ||
+                    _ocEto.text.isEmpty ||
+                    _ocFuel.text.isEmpty ||
+                    _ocTemp.text.isEmpty) {
+                  _showError("⚠️ All fields are required for Position Report.");
+                  return;
+                }
+
+                String report =
+                    "POS REP: ${_ocWpt.text} AT ${_ocTime.text}, FL${_ocFl.text}, M${_ocSpd.text}. EST ${_ocNext.text} AT ${_ocEto.text}. FUEL ${_ocFuel.text}, TEMP ${_ocTemp.text}";
+                _sendMessage(_cpdlcStationCtrl.text, 'telex', report);
+
+                setState(() {
+                  _posRepAttempted = false;
+                });
+              }, efbAccent, icon: Icons.send, textColor: efbWhite),
+            ],
           ),
         ),
       ],
     );
   }
 
+  Widget _buildLabeledInput(
+      String label, TextEditingController ctrl, String hint,
+      {bool isError = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(
+                color: efbTextMuted,
+                fontSize: 10,
+                fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Expanded(
+          child: _buildModernInput(ctrl, hint, isError: isError),
+        ),
+      ],
+    );
+  }
+
   Widget _buildModernInput(TextEditingController ctrl, String hint,
-      {bool obscure = false, double? width, bool isError = false}) {
+      {bool obscure = false,
+      double? width,
+      bool isError = false,
+      IconData? icon}) {
     Widget field = SizedBox(
-      height: 42,
+      height: 38,
       child: TextField(
         controller: ctrl,
         obscureText: obscure,
-        style: const TextStyle(color: efbWhite, fontSize: 14),
+        style: const TextStyle(color: efbWhite, fontSize: 13),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: efbTextMuted, fontSize: 13),
+          hintStyle: const TextStyle(color: efbBorder, fontSize: 12),
+          prefixIcon:
+              icon != null ? Icon(icon, color: efbTextMuted, size: 16) : null,
           filled: true,
           fillColor: efbBg,
           enabledBorder: OutlineInputBorder(
@@ -892,23 +1687,37 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
   }
 
   Widget _buildActionBtn(String label, VoidCallback onTap, Color bgColor,
-      {Color? textColor, Color? borderColor}) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: bgColor,
-        foregroundColor: textColor ?? efbWhite,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-          side:
-              BorderSide(color: borderColor ?? Colors.transparent, width: 1.5),
+      {Color? textColor, Color? borderColor, IconData? icon}) {
+    return SizedBox(
+      height: 38,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: bgColor,
+          foregroundColor: textColor ?? efbWhite,
+          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+            side: BorderSide(
+                color: borderColor ?? Colors.transparent, width: 1.0),
+          ),
+          elevation: 0,
         ),
-        elevation: 0,
+        onPressed: onTap,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 16),
+              const SizedBox(width: 6),
+            ],
+            Text(label,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                    letterSpacing: 0.5)),
+          ],
+        ),
       ),
-      onPressed: onTap,
-      child: Text(label,
-          style: const TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 0.5)),
     );
   }
 }
