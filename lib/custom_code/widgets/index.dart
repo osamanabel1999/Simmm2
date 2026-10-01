@@ -63,3 +63,5 @@ export '/custom_code/widgets/efb_library_screen.dart' show EfbLibraryScreen;
 export '/custom_code/widgets/efb_browser_screen.dart' show EfbBrowserScreen;
 export '/custom_code/widgets/acars_efb_widget.dart' show AcarsEfbWidget;
 export '/custom_code/widgets/live_kit_viewer.dart' show LiveKitViewer;
+export '/custom_code/widgets/position_xplane_instructor_widget.dart'
+    show PositionXplaneInstructorWidget;

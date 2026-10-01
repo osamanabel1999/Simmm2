@@ -171,7 +171,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
             'sim/operation/failures/rel_servo_rudd',
             FFAppState().ipPC,
           );
-          FFAppState().addToActiveFailures(57);
+          FFAppState().addToActiveFailures(56);
           safeSetState(() {});
         },
         () async {
@@ -585,7 +585,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
           safeSetState(() {});
         },
         () async {
-          FFAppState().FailureSubTab = 2;
+          FFAppState().FailureSubTab = 5;
           safeSetState(() {});
         },
         () async {
