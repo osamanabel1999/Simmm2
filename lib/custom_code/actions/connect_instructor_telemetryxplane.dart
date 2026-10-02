@@ -49,12 +49,8 @@ Future connectInstructorTelemetryxplane(String roomCode) async {
     }
     instructorTelemetryListenerxplane?.dispose();
 
-    // إجبار الغرفة على الصمت لاستقبال الداتا فقط
-    instructorTelemetryRoomxplane = Room(
-      roomOptions: const RoomOptions(
-        autoSubscribe: false,
-      ),
-    );
+    // 1. إنشاء الغرفة برمجياً بدون خطأ الباراميتر
+    instructorTelemetryRoomxplane = Room();
 
     instructorTelemetryListenerxplane =
         instructorTelemetryRoomxplane!.createListener();
@@ -95,7 +91,15 @@ Future connectInstructorTelemetryxplane(String roomCode) async {
       }
     });
 
-    await instructorTelemetryRoomxplane!.connect(livekitUrl, token);
+    // 2. 🔥 نقل أمر autoSubscribe إلى ConnectOptions لحل الخطأ نهائياً
+    await instructorTelemetryRoomxplane!.connect(
+      livekitUrl,
+      token,
+      connectOptions: const ConnectOptions(
+        autoSubscribe: false,
+      ),
+    );
+
     debugPrint(
         "✅ [رادار استلام التليميتري]: متصل ومستعد لعرض بيانات الطيار الحية");
   } catch (e) {

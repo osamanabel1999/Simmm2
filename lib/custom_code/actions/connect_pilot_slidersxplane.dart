@@ -58,12 +58,8 @@ Future connectPilotSlidersxplane(
     }
     pilotListenerSliders?.dispose();
 
-    // 🔥 إجبار الغرفة على الصمت التام واستقبال البيانات فقط
-    pilotRoomSliders = Room(
-      roomOptions: const RoomOptions(
-        autoSubscribe: false,
-      ),
-    );
+    // 1. إنشاء الغرفة برمجياً بدون خطأ الباراميتر
+    pilotRoomSliders = Room();
 
     pilotListenerSliders = pilotRoomSliders!.createListener();
 
@@ -102,7 +98,15 @@ Future connectPilotSlidersxplane(
       }
     });
 
-    await pilotRoomSliders!.connect(livekitUrl, token);
+    // 2. 🔥 تطبيق الحماية الفعلية ومنع استقبال أي فيديو أو صوت هنا
+    await pilotRoomSliders!.connect(
+      livekitUrl,
+      token,
+      connectOptions: const ConnectOptions(
+        autoSubscribe: false,
+      ),
+    );
+
     debugPrint(
         "✅ [رادار السلايدر]: متصل داتا فقط ومستعد بغرفة: $cleanRoomCode");
   } catch (e) {

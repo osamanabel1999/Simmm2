@@ -50,12 +50,8 @@ Future connectPilotPositionxplane(String roomCode) async {
     }
     pilotListenerPosition?.dispose();
 
-    // 🔥 إجبار الغرفة على الصمت التام واستقبال البيانات فقط
-    pilotRoomPosition = Room(
-      roomOptions: const RoomOptions(
-        autoSubscribe: false,
-      ),
-    );
+    // 1. إنشاء الغرفة برمجياً بدون خطأ الباراميتر
+    pilotRoomPosition = Room();
 
     pilotListenerPosition = pilotRoomPosition!.createListener();
 
@@ -120,7 +116,15 @@ Future connectPilotPositionxplane(String roomCode) async {
       }
     });
 
-    await pilotRoomPosition!.connect(livekitUrl, token);
+    // 2. 🔥 تطبيق الحماية الفعلية ومنع استقبال أي فيديو أو صوت هنا
+    await pilotRoomPosition!.connect(
+      livekitUrl,
+      token,
+      connectOptions: const ConnectOptions(
+        autoSubscribe: false,
+      ),
+    );
+
     debugPrint(
         "✅ [رادار البوزيشن]: متصل داتا فقط ومستعد بغرفة: $cleanRoomCode");
   } catch (e) {

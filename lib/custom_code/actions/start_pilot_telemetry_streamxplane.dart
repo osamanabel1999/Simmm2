@@ -38,7 +38,7 @@ Future startPilotTelemetryStreamxplane(String roomCode) async {
               .millisecondsSinceEpoch ~/
           1000,
       'iss': apiKey,
-      'sub': 'Pilot_Telemetry_Sender', // هوية مستقلة לרادار البث
+      'sub': 'Pilot_Telemetry_Sender', // هوية مستقلة لرادار البث
     });
 
     final token = jwt.sign(SecretKey(apiSecret));
@@ -49,14 +49,17 @@ Future startPilotTelemetryStreamxplane(String roomCode) async {
       await telemetryRoomxplane!.disconnect();
     }
 
-    // إجبار الغرفة على الصمت لتوفير الباقة 100%
-    telemetryRoomxplane = Room(
-      roomOptions: const RoomOptions(
+    // 1. إنشاء الغرفة بشكل مباشر بدون أخطاء باراميترات
+    telemetryRoomxplane = Room();
+
+    // 2. تطبيق منع استقبال الصوت والفيديو داخل connectOptions بالشكل الصحيح لمكتبة LiveKit Dart
+    await telemetryRoomxplane!.connect(
+      livekitUrl,
+      token,
+      connectOptions: const ConnectOptions(
         autoSubscribe: false,
       ),
     );
-
-    await telemetryRoomxplane!.connect(livekitUrl, token);
     debugPrint(
         "✅ [رادار بث التليميتري]: متصل ومستعد لإرسال الداتا الحية للمدرب");
 
@@ -65,8 +68,8 @@ Future startPilotTelemetryStreamxplane(String roomCode) async {
         Timer.periodic(const Duration(milliseconds: 200), (timer) async {
       if (telemetryRoomxplane?.localParticipant == null) return;
 
-      // 1. سحب البيانات من الـ App States الأصلية الخاصة بالمحاكي مع تحويل الأنواع بأمان
-      final double lat = FFAppState().CurrentLAT ?? 0.0;
+      // 1. سحب البيانات من الـ App States الأصلية مع تصحيح حرف c في currentLAT
+      final double lat = FFAppState().currentLAT ?? 0.0;
       final double lon = FFAppState().currentLON ?? 0.0;
 
       // السرعة والارتفاع جايين String فبنحولهم لـ Double

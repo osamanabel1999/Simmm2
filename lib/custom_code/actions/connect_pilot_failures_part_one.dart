@@ -128,12 +128,8 @@ Future connectPilotFailuresPartOne(
     }
     pilotListenerxplane?.dispose();
 
-    // 🔥 إجبار الغرفة على الصمت التام واستقبال البيانات فقط
-    pilotRoomxplane = Room(
-      roomOptions: const RoomOptions(
-        autoSubscribe: false,
-      ),
-    );
+    // 1. تعريف الغرفة برمجياً بدون خطأ الباراميتر
+    pilotRoomxplane = Room();
 
     pilotListenerxplane = pilotRoomxplane!.createListener();
 
@@ -274,8 +270,16 @@ Future connectPilotFailuresPartOne(
       }
     });
 
-    await pilotRoomxplane!.connect(livekitUrl, token);
-    debugPrint("✅ [رادار الطيار]: متصل ومستعد بغرفة: $cleanRoomCode");
+    // 2. 🔥 الحل الجذري: تطبيق الصمت التام ومنع استقبال الصوت والصورة
+    await pilotRoomxplane!.connect(
+      livekitUrl,
+      token,
+      connectOptions: const ConnectOptions(
+        autoSubscribe: false,
+      ),
+    );
+
+    debugPrint("✅ [رادار الطيار]: متصل داتا فقط ومستعد بغرفة: $cleanRoomCode");
   } catch (e) {
     debugPrint("❌ [رادار الطيار]: فشل الاتصال: $e");
   }

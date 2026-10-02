@@ -74,12 +74,8 @@ Future connectPilotControlsxplane(
     }
     pilotListenerControls?.dispose();
 
-    // 🔥 تعديل الحماية السحري: إجبار الغرفة على الصمت التام واستقبال الداتا فقط
-    pilotRoomControls = Room(
-      roomOptions: const RoomOptions(
-        autoSubscribe: false,
-      ),
-    );
+    // 1. تعريف الغرفة بالشكل الصحيح برمجياً بدون خطأ الباراميتر
+    pilotRoomControls = Room();
 
     pilotListenerControls = pilotRoomControls!.createListener();
 
@@ -129,7 +125,15 @@ Future connectPilotControlsxplane(
       }
     });
 
-    await pilotRoomControls!.connect(livekitUrl, token);
+    // 2. 🔥 الحل الجذري: وضع حماية الباقة ومنع استقبال الصوت (autoSubscribe: false) في مكانها الصحيح هنا
+    await pilotRoomControls!.connect(
+      livekitUrl,
+      token,
+      connectOptions: const ConnectOptions(
+        autoSubscribe: false,
+      ),
+    );
+
     debugPrint("✅ [رادار التحكم]: متصل داتا فقط ومستعد بغرفة: $cleanRoomCode");
   } catch (e) {
     debugPrint("❌ [رادار التحكم]: فشل الاتصال: $e");
