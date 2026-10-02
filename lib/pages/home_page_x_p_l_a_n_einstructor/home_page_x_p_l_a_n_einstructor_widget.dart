@@ -43,7 +43,7 @@ class _HomePageXPLANEinstructorWidgetState
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       await actions.connectInstructorTelemetryxplane(
-        'MSR111',
+        FFAppState().SessionID,
       );
     });
 

@@ -677,6 +677,12 @@ class FFAppState extends ChangeNotifier {
   set pilotSimbriefXplane(String value) {
     _pilotSimbriefXplane = value;
   }
+
+  String _SessionID = '';
+  String get SessionID => _SessionID;
+  set SessionID(String value) {
+    _SessionID = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

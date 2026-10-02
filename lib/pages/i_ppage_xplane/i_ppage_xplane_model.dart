@@ -22,6 +22,11 @@ class IPpageXplaneModel extends FlutterFlowModel<IPpageXplaneWidget> {
   TextEditingController? textFieldIVAOidTextController;
   String? Function(BuildContext, String?)?
       textFieldIVAOidTextControllerValidator;
+  // State field(s) for TextFieldSessionID widget.
+  FocusNode? textFieldSessionIDFocusNode;
+  TextEditingController? textFieldSessionIDTextController;
+  String? Function(BuildContext, String?)?
+      textFieldSessionIDTextControllerValidator;
   // Stores action output result for [Custom Action - restoreAllSubscriptions] action in RichTextSpan widget.
   dynamic restoreRes2;
 
@@ -38,5 +43,8 @@ class IPpageXplaneModel extends FlutterFlowModel<IPpageXplaneWidget> {
 
     textFieldIVAOidFocusNode?.dispose();
     textFieldIVAOidTextController?.dispose();
+
+    textFieldSessionIDFocusNode?.dispose();
+    textFieldSessionIDTextController?.dispose();
   }
 }

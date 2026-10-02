@@ -1,3 +1,4 @@
+import '/flutter_flow/ff_builtin_enums.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -56,6 +57,10 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
     _model.textFieldIVAOidTextController ??=
         TextEditingController(text: FFAppState().ivaoVatsimID.toString());
     _model.textFieldIVAOidFocusNode ??= FocusNode();
+
+    _model.textFieldSessionIDTextController ??=
+        TextEditingController(text: FFAppState().SessionID);
+    _model.textFieldSessionIDFocusNode ??= FocusNode();
   }
 
   @override
@@ -457,10 +462,145 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                           .asValidator(context),
                     ),
                   ),
+                  Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 15.0, 0.0, 0.0),
+                    child: Container(
+                      width: double.infinity,
+                      child: TextFormField(
+                        controller: _model.textFieldSessionIDTextController,
+                        focusNode: _model.textFieldSessionIDFocusNode,
+                        autofocus: false,
+                        enabled: true,
+                        obscureText: false,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          labelText: 'Session ID (Optional)',
+                          labelStyle:
+                              FlutterFlowTheme.of(context).bodyMedium.override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontWeight,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                                    color: Color(0xFF8B949E),
+                                    fontSize: 14.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .fontWeight,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .fontStyle,
+                                  ),
+                          alignLabelWithHint: false,
+                          hintText: '1849314',
+                          hintStyle:
+                              FlutterFlowTheme.of(context).labelMedium.override(
+                                    font: GoogleFonts.inter(
+                                      fontWeight: FlutterFlowTheme.of(context)
+                                          .labelMedium
+                                          .fontWeight,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .labelMedium
+                                          .fontStyle,
+                                    ),
+                                    color: Color(0xFF8B949E),
+                                    letterSpacing: 0.0,
+                                    fontWeight: FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .fontWeight,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .fontStyle,
+                                  ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0xFF26364D),
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(0.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(0.0),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(0.0),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(0.0),
+                          ),
+                          filled: true,
+                          fillColor: Color(0xFF101923),
+                        ),
+                        style: FlutterFlowTheme.of(context).bodyMedium.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontWeight,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                              ),
+                              color: Color(0xFF639DF0),
+                              letterSpacing: 0.0,
+                              fontWeight: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontWeight,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontStyle,
+                            ),
+                        keyboardType: TextInputType.number,
+                        cursorColor: FlutterFlowTheme.of(context).primaryText,
+                        enableInteractiveSelection: true,
+                        validator: _model
+                            .textFieldSessionIDTextControllerValidator
+                            .asValidator(context),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 5.0, 0.0, 0.0),
+                    child: Text(
+                      'Optional: Required only when training with an instructor.',
+                      textAlign: TextAlign.center,
+                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                            font: GoogleFonts.inter(
+                              fontWeight: FontWeight.w300,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontStyle,
+                            ),
+                            color: Color(0xFF6B87A8),
+                            fontSize: 13.0,
+                            letterSpacing: 0.0,
+                            fontWeight: FontWeight.w300,
+                            fontStyle: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .fontStyle,
+                          ),
+                    ),
+                  ),
                   if ((FFAppState().isProUserXplane == true) || isAndroid)
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 20.0),
+                          EdgeInsetsDirectional.fromSTEB(0.0, 15.0, 0.0, 15.0),
                       child: FFButtonWidget(
                         onPressed: () async {
                           FFAppState().ipPC =
@@ -469,6 +609,8 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                               _model.textFieldIVAOidTextController.text);
                           FFAppState().SimbreifID = int.parse(
                               _model.textFieldSimbreifIDTextController.text);
+                          FFAppState().SessionID =
+                              _model.textFieldSessionIDTextController.text;
                           safeSetState(() {});
 
                           context.pushNamed(
@@ -513,6 +655,78 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                             color: Color(0xFF639DF0),
                           ),
                           borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                  if (FFAppState().isProUserXplane == true)
+                    InkWell(
+                      splashColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onTap: () async {
+                        FFAppState().SessionID =
+                            _model.textFieldSessionIDTextController.text;
+                        safeSetState(() {});
+
+                        context.pushNamed(
+                            HomePageXPLANEinstructorWidget.routeName);
+                      },
+                      child: Container(
+                        width: 170.0,
+                        height: 42.0,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF101923),
+                          borderRadius: BorderRadius.circular(8.0),
+                          border: Border.all(
+                            color: Color(0xFF639DF0),
+                          ),
+                        ),
+                        alignment: AlignmentDirectional(1.0, 0.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment:
+                              (FFMainAxisAlignment.spaceEvenly).flutterValue,
+                          children: [
+                            Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  10.0, 0.0, 10.0, 0.0),
+                              child: Icon(
+                                Icons.computer,
+                                color: FlutterFlowTheme.of(context).primaryText,
+                                size: 18.0,
+                              ),
+                            ),
+                            Text(
+                              'Instructor',
+                              style: FlutterFlowTheme.of(context)
+                                  .titleSmall
+                                  .override(
+                                    font: GoogleFonts.interTight(
+                                      fontWeight: FlutterFlowTheme.of(context)
+                                          .titleSmall
+                                          .fontWeight,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .titleSmall
+                                          .fontStyle,
+                                    ),
+                                    color: Color(0xFF639DF0),
+                                    fontSize: 17.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FlutterFlowTheme.of(context)
+                                        .titleSmall
+                                        .fontWeight,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .titleSmall
+                                        .fontStyle,
+                                  ),
+                            ),
+                            Icon(
+                              Icons.navigate_next,
+                              color: FlutterFlowTheme.of(context).primaryText,
+                              size: 21.0,
+                            ),
+                          ],
                         ),
                       ),
                     ),

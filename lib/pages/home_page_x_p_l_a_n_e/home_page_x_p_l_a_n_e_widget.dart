@@ -47,13 +47,13 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       await actions.startPilotTelemetryStreamxplane(
-        'MSR111',
+        FFAppState().SessionID,
       );
       await actions.connectPilotPositionxplane(
-        'MSR111',
+        FFAppState().SessionID,
       );
       await actions.connectPilotControlsxplane(
-        'MSR111',
+        FFAppState().SessionID,
         () async {
           FFAppState().TabNumber = 1;
           safeSetState(() {});
@@ -144,7 +144,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
         },
       );
       await actions.connectPilotSlidersxplane(
-        'MSR111',
+        FFAppState().SessionID,
         (fuelValue) async {
           FFAppState().appFuelTotal = fuelValue;
           safeSetState(() {});
@@ -171,7 +171,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
         },
       );
       await actions.connectPilotFailuresPartTwo(
-        'MSR111',
+        FFAppState().SessionID,
         () async {
           await actions.sendXPlaneCommand(
             'sim/operation/failures/rel_servo_rudd',
@@ -620,7 +620,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
         },
       );
       await actions.connectPilotFailuresPartOne(
-        'MSR111',
+        FFAppState().SessionID,
         () async {
           await actions.sendXPlaneCommand(
             'sim/operation/failures/rel_engfai0',
@@ -26385,9 +26385,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     'sim/operation/pause_toggle',
                                     FFAppState().ipPC,
                                   );
-
-                                  context.pushNamed(
-                                      HomePageXPLANEinstructorWidget.routeName);
                                 },
                                 freezeAction: () async {
                                   await actions.sendXPlaneCommand(

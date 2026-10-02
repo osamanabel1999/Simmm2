@@ -1479,8 +1479,8 @@ class _AcarsEfbWidgetState extends State<AcarsEfbWidget>
                       _showError("⚠️ Enter ICAO code first.");
                       return;
                     }
-                    // تم حل مشكلة ATIS برمجياً ليتوافق مع السيرفرات
-                    String atisType = _isVatsim ? 'VATATIS' : 'IVAATIS';
+                    // 🔥 تم التعديل الجذري هنا فقط بناءً على طلبك لتعمل على إيفاو
+                    String atisType = _isVatsim ? 'VATATIS' : 'ATIS';
                     _sendMessage(
                         'SERVER', 'inforeq', '$atisType ${_icaoCtrl.text}');
                   }),
