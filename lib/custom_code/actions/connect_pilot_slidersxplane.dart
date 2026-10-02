@@ -37,9 +37,10 @@ Future connectPilotSlidersxplane(
       'video': {
         'room': cleanRoomCode,
         'roomJoin': true,
-        'canPublish': false,
-        'canSubscribe': true,
-        'canPublishData': true,
+        'canPublish': false, // منع الإرسال
+        'canSubscribe':
+            false, // 🔥 منع استقبال الصوت والصورة (توفير الباقة 100%)
+        'canPublishData': true, // مسموح بالداتا فقط
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp': (DateTime.now().add(const Duration(hours: 4)))
@@ -57,7 +58,13 @@ Future connectPilotSlidersxplane(
     }
     pilotListenerSliders?.dispose();
 
-    pilotRoomSliders = Room();
+    // 🔥 إجبار الغرفة على الصمت التام واستقبال البيانات فقط
+    pilotRoomSliders = Room(
+      roomOptions: const RoomOptions(
+        autoSubscribe: false,
+      ),
+    );
+
     pilotListenerSliders = pilotRoomSliders!.createListener();
 
     pilotListenerSliders!.on<DataReceivedEvent>((event) {
@@ -96,7 +103,8 @@ Future connectPilotSlidersxplane(
     });
 
     await pilotRoomSliders!.connect(livekitUrl, token);
-    debugPrint("✅ [رادار السلايدر]: متصل ومستعد بغرفة: $cleanRoomCode");
+    debugPrint(
+        "✅ [رادار السلايدر]: متصل داتا فقط ومستعد بغرفة: $cleanRoomCode");
   } catch (e) {
     debugPrint("❌ [رادار السلايدر]: فشل الاتصال: $e");
   }

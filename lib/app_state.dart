@@ -641,6 +641,42 @@ class FFAppState extends ChangeNotifier {
   set syncNavaidSearch(String value) {
     _syncNavaidSearch = value;
   }
+
+  double _pilotLatXplane = 0.0;
+  double get pilotLatXplane => _pilotLatXplane;
+  set pilotLatXplane(double value) {
+    _pilotLatXplane = value;
+  }
+
+  double _pilotLonXplane = 0.0;
+  double get pilotLonXplane => _pilotLonXplane;
+  set pilotLonXplane(double value) {
+    _pilotLonXplane = value;
+  }
+
+  double _pilotIasXplane = 0.0;
+  double get pilotIasXplane => _pilotIasXplane;
+  set pilotIasXplane(double value) {
+    _pilotIasXplane = value;
+  }
+
+  double _pilotAltXplane = 0.0;
+  double get pilotAltXplane => _pilotAltXplane;
+  set pilotAltXplane(double value) {
+    _pilotAltXplane = value;
+  }
+
+  double _pilotHdgXplane = 0.0;
+  double get pilotHdgXplane => _pilotHdgXplane;
+  set pilotHdgXplane(double value) {
+    _pilotHdgXplane = value;
+  }
+
+  String _pilotSimbriefXplane = '';
+  String get pilotSimbriefXplane => _pilotSimbriefXplane;
+  set pilotSimbriefXplane(String value) {
+    _pilotSimbriefXplane = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

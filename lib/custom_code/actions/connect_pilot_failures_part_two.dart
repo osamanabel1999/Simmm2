@@ -118,8 +118,8 @@ Future connectPilotFailuresPartTwo(
       'video': {
         'room': cleanRoomCode,
         'roomJoin': true,
-        'canPublish': false,
-        'canSubscribe': true,
+        'canPublish': false, // منع الإرسال
+        'canSubscribe': false, // 🔥 منع استقبال الصوت والصورة (حماية الباقة)
         'canPublishData': true,
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -127,7 +127,6 @@ Future connectPilotFailuresPartTwo(
               .millisecondsSinceEpoch ~/
           1000,
       'iss': apiKey,
-      // 🔥 التعديل هنا فقط: إعطاء هوية مختلفة لهذا الرادار
       'sub': 'Pilot_Listener_P2',
     });
 
@@ -138,7 +137,13 @@ Future connectPilotFailuresPartTwo(
     }
     pilotListenerPartTwo?.dispose();
 
-    pilotRoomPartTwo = Room();
+    // 🔥 إجبار الغرفة على الصمت التام واستقبال البيانات فقط
+    pilotRoomPartTwo = Room(
+      roomOptions: const RoomOptions(
+        autoSubscribe: false,
+      ),
+    );
+
     pilotListenerPartTwo = pilotRoomPartTwo!.createListener();
 
     pilotListenerPartTwo!.on<DataReceivedEvent>((event) {
@@ -298,7 +303,8 @@ Future connectPilotFailuresPartTwo(
     });
 
     await pilotRoomPartTwo!.connect(livekitUrl, token);
-    debugPrint("✅ [رادار الطيار 2]: متصل ومستعد بغرفة: $cleanRoomCode");
+    debugPrint(
+        "✅ [رادار الطيار 2]: متصل داتا فقط ومستعد بغرفة: $cleanRoomCode");
   } catch (e) {
     debugPrint("❌ [رادار الطيار 2]: فشل الاتصال: $e");
   }

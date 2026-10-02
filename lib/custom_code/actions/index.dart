@@ -181,3 +181,7 @@ export '/custom_code/actions/connect_pilot_slidersxplane.dart'
     show connectPilotSlidersxplane;
 export '/custom_code/actions/connect_pilot_positionxplane.dart'
     show connectPilotPositionxplane;
+export '/custom_code/actions/start_pilot_telemetry_streamxplane.dart'
+    show startPilotTelemetryStreamxplane;
+export '/custom_code/actions/connect_instructor_telemetryxplane.dart'
+    show connectInstructorTelemetryxplane;

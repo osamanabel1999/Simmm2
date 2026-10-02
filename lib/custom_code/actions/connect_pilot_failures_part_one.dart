@@ -109,8 +109,8 @@ Future connectPilotFailuresPartOne(
       'video': {
         'room': cleanRoomCode,
         'roomJoin': true,
-        'canPublish': false,
-        'canSubscribe': true,
+        'canPublish': false, // منع الإرسال
+        'canSubscribe': false, // 🔥 منع الاستقبال (توفير الباقة وإلغاء الصوت)
         'canPublishData': true,
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -128,7 +128,13 @@ Future connectPilotFailuresPartOne(
     }
     pilotListenerxplane?.dispose();
 
-    pilotRoomxplane = Room();
+    // 🔥 إجبار الغرفة على الصمت التام واستقبال البيانات فقط
+    pilotRoomxplane = Room(
+      roomOptions: const RoomOptions(
+        autoSubscribe: false,
+      ),
+    );
+
     pilotListenerxplane = pilotRoomxplane!.createListener();
 
     pilotListenerxplane!.on<DataReceivedEvent>((event) {

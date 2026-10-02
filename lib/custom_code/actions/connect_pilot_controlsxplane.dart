@@ -54,16 +54,16 @@ Future connectPilotControlsxplane(
       'video': {
         'room': cleanRoomCode,
         'roomJoin': true,
-        'canPublish': false,
-        'canSubscribe': true,
-        'canPublishData': true,
+        'canPublish': false, // ممنوع إرسال صوت/صورة
+        'canSubscribe':
+            false, // 🔥 تعديل الحماية: ممنوع استقبال أي صوت/صورة لتوفير الباقة
+        'canPublishData': true, // مسموح بالداتا فقط
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp': (DateTime.now().add(const Duration(hours: 4)))
               .millisecondsSinceEpoch ~/
           1000,
       'iss': apiKey,
-      // 🔥 التعديل هنا فقط: إعطاء هوية مختلفة ليعمل مع باقي الرادارات في نفس الوقت
       'sub': 'Pilot_Listener_Controls',
     });
 
@@ -74,7 +74,13 @@ Future connectPilotControlsxplane(
     }
     pilotListenerControls?.dispose();
 
-    pilotRoomControls = Room();
+    // 🔥 تعديل الحماية السحري: إجبار الغرفة على الصمت التام واستقبال الداتا فقط
+    pilotRoomControls = Room(
+      roomOptions: const RoomOptions(
+        autoSubscribe: false,
+      ),
+    );
+
     pilotListenerControls = pilotRoomControls!.createListener();
 
     pilotListenerControls!.on<DataReceivedEvent>((event) {
@@ -124,7 +130,7 @@ Future connectPilotControlsxplane(
     });
 
     await pilotRoomControls!.connect(livekitUrl, token);
-    debugPrint("✅ [رادار التحكم]: متصل ومستعد بغرفة: $cleanRoomCode");
+    debugPrint("✅ [رادار التحكم]: متصل داتا فقط ومستعد بغرفة: $cleanRoomCode");
   } catch (e) {
     debugPrint("❌ [رادار التحكم]: فشل الاتصال: $e");
   }

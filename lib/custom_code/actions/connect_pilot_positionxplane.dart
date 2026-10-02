@@ -29,9 +29,10 @@ Future connectPilotPositionxplane(String roomCode) async {
       'video': {
         'room': cleanRoomCode,
         'roomJoin': true,
-        'canPublish': false,
-        'canSubscribe': true,
-        'canPublishData': true,
+        'canPublish': false, // منع الإرسال
+        'canSubscribe':
+            false, // 🔥 منع استقبال الصوت والصورة لتوفير الباقة 100%
+        'canPublishData': true, // مسموح بالداتا فقط
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp': (DateTime.now().add(const Duration(hours: 4)))
@@ -49,7 +50,13 @@ Future connectPilotPositionxplane(String roomCode) async {
     }
     pilotListenerPosition?.dispose();
 
-    pilotRoomPosition = Room();
+    // 🔥 إجبار الغرفة على الصمت التام واستقبال البيانات فقط
+    pilotRoomPosition = Room(
+      roomOptions: const RoomOptions(
+        autoSubscribe: false,
+      ),
+    );
+
     pilotListenerPosition = pilotRoomPosition!.createListener();
 
     pilotListenerPosition!.on<DataReceivedEvent>((event) {
@@ -114,7 +121,8 @@ Future connectPilotPositionxplane(String roomCode) async {
     });
 
     await pilotRoomPosition!.connect(livekitUrl, token);
-    debugPrint("✅ [رادار البوزيشن]: متصل ومستعد بغرفة: $cleanRoomCode");
+    debugPrint(
+        "✅ [رادار البوزيشن]: متصل داتا فقط ومستعد بغرفة: $cleanRoomCode");
   } catch (e) {
     debugPrint("❌ [رادار البوزيشن]: فشل الاتصال: $e");
   }
