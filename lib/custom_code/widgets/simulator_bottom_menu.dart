@@ -25,7 +25,8 @@ class SimulatorBottomMenu extends StatefulWidget {
     this.doorsAction,
     this.failuresAction,
     this.efbAction,
-    this.settingsAction,
+    this.acarsAction, // 🔥 أكشن الـ ACARS الجديد
+    this.settingsAction, // 🔥 أكشن الـ SETTINGS اتنقل للآخر
   });
 
   final double? width;
@@ -43,6 +44,7 @@ class SimulatorBottomMenu extends StatefulWidget {
 
   final Future Function()? failuresAction;
   final Future Function()? efbAction;
+  final Future Function()? acarsAction;
   final Future Function()? settingsAction;
 
   @override
@@ -77,13 +79,13 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
     // Row 3
     'FAILURES',
     'EFB',
-    'SETTINGS',
-    '-',
+    'ACARS', // 🔥 مكان الـ ACARS
+    'SETTINGS', // 🔥 مكان الـ SETTINGS الجديد
   ];
 
   bool _isMomentaryButton(int index) {
-    // Indices 1 (PAUSE), 2 (FREEZE), and 11 (-) are momentary buttons
-    return index == 1 || index == 2 || index == 11;
+    // 🔥 اتلغى الزرار رقم 11 من هنا عشان ينور ويفضل ثابت زيه زي الباقي
+    return index == 1 || index == 2;
   }
 
   @override
@@ -168,7 +170,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
             child: Padding(
               padding: EdgeInsets.only(
                 left: column == 0 ? 0 : 3,
-                right: column == 3 ? 0 : 3, // Changed to 3 since max index is 3
+                right: column == 3 ? 0 : 3,
               ),
               child: _buildButton(
                 index,
@@ -188,9 +190,6 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
     final bool momentary = _isMomentaryButton(index);
     final bool selected = !momentary && _selectedIndex == index;
     final bool pressed = _pressedIndex == index;
-
-    // Check if it is the dash button (index 11) for red effect
-    final bool isDashButton = index == 11;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -215,8 +214,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
           _pressedIndex = index;
         });
 
-        // PAUSE / FREEZE / DASH
-        // They never become selected.
+        // PAUSE / FREEZE
         if (momentary) {
           await _executeAction(index);
 
@@ -235,8 +233,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
           return;
         }
 
-        // Normal button:
-        // previous selected button loses its light.
+        // Normal button: previous selected button loses its light.
         setState(() {
           _selectedIndex = index;
         });
@@ -256,18 +253,14 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
           color: selected
               ? _selectedColor
               : pressed
-                  ? (isDashButton
-                      ? const Color(0xFF3B1015)
-                      : const Color(0xFF182A40))
+                  ? const Color(0xFF182A40) // 🔥 الألوان الطبيعية للزرار
                   : _buttonColor,
           borderRadius: BorderRadius.circular(7.0),
           border: Border.all(
             color: selected
                 ? _selectedBorder
                 : pressed
-                    ? (isDashButton
-                        ? const Color(0xFFD32F2F)
-                        : const Color(0xFF38587C))
+                    ? const Color(0xFF38587C) // 🔥 إطار طبيعي
                     : _buttonBorder,
             width: selected ? 1.2 : 1.0,
           ),
@@ -285,11 +278,9 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
                   ),
                 ]
               : pressed
-                  ? [
+                  ? const [
                       BoxShadow(
-                        color: isDashButton
-                            ? const Color(0x44D32F2F)
-                            : const Color(0x33176FD8),
+                        color: Color(0x33176FD8), // 🔥 ظل طبيعي
                         blurRadius: 7.0,
                       ),
                     ]
@@ -311,9 +302,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
                     color: selected
                         ? const Color(0xFFEAF4FF)
                         : pressed
-                            ? (isDashButton
-                                ? const Color(0xFFFFCDD2)
-                                : const Color(0xFFD5E5F8))
+                            ? const Color(0xFFD5E5F8) // 🔥 لون خط طبيعي
                             : const Color(0xFF9DACC2),
                   ),
                   child: Text(
@@ -331,12 +320,13 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(7.0),
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: isDashButton
-                        ? const [Color(0x33D32F2F), Color(0x00D32F2F)]
-                        : const [Color(0x221E90FF), Color(0x001E90FF)],
+                    colors: [
+                      Color(0x221E90FF),
+                      Color(0x001E90FF)
+                    ], // 🔥 إضاءة زرقاء طبيعية
                   ),
                 ),
               ),
@@ -390,11 +380,11 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
         break;
 
       case 10:
-        await widget.settingsAction?.call();
+        await widget.acarsAction?.call(); // 🔥 الأكشن اتربط بـ ACARS
         break;
 
       case 11:
-        // (-) Dash button placeholder, no action
+        await widget.settingsAction?.call(); // 🔥 الأكشن اتربط بـ SETTINGS
         break;
     }
   }

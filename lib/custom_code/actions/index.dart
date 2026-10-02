@@ -185,3 +185,14 @@ export '/custom_code/actions/start_pilot_telemetry_streamxplane.dart'
     show startPilotTelemetryStreamxplane;
 export '/custom_code/actions/connect_instructor_telemetryxplane.dart'
     show connectInstructorTelemetryxplane;
+export '/custom_code/actions/send_livekit_cmdmsfs.dart' show sendLivekitCmdmsfs;
+export '/custom_code/actions/connect_pilot_slidersmsfs.dart'
+    show connectPilotSlidersmsfs;
+export '/custom_code/actions/send_livekit_slidermsfs.dart'
+    show sendLivekitSlidermsfs;
+export '/custom_code/actions/connect_pilot_controlsmsfs.dart'
+    show connectPilotControlsmsfs;
+export '/custom_code/actions/start_pilot_telemetry_streammsfs.dart'
+    show startPilotTelemetryStreammsfs;
+export '/custom_code/actions/connect_instructor_telemetrymsfs.dart'
+    show connectInstructorTelemetrymsfs;

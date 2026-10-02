@@ -683,6 +683,108 @@ class FFAppState extends ChangeNotifier {
   set SessionID(String value) {
     _SessionID = value;
   }
+
+  double _pilotWeight = 0.0;
+  double get pilotWeight => _pilotWeight;
+  set pilotWeight(double value) {
+    _pilotWeight = value;
+  }
+
+  double _CoPilotWeight = 0.0;
+  double get CoPilotWeight => _CoPilotWeight;
+  set CoPilotWeight(double value) {
+    _CoPilotWeight = value;
+  }
+
+  double _RearPAXweight = 0.0;
+  double get RearPAXweight => _RearPAXweight;
+  set RearPAXweight(double value) {
+    _RearPAXweight = value;
+  }
+
+  double _BaggageWeight = 0.0;
+  double get BaggageWeight => _BaggageWeight;
+  set BaggageWeight(double value) {
+    _BaggageWeight = value;
+  }
+
+  double _ExtraCargoWeight = 0.0;
+  double get ExtraCargoWeight => _ExtraCargoWeight;
+  set ExtraCargoWeight(double value) {
+    _ExtraCargoWeight = value;
+  }
+
+  double _pilotLatMsfs = 0.0;
+  double get pilotLatMsfs => _pilotLatMsfs;
+  set pilotLatMsfs(double value) {
+    _pilotLatMsfs = value;
+  }
+
+  double _pilotLonMsfs = 0.0;
+  double get pilotLonMsfs => _pilotLonMsfs;
+  set pilotLonMsfs(double value) {
+    _pilotLonMsfs = value;
+  }
+
+  double _pilotIasMsfs = 0.0;
+  double get pilotIasMsfs => _pilotIasMsfs;
+  set pilotIasMsfs(double value) {
+    _pilotIasMsfs = value;
+  }
+
+  double _pilotAltMsfs = 0.0;
+  double get pilotAltMsfs => _pilotAltMsfs;
+  set pilotAltMsfs(double value) {
+    _pilotAltMsfs = value;
+  }
+
+  double _pilotHdgMsfs = 0.0;
+  double get pilotHdgMsfs => _pilotHdgMsfs;
+  set pilotHdgMsfs(double value) {
+    _pilotHdgMsfs = value;
+  }
+
+  String _pilotSimbriefMsfs = '';
+  String get pilotSimbriefMsfs => _pilotSimbriefMsfs;
+  set pilotSimbriefMsfs(String value) {
+    _pilotSimbriefMsfs = value;
+  }
+
+  double _currentLatMsfs = 0.0;
+  double get currentLatMsfs => _currentLatMsfs;
+  set currentLatMsfs(double value) {
+    _currentLatMsfs = value;
+  }
+
+  double _currentLonMsfs = 0.0;
+  double get currentLonMsfs => _currentLonMsfs;
+  set currentLonMsfs(double value) {
+    _currentLonMsfs = value;
+  }
+
+  String _currentSpdMsfs = '';
+  String get currentSpdMsfs => _currentSpdMsfs;
+  set currentSpdMsfs(String value) {
+    _currentSpdMsfs = value;
+  }
+
+  String _currentAltMsfs = '';
+  String get currentAltMsfs => _currentAltMsfs;
+  set currentAltMsfs(String value) {
+    _currentAltMsfs = value;
+  }
+
+  double _currentHeadingMsfs = 0.0;
+  double get currentHeadingMsfs => _currentHeadingMsfs;
+  set currentHeadingMsfs(double value) {
+    _currentHeadingMsfs = value;
+  }
+
+  String _simbriefIdMsfs = '';
+  String get simbriefIdMsfs => _simbriefIdMsfs;
+  set simbriefIdMsfs(String value) {
+    _simbriefIdMsfs = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

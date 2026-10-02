@@ -54,3 +54,5 @@ export '/i_o_sinstructor/i_o_sinstructor_widget.dart' show IOSinstructorWidget;
 export '/i_o_spilott/i_o_spilott_widget.dart' show IOSpilottWidget;
 export '/pages/home_page_x_p_l_a_n_einstructor/home_page_x_p_l_a_n_einstructor_widget.dart'
     show HomePageXPLANEinstructorWidget;
+export '/pages/home_page_m_s_f_sinstructor/home_page_m_s_f_sinstructor_widget.dart'
+    show HomePageMSFSinstructorWidget;

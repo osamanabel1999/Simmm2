@@ -667,6 +667,8 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                       onTap: () async {
                         FFAppState().SessionID =
                             _model.textFieldSessionIDTextController.text;
+                        FFAppState().SimbreifID = int.parse(
+                            _model.textFieldSimbreifIDTextController.text);
                         safeSetState(() {});
 
                         context.pushNamed(

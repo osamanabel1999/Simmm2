@@ -1,12 +1,13 @@
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
-import '/flutter_flow/instant_timer.dart';
 import '/index.dart';
-import 'home_page_m_s_f_s_widget.dart' show HomePageMSFSWidget;
+import 'home_page_m_s_f_sinstructor_widget.dart'
+    show HomePageMSFSinstructorWidget;
 import 'package:flutter/material.dart';
 
-class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
+class HomePageMSFSinstructorModel
+    extends FlutterFlowModel<HomePageMSFSinstructorWidget> {
   ///  Local state fields for this page.
 
   int currentStep = 1;
@@ -17,19 +18,26 @@ class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
 
   dynamic selectedRunway;
 
+  String? speed;
+
+  String? altitude;
+
+  double? heading;
+
+  double? latitude;
+
+  double? longitude;
+
   ///  State fields for stateful widgets in this page.
 
-  // Stores action output result for [Backend Call - API (GetAirportInfo)] action in HomePageMSFS widget.
+  // Stores action output result for [Backend Call - API (GetAirportInfo)] action in HomePageMSFSinstructor widget.
   ApiCallResponse? airportResulxxxxx;
-  // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageMSFS widget.
+  // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageMSFSinstructor widget.
   ApiCallResponse? simbreifResponse;
-  // Stores action output result for [Backend Call - API (getMetarRaw)] action in HomePageMSFS widget.
+  // Stores action output result for [Backend Call - API (getMetarRaw)] action in HomePageMSFSinstructor widget.
   ApiCallResponse? metarResult;
-  // Stores action output result for [Backend Call - API (getTafRaw)] action in HomePageMSFS widget.
+  // Stores action output result for [Backend Call - API (getTafRaw)] action in HomePageMSFSinstructor widget.
   ApiCallResponse? tafResult;
-  InstantTimer? instantTimer;
-  // Stores action output result for [Custom Action - getFlightData] action in HomePageMSFS widget.
-  dynamic flightDataMFSF;
   // State field(s) for TextFieldSpeedEntryLANDMARK widget.
   FocusNode? textFieldSpeedEntryLANDMARKFocusNode;
   TextEditingController? textFieldSpeedEntryLANDMARKTextController;
@@ -160,8 +168,6 @@ class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
   dynamic calculateA320Landing;
   // Stores action output result for [Custom Action - calculateA320Landing] action in LdaPerformanceWidget widget.
   dynamic calculateA320LandingNew;
-  // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in ColumnFlightPlanxxx widget.
-  ApiCallResponse? simbreifResponse1;
   // State field(s) for MouseRegion widget.
   bool mouseRegionHovered1 = false;
   // State field(s) for MouseRegion widget.
@@ -192,7 +198,6 @@ class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
 
   @override
   void dispose() {
-    instantTimer?.cancel();
     textFieldSpeedEntryLANDMARKFocusNode?.dispose();
     textFieldSpeedEntryLANDMARKTextController?.dispose();
 
