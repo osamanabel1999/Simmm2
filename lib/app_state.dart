@@ -785,6 +785,108 @@ class FFAppState extends ChangeNotifier {
   set simbriefIdMsfs(String value) {
     _simbriefIdMsfs = value;
   }
+
+  double _TotalFuelMSFS = 0.0;
+  double get TotalFuelMSFS => _TotalFuelMSFS;
+  set TotalFuelMSFS(double value) {
+    _TotalFuelMSFS = value;
+  }
+
+  double _CenterTankMSFS = 0.0;
+  double get CenterTankMSFS => _CenterTankMSFS;
+  set CenterTankMSFS(double value) {
+    _CenterTankMSFS = value;
+  }
+
+  double _LeftTankMSFS = 0.0;
+  double get LeftTankMSFS => _LeftTankMSFS;
+  set LeftTankMSFS(double value) {
+    _LeftTankMSFS = value;
+  }
+
+  double _RightTankMSFS = 0.0;
+  double get RightTankMSFS => _RightTankMSFS;
+  set RightTankMSFS(double value) {
+    _RightTankMSFS = value;
+  }
+
+  String _syncIcaoMsfs = '';
+  String get syncIcaoMsfs => _syncIcaoMsfs;
+  set syncIcaoMsfs(String value) {
+    _syncIcaoMsfs = value;
+  }
+
+  String _syncRunwayMsfs = '';
+  String get syncRunwayMsfs => _syncRunwayMsfs;
+  set syncRunwayMsfs(String value) {
+    _syncRunwayMsfs = value;
+  }
+
+  String _syncGateMsfs = '';
+  String get syncGateMsfs => _syncGateMsfs;
+  set syncGateMsfs(String value) {
+    _syncGateMsfs = value;
+  }
+
+  String _syncChartGateMsfs = '';
+  String get syncChartGateMsfs => _syncChartGateMsfs;
+  set syncChartGateMsfs(String value) {
+    _syncChartGateMsfs = value;
+  }
+
+  String _syncNavaidSearchMsfs = '';
+  String get syncNavaidSearchMsfs => _syncNavaidSearchMsfs;
+  set syncNavaidSearchMsfs(String value) {
+    _syncNavaidSearchMsfs = value;
+  }
+
+  String _syncCommandMsfs = '';
+  String get syncCommandMsfs => _syncCommandMsfs;
+  set syncCommandMsfs(String value) {
+    _syncCommandMsfs = value;
+  }
+
+  double _syncSetSpeedMsfs = 0.0;
+  double get syncSetSpeedMsfs => _syncSetSpeedMsfs;
+  set syncSetSpeedMsfs(double value) {
+    _syncSetSpeedMsfs = value;
+  }
+
+  double _syncTeleportRadialMsfs = 0.0;
+  double get syncTeleportRadialMsfs => _syncTeleportRadialMsfs;
+  set syncTeleportRadialMsfs(double value) {
+    _syncTeleportRadialMsfs = value;
+  }
+
+  double _syncTeleportHdgMsfs = 0.0;
+  double get syncTeleportHdgMsfs => _syncTeleportHdgMsfs;
+  set syncTeleportHdgMsfs(double value) {
+    _syncTeleportHdgMsfs = value;
+  }
+
+  double _syncTeleportDistMsfs = 0.0;
+  double get syncTeleportDistMsfs => _syncTeleportDistMsfs;
+  set syncTeleportDistMsfs(double value) {
+    _syncTeleportDistMsfs = value;
+  }
+
+  double _syncTeleportAltMsfs = 0.0;
+  double get syncTeleportAltMsfs => _syncTeleportAltMsfs;
+  set syncTeleportAltMsfs(double value) {
+    _syncTeleportAltMsfs = value;
+  }
+
+  double _syncTeleportSpdMsfs = 0.0;
+  double get syncTeleportSpdMsfs => _syncTeleportSpdMsfs;
+  set syncTeleportSpdMsfs(double value) {
+    _syncTeleportSpdMsfs = value;
+  }
+
+  int _syncModeMsfs = 0;
+  int get syncModeMsfs => _syncModeMsfs;
+  set syncModeMsfs(int value) {
+    _syncModeMsfs = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

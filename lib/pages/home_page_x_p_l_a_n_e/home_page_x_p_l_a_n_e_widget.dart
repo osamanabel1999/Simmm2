@@ -1070,48 +1070,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
           safeSetState(() {});
         },
       );
-      _model.airportResulxxxxx = await GetAirportInfoCall.call();
-
       _model.simbreifResponse = await GetSimBriefFlightCall.call(
         userId: FFAppState().SimbreifID.toString(),
       );
 
-      _model.metarResult = await GetMetarRawCall.call(
-        airportID: 'HECA',
-      );
-
-      if (!(_model.metarResult?.succeeded ?? true)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'INVALID DATA',
-              style: TextStyle(
-                color: FlutterFlowTheme.of(context).primaryText,
-              ),
-            ),
-            duration: Duration(milliseconds: 4000),
-            backgroundColor: FlutterFlowTheme.of(context).secondary,
-          ),
-        );
-      }
-      _model.tafResult = await GetTafRawCall.call(
-        airportID: 'HECA',
-      );
-
-      if (!(_model.tafResult?.succeeded ?? true)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'INVALID DATA',
-              style: TextStyle(
-                color: FlutterFlowTheme.of(context).primaryText,
-              ),
-            ),
-            duration: Duration(milliseconds: 4000),
-            backgroundColor: FlutterFlowTheme.of(context).secondary,
-          ),
-        );
-      }
       _model.instantTimer = InstantTimer.periodic(
         duration: Duration(milliseconds: 1000),
         callback: (timer) async {

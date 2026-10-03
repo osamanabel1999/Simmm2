@@ -613,6 +613,8 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                               _model.textFieldIVAOidTextController.text);
                           FFAppState().SimbreifID = int.parse(
                               _model.textFieldSimbreifIDTextController.text);
+                          FFAppState().SessionID =
+                              _model.textFieldSessionIDTextController.text;
                           safeSetState(() {});
 
                           context.pushNamed(
@@ -674,7 +676,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                         safeSetState(() {});
 
                         context
-                            .pushNamed(HomePageMSFSinstructormWidget.routeName);
+                            .pushNamed(HomePageMSFSinstructorWidget.routeName);
                       },
                       child: Container(
                         width: 170.0,

@@ -66,3 +66,5 @@ export '/custom_code/widgets/live_kit_viewer.dart' show LiveKitViewer;
 export '/custom_code/widgets/position_xplane_instructor_widget.dart'
     show PositionXplaneInstructorWidget;
 export '/custom_code/widgets/live_kit_viewermsfs.dart' show LiveKitViewermsfs;
+export '/custom_code/widgets/position_instructor_msfs.dart'
+    show PositionInstructorMsfs;

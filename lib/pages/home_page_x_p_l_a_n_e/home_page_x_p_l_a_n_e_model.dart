@@ -19,14 +19,8 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
 
   ///  State fields for stateful widgets in this page.
 
-  // Stores action output result for [Backend Call - API (GetAirportInfo)] action in HomePageXPLANE widget.
-  ApiCallResponse? airportResulxxxxx;
   // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageXPLANE widget.
   ApiCallResponse? simbreifResponse;
-  // Stores action output result for [Backend Call - API (getMetarRaw)] action in HomePageXPLANE widget.
-  ApiCallResponse? metarResult;
-  // Stores action output result for [Backend Call - API (getTafRaw)] action in HomePageXPLANE widget.
-  ApiCallResponse? tafResult;
   InstantTimer? instantTimer;
   // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
   double? headingoutput;

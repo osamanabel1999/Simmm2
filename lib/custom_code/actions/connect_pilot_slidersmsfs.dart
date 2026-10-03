@@ -19,13 +19,20 @@ EventsListener<RoomEvent>? pilotListenerSliders_msfs;
 
 Future connectPilotSlidersmsfs(
   String roomCode,
-  // 🔥 تم تقليل السلايدرات إلى 4 فقط (توتال، سنتر، يمين، يسار) كما طلبت لـ MSFS
+  // 1. سلايدرات الوقود الـ 4
   Future<dynamic> Function(double fuelValue)? fuelTotal,
   Future<dynamic> Function(double fuelValue)? fuelCenter,
   Future<dynamic> Function(double fuelValue)? fuelLeft,
   Future<dynamic> Function(double fuelValue)? fuelRight,
+
+  // 2. 🔥 الأوزان الـ 5 الجديدة (عشان الطيار يستقبلها من المدرب)
+  Future<dynamic> Function(double weightValue)? weightPilot,
+  Future<dynamic> Function(double weightValue)? weightCoPilot,
+  Future<dynamic> Function(double weightValue)? weightRearPax,
+  Future<dynamic> Function(double weightValue)? weightBaggage,
+  Future<dynamic> Function(double weightValue)? weightCargo,
 ) async {
-  // 🔥 بيانات سيرفر MSFS الجديد لضمان مضاعفة الليمت
+  // 🔥 بيانات سيرفر MSFS الجديد والموثوق
   const String apiKey = 'APIA87Lpk5cmUMP';
   const String apiSecret = 'aYWjjLKISVk663H7fYEBsx9cX69NTlg2er0oxtISsRD';
   const String livekitUrl =
@@ -39,10 +46,9 @@ Future connectPilotSlidersmsfs(
       'video': {
         'room': cleanRoomCode,
         'roomJoin': true,
-        'canPublish': false, // منع الإرسال
-        'canSubscribe':
-            false, // 🔥 منع استقبال الصوت والصورة (توفير الباقة 100%)
-        'canPublishData': true, // مسموح بالداتا فقط
+        'canPublish': false,
+        'canSubscribe': false,
+        'canPublishData': true,
       },
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp': (DateTime.now().add(const Duration(hours: 4)))
@@ -59,9 +65,7 @@ Future connectPilotSlidersmsfs(
     }
     pilotListenerSliders_msfs?.dispose();
 
-    // 1. إنشاء الغرفة برمجياً بدون خطأ الباراميتر
     pilotRoomSliders_msfs = Room();
-
     pilotListenerSliders_msfs = pilotRoomSliders_msfs!.createListener();
 
     pilotListenerSliders_msfs!.on<DataReceivedEvent>((event) {
@@ -76,28 +80,38 @@ Future connectPilotSlidersmsfs(
             final value = double.tryParse(parts[1]) ?? 0.0;
 
             debugPrint(
-                "🎯 [رادار سلايدر MSFS]: استلمت أمر: $command بقيمة $value");
+                "🎯 [رادار سلايدر/أوزان MSFS]: استلمت أمر: $command بقيمة $value");
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              // 🔥 توجيه الأوامر للـ 4 سلايدرات فقط
-              if (command == 'FUEL_TOTAL' && fuelTotal != null) {
+              // 🔥 توجيه الأوامر للوقود والأوزان معاً
+              if (command == 'FUEL_TOTAL' && fuelTotal != null)
                 fuelTotal(value);
-              } else if (command == 'FUEL_CENTER' && fuelCenter != null) {
+              else if (command == 'FUEL_CENTER' && fuelCenter != null)
                 fuelCenter(value);
-              } else if (command == 'FUEL_LEFT' && fuelLeft != null) {
+              else if (command == 'FUEL_LEFT' && fuelLeft != null)
                 fuelLeft(value);
-              } else if (command == 'FUEL_RIGHT' && fuelRight != null) {
+              else if (command == 'FUEL_RIGHT' && fuelRight != null)
                 fuelRight(value);
-              }
+
+              // 🔥 توجيه الأوامر للأوزان
+              else if (command == 'WT_PILOT' && weightPilot != null)
+                weightPilot(value);
+              else if (command == 'WT_COPILOT' && weightCoPilot != null)
+                weightCoPilot(value);
+              else if (command == 'WT_REAR_PAX' && weightRearPax != null)
+                weightRearPax(value);
+              else if (command == 'WT_BAGGAGE' && weightBaggage != null)
+                weightBaggage(value);
+              else if (command == 'WT_EXTRA_CARGO' && weightCargo != null)
+                weightCargo(value);
             });
           }
         } catch (e) {
-          debugPrint("❌ [رادار سلايدر MSFS]: خطأ في القراءة: $e");
+          debugPrint("❌ [رادار سلايدر/أوزان MSFS]: خطأ في القراءة: $e");
         }
       }
     });
 
-    // 2. 🔥 تطبيق الحماية الفعلية ومنع استقبال أي فيديو أو صوت هنا
     await pilotRoomSliders_msfs!.connect(
       livekitUrl,
       token,
@@ -107,8 +121,8 @@ Future connectPilotSlidersmsfs(
     );
 
     debugPrint(
-        "✅ [رادار سلايدر MSFS]: متصل داتا فقط ومستعد بغرفة: $cleanRoomCode");
+        "✅ [رادار سلايدر/أوزان MSFS]: متصل داتا فقط ومستعد بغرفة: $cleanRoomCode");
   } catch (e) {
-    debugPrint("❌ [رادار سلايدر MSFS]: فشل الاتصال: $e");
+    debugPrint("❌ [رادار سلايدر/أوزان MSFS]: فشل الاتصال: $e");
   }
 }

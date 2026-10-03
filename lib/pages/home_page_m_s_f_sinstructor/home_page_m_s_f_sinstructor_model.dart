@@ -2,12 +2,12 @@ import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
 import '/index.dart';
-import 'home_page_m_s_f_sinstructorm_widget.dart'
-    show HomePageMSFSinstructormWidget;
+import 'home_page_m_s_f_sinstructor_widget.dart'
+    show HomePageMSFSinstructorWidget;
 import 'package:flutter/material.dart';
 
-class HomePageMSFSinstructormModel
-    extends FlutterFlowModel<HomePageMSFSinstructormWidget> {
+class HomePageMSFSinstructorModel
+    extends FlutterFlowModel<HomePageMSFSinstructorWidget> {
   ///  Local state fields for this page.
 
   int currentStep = 1;
@@ -30,14 +30,8 @@ class HomePageMSFSinstructormModel
 
   ///  State fields for stateful widgets in this page.
 
-  // Stores action output result for [Backend Call - API (GetAirportInfo)] action in HomePageMSFSinstructorm widget.
-  ApiCallResponse? airportResulxxxxx;
-  // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageMSFSinstructorm widget.
+  // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageMSFSinstructor widget.
   ApiCallResponse? simbreifResponse;
-  // Stores action output result for [Backend Call - API (getMetarRaw)] action in HomePageMSFSinstructorm widget.
-  ApiCallResponse? metarResult;
-  // Stores action output result for [Backend Call - API (getTafRaw)] action in HomePageMSFSinstructorm widget.
-  ApiCallResponse? tafResult;
   // State field(s) for TextFieldSpeedEntryLANDMARK widget.
   FocusNode? textFieldSpeedEntryLANDMARKFocusNode;
   TextEditingController? textFieldSpeedEntryLANDMARKTextController;
@@ -184,14 +178,6 @@ class HomePageMSFSinstructormModel
   bool mouseRegionHovered7 = false;
   // State field(s) for MouseRegion widget.
   bool mouseRegionHovered8 = false;
-  // Stores action output result for [Backend Call - API (GetElevation)] action in EliteAviationEFB widget.
-  ApiCallResponse? elevationDataMSFSrwy;
-  // Stores action output result for [Backend Call - API (GetElevation)] action in EliteAviationEFB widget.
-  ApiCallResponse? elevationDataMSFSgate;
-  // Stores action output result for [Backend Call - API (GetElevation)] action in EliteAviationEFB widget.
-  ApiCallResponse? elevationDataMSFSchartGate;
-  // Stores action output result for [Backend Call - API (GetElevation)] action in EliteAviationEFB widget.
-  ApiCallResponse? elevationDataMSFSANAVAIDS;
 
   @override
   void initState(BuildContext context) {}

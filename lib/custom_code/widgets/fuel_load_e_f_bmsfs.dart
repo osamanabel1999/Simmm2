@@ -26,12 +26,26 @@ class FuelLoadEFBmsfs extends StatefulWidget {
     this.updateCenterFuel,
     this.updateLWingFuel,
     this.updateRWingFuel,
+
     // --- NEW WEIGHT PARAMETERS ---
     this.updatePilotWeight,
     this.updateCoPilotWeight,
     this.updateRearPaxWeight,
     this.updateBaggageWeight,
     this.updateExtraCargoWeight,
+
+    // 🔥 --- INCOMING FUEL PARAMETERS (Live Updates) ---
+    this.incomingTotalFuel,
+    this.incomingCenterFuel,
+    this.incomingLWingFuel,
+    this.incomingRWingFuel,
+
+    // 🔥 --- INCOMING WEIGHT PARAMETERS (Live Updates) ---
+    this.incomingPilotWeight,
+    this.incomingCoPilotWeight,
+    this.incomingRearPaxWeight,
+    this.incomingBaggageWeight,
+    this.incomingExtraCargoWeight,
   }) : super(key: key);
 
   final double? width;
@@ -48,6 +62,18 @@ class FuelLoadEFBmsfs extends StatefulWidget {
   final Future Function(double weightValue)? updateRearPaxWeight;
   final Future Function(double weightValue)? updateBaggageWeight;
   final Future Function(double weightValue)? updateExtraCargoWeight;
+
+  // 🔥 --- INCOMING VARIABLES DECLARATION ---
+  final double? incomingTotalFuel;
+  final double? incomingCenterFuel;
+  final double? incomingLWingFuel;
+  final double? incomingRWingFuel;
+
+  final double? incomingPilotWeight;
+  final double? incomingCoPilotWeight;
+  final double? incomingRearPaxWeight;
+  final double? incomingBaggageWeight;
+  final double? incomingExtraCargoWeight;
 
   @override
   _FuelLoadEFBmsfsState createState() => _FuelLoadEFBmsfsState();
@@ -85,6 +111,52 @@ class _FuelLoadEFBmsfsState extends State<FuelLoadEFBmsfs> {
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  // 🔥 الدالة السحرية لاستقبال القيم الحية من السيرفر (وقود + أوزان)
+  @override
+  void didUpdateWidget(FuelLoadEFBmsfs oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // 1. تحديثات الوقود (Sliders)
+    if (widget.incomingTotalFuel != null &&
+        widget.incomingTotalFuel != oldWidget.incomingTotalFuel) {
+      _onTotalFuelChanged(widget.incomingTotalFuel!);
+    }
+    if (widget.incomingCenterFuel != null &&
+        widget.incomingCenterFuel != oldWidget.incomingCenterFuel) {
+      _onIndividualTankChanged('center', widget.incomingCenterFuel!);
+    }
+    if (widget.incomingLWingFuel != null &&
+        widget.incomingLWingFuel != oldWidget.incomingLWingFuel) {
+      _onIndividualTankChanged('lWing', widget.incomingLWingFuel!);
+    }
+    if (widget.incomingRWingFuel != null &&
+        widget.incomingRWingFuel != oldWidget.incomingRWingFuel) {
+      _onIndividualTankChanged('rWing', widget.incomingRWingFuel!);
+    }
+
+    // 2. تحديثات الأوزان (TextFields)
+    if (widget.incomingPilotWeight != null &&
+        widget.incomingPilotWeight != oldWidget.incomingPilotWeight) {
+      _pilotCtrl.text = widget.incomingPilotWeight!.toInt().toString();
+    }
+    if (widget.incomingCoPilotWeight != null &&
+        widget.incomingCoPilotWeight != oldWidget.incomingCoPilotWeight) {
+      _coPilotCtrl.text = widget.incomingCoPilotWeight!.toInt().toString();
+    }
+    if (widget.incomingRearPaxWeight != null &&
+        widget.incomingRearPaxWeight != oldWidget.incomingRearPaxWeight) {
+      _rearPaxCtrl.text = widget.incomingRearPaxWeight!.toInt().toString();
+    }
+    if (widget.incomingBaggageWeight != null &&
+        widget.incomingBaggageWeight != oldWidget.incomingBaggageWeight) {
+      _baggageCtrl.text = widget.incomingBaggageWeight!.toInt().toString();
+    }
+    if (widget.incomingExtraCargoWeight != null &&
+        widget.incomingExtraCargoWeight != oldWidget.incomingExtraCargoWeight) {
+      _cargoCtrl.text = widget.incomingExtraCargoWeight!.toInt().toString();
+    }
   }
 
   @override

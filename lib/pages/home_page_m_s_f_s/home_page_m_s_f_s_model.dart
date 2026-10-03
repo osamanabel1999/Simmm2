@@ -19,14 +19,8 @@ class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
 
   ///  State fields for stateful widgets in this page.
 
-  // Stores action output result for [Backend Call - API (GetAirportInfo)] action in HomePageMSFS widget.
-  ApiCallResponse? airportResulxxxxx;
   // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageMSFS widget.
   ApiCallResponse? simbreifResponse;
-  // Stores action output result for [Backend Call - API (getMetarRaw)] action in HomePageMSFS widget.
-  ApiCallResponse? metarResult;
-  // Stores action output result for [Backend Call - API (getTafRaw)] action in HomePageMSFS widget.
-  ApiCallResponse? tafResult;
   InstantTimer? instantTimer;
   // Stores action output result for [Custom Action - getFlightData] action in HomePageMSFS widget.
   dynamic flightDataMFSF;

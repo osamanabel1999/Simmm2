@@ -15362,8 +15362,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                 .PositionXplaneInstructorWidget(
                                               width: double.infinity,
                                               height: double.infinity,
-                                              aircraftLatitude: 0.0,
-                                              aircraftLongitude: 0.0,
+                                              aircraftLatitude:
+                                                  FFAppState().pilotLatXplane,
+                                              aircraftLongitude:
+                                                  FFAppState().pilotLonXplane,
                                               simulatorTimeText:
                                                   '(${(double var1) {
                                                 return '${(var1 / 3600).floor().toString().padLeft(2, '0')}:${((var1 % 3600) / 60).floor().toString().padLeft(2, '0')}';

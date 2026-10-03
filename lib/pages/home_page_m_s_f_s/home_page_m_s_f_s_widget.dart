@@ -49,6 +49,9 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
       await actions.startPilotTelemetryStreammsfs(
         FFAppState().SessionID,
       );
+      await actions.connectPilotPositionMsfs(
+        FFAppState().SessionID,
+      );
       await actions.connectPilotControlsmsfs(
         FFAppState().SessionID,
         () async {
@@ -146,41 +149,11 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
             ),
           );
         },
-        () async {
-          await actions.setWeightController(
-            FFAppState().ipPC,
-            1,
-            FFAppState().pilotWeight,
-          );
-        },
-        () async {
-          await actions.setWeightController(
-            FFAppState().ipPC,
-            2,
-            FFAppState().CoPilotWeight,
-          );
-        },
-        () async {
-          await actions.setWeightController(
-            FFAppState().ipPC,
-            3,
-            FFAppState().RearPAXweight,
-          );
-        },
-        () async {
-          await actions.setWeightController(
-            FFAppState().ipPC,
-            4,
-            FFAppState().BaggageWeight,
-          );
-        },
-        () async {
-          await actions.setWeightController(
-            FFAppState().ipPC,
-            5,
-            FFAppState().ExtraCargoWeight,
-          );
-        },
+        () async {},
+        () async {},
+        () async {},
+        () async {},
+        () async {},
         () async {
           await actions.groundServicesAndDoorsController(
             FFAppState().ipPC,
@@ -214,74 +187,47 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
       );
       await actions.connectPilotSlidersmsfs(
         FFAppState().SessionID,
-        (fuelValue) async {},
         (fuelValue) async {
-          await actions.setFuelController(
-            FFAppState().ipPC,
-            fuelValue,
-            0.0,
-            0.0,
-          );
+          FFAppState().TotalFuelMSFS = fuelValue;
+          safeSetState(() {});
         },
         (fuelValue) async {
-          await actions.setFuelController(
-            FFAppState().ipPC,
-            0.0,
-            fuelValue,
-            0.0,
-          );
+          FFAppState().CenterTankMSFS = fuelValue;
+          safeSetState(() {});
         },
         (fuelValue) async {
-          await actions.setFuelController(
-            FFAppState().ipPC,
-            0.0,
-            0.0,
-            fuelValue,
-          );
+          FFAppState().LeftTankMSFS = fuelValue;
+          safeSetState(() {});
+        },
+        (fuelValue) async {
+          FFAppState().RightTankMSFS = fuelValue;
+          safeSetState(() {});
+        },
+        (weightValue) async {
+          FFAppState().pilotWeight = weightValue;
+          safeSetState(() {});
+        },
+        (weightValue) async {
+          FFAppState().CoPilotWeight = weightValue;
+          safeSetState(() {});
+        },
+        (weightValue) async {
+          FFAppState().RearPAXweight = weightValue;
+          safeSetState(() {});
+        },
+        (weightValue) async {
+          FFAppState().BaggageWeight = weightValue;
+          safeSetState(() {});
+        },
+        (weightValue) async {
+          FFAppState().ExtraCargoWeight = weightValue;
+          safeSetState(() {});
         },
       );
-      _model.airportResulxxxxx = await GetAirportInfoCall.call();
-
       _model.simbreifResponse = await GetSimBriefFlightCall.call(
         userId: FFAppState().SimbreifID.toString(),
       );
 
-      _model.metarResult = await GetMetarRawCall.call(
-        airportID: 'HECA',
-      );
-
-      if (!(_model.metarResult?.succeeded ?? true)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'INVALID DATA',
-              style: TextStyle(
-                color: FlutterFlowTheme.of(context).primaryText,
-              ),
-            ),
-            duration: Duration(milliseconds: 4000),
-            backgroundColor: FlutterFlowTheme.of(context).secondary,
-          ),
-        );
-      }
-      _model.tafResult = await GetTafRawCall.call(
-        airportID: 'HECA',
-      );
-
-      if (!(_model.tafResult?.succeeded ?? true)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'INVALID DATA',
-              style: TextStyle(
-                color: FlutterFlowTheme.of(context).primaryText,
-              ),
-            ),
-            duration: Duration(milliseconds: 4000),
-            backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-          ),
-        );
-      }
       _model.instantTimer = InstantTimer.periodic(
         duration: Duration(milliseconds: 500),
         callback: (timer) async {
@@ -15857,262 +15803,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                           ],
                                         ),
                                       ),
-                                    if (FFAppState().TabNumber == 3000000)
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child: Container(
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryBackground,
-                                                ),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    Align(
-                                                      alignment:
-                                                          AlignmentDirectional(
-                                                              -1.0, 0.0),
-                                                      child: Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    5.0,
-                                                                    7.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                        child: Text(
-                                                          'CURRENT METAR:',
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  5.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      child: Container(
-                                                        width:
-                                                            MediaQuery.sizeOf(
-                                                                        context)
-                                                                    .width *
-                                                                0.95,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryBackground,
-                                                          border: Border.all(
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                        child: Align(
-                                                          alignment:
-                                                              AlignmentDirectional(
-                                                                  -1.0, -1.0),
-                                                          child: Padding(
-                                                            padding:
-                                                                EdgeInsetsDirectional
-                                                                    .fromSTEB(
-                                                                        5.0,
-                                                                        5.0,
-                                                                        0.0,
-                                                                        0.0),
-                                                            child: Text(
-                                                              (_model.metarResult
-                                                                      ?.bodyText ??
-                                                                  ''),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .start,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontWeight,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontWeight,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Align(
-                                                      alignment:
-                                                          AlignmentDirectional(
-                                                              -1.0, 0.0),
-                                                      child: Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    5.0,
-                                                                    10.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                        child: Text(
-                                                          'CURRENT TAF:',
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  5.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      child: Container(
-                                                        width:
-                                                            MediaQuery.sizeOf(
-                                                                        context)
-                                                                    .width *
-                                                                0.95,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryBackground,
-                                                          border: Border.all(
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                        child: Align(
-                                                          alignment:
-                                                              AlignmentDirectional(
-                                                                  -1.0, -1.0),
-                                                          child: Padding(
-                                                            padding:
-                                                                EdgeInsetsDirectional
-                                                                    .fromSTEB(
-                                                                        5.0,
-                                                                        5.0,
-                                                                        0.0,
-                                                                        0.0),
-                                                            child: Text(
-                                                              (_model.tafResult
-                                                                      ?.bodyText ??
-                                                                  ''),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .start,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .inter(
-                                                                      fontWeight: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontWeight,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontWeight,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
                                     if (FFAppState().TabNumber == 3)
                                       Expanded(
                                         child: Column(
@@ -30945,6 +30635,31 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                     .FuelLoadEFBmsfs(
                                                   width: double.infinity,
                                                   height: double.infinity,
+                                                  incomingTotalFuel:
+                                                      FFAppState()
+                                                          .TotalFuelMSFS,
+                                                  incomingCenterFuel:
+                                                      FFAppState()
+                                                          .CenterTankMSFS,
+                                                  incomingLWingFuel:
+                                                      FFAppState().LeftTankMSFS,
+                                                  incomingRWingFuel:
+                                                      FFAppState()
+                                                          .RightTankMSFS,
+                                                  incomingPilotWeight:
+                                                      FFAppState().pilotWeight,
+                                                  incomingCoPilotWeight:
+                                                      FFAppState()
+                                                          .CoPilotWeight,
+                                                  incomingRearPaxWeight:
+                                                      FFAppState()
+                                                          .RearPAXweight,
+                                                  incomingBaggageWeight:
+                                                      FFAppState()
+                                                          .BaggageWeight,
+                                                  incomingExtraCargoWeight:
+                                                      FFAppState()
+                                                          .ExtraCargoWeight,
                                                   updateTotalFuel:
                                                       (fuelValue) async {},
                                                   updateCenterFuel:
@@ -33942,6 +33657,32 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                     .EliteAviationEFB(
                                                   width: double.infinity,
                                                   height: double.infinity,
+                                                  syncIcao:
+                                                      FFAppState().syncIcaoMsfs,
+                                                  syncRunway: FFAppState()
+                                                      .syncRunwayMsfs,
+                                                  syncGate:
+                                                      FFAppState().syncGateMsfs,
+                                                  syncChartGate: FFAppState()
+                                                      .syncChartGateMsfs,
+                                                  syncNavaidSearch: FFAppState()
+                                                      .syncNavaidSearchMsfs,
+                                                  syncCommand: FFAppState()
+                                                      .syncCommandMsfs,
+                                                  syncSetSpeed: FFAppState()
+                                                      .syncSetSpeedMsfs,
+                                                  syncTeleportRadial: FFAppState()
+                                                      .syncTeleportRadialMsfs,
+                                                  syncTeleportHdg: FFAppState()
+                                                      .syncTeleportHdgMsfs,
+                                                  syncTeleportDist: FFAppState()
+                                                      .syncTeleportDistMsfs,
+                                                  syncTeleportAlt: FFAppState()
+                                                      .syncTeleportAltMsfs,
+                                                  syncTeleportSpd: FFAppState()
+                                                      .syncTeleportSpdMsfs,
+                                                  syncMode:
+                                                      FFAppState().syncModeMsfs,
                                                   onRunwaySelected: (lat, lon,
                                                       heading) async {
                                                     _model.elevationDataMSFSrwy =

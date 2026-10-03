@@ -16,6 +16,7 @@ import 'dart:math' as math;
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
+import '/custom_code/actions/send_livekit_cmdmsfs.dart' as main_sender;
 
 import '/custom_code/actions/get_offline_navaid_data.dart';
 
@@ -1455,24 +1456,7 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
 
 class NavaidTeleportWidget extends StatefulWidget {
   final Future Function()? onTeleportTap;
-  final String? syncNavaidSearch;
-  final String? syncCommand;
-  final double? syncTeleportRadial;
-  final double? syncTeleportHdg;
-  final double? syncTeleportDist;
-  final double? syncTeleportAlt;
-  final double? syncTeleportSpd;
-  const NavaidTeleportWidget({
-    Key? key,
-    this.onTeleportTap,
-    this.syncNavaidSearch,
-    this.syncCommand,
-    this.syncTeleportRadial,
-    this.syncTeleportHdg,
-    this.syncTeleportDist,
-    this.syncTeleportAlt,
-    this.syncTeleportSpd,
-  }) : super(key: key);
+  const NavaidTeleportWidget({Key? key, this.onTeleportTap}) : super(key: key);
   @override
   _NavaidTeleportWidgetState createState() => _NavaidTeleportWidgetState();
 }
@@ -1491,33 +1475,6 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   double _dialAngle = 60.0;
   double _targetLat = 0.0;
   double _targetLon = 0.0;
-
-  @override
-  void didUpdateWidget(covariant NavaidTeleportWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.syncNavaidSearch != null &&
-        widget.syncNavaidSearch != oldWidget.syncNavaidSearch) {
-      _searchCtrl.text = widget.syncNavaidSearch!;
-      _onSearchChanged(widget.syncNavaidSearch!);
-    }
-    if (widget.syncCommand != null &&
-        widget.syncCommand != oldWidget.syncCommand &&
-        (widget.syncCommand!.startsWith('CMD_TELEPORT_EXECUTE') ||
-            widget.syncCommand!.startsWith('TELEPORT_EXECUTE'))) {
-      if (widget.syncTeleportRadial != null)
-        _radialCtrl.text = widget.syncTeleportRadial.toString();
-      if (widget.syncTeleportHdg != null)
-        _hdgCtrl.text = widget.syncTeleportHdg.toString();
-      if (widget.syncTeleportDist != null)
-        _distCtrl.text = widget.syncTeleportDist.toString();
-      if (widget.syncTeleportAlt != null)
-        _altCtrl.text = widget.syncTeleportAlt.toString();
-      if (widget.syncTeleportSpd != null)
-        _spdCtrl.text = widget.syncTeleportSpd.toString();
-      _recalcTarget();
-      if (widget.onTeleportTap != null) widget.onTeleportTap!.call();
-    }
-  }
 
   @override
   void dispose() {
@@ -2980,93 +2937,25 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   }
 }
 
-class EliteAviationEFB extends StatefulWidget {
+class PositionInstructorMsfs extends StatefulWidget {
   final double? width;
   final double? height;
-  final Future Function(double lat, double lon, double heading)?
-      onRunwaySelected;
-  final Future Function(double lat, double lon, double heading)? onGateSelected;
-  final Future Function(String name, double lat, double lon, double heading)?
-      onChartGateSelected;
-  final Future Function(double speed)? onSpeedSet;
-  final Future Function()? onRunwayActionTap;
-  final Future Function()? onGateActionTap;
-  final Future Function()? onChartActionTap;
-  final Future Function()? onMapTeleportTap;
-  final Future Function()? onWorldTourTap;
-  final Future Function()? onNavaidActionTap;
-  final Future Function()? onNavaidTeleportTap;
-  final Future Function()? onTakeoffConfigTap;
-  final Future Function()? onLandingConfigTap;
-  final Future Function()? onPlane15nmTap;
-  final Future Function()? onPlane10nmTap;
-  final Future Function()? onPlane7nmTap;
-  final Future Function()? onPlane4nmTap;
-  final Future Function()? onPlaneHoldLeftTap;
-  final Future Function()? onPlaneHoldRightTap;
-  final Future Function()? onPlaneLeftDownwindTap;
-  final Future Function()? onPlaneRightDownwindTap;
-  final Future Function()? onPlaneCruiseTap;
+  final double? aircraftLatitude;
+  final double? aircraftLongitude;
 
-  final String? syncIcao;
-  final String? syncRunway;
-  final String? syncGate;
-  final String? syncChartGate;
-  final String? syncNavaidSearch;
-  final String? syncCommand;
-  final double? syncSetSpeed;
-  final double? syncTeleportRadial;
-  final double? syncTeleportHdg;
-  final double? syncTeleportDist;
-  final double? syncTeleportAlt;
-  final double? syncTeleportSpd;
-  final int? syncMode;
-  const EliteAviationEFB({
-    Key? key,
-    this.width,
-    this.height,
-    this.onRunwaySelected,
-    this.onGateSelected,
-    this.onChartGateSelected,
-    this.onSpeedSet,
-    this.onRunwayActionTap,
-    this.onGateActionTap,
-    this.onChartActionTap,
-    this.onMapTeleportTap,
-    this.onWorldTourTap,
-    this.onNavaidActionTap,
-    this.onNavaidTeleportTap,
-    this.onTakeoffConfigTap,
-    this.onLandingConfigTap,
-    this.onPlane15nmTap,
-    this.onPlane10nmTap,
-    this.onPlane7nmTap,
-    this.onPlane4nmTap,
-    this.onPlaneHoldLeftTap,
-    this.onPlaneHoldRightTap,
-    this.onPlaneLeftDownwindTap,
-    this.onPlaneRightDownwindTap,
-    this.onPlaneCruiseTap,
-    this.syncIcao,
-    this.syncRunway,
-    this.syncGate,
-    this.syncChartGate,
-    this.syncNavaidSearch,
-    this.syncCommand,
-    this.syncSetSpeed,
-    this.syncTeleportRadial,
-    this.syncTeleportHdg,
-    this.syncTeleportDist,
-    this.syncTeleportAlt,
-    this.syncTeleportSpd,
-    this.syncMode,
-  }) : super(key: key);
+  const PositionInstructorMsfs(
+      {Key? key,
+      this.width,
+      this.height,
+      this.aircraftLatitude,
+      this.aircraftLongitude})
+      : super(key: key);
 
   @override
-  _EliteAviationEFBState createState() => _EliteAviationEFBState();
+  _PositionInstructorMsfsState createState() => _PositionInstructorMsfsState();
 }
 
-class _EliteAviationEFBState extends State<EliteAviationEFB> {
+class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
   final TextEditingController _icaoController = TextEditingController();
   final TextEditingController _speedController =
       TextEditingController(text: "150");
@@ -3085,85 +2974,14 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
     super.initState();
   }
 
-  @override
-  void didUpdateWidget(covariant EliteAviationEFB oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (widget.syncIcao != null && widget.syncIcao != oldWidget.syncIcao) {
-      _icaoController.text = widget.syncIcao!;
-      _handleSearch();
-    }
-    if (widget.syncMode != null && widget.syncMode != oldWidget.syncMode) {
-      setState(() => _selectedMode = widget.syncMode!);
-    }
-    if (widget.syncSetSpeed != null &&
-        widget.syncSetSpeed != oldWidget.syncSetSpeed &&
-        widget.syncSetSpeed! > 0) {
-      _speedController.text = widget.syncSetSpeed.toString();
-      if (widget.onSpeedSet != null) widget.onSpeedSet!(widget.syncSetSpeed!);
-    }
-    if (widget.syncRunway != null &&
-        widget.syncRunway != oldWidget.syncRunway) {
-      try {
-        final rw = _runways.firstWhere((r) => r['name'] == widget.syncRunway);
-        _selectRunway(rw);
-      } catch (e) {}
-    }
-    if (widget.syncGate != null && widget.syncGate != oldWidget.syncGate) {
-      try {
-        final index =
-            _gatesList.indexWhere((g) => g['name'] == widget.syncGate);
-        if (index != -1) {
-          setState(() => _selectedGateIndex = index);
-          final gate = _gatesList[index];
-          if (widget.onGateSelected != null) {
-            widget.onGateSelected!(gate['lat'], gate['lon'], gate['heading']);
-          }
-        }
-      } catch (e) {}
-    }
-    if (widget.syncChartGate != null &&
-        widget.syncChartGate != oldWidget.syncChartGate) {
-      try {
-        final gate =
-            _gatesList.firstWhere((g) => g['name'] == widget.syncChartGate);
-        if (widget.onChartGateSelected != null) {
-          widget.onChartGateSelected!(
-              gate['name'], gate['lat'], gate['lon'], gate['heading']);
-        }
-      } catch (e) {}
-    }
-    if (widget.syncCommand != null &&
-        widget.syncCommand != oldWidget.syncCommand) {
-      final cmd = widget.syncCommand!;
-      if (cmd.startsWith('CMD_TAKEOFF_CONFIG'))
-        widget.onTakeoffConfigTap?.call();
-      else if (cmd.startsWith('CMD_LANDING_CONFIG'))
-        widget.onLandingConfigTap?.call();
-      else if (cmd.startsWith('CMD_15NM'))
-        widget.onPlane15nmTap?.call();
-      else if (cmd.startsWith('CMD_10NM'))
-        widget.onPlane10nmTap?.call();
-      else if (cmd.startsWith('CMD_7NM'))
-        widget.onPlane7nmTap?.call();
-      else if (cmd.startsWith('CMD_4NM'))
-        widget.onPlane4nmTap?.call();
-      else if (cmd.startsWith('CMD_CRUISE'))
-        widget.onPlaneCruiseTap?.call();
-      else if (cmd.startsWith('CMD_LEFT_BASE'))
-        widget.onPlaneHoldLeftTap?.call();
-      else if (cmd.startsWith('CMD_LEFT_DOWNWIND'))
-        widget.onPlaneLeftDownwindTap?.call();
-      else if (cmd.startsWith('CMD_RIGHT_BASE'))
-        widget.onPlaneHoldRightTap?.call();
-      else if (cmd.startsWith('CMD_RIGHT_DOWNWIND'))
-        widget.onPlaneRightDownwindTap?.call();
-      else if (cmd.startsWith('CMD_TELEPORT_EXECUTE') ||
-          cmd.startsWith('TELEPORT_EXECUTE')) {
-        if (widget.onNavaidTeleportTap != null)
-          widget.onNavaidTeleportTap?.call();
-      }
-    }
+  Future<void> _sendCommandToPilot(String commandText) async {
+    if (main_sender.globalLiveKitRoom_msfs == null ||
+        main_sender.globalLiveKitRoom_msfs!.localParticipant == null) return;
+    try {
+      final data = utf8.encode(commandText);
+      await main_sender.globalLiveKitRoom_msfs!.localParticipant
+          ?.publishData(data, topic: 'cmd');
+    } catch (e) {}
   }
 
   void _handleSearch() {
@@ -3397,9 +3215,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
       FFAppState().radarLon = runway['lon'];
       FFAppState().radarHdgRaw = runway['heading_raw'];
     });
-    if (triggerCallback && widget.onRunwaySelected != null)
-      widget.onRunwaySelected!(
-          runway['lat'], runway['lon'], runway['heading_raw']);
+    if (triggerCallback) _sendCommandToPilot("RWY:${runway['name']}");
   }
 
   void _showError(String message) {
@@ -3416,7 +3232,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
 
   void _setSpeed() {
     double? speed = double.tryParse(_speedController.text.trim());
-    if (speed != null && widget.onSpeedSet != null) widget.onSpeedSet!(speed);
+    if (speed != null) _sendCommandToPilot("SET_SPEED:$speed");
   }
 
   Widget _buildGlowingSection({required Widget child}) {
@@ -3601,13 +3417,15 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   Expanded(
                       child: EFBConfigButton(
                           title: 'TAKEOFF CONFIG',
-                          onTap: widget.onTakeoffConfigTap,
+                          onTap: () =>
+                              _sendCommandToPilot("CMD:CMD_TAKEOFF_CONFIG"),
                           size: buttonW)),
                   const SizedBox(width: 6),
                   Expanded(
                       child: EFBConfigButton(
                           title: 'LANDING CONFIG',
-                          onTap: widget.onLandingConfigTap,
+                          onTap: () =>
+                              _sendCommandToPilot("CMD:CMD_LANDING_CONFIG"),
                           size: buttonW))
                 ]),
                 const SizedBox(height: 6),
@@ -3639,14 +3457,8 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                         Offstage(
                             offstage: _selectedMode != 5,
                             child: NavaidTeleportWidget(
-                                onTeleportTap: widget.onNavaidTeleportTap,
-                                syncNavaidSearch: widget.syncNavaidSearch,
-                                syncCommand: widget.syncCommand,
-                                syncTeleportRadial: widget.syncTeleportRadial,
-                                syncTeleportHdg: widget.syncTeleportHdg,
-                                syncTeleportDist: widget.syncTeleportDist,
-                                syncTeleportAlt: widget.syncTeleportAlt,
-                                syncTeleportSpd: widget.syncTeleportSpd)),
+                                onTeleportTap: () => _sendCommandToPilot(
+                                    "TELEPORT:${_radialCtrl.text}:${_hdgCtrl.text}:${_distCtrl.text}:${_altCtrl.text}:${_spdCtrl.text}"))),
                         if (_selectedMode == 3 || _selectedMode == 4)
                           const Center(
                               child: Text('SELECT A MODE',
@@ -3670,18 +3482,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
       return GestureDetector(
           onTap: () {
             setState(() => _selectedMode = mode);
-            if (mode == 0 && widget.onRunwayActionTap != null)
-              widget.onRunwayActionTap!();
-            if (mode == 1 && widget.onGateActionTap != null)
-              widget.onGateActionTap!();
-            if (mode == 2 && widget.onChartActionTap != null)
-              widget.onChartActionTap!();
-            if (mode == 3 && widget.onMapTeleportTap != null)
-              widget.onMapTeleportTap!();
-            if (mode == 4 && widget.onWorldTourTap != null)
-              widget.onWorldTourTap!();
-            if (mode == 5 && widget.onNavaidActionTap != null)
-              widget.onNavaidActionTap!();
+            _sendCommandToPilot("MODE:$_selectedMode");
           },
           child: Container(
               margin: const EdgeInsets.only(right: 5),
@@ -3751,10 +3552,12 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
               child: Row(children: [
             Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               EFBConfigButton(
-                  title: "TAKEOFF CONFIG", onTap: widget.onTakeoffConfigTap),
+                  title: "TAKEOFF CONFIG",
+                  onTap: () => _sendCommandToPilot("CMD:CMD_TAKEOFF_CONFIG")),
               const SizedBox(height: 8),
               EFBConfigButton(
-                  title: "LANDING CONFIG", onTap: widget.onLandingConfigTap)
+                  title: "LANDING CONFIG",
+                  onTap: () => _sendCommandToPilot("CMD:CMD_LANDING_CONFIG"))
             ]),
             const SizedBox(width: 16),
             _buildRightRadioButtons()
@@ -3790,14 +3593,8 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                       Offstage(
                           offstage: _selectedMode != 5,
                           child: NavaidTeleportWidget(
-                              onTeleportTap: widget.onNavaidTeleportTap,
-                              syncNavaidSearch: widget.syncNavaidSearch,
-                              syncCommand: widget.syncCommand,
-                              syncTeleportRadial: widget.syncTeleportRadial,
-                              syncTeleportHdg: widget.syncTeleportHdg,
-                              syncTeleportDist: widget.syncTeleportDist,
-                              syncTeleportAlt: widget.syncTeleportAlt,
-                              syncTeleportSpd: widget.syncTeleportSpd)),
+                              onTeleportTap: () => _sendCommandToPilot(
+                                  "TELEPORT:${_radialCtrl.text}:${_hdgCtrl.text}:${_distCtrl.text}:${_altCtrl.text}:${_spdCtrl.text}"))),
                       if (_selectedMode == 3 || _selectedMode == 4)
                         const Center(
                             child: Text("SELECT A MODE",
@@ -4039,8 +3836,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
           GestureDetector(
               onTap: () {
                 setState(() => _selectedMode = 0);
-                if (widget.onRunwayActionTap != null)
-                  widget.onRunwayActionTap!();
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4068,7 +3864,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
           GestureDetector(
               onTap: () {
                 setState(() => _selectedMode = 1);
-                if (widget.onGateActionTap != null) widget.onGateActionTap!();
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4096,7 +3892,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
           GestureDetector(
               onTap: () {
                 setState(() => _selectedMode = 2);
-                if (widget.onChartActionTap != null) widget.onChartActionTap!();
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4124,8 +3920,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
           GestureDetector(
               onTap: () {
                 setState(() => _selectedMode = 5);
-                if (widget.onNavaidActionTap != null)
-                  widget.onNavaidActionTap!();
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4153,7 +3948,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
           GestureDetector(
               onTap: () {
                 setState(() => _selectedMode = 3);
-                if (widget.onMapTeleportTap != null) widget.onMapTeleportTap!();
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4181,7 +3976,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
           GestureDetector(
               onTap: () {
                 setState(() => _selectedMode = 4);
-                if (widget.onWorldTourTap != null) widget.onWorldTourTap!();
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4234,7 +4029,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   text2: '3,000ft',
                   angle: math.pi / 2,
                   txtDy: 36,
-                  onTap: widget.onPlane15nmTap,
+                  onTap: () => _sendCommandToPilot("CMD:CMD_15NM"),
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
@@ -4244,7 +4039,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   text2: '2,500ft',
                   angle: math.pi / 2,
                   txtDy: 36,
-                  onTap: widget.onPlane10nmTap,
+                  onTap: () => _sendCommandToPilot("CMD:CMD_10NM"),
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
@@ -4254,7 +4049,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   text2: '2,300ft',
                   angle: math.pi / 2,
                   txtDy: 36,
-                  onTap: widget.onPlane7nmTap,
+                  onTap: () => _sendCommandToPilot("CMD:CMD_7NM"),
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
@@ -4264,7 +4059,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   text2: 'ON RWY',
                   angle: math.pi / 2,
                   txtDy: 36,
-                  onTap: widget.onPlane4nmTap,
+                  onTap: () => _sendCommandToPilot("CMD:CMD_4NM_TAKEOFF"),
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
@@ -4274,7 +4069,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   text2: '10,000ft',
                   angle: math.pi / 2,
                   txtDy: -28,
-                  onTap: widget.onPlaneCruiseTap,
+                  onTap: () => _sendCommandToPilot("CMD:CMD_CRUISE"),
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
@@ -4284,7 +4079,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   text2: '7000ft',
                   angle: math.pi,
                   txtDy: -28,
-                  onTap: widget.onPlaneHoldLeftTap,
+                  onTap: () => _sendCommandToPilot("CMD:CMD_LEFT_BASE"),
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
@@ -4294,7 +4089,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   text2: '1000ft',
                   angle: -math.pi / 2,
                   txtDy: -28,
-                  onTap: widget.onPlaneLeftDownwindTap,
+                  onTap: () => _sendCommandToPilot("CMD:CMD_LEFT_DOWNWIND"),
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
@@ -4304,7 +4099,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   text2: '7000ft',
                   angle: 0,
                   txtDy: 28,
-                  onTap: widget.onPlaneHoldRightTap,
+                  onTap: () => _sendCommandToPilot("CMD:CMD_RIGHT_BASE"),
                   size: mobilePlaneSize),
               RadarPlane(
                   constraints: constraints,
@@ -4314,7 +4109,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   text2: '1,000ft',
                   angle: -math.pi / 2,
                   txtDy: 28,
-                  onTap: widget.onPlaneRightDownwindTap,
+                  onTap: () => _sendCommandToPilot("CMD:CMD_RIGHT_DOWNWIND"),
                   size: mobilePlaneSize),
             ]);
       }
@@ -4336,7 +4131,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 text2: '3,000ft',
                 angle: math.pi / 2,
                 txtDy: 60,
-                onTap: widget.onPlane15nmTap),
+                onTap: () => _sendCommandToPilot("CMD:CMD_15NM")),
             RadarPlane(
                 constraints: constraints,
                 xPct: 0.26,
@@ -4345,7 +4140,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 text2: '2,500ft',
                 angle: math.pi / 2,
                 txtDy: 60,
-                onTap: widget.onPlane10nmTap),
+                onTap: () => _sendCommandToPilot("CMD:CMD_10NM")),
             RadarPlane(
                 constraints: constraints,
                 xPct: 0.39,
@@ -4354,7 +4149,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 text2: '2,300ft',
                 angle: math.pi / 2,
                 txtDy: 60,
-                onTap: widget.onPlane7nmTap),
+                onTap: () => _sendCommandToPilot("CMD:CMD_7NM")),
             RadarPlane(
                 constraints: constraints,
                 xPct: 0.51,
@@ -4363,7 +4158,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 text2: 'ON RWY',
                 angle: math.pi / 2,
                 txtDy: 60,
-                onTap: widget.onPlane4nmTap),
+                onTap: () => _sendCommandToPilot("CMD:CMD_4NM_TAKEOFF")),
             RadarPlane(
                 constraints: constraints,
                 xPct: 0.26,
@@ -4372,7 +4167,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 text2: '10,000ft',
                 angle: math.pi / 2,
                 txtDy: -40,
-                onTap: widget.onPlaneCruiseTap),
+                onTap: () => _sendCommandToPilot("CMD:CMD_CRUISE")),
             RadarPlane(
                 constraints: constraints,
                 xPct: 0.45,
@@ -4381,7 +4176,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 text2: '7000ft',
                 angle: math.pi,
                 txtDy: -40,
-                onTap: widget.onPlaneHoldLeftTap),
+                onTap: () => _sendCommandToPilot("CMD:CMD_LEFT_BASE")),
             RadarPlane(
                 constraints: constraints,
                 xPct: 0.84,
@@ -4390,7 +4185,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 text2: '1000ft',
                 angle: -math.pi / 2,
                 txtDy: -40,
-                onTap: widget.onPlaneLeftDownwindTap),
+                onTap: () => _sendCommandToPilot("CMD:CMD_LEFT_DOWNWIND")),
             RadarPlane(
                 constraints: constraints,
                 xPct: 0.45,
@@ -4399,7 +4194,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 text2: '7000ft',
                 angle: 0,
                 txtDy: 40,
-                onTap: widget.onPlaneHoldRightTap),
+                onTap: () => _sendCommandToPilot("CMD:CMD_RIGHT_BASE")),
             RadarPlane(
                 constraints: constraints,
                 xPct: 0.84,
@@ -4408,7 +4203,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 text2: '1,000ft',
                 angle: -math.pi / 2,
                 txtDy: 40,
-                onTap: widget.onPlaneRightDownwindTap),
+                onTap: () => _sendCommandToPilot("CMD:CMD_RIGHT_DOWNWIND")),
           ]);
     });
   }
@@ -4467,9 +4262,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                       FFAppState().gateLon = gate['lon'];
                       FFAppState().gateHdg = gate['heading'];
                     });
-                    if (widget.onGateSelected != null)
-                      widget.onGateSelected!(
-                          gate['lat'], gate['lon'], gate['heading']);
+                    _sendCommandToPilot("GATE:${gate['name']}");
                   },
                   child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
@@ -4539,8 +4332,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
             FFAppState().chartGateLon = lon;
             FFAppState().chartGateHdg = heading;
           });
-          if (widget.onChartGateSelected != null)
-            widget.onChartGateSelected!(name, lat, lon, heading);
+          _sendCommandToPilot("CHART_GATE:$name");
         });
   }
 }
