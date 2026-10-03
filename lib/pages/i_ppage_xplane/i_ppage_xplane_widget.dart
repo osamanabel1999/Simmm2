@@ -566,7 +566,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                   .bodyMedium
                                   .fontStyle,
                             ),
-                        keyboardType: TextInputType.number,
+                        keyboardType: (FFKeyboardType.text).flutterValue,
                         cursorColor: FlutterFlowTheme.of(context).primaryText,
                         enableInteractiveSelection: true,
                         validator: _model

@@ -1,3 +1,4 @@
+import '/flutter_flow/ff_builtin_enums.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -565,7 +566,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                   .bodyMedium
                                   .fontStyle,
                             ),
-                        keyboardType: TextInputType.number,
+                        keyboardType: (FFKeyboardType.text).flutterValue,
                         cursorColor: FlutterFlowTheme.of(context).primaryText,
                         enableInteractiveSelection: true,
                         validator: _model

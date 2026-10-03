@@ -18,9 +18,9 @@ Room? instructorTelemetryRoom_msfs;
 EventsListener<RoomEvent>? instructorTelemetryListener_msfs;
 
 Future connectInstructorTelemetrymsfs(String roomCode) async {
-  // 🔥 بيانات سيرفر MSFS الجديد
-  const String apiKey = 'APImhkubV5DHxkn';
-  const String apiSecret = 'XBNDeehdCXt6wsfrqaD2tk6ufgBvJ2UhT859o8IcqhsA';
+  // 🔥 بيانات سيرفر MSFS الجديد والموثوق
+  const String apiKey = 'APIA87Lpk5cmUMP';
+  const String apiSecret = 'aYWjjLKISVk663H7fYEBsx9cX69NTlg2er0oxtISsRD';
   const String livekitUrl =
       'wss://simulator-station-msfs-vb0uhblk.livekit.cloud';
 

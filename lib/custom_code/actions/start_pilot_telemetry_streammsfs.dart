@@ -18,8 +18,9 @@ Room? telemetryRoom_msfs;
 Timer? telemetryTimer_msfs;
 
 Future startPilotTelemetryStreammsfs(String roomCode) async {
-  const String apiKey = 'APImhkubV5DHxkn';
-  const String apiSecret = 'XBNDeehdCXt6wsfrqaD2tk6ufgBvJ2UhT859o8IcqhsA';
+  // 🔥 تم التحديث لبيانات سيرفر MSFS الجديد والموثوق
+  const String apiKey = 'APIA87Lpk5cmUMP';
+  const String apiSecret = 'aYWjjLKISVk663H7fYEBsx9cX69NTlg2er0oxtISsRD';
   const String livekitUrl =
       'wss://simulator-station-msfs-vb0uhblk.livekit.cloud';
 

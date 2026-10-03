@@ -74,12 +74,12 @@ class FloatingLiveKitUImsfs extends StatefulWidget {
 }
 
 class _FloatingLiveKitUImsfsState extends State<FloatingLiveKitUImsfs> {
-  // 🔥 تم التحديث لبيانات سيرفر MSFS الجديد
+  // 🔥 تم التحديث لبيانات سيرفر MSFS الجديد والموثوق
   static const String _livekitUrl =
       'wss://simulator-station-msfs-vb0uhblk.livekit.cloud';
-  static const String _apiKey = 'APImhkubV5DHxkn';
+  static const String _apiKey = 'APIA87Lpk5cmUMP';
   static const String _apiSecret =
-      'XBNDeehdCXt6wsfrqaD2tk6ufgBvJ2UhT859o8IcqhsA';
+      'aYWjjLKISVk663H7fYEBsx9cX69NTlg2er0oxtISsRD';
 
   Room? _room;
   VideoTrack? _remoteVideoTrack;

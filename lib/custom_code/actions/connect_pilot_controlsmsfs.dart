@@ -61,8 +61,8 @@ Future connectPilotControlsmsfs(
   Future<dynamic> Function()? doorJetway,
 ) async {
   // 🔥 بيانات سيرفر MSFS الجديد لضمان مضاعفة الليمت
-  const String apiKey = 'APImhkubV5DHxkn';
-  const String apiSecret = 'XBNDeehdCXt6wsfrqaD2tk6ufgBvJ2UhT859o8IcqhsA';
+  const String apiKey = 'APIA87Lpk5cmUMP';
+  const String apiSecret = 'aYWjjLKISVk663H7fYEBsx9cX69NTlg2er0oxtISsRD';
   const String livekitUrl =
       'wss://simulator-station-msfs-vb0uhblk.livekit.cloud';
 
