@@ -1,4 +1,3 @@
-import '/flutter_flow/ff_builtin_enums.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -508,7 +507,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                                           .labelMedium
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF8B949E),
+                                    color: Color(0xF8B949EFFFFF),
                                     letterSpacing: 0.0,
                                     fontWeight: FlutterFlowTheme.of(context)
                                         .labelMedium
@@ -582,7 +581,9 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                       textAlign: TextAlign.center,
                       style: FlutterFlowTheme.of(context).bodyMedium.override(
                             font: GoogleFonts.inter(
-                              fontWeight: FontWeight.w300,
+                              fontWeight: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontWeight,
                               fontStyle: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .fontStyle,
@@ -590,7 +591,9 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                             color: Color(0xFF6B87A8),
                             fontSize: 13.0,
                             letterSpacing: 0.0,
-                            fontWeight: FontWeight.w300,
+                            fontWeight: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .fontWeight,
                             fontStyle: FlutterFlowTheme.of(context)
                                 .bodyMedium
                                 .fontStyle,
@@ -600,7 +603,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                   if ((FFAppState().isProUserMSFS == true) || isAndroid)
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 20.0),
+                          EdgeInsetsDirectional.fromSTEB(0.0, 15.0, 0.0, 15.0),
                       child: FFButtonWidget(
                         onPressed: () async {
                           FFAppState().ipPC =
@@ -656,7 +659,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                         ),
                       ),
                     ),
-                  if (FFAppState().isProUserMSFS == true)
+                  if ((FFAppState().isProUserMSFS == true) || isAndroid)
                     InkWell(
                       splashColor: Colors.transparent,
                       focusColor: Colors.transparent,
@@ -682,17 +685,15 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                             color: Color(0xFF639DF0),
                           ),
                         ),
-                        alignment: AlignmentDirectional(1.0, 0.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment:
-                              (FFMainAxisAlignment.spaceEvenly).flutterValue,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Padding(
                               padding: EdgeInsetsDirectional.fromSTEB(
                                   10.0, 0.0, 10.0, 0.0),
-                              child: Icon(
-                                Icons.computer,
+                              child: FaIcon(
+                                FontAwesomeIcons.key,
                                 color: FlutterFlowTheme.of(context).primaryText,
                                 size: 18.0,
                               ),
@@ -730,53 +731,29 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                         ),
                       ),
                     ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              0.0, 10.0, 0.0, 0.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if ((FFAppState().isProUserMSFS == false) &&
-                                  isiOS)
-                                Text(
-                                  'Don\'t have active subscription? \nUpgrade now.',
-                                  textAlign: TextAlign.center,
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                        color: Color(0xFFE5E7EB),
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                ),
-                            ],
+                  if ((FFAppState().isProUserMSFS == false) && isiOS)
+                    Text(
+                      'Don\'t have active subscription? \nUpgrade now.',
+                      textAlign: TextAlign.center,
+                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                            font: GoogleFonts.inter(
+                              fontWeight: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontWeight,
+                              fontStyle: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .fontStyle,
+                            ),
+                            color: Color(0xFFE5E7EB),
+                            letterSpacing: 0.0,
+                            fontWeight: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .fontWeight,
+                            fontStyle: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .fontStyle,
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
                   if ((FFAppState().isProUserMSFS == false) && isiOS)
                     Padding(
                       padding:
