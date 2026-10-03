@@ -674,7 +674,7 @@ class _IPpageMSFSWidgetState extends State<IPpageMSFSWidget> {
                         safeSetState(() {});
 
                         context
-                            .pushNamed(HomePageMSFSinstructorWidget.routeName);
+                            .pushNamed(HomePageMSFSinstructormWidget.routeName);
                       },
                       child: Container(
                         width: 170.0,

@@ -2,12 +2,12 @@ import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
 import '/index.dart';
-import 'home_page_m_s_f_sinstructor_widget.dart'
-    show HomePageMSFSinstructorWidget;
+import 'home_page_m_s_f_sinstructorm_widget.dart'
+    show HomePageMSFSinstructormWidget;
 import 'package:flutter/material.dart';
 
-class HomePageMSFSinstructorModel
-    extends FlutterFlowModel<HomePageMSFSinstructorWidget> {
+class HomePageMSFSinstructormModel
+    extends FlutterFlowModel<HomePageMSFSinstructormWidget> {
   ///  Local state fields for this page.
 
   int currentStep = 1;
@@ -30,13 +30,13 @@ class HomePageMSFSinstructorModel
 
   ///  State fields for stateful widgets in this page.
 
-  // Stores action output result for [Backend Call - API (GetAirportInfo)] action in HomePageMSFSinstructor widget.
+  // Stores action output result for [Backend Call - API (GetAirportInfo)] action in HomePageMSFSinstructorm widget.
   ApiCallResponse? airportResulxxxxx;
-  // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageMSFSinstructor widget.
+  // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageMSFSinstructorm widget.
   ApiCallResponse? simbreifResponse;
-  // Stores action output result for [Backend Call - API (getMetarRaw)] action in HomePageMSFSinstructor widget.
+  // Stores action output result for [Backend Call - API (getMetarRaw)] action in HomePageMSFSinstructorm widget.
   ApiCallResponse? metarResult;
-  // Stores action output result for [Backend Call - API (getTafRaw)] action in HomePageMSFSinstructor widget.
+  // Stores action output result for [Backend Call - API (getTafRaw)] action in HomePageMSFSinstructorm widget.
   ApiCallResponse? tafResult;
   // State field(s) for TextFieldSpeedEntryLANDMARK widget.
   FocusNode? textFieldSpeedEntryLANDMARKFocusNode;

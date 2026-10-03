@@ -19,30 +19,30 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
-import 'home_page_m_s_f_sinstructor_model.dart';
-export 'home_page_m_s_f_sinstructor_model.dart';
+import 'home_page_m_s_f_sinstructorm_model.dart';
+export 'home_page_m_s_f_sinstructorm_model.dart';
 
-class HomePageMSFSinstructorWidget extends StatefulWidget {
-  const HomePageMSFSinstructorWidget({super.key});
+class HomePageMSFSinstructormWidget extends StatefulWidget {
+  const HomePageMSFSinstructormWidget({super.key});
 
-  static String routeName = 'HomePageMSFSinstructor';
-  static String routePath = '/homePageMSFSinstructor';
+  static String routeName = 'HomePageMSFSinstructorm';
+  static String routePath = '/homePageMSFSinstructorm';
 
   @override
-  State<HomePageMSFSinstructorWidget> createState() =>
-      _HomePageMSFSinstructorWidgetState();
+  State<HomePageMSFSinstructormWidget> createState() =>
+      _HomePageMSFSinstructormWidgetState();
 }
 
-class _HomePageMSFSinstructorWidgetState
-    extends State<HomePageMSFSinstructorWidget> {
-  late HomePageMSFSinstructorModel _model;
+class _HomePageMSFSinstructormWidgetState
+    extends State<HomePageMSFSinstructormWidget> {
+  late HomePageMSFSinstructormModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => HomePageMSFSinstructorModel());
+    _model = createModel(context, () => HomePageMSFSinstructormModel());
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {

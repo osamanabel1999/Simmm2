@@ -340,9 +340,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => HomePageXPLANEinstructorWidget(),
         ),
         FFRoute(
-          name: HomePageMSFSinstructorWidget.routeName,
-          path: HomePageMSFSinstructorWidget.routePath,
-          builder: (context, params) => HomePageMSFSinstructorWidget(),
+          name: HomePageMSFSinstructormWidget.routeName,
+          path: HomePageMSFSinstructormWidget.routePath,
+          builder: (context, params) => HomePageMSFSinstructormWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
