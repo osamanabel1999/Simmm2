@@ -1456,7 +1456,9 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
 
 class NavaidTeleportWidget extends StatefulWidget {
   final Future Function()? onTeleportTap;
-  const NavaidTeleportWidget({Key? key, this.onTeleportTap}) : super(key: key);
+  final ValueChanged<String>? onSearchSync;
+  const NavaidTeleportWidget({Key? key, this.onTeleportTap, this.onSearchSync})
+      : super(key: key);
   @override
   _NavaidTeleportWidgetState createState() => _NavaidTeleportWidgetState();
 }
@@ -1488,6 +1490,7 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   }
 
   void _onSearchChanged(String val) {
+    if (widget.onSearchSync != null) widget.onSearchSync!(val);
     if (val.length < 2) {
       setState(() => _searchResults = []);
       return;
@@ -3001,6 +3004,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
   void _handleSearch() {
     final icao = _icaoController.text.trim().toUpperCase();
     if (icao.isEmpty) return;
+    _sendCommandToPilot("ICAO:$icao");
     _fetchRunwayData(icao);
     _fetchGatesData(icao);
   }
@@ -3471,9 +3475,12 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
                         Offstage(
                             offstage: _selectedMode != 5,
                             child: NavaidTeleportWidget(
-                                key: _navaidTeleportKey,
-                                onTeleportTap: () => _sendCommandToPilot(
-                                    "TELEPORT:${_radialCtrl.text}:${_hdgCtrl.text}:${_distCtrl.text}:${_altCtrl.text}:${_spdCtrl.text}"))),
+                              key: _navaidTeleportKey,
+                              onTeleportTap: () => _sendCommandToPilot(
+                                  "TELEPORT:${_radialCtrl.text}:${_hdgCtrl.text}:${_distCtrl.text}:${_altCtrl.text}:${_spdCtrl.text}"),
+                              onSearchSync: (val) =>
+                                  _sendCommandToPilot("NAVAID_SEARCH:$val"),
+                            )),
                         if (_selectedMode == 3 || _selectedMode == 4)
                           const Center(
                               child: Text('SELECT A MODE',
@@ -3608,9 +3615,12 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
                       Offstage(
                           offstage: _selectedMode != 5,
                           child: NavaidTeleportWidget(
-                              key: _navaidTeleportKey,
-                              onTeleportTap: () => _sendCommandToPilot(
-                                  "TELEPORT:${_radialCtrl.text}:${_hdgCtrl.text}:${_distCtrl.text}:${_altCtrl.text}:${_spdCtrl.text}"))),
+                            key: _navaidTeleportKey,
+                            onTeleportTap: () => _sendCommandToPilot(
+                                "TELEPORT:${_radialCtrl.text}:${_hdgCtrl.text}:${_distCtrl.text}:${_altCtrl.text}:${_spdCtrl.text}"),
+                            onSearchSync: (val) =>
+                                _sendCommandToPilot("NAVAID_SEARCH:$val"),
+                          )),
                       if (_selectedMode == 3 || _selectedMode == 4)
                         const Center(
                             child: Text("SELECT A MODE",

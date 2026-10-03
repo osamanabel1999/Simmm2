@@ -32084,8 +32084,22 @@ class _HomePageMSFSinstructorWidgetState
                                       );
                                     },
                                     headTrackerAction: () async {
-                                      context.pushNamed(
-                                          HeadTrackMSFSWidget.routeName);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Head Tracker is not supported in Instructor Station.',
+                                            style: TextStyle(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryText,
+                                            ),
+                                          ),
+                                          duration:
+                                              Duration(milliseconds: 4000),
+                                          backgroundColor: Color(0xFFE67E22),
+                                        ),
+                                      );
                                     },
                                     pushbackAction: () async {
                                       await actions.sendLivekitCmdmsfs(

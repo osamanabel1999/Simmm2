@@ -16267,8 +16267,19 @@ class _HomePageXPLANEinstructorWidgetState
                                   );
                                 },
                                 headTrackerAction: () async {
-                                  context.pushNamed(
-                                      HeadTrackXplaneWidget.routeName);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Head Tracker is not supported in Instructor Station.',
+                                        style: TextStyle(
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                        ),
+                                      ),
+                                      duration: Duration(milliseconds: 4000),
+                                      backgroundColor: Color(0xFFE67E22),
+                                    ),
+                                  );
                                 },
                                 pushbackAction: () async {
                                   await actions.sendLivekitCmdxplane(
@@ -16297,6 +16308,19 @@ class _HomePageXPLANEinstructorWidgetState
                                   );
                                   FFAppState().TabNumber = 3;
                                   safeSetState(() {});
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Weather radar sync is under maintenance/development for the instructor station.',
+                                        style: TextStyle(
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                        ),
+                                      ),
+                                      duration: Duration(milliseconds: 4000),
+                                      backgroundColor: Color(0xFFE67E22),
+                                    ),
+                                  );
                                 },
                                 fmcAction: () async {
                                   await actions.sendLivekitCmdxplane(

@@ -110,7 +110,31 @@ class _FuelLoadEFBmsfsState extends State<FuelLoadEFBmsfs> {
   @override
   void initState() {
     super.initState();
+    // STEP 1: Initialize Controllers in initState
+    _pilotCtrl.text =
+        widget.incomingPilotWeight != null && widget.incomingPilotWeight! > 0
+            ? widget.incomingPilotWeight!.toInt().toString()
+            : '170';
+    _coPilotCtrl.text = widget.incomingCoPilotWeight != null &&
+            widget.incomingCoPilotWeight! > 0
+        ? widget.incomingCoPilotWeight!.toInt().toString()
+        : '170';
+    _rearPaxCtrl.text = widget.incomingRearPaxWeight?.toInt().toString() ?? '0';
+    _baggageCtrl.text = widget.incomingBaggageWeight?.toInt().toString() ?? '0';
+    _cargoCtrl.text =
+        widget.incomingExtraCargoWeight?.toInt().toString() ?? '0';
     _loadData();
+  }
+
+  // STEP 2: Fix Cursor Jump in didUpdateWidget
+  void _updateCtrlIfChanged(TextEditingController ctrl, double? incomingVal) {
+    if (incomingVal != null) {
+      final newValStr = incomingVal.toInt().toString();
+      if (ctrl.text != newValStr) {
+        ctrl.text = newValStr;
+        ctrl.selection = TextSelection.collapsed(offset: ctrl.text.length);
+      }
+    }
   }
 
   // 🔥 الدالة السحرية لاستقبال القيم الحية من السيرفر (وقود + أوزان)
@@ -136,27 +160,17 @@ class _FuelLoadEFBmsfsState extends State<FuelLoadEFBmsfs> {
       _onIndividualTankChanged('rWing', widget.incomingRWingFuel!);
     }
 
-    // 2. تحديثات الأوزان (TextFields)
-    if (widget.incomingPilotWeight != null &&
-        widget.incomingPilotWeight != oldWidget.incomingPilotWeight) {
-      _pilotCtrl.text = widget.incomingPilotWeight!.toInt().toString();
-    }
-    if (widget.incomingCoPilotWeight != null &&
-        widget.incomingCoPilotWeight != oldWidget.incomingCoPilotWeight) {
-      _coPilotCtrl.text = widget.incomingCoPilotWeight!.toInt().toString();
-    }
-    if (widget.incomingRearPaxWeight != null &&
-        widget.incomingRearPaxWeight != oldWidget.incomingRearPaxWeight) {
-      _rearPaxCtrl.text = widget.incomingRearPaxWeight!.toInt().toString();
-    }
-    if (widget.incomingBaggageWeight != null &&
-        widget.incomingBaggageWeight != oldWidget.incomingBaggageWeight) {
-      _baggageCtrl.text = widget.incomingBaggageWeight!.toInt().toString();
-    }
-    if (widget.incomingExtraCargoWeight != null &&
-        widget.incomingExtraCargoWeight != oldWidget.incomingExtraCargoWeight) {
-      _cargoCtrl.text = widget.incomingExtraCargoWeight!.toInt().toString();
-    }
+    // 2. تحديثات الأوزان (TextFields) - Using the new helper method
+    if (widget.incomingPilotWeight != oldWidget.incomingPilotWeight)
+      _updateCtrlIfChanged(_pilotCtrl, widget.incomingPilotWeight);
+    if (widget.incomingCoPilotWeight != oldWidget.incomingCoPilotWeight)
+      _updateCtrlIfChanged(_coPilotCtrl, widget.incomingCoPilotWeight);
+    if (widget.incomingRearPaxWeight != oldWidget.incomingRearPaxWeight)
+      _updateCtrlIfChanged(_rearPaxCtrl, widget.incomingRearPaxWeight);
+    if (widget.incomingBaggageWeight != oldWidget.incomingBaggageWeight)
+      _updateCtrlIfChanged(_baggageCtrl, widget.incomingBaggageWeight);
+    if (widget.incomingExtraCargoWeight != oldWidget.incomingExtraCargoWeight)
+      _updateCtrlIfChanged(_cargoCtrl, widget.incomingExtraCargoWeight);
   }
 
   @override
@@ -714,11 +728,13 @@ class _FuelLoadEFBmsfsState extends State<FuelLoadEFBmsfs> {
                       const BorderSide(color: Color(0xFF3B82F6), width: 1.5),
                 ),
               ),
-              // يتم إرسال الرقم فورا بمجرد كتابته للمحاكي
+              // STEP 3: Handle Empty String in onChanged
               onChanged: (val) {
                 double? parsedValue = double.tryParse(val);
                 if (parsedValue != null && callback != null) {
                   callback(parsedValue);
+                } else if (val.isEmpty && callback != null) {
+                  callback(0.0);
                 }
               },
             ),
