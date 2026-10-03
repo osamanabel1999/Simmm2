@@ -2969,6 +2969,20 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
   int _selectedGateIndex = -1;
   double? _airportCenterLat, _airportCenterLon;
 
+  final GlobalKey<_NavaidTeleportWidgetState> _navaidTeleportKey =
+      GlobalKey<_NavaidTeleportWidgetState>();
+
+  TextEditingController get _radialCtrl =>
+      _navaidTeleportKey.currentState!._radialCtrl;
+  TextEditingController get _hdgCtrl =>
+      _navaidTeleportKey.currentState!._hdgCtrl;
+  TextEditingController get _distCtrl =>
+      _navaidTeleportKey.currentState!._distCtrl;
+  TextEditingController get _altCtrl =>
+      _navaidTeleportKey.currentState!._altCtrl;
+  TextEditingController get _spdCtrl =>
+      _navaidTeleportKey.currentState!._spdCtrl;
+
   @override
   void initState() {
     super.initState();
@@ -3457,6 +3471,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
                         Offstage(
                             offstage: _selectedMode != 5,
                             child: NavaidTeleportWidget(
+                                key: _navaidTeleportKey,
                                 onTeleportTap: () => _sendCommandToPilot(
                                     "TELEPORT:${_radialCtrl.text}:${_hdgCtrl.text}:${_distCtrl.text}:${_altCtrl.text}:${_spdCtrl.text}"))),
                         if (_selectedMode == 3 || _selectedMode == 4)
@@ -3593,6 +3608,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
                       Offstage(
                           offstage: _selectedMode != 5,
                           child: NavaidTeleportWidget(
+                              key: _navaidTeleportKey,
                               onTeleportTap: () => _sendCommandToPilot(
                                   "TELEPORT:${_radialCtrl.text}:${_hdgCtrl.text}:${_distCtrl.text}:${_altCtrl.text}:${_spdCtrl.text}"))),
                       if (_selectedMode == 3 || _selectedMode == 4)
