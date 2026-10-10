@@ -806,7 +806,9 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                                 padding: EdgeInsetsDirectional.fromSTEB(
                                     18.0, 0.0, 10.0, 0.0),
                                 child: FaIcon(
-                                  FontAwesomeIcons.key,
+                                  FaIconData(const IconData(/* key */ 0xf084,
+                                      fontFamily: 'FontAwesomeSolid',
+                                      fontPackage: 'font_awesome_flutter')),
                                   color:
                                       FlutterFlowTheme.of(context).primaryText,
                                   size: 18.0,

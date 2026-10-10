@@ -1064,7 +1064,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -1453,7 +1453,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -1842,7 +1842,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -2252,7 +2252,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -2641,7 +2641,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -3030,7 +3030,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -3440,7 +3440,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -3829,7 +3829,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -4218,7 +4218,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -4628,7 +4628,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -5017,7 +5017,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -5406,7 +5406,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -5816,7 +5816,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -6205,7 +6205,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -6594,7 +6594,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -7004,7 +7004,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -7393,7 +7393,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -7782,7 +7782,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -8192,7 +8192,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -8581,7 +8581,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -8970,7 +8970,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -9380,7 +9380,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -9769,7 +9769,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -10158,7 +10158,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -10568,7 +10568,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -10957,7 +10957,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -11346,7 +11346,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                   Padding(
                                                                                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 17.0, 0.0),
                                                                                     child: FaIcon(
-                                                                                      FontAwesomeIcons.plane,
+                                                                                      FaIconData(const IconData(/* plane */ 0xf072, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                                       color: FlutterFlowTheme.of(context).primaryText,
                                                                                       size: 18.0,
                                                                                     ),
@@ -28367,7 +28367,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                             Padding(
                                                                               padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
                                                                               child: FaIcon(
-                                                                                FontAwesomeIcons.newspaper,
+                                                                                FaIconData(const IconData(/* newspaper */ 0xf1ea, fontFamily: 'FontAwesomeRegular', fontPackage: 'font_awesome_flutter')),
                                                                                 color: Color(0xFFE5E7EB),
                                                                                 size: 20.0,
                                                                               ),
@@ -28473,7 +28473,7 @@ class _HomePageMSFSinstructorWidgetState
                                                                                 0.0),
                                                                             child:
                                                                                 FaIcon(
-                                                                              FontAwesomeIcons.mapPin,
+                                                                              FaIconData(const IconData(/* mapPin */ 0xf276, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter')),
                                                                               color: Color(0xFFE5E7EB),
                                                                               size: 20.0,
                                                                             ),

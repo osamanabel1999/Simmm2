@@ -343,6 +343,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: HomePageMSFSinstructorWidget.routeName,
           path: HomePageMSFSinstructorWidget.routePath,
           builder: (context, params) => HomePageMSFSinstructorWidget(),
+        ),
+        FFRoute(
+          name: TCASxplaneWidget.routeName,
+          path: TCASxplaneWidget.routePath,
+          builder: (context, params) => TCASxplaneWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
@@ -480,6 +485,10 @@ class FFRoute {
                     duration: transitionInfo.duration,
                     reverseDuration: transitionInfo.duration,
                     alignment: transitionInfo.alignment,
+                    curve: transitionInfo.transitionType ==
+                            PageTransitionType.scale
+                        ? const Interval(0.0, 0.5)
+                        : Curves.linear,
                     child: child,
                   ).buildTransitions(
                     context,

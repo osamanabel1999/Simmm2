@@ -13035,7 +13035,9 @@ class _HomePageXPLANEinstructorWidgetState
                                                                               0.0),
                                                                           child:
                                                                               FaIcon(
-                                                                            FontAwesomeIcons.newspaper,
+                                                                            FaIconData(const IconData(/* newspaper */ 0xf1ea,
+                                                                                fontFamily: 'FontAwesomeRegular',
+                                                                                fontPackage: 'font_awesome_flutter')),
                                                                             color:
                                                                                 Color(0xFFE5E7EB),
                                                                             size:
@@ -13154,8 +13156,10 @@ class _HomePageXPLANEinstructorWidgetState
                                                                             0.0),
                                                                         child:
                                                                             FaIcon(
-                                                                          FontAwesomeIcons
-                                                                              .mapPin,
+                                                                          FaIconData(const IconData(
+                                                                              /* mapPin */ 0xf276,
+                                                                              fontFamily: 'FontAwesomeSolid',
+                                                                              fontPackage: 'font_awesome_flutter')),
                                                                           color:
                                                                               Color(0xFFE5E7EB),
                                                                           size:

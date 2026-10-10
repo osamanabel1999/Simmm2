@@ -68,3 +68,4 @@ export '/custom_code/widgets/position_xplane_instructor_widget.dart'
 export '/custom_code/widgets/live_kit_viewermsfs.dart' show LiveKitViewermsfs;
 export '/custom_code/widgets/position_instructor_msfs.dart'
     show PositionInstructorMsfs;
+export '/custom_code/widgets/tcas_control_panel.dart' show TcasControlPanel;

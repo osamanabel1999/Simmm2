@@ -20691,7 +20691,9 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                               0.0),
                                                                           child:
                                                                               FaIcon(
-                                                                            FontAwesomeIcons.newspaper,
+                                                                            FaIconData(const IconData(/* newspaper */ 0xf1ea,
+                                                                                fontFamily: 'FontAwesomeRegular',
+                                                                                fontPackage: 'font_awesome_flutter')),
                                                                             color:
                                                                                 Color(0xFFE5E7EB),
                                                                             size:
@@ -20810,8 +20812,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                                             0.0),
                                                                         child:
                                                                             FaIcon(
-                                                                          FontAwesomeIcons
-                                                                              .mapPin,
+                                                                          FaIconData(const IconData(
+                                                                              /* mapPin */ 0xf276,
+                                                                              fontFamily: 'FontAwesomeSolid',
+                                                                              fontPackage: 'font_awesome_flutter')),
                                                                           color:
                                                                               Color(0xFFE5E7EB),
                                                                           size:
@@ -23932,6 +23936,20 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                               },
                                               onWorldTourTap: () async {},
                                               onNavaidActionTap: () async {},
+                                              onTcasActionTap: () async {
+                                                context.pushNamed(
+                                                  TCASxplaneWidget.routeName,
+                                                  extra: <String, dynamic>{
+                                                    '__transition_info__':
+                                                        TransitionInfo(
+                                                      hasTransition: true,
+                                                      transitionType:
+                                                          PageTransitionType
+                                                              .fade,
+                                                    ),
+                                                  },
+                                                );
+                                              },
                                               onNavaidTeleportTap: () async {
                                                 _model.elevationDataXplaneNAVAIDS =
                                                     await GetElevationCall.call(

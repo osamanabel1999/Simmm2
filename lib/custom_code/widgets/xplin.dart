@@ -6,7 +6,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart'; // Imports other custom widgets
 import '/custom_code/actions/index.dart'; // Imports custom actions
 import '/flutter_flow/custom_functions.dart'; // Imports custom functions
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide RepeatMode;
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
@@ -3388,6 +3388,7 @@ class Xplin extends StatefulWidget {
   final Future Function()? onMapTeleportTap;
   final Future Function()? onWorldTourTap;
   final Future Function()? onNavaidActionTap;
+  final Future Function()? onTcasActionTap;
   final Future Function()? onNavaidTeleportTap;
   final Future Function()? onTakeoffConfigTap;
   final Future Function()? onLandingConfigTap;
@@ -3435,6 +3436,7 @@ class Xplin extends StatefulWidget {
       this.onMapTeleportTap,
       this.onWorldTourTap,
       this.onNavaidActionTap,
+      this.onTcasActionTap,
       this.onNavaidTeleportTap,
       this.onTakeoffConfigTap,
       this.onLandingConfigTap,
@@ -4515,7 +4517,9 @@ class _XplinState extends State<Xplin> {
                           syncTeleportAlt: widget.syncTeleportAlt,
                           syncTeleportSpd: widget.syncTeleportSpd),
                     ),
-                    if (_selectedMode == 3 || _selectedMode == 4)
+                    if (_selectedMode == 3 ||
+                        _selectedMode == 4 ||
+                        _selectedMode == 6)
                       const Center(
                           child: Text('SELECT A MODE',
                               style: TextStyle(
@@ -4536,6 +4540,7 @@ class _XplinState extends State<Xplin> {
       ['GATE', 1],
       ['AIRPORT CHART', 2],
       ['NAVAIDS', 5],
+      ['TCAS', 6],
       ['MAP TELEPORT', 3],
       ['WORLD TOUR', 4]
     ];
@@ -4556,6 +4561,8 @@ class _XplinState extends State<Xplin> {
             widget.onWorldTourTap!();
           if (mode == 5 && widget.onNavaidActionTap != null)
             widget.onNavaidActionTap!();
+          if (mode == 6 && widget.onTcasActionTap != null)
+            widget.onTcasActionTap!();
         },
         child: Container(
           margin: const EdgeInsets.only(right: 5),
@@ -4679,7 +4686,9 @@ class _XplinState extends State<Xplin> {
                               syncTeleportDist: widget.syncTeleportDist,
                               syncTeleportAlt: widget.syncTeleportAlt,
                               syncTeleportSpd: widget.syncTeleportSpd)),
-                      if (_selectedMode == 3 || _selectedMode == 4)
+                      if (_selectedMode == 3 ||
+                          _selectedMode == 4 ||
+                          _selectedMode == 6)
                         const Center(
                             child: Text("SELECT A MODE",
                                 style: TextStyle(color: Colors.white24))),
@@ -5033,6 +5042,34 @@ class _XplinState extends State<Xplin> {
                   ]))),
           GestureDetector(
               onTap: () {
+                setState(() => _selectedMode = 6);
+                if (widget.onTcasActionTap != null) widget.onTcasActionTap!();
+              },
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2.5),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(
+                        _selectedMode == 6
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_off,
+                        size: 14,
+                        color: _selectedMode == 6
+                            ? const Color(0xFF7AA5D2)
+                            : const Color(0xFF324866)),
+                    const SizedBox(width: 8),
+                    Text('TCAS',
+                        style: TextStyle(
+                            color: _selectedMode == 6
+                                ? const Color(0xFFA6C2DF)
+                                : const Color(0xFF537396),
+                            fontSize: 10,
+                            letterSpacing: 0.5,
+                            fontWeight: _selectedMode == 6
+                                ? FontWeight.bold
+                                : FontWeight.normal))
+                  ]))),
+          GestureDetector(
+              onTap: () {
                 setState(() => _selectedMode = 3);
                 if (widget.onMapTeleportTap != null) widget.onMapTeleportTap!();
               },
@@ -5162,7 +5199,7 @@ class _XplinState extends State<Xplin> {
                 xPct: .55,
                 yPct: .23,
                 text1: 'Left base',
-                text2: '7000ft',
+                text2: '700ft',
                 angle: math.pi,
                 txtDy: -28,
                 onTap: widget.onPlaneHoldLeftTap,
@@ -5182,7 +5219,7 @@ class _XplinState extends State<Xplin> {
                 xPct: .55,
                 yPct: .77,
                 text1: 'Right base',
-                text2: '7000ft',
+                text2: '700ft',
                 angle: 0,
                 txtDy: 28,
                 onTap: widget.onPlaneHoldRightTap,

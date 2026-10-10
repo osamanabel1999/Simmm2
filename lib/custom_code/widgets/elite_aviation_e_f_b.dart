@@ -6,7 +6,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/widgets/index.dart'; // Imports other custom widgets
 import '/custom_code/actions/index.dart'; // Imports custom actions
 import '/flutter_flow/custom_functions.dart'; // Imports custom functions
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide RepeatMode;
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
@@ -4281,7 +4281,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   xPct: .55,
                   yPct: .23,
                   text1: 'Left base',
-                  text2: '7000ft',
+                  text2: '700ft',
                   angle: math.pi,
                   txtDy: -28,
                   onTap: widget.onPlaneHoldLeftTap,
@@ -4301,7 +4301,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   xPct: .55,
                   yPct: .77,
                   text1: 'Right base',
-                  text2: '7000ft',
+                  text2: '700ft',
                   angle: 0,
                   txtDy: 28,
                   onTap: widget.onPlaneHoldRightTap,
