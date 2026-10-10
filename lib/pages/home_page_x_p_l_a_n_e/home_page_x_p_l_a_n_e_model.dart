@@ -1,6 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
 import '/flutter_flow/instant_timer.dart';
 import '/index.dart';
 import 'home_page_x_p_l_a_n_e_widget.dart' show HomePageXPLANEWidget;
@@ -81,62 +80,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   dynamic right45;
   // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in EFBRadarMap widget.
   dynamic vectorsResultTeleportonMAP;
-  // State field(s) for TextFieldTOPhigh widget.
-  FocusNode? textFieldTOPhighFocusNode;
-  TextEditingController? textFieldTOPhighTextController;
-  String? Function(BuildContext, String?)?
-      textFieldTOPhighTextControllerValidator;
-  // State field(s) for DropDownHIGH widget.
-  String? dropDownHIGHValue1;
-  FormFieldController<String>? dropDownHIGHValueController1;
-  // State field(s) for TextFieldBOTTOMHIGH widget.
-  FocusNode? textFieldBOTTOMHIGHFocusNode;
-  TextEditingController? textFieldBOTTOMHIGHTextController;
-  String? Function(BuildContext, String?)?
-      textFieldBOTTOMHIGHTextControllerValidator;
-  // State field(s) for DropDownHIGH widget.
-  String? dropDownHIGHValue2;
-  FormFieldController<String>? dropDownHIGHValueController2;
-  // State field(s) for TextFieldTopMID widget.
-  FocusNode? textFieldTopMIDFocusNode;
-  TextEditingController? textFieldTopMIDTextController;
-  String? Function(BuildContext, String?)?
-      textFieldTopMIDTextControllerValidator;
-  // State field(s) for DropDownMID widget.
-  String? dropDownMIDValue1;
-  FormFieldController<String>? dropDownMIDValueController1;
-  // State field(s) for TextFieldBottomMID widget.
-  FocusNode? textFieldBottomMIDFocusNode;
-  TextEditingController? textFieldBottomMIDTextController;
-  String? Function(BuildContext, String?)?
-      textFieldBottomMIDTextControllerValidator;
-  // State field(s) for DropDownMID widget.
-  String? dropDownMIDValue2;
-  FormFieldController<String>? dropDownMIDValueController2;
-  // State field(s) for TextFieldTOPlow widget.
-  FocusNode? textFieldTOPlowFocusNode;
-  TextEditingController? textFieldTOPlowTextController;
-  String? Function(BuildContext, String?)?
-      textFieldTOPlowTextControllerValidator;
-  // State field(s) for DropDownLOW widget.
-  String? dropDownLOWValue1;
-  FormFieldController<String>? dropDownLOWValueController1;
-  // State field(s) for TextFieldBottomLOW widget.
-  FocusNode? textFieldBottomLOWFocusNode;
-  TextEditingController? textFieldBottomLOWTextController;
-  String? Function(BuildContext, String?)?
-      textFieldBottomLOWTextControllerValidator;
-  // State field(s) for DropDownLOW widget.
-  String? dropDownLOWValue2;
-  FormFieldController<String>? dropDownLOWValueController2;
-  // State field(s) for SliderVisibility widget.
-  double? sliderVisibilityValue;
-  // State field(s) for SliderQNH widget.
-  double? sliderQNHValue;
-  // State field(s) for SliderTemperature widget.
-  double? sliderTemperatureValue;
-  // State field(s) for SliderWindDir widget.
-  double? sliderWindDirValue;
   // State field(s) for airportICAO widget.
   FocusNode? airportICAOFocusNode;
   TextEditingController? airportICAOTextController;
@@ -201,24 +144,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   void dispose() {
     instantTimer?.cancel();
     instantTimer2?.cancel();
-    textFieldTOPhighFocusNode?.dispose();
-    textFieldTOPhighTextController?.dispose();
-
-    textFieldBOTTOMHIGHFocusNode?.dispose();
-    textFieldBOTTOMHIGHTextController?.dispose();
-
-    textFieldTopMIDFocusNode?.dispose();
-    textFieldTopMIDTextController?.dispose();
-
-    textFieldBottomMIDFocusNode?.dispose();
-    textFieldBottomMIDTextController?.dispose();
-
-    textFieldTOPlowFocusNode?.dispose();
-    textFieldTOPlowTextController?.dispose();
-
-    textFieldBottomLOWFocusNode?.dispose();
-    textFieldBottomLOWTextController?.dispose();
-
     airportICAOFocusNode?.dispose();
     airportICAOTextController?.dispose();
   }

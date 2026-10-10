@@ -69,3 +69,5 @@ export '/custom_code/widgets/live_kit_viewermsfs.dart' show LiveKitViewermsfs;
 export '/custom_code/widgets/position_instructor_msfs.dart'
     show PositionInstructorMsfs;
 export '/custom_code/widgets/tcas_control_panel.dart' show TcasControlPanel;
+export '/custom_code/widgets/weather_trainer_remote_widget.dart'
+    show WeatherTrainerRemoteWidget;
