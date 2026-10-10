@@ -658,7 +658,7 @@ class _IPpageXplaneWidgetState extends State<IPpageXplaneWidget> {
                         ),
                       ),
                     ),
-                  if (FFAppState().isProUserXplane == true)
+                  if ((FFAppState().isProUserXplane == true) || isAndroid)
                     InkWell(
                       splashColor: Colors.transparent,
                       focusColor: Colors.transparent,
