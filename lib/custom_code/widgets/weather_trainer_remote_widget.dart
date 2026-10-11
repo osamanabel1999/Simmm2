@@ -32,11 +32,8 @@ class WeatherTrainerRemoteWidget extends StatefulWidget {
       _WeatherTrainerRemoteWidgetState();
 }
 
-class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true; // Keeps the state alive when switching pages!
-
+class _WeatherTrainerRemoteWidgetState
+    extends State<WeatherTrainerRemoteWidget> {
   static const String _pathPrefix = 'qX7_9vK/4mZ_2p8/';
   static const int _xPlanePort = 49000;
 
@@ -55,34 +52,31 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
   static const Color _heading = Color(0xFF9BB8E1);
   static const Color _smallValue = Color(0xFF8FA9CE);
   static const Color _directionInactive = Color(0xF20A1420);
-  static const Color _compass = Color(0xFFB9CCE7);
-  static const Color _aircraft = Color(0xFFB7CCE9);
-  static const Color _headingControlBg = Color(0xFF243244);
 
-  int _page = 0;
-  int _subTab = 0;
-  int _cloudLayer = 0;
-  int _windLayer = 0;
-  int _month = 1;
-  int _day = 1;
-  int _hour = 12;
-  int _minute = 0;
-  int _gmtOffsetMinutes = 0;
-  int _timeSeconds = 43200;
-  bool _trackSystemTimeDraft = false;
-  bool _rvrModeDraft = false;
-
-  bool _isRealWeather =
-      false; // Tracks if real world weather is currently selected
-
-  int _selectedTurbulence = 0;
-  int _selectedIcing = 0;
-  int _precipType = 0;
-  int _precipRate = 0;
-  int _selectedWindTurbulence = 0;
-  final Map<int, double> _values = <int, double>{};
-  final Map<int, TextEditingController> _controllers =
-      <int, TextEditingController>{};
+  // =========================================================================
+  // GLOBAL STATIC STATE: Prevents data loss when Flutter destroys the page!
+  // =========================================================================
+  static bool _isInitialized = false;
+  static int _page = 0;
+  static int _subTab = 0;
+  static int _cloudLayer = 0;
+  static int _windLayer = 0;
+  static int _month = 1;
+  static int _day = 1;
+  static int _hour = 12;
+  static int _minute = 0;
+  static int _gmtOffsetMinutes = 0;
+  static int _timeSeconds = 43200;
+  static bool _trackSystemTimeDraft = false;
+  static bool _rvrModeDraft = false;
+  static bool _isRealWeather = false;
+  static int _selectedTurbulence = 0;
+  static int _selectedIcing = 0;
+  static int _precipType = 0;
+  static int _precipRate = 0;
+  static int _selectedWindTurbulence = 0;
+  static final Map<int, double> _values = <int, double>{};
+  // =========================================================================
 
   static const List<String> _months = <String>[
     'Jan',
@@ -168,7 +162,10 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
   @override
   void initState() {
     super.initState();
-    _initializeDraftValues();
+    if (!_isInitialized) {
+      _initializeDraftValues();
+      _isInitialized = true;
+    }
   }
 
   void _initializeDraftValues() {
@@ -178,7 +175,6 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
     _values[8] = 0.0;
     _values[13] = 0.0;
     _values[14] = 1000.0;
-    // Cloud layers default to inactive (0.0)
     for (int i = 0; i < 3; i++) {
       final int base = 16 + i * 5;
       _values[base] = 0.0;
@@ -209,52 +205,9 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
     _values[59] = 1.0;
     _values[60] = 0.0;
     _values[61] = 0.0;
-
-    for (final int refId in <int>[
-      19,
-      20,
-      24,
-      25,
-      29,
-      30,
-      32,
-      33,
-      34,
-      35,
-      36,
-      38,
-      39,
-      40,
-      41,
-      42,
-      44,
-      45,
-      46,
-      47,
-      48,
-      49,
-      50,
-      51,
-      52,
-      53,
-      14,
-    ]) {
-      _controllers[refId] = TextEditingController(
-        text: _formatValue(_values[refId] ?? 0.0, _fieldDecimals(refId)),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    for (final TextEditingController c in _controllers.values) {
-      c.dispose();
-    }
-    super.dispose();
   }
 
   void _userDidManualChange(int cmdOrRef) {
-    // If the user interacts with any manual setting, turn off Real Weather indicator
     if (cmdOrRef != 97 && cmdOrRef != 98 && cmdOrRef < 200) {
       if (_isRealWeather && mounted) {
         setState(() {
@@ -287,7 +240,7 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
     return InternetAddress.tryParse(raw);
   }
 
-  Future<void> _sendCommand(int commandId, {String? label}) async {
+  Future<void> _sendCommand(int commandId) async {
     if (commandId < 1 || commandId > 205) return;
     _userDidManualChange(commandId);
 
@@ -310,8 +263,7 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
     }
   }
 
-  Future<void> _sendDataRef(int dataRefId, double value,
-      {String? label}) async {
+  Future<void> _sendDataRef(int dataRefId, double value) async {
     if (dataRefId < 1 ||
         dataRefId > 61 ||
         const <int>{9, 10, 12, 15}.contains(dataRefId)) return;
@@ -345,13 +297,9 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
   }
 
   Future<void> _sendValueAndCommand(
-    int dataRefId,
-    double value,
-    int commandId, {
-    String? label,
-  }) async {
-    await _sendDataRef(dataRefId, value, label: label);
-    await _sendCommand(commandId, label: label);
+      int dataRefId, double value, int commandId) async {
+    await _sendDataRef(dataRefId, value);
+    await _sendCommand(commandId);
   }
 
   Future<void> _selectPage(int page) async {
@@ -477,76 +425,246 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
   String get _timeText =>
       '${_hour.toString().padLeft(2, '0')}:${_minute.toString().padLeft(2, '0')}';
 
-  Future<void> _commitNumberField(
-    int refId,
-    String raw, {
-    double min = -1000000,
-    double max = 1000000,
-    int decimals = 0,
-    String? label,
-  }) async {
-    final double? parsed = double.tryParse(raw.trim());
-    if (parsed == null || !parsed.isFinite) return;
-
-    final double value = parsed.clamp(min, max).toDouble();
-    setState(() {
-      _values[refId] = value;
-      final TextEditingController? controller = _controllers[refId];
-      if (controller != null) {
-        controller.value = TextEditingValue(
-          text: _formatValue(value, decimals),
-          selection: TextSelection.collapsed(
-              offset: _formatValue(value, decimals).length),
-        );
-      }
-    });
-    await _sendDataRef(refId, value);
-  }
-
-  Future<void> _sendValue(int refId, double value, {String? label}) async {
-    setState(() => _values[refId] = value);
-    final TextEditingController? c = _controllers[refId];
-    if (c != null) {
-      final String text = _formatValue(value, _fieldDecimals(refId));
-      c.value = TextEditingValue(
-        text: text,
-        selection: TextSelection.collapsed(offset: text.length),
-      );
-    }
-    await _sendDataRef(refId, value);
-  }
-
   Future<void> _stepValue({
     required int refId,
     required double delta,
-    required int commandId,
+    int? commandId,
     required double min,
     required double max,
-    required String label,
   }) async {
     final double next =
         ((_values[refId] ?? 0.0) + delta).clamp(min, max).toDouble();
     setState(() => _values[refId] = next);
-    final TextEditingController? controller = _controllers[refId];
-    if (controller != null) {
-      final String nextText = _formatValue(next, _fieldDecimals(refId));
-      controller.value = TextEditingValue(
-        text: nextText,
-        selection: TextSelection.collapsed(offset: nextText.length),
-      );
-    }
-    await _sendCommand(commandId);
+    if (commandId != null) await _sendCommand(commandId);
+    await _sendDataRef(refId, next); // Syncs silently to background draft
   }
 
-  Future<void> _setLayerToggle({
-    required int refId,
-    required bool enabled,
-    required int commandId,
-    required String label,
-  }) async {
+  Future<void> _setLayerToggle(
+      {required int refId,
+      required bool enabled,
+      required int commandId}) async {
     setState(() => _values[refId] = enabled ? 1.0 : 0.0);
     await _sendCommand(commandId);
     await _sendDataRef(refId, enabled ? 1.0 : 0.0);
+  }
+
+  // =========================================================================
+  // CUSTOM EFB NUMPAD: 100% Native, professional, replaces system keyboard!
+  // =========================================================================
+  Future<void> _showCustomNumpad(
+      int refId, String title, double min, double max, int decimals) async {
+    String input = '';
+    await showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setDialogState) {
+            Widget keyBtn(String val, {Color? color, VoidCallback? onTap}) {
+              return Expanded(
+                  child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: color ?? _buttonDark,
+                          foregroundColor: _white,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(color: _border)),
+                          padding: EdgeInsets.zero,
+                          elevation: 0,
+                        ),
+                        onPressed: onTap ??
+                            () {
+                              if (input.length < 10)
+                                setDialogState(() => input += val);
+                            },
+                        child: Text(val,
+                            style: const TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.bold)),
+                      )));
+            }
+
+            return Dialog(
+                backgroundColor: _card,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: _border)),
+                child: Container(
+                    width: 320,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Text(title.toUpperCase(),
+                          style: const TextStyle(
+                              color: _heading,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.0)),
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                            color: _fieldBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: _accent)),
+                        child: Text(input.isEmpty ? '_' : input,
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(
+                                color: _white,
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                          height: 55,
+                          child: Row(children: [
+                            keyBtn('7'),
+                            keyBtn('8'),
+                            keyBtn('9')
+                          ])),
+                      SizedBox(
+                          height: 55,
+                          child: Row(children: [
+                            keyBtn('4'),
+                            keyBtn('5'),
+                            keyBtn('6')
+                          ])),
+                      SizedBox(
+                          height: 55,
+                          child: Row(children: [
+                            keyBtn('1'),
+                            keyBtn('2'),
+                            keyBtn('3')
+                          ])),
+                      SizedBox(
+                          height: 55,
+                          child: Row(children: [
+                            keyBtn('.', onTap: () {
+                              if (!input.contains('.'))
+                                setDialogState(() => input += '.');
+                            }),
+                            keyBtn('0'),
+                            keyBtn('-', onTap: () {
+                              if (input.startsWith('-'))
+                                setDialogState(
+                                    () => input = input.substring(1));
+                              else
+                                setDialogState(() => input = '-' + input);
+                            })
+                          ])),
+                      SizedBox(
+                          height: 55,
+                          child: Row(children: [
+                            keyBtn('DEL', color: _danger.withOpacity(0.5),
+                                onTap: () {
+                              if (input.isNotEmpty)
+                                setDialogState(() => input =
+                                    input.substring(0, input.length - 1));
+                            }),
+                            keyBtn('DONE', color: _good.withOpacity(0.6),
+                                onTap: () {
+                              Navigator.pop(context, input);
+                            }),
+                          ]))
+                    ])));
+          });
+        }).then((value) {
+      if (value != null && value.toString().isNotEmpty) {
+        double? parsed = double.tryParse(value.toString());
+        if (parsed != null) {
+          double clamped = parsed.clamp(min, max);
+          setState(() => _values[refId] = clamped);
+          _sendDataRef(refId, clamped); // Send silently in background
+        }
+      }
+    });
+  }
+
+  // =========================================================================
+  // COMPACT INPUT: Merges Text Field and +/- Buttons perfectly!
+  // =========================================================================
+  Widget _compactInput({
+    required int refId,
+    required String label,
+    required double step,
+    required double min,
+    required double max,
+    int? minusCommand,
+    int? plusCommand,
+    String unit = '',
+    int decimals = 0,
+    bool disabled = false,
+  }) {
+    final double value = _values[refId] ?? 0.0;
+    return Opacity(
+        opacity: disabled ? 0.3 : 1.0,
+        child: IgnorePointer(
+            ignoring: disabled,
+            child: SizedBox(
+                width: 175,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(label.toUpperCase(),
+                          style: const TextStyle(
+                              color: _heading,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.6)),
+                      const SizedBox(height: 6),
+                      Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                              color: _fieldBg,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: _border)),
+                          child: Row(children: [
+                            InkWell(
+                              onTap: () => _stepValue(
+                                  refId: refId,
+                                  delta: -step,
+                                  commandId: minusCommand,
+                                  min: min,
+                                  max: max),
+                              child: Container(
+                                  width: 40,
+                                  alignment: Alignment.center,
+                                  child: const Text('−',
+                                      style: TextStyle(
+                                          color: _white, fontSize: 20))),
+                            ),
+                            Container(width: 1, color: _border),
+                            Expanded(
+                                child: InkWell(
+                                    onTap: () => _showCustomNumpad(
+                                        refId, label, min, max, decimals),
+                                    child: Center(
+                                        child: Text(
+                                            '${_formatValue(value, decimals)}${unit.isEmpty ? '' : ' $unit'}',
+                                            style: const TextStyle(
+                                                color: _white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                fontFeatures: [
+                                                  FontFeature.tabularFigures()
+                                                ]))))),
+                            Container(width: 1, color: _border),
+                            InkWell(
+                              onTap: () => _stepValue(
+                                  refId: refId,
+                                  delta: step,
+                                  commandId: plusCommand,
+                                  min: min,
+                                  max: max),
+                              child: Container(
+                                  width: 40,
+                                  alignment: Alignment.center,
+                                  child: const Text('+',
+                                      style: TextStyle(
+                                          color: _accent, fontSize: 20))),
+                            ),
+                          ]))
+                    ]))));
   }
 
   Widget _panel(
@@ -652,7 +770,7 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                         fontSize: compact ? 11 : 12,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.25),
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis),
               ]),
         ),
@@ -710,138 +828,6 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                 ),
               ),
             ),
-          ]),
-    );
-  }
-
-  Widget _numberField({
-    required int refId,
-    required String label,
-    String unit = '',
-    double min = -1000000,
-    double max = 1000000,
-    int decimals = 0,
-    double width = 235,
-  }) {
-    final TextEditingController controller = _controllers.putIfAbsent(
-      refId,
-      () => TextEditingController(
-          text: _formatValue(_values[refId] ?? 0.0, decimals)),
-    );
-    return SizedBox(
-      width: width,
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(label.toUpperCase(),
-                style: const TextStyle(
-                    color: _heading,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.7)),
-            const SizedBox(height: 5),
-            Row(children: <Widget>[
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true, signed: true),
-                  textInputAction: TextInputAction.done,
-                  style: const TextStyle(
-                      color: _white, fontSize: 14, fontWeight: FontWeight.w600),
-                  cursorColor: _accent,
-                  onSubmitted: (String value) => _commitNumberField(
-                      refId, value,
-                      min: min, max: max, decimals: decimals),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    filled: true,
-                    fillColor: _fieldBg,
-                    suffixText: unit.isEmpty ? null : unit,
-                    suffixStyle:
-                        const TextStyle(color: _smallValue, fontSize: 11),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 12),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                        borderSide: const BorderSide(color: _border, width: 1)),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                        borderSide: const BorderSide(color: _accent, width: 1)),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              _button('SEND',
-                  compact: true,
-                  selected: true,
-                  icon: Icons.north_east,
-                  onPressed: () => _commitNumberField(refId, controller.text,
-                      min: min, max: max, decimals: decimals)),
-            ]),
-          ]),
-    );
-  }
-
-  Widget _stepper({
-    required int refId,
-    required String label,
-    required double step,
-    required double min,
-    required double max,
-    required int minusCommand,
-    required int plusCommand,
-    String unit = '',
-    int decimals = 0,
-  }) {
-    final double value = _values[refId] ?? 0.0;
-    return _panel(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(label.toUpperCase(),
-                style: const TextStyle(
-                    color: _heading,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.6)),
-            const SizedBox(height: 8),
-            Row(children: <Widget>[
-              _button('−',
-                  compact: true,
-                  onPressed: () => _stepValue(
-                      refId: refId,
-                      delta: -step,
-                      commandId: minusCommand,
-                      min: min,
-                      max: max,
-                      label: '$label −')),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: Text(
-                      '${_formatValue(value, decimals)}${unit.isEmpty ? '' : ' $unit'}',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: _white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          fontFeatures: <FontFeature>[
-                            FontFeature.tabularFigures()
-                          ]))),
-              const SizedBox(width: 8),
-              _button('+',
-                  compact: true,
-                  selected:
-                      true, // Keeping generic inputs selected as standard for +
-                  onPressed: () => _stepValue(
-                      refId: refId,
-                      delta: step,
-                      commandId: plusCommand,
-                      min: min,
-                      max: max,
-                      label: '$label +')),
-            ]),
           ]),
     );
   }
@@ -993,7 +979,7 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                       values: List<int>.generate(24, (int i) => i),
                       display: (int h) => h.toString().padLeft(2, '0'),
                       width: 75,
-                      onTap: () => _sendCommand(95, label: 'Focus hour entry'),
+                      onTap: () => _sendCommand(95),
                       onChanged: (int? h) {
                         if (h != null) _chooseHour(h);
                       }),
@@ -1003,8 +989,7 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                       values: List<int>.generate(12, (int i) => i * 5),
                       display: (int m) => m.toString().padLeft(2, '0'),
                       width: 75,
-                      onTap: () =>
-                          _sendCommand(96, label: 'Focus minute entry'),
+                      onTap: () => _sendCommand(96),
                       onChanged: (int? m) {
                         if (m != null) _chooseMinute(m);
                       }),
@@ -1176,7 +1161,7 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
   }) {
     final int baseRef = 16 + index * 5;
     if ((_values[baseRef] ?? 0) == 0)
-      return const SizedBox.shrink(); // Hide if inactive
+      return const SizedBox.shrink(); // Hide immediately if inactive
 
     final double base =
         _values[baseRef + 3] ?? (1000 + index * 4000).toDouble();
@@ -1283,7 +1268,7 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
 
   Widget _verticalChoiceColumn(String title, List<Widget> buttons) {
     return Padding(
-      padding: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.only(right: 12, bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -1348,8 +1333,7 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                           _cloudLayer = target;
                           _values[16 + target * 5] = 1.0;
                           if ((_values[16 + target * 5 + 2] ?? 0) == 0) {
-                            _values[16 + target * 5 + 2] =
-                                4.0; // Give it default coverage
+                            _values[16 + target * 5 + 2] = 4.0;
                           }
                         });
                         await _sendCommand(16);
@@ -1373,43 +1357,32 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                 if (count > 0) ...[
                   const SizedBox(height: 14),
                   Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
-                    _numberField(
+                    _compactInput(
                         refId: topRef,
-                        label: 'Top',
+                        label: 'Top Altitude',
                         unit: 'ft',
                         min: 0,
                         max: 40000,
+                        step: 500,
                         decimals: 0),
-                    _numberField(
+                    _compactInput(
                         refId: baseRef,
-                        label: 'Base',
+                        label: 'Base Altitude',
                         unit: 'ft',
                         min: 0,
                         max: 40000,
+                        step: 500,
                         decimals: 0),
                   ]),
-                  const SizedBox(height: 12),
-                  _sliderEditor(
-                      label: 'TOP ALTITUDE',
-                      refId: topRef,
-                      min: 0,
-                      max: 40000,
-                      step: 500,
-                      unit: 'ft'),
-                  _sliderEditor(
-                      label: 'BASE ALTITUDE',
-                      refId: baseRef,
-                      min: 0,
-                      max: 40000,
-                      step: 500,
-                      unit: 'ft'),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
-                  // Vertical Columns Layout matching the image[span_2](start_span)[span_2](end_span)
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  // Wrap with Center Alignment to make the 6 columns perfectly centered[span_0](start_span)[span_0](end_span)
+                  SizedBox(
+                    width: double.infinity,
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 8,
+                      runSpacing: 16,
                       children: [
                         _verticalChoiceColumn(
                             'TYPE',
@@ -1438,7 +1411,7 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                             List<Widget>.generate(
                                 8,
                                 (i) => _button(_coverageNames[i],
-                                        minWidth: 100,
+                                        minWidth: 95,
                                         compact: true,
                                         selected: (_values[coverageRef] ?? 0)
                                                 .round() ==
@@ -1518,67 +1491,16 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _numberField(
+                  _compactInput(
                       refId: 53,
                       label: 'Precipitation Base',
                       unit: 'ft MSL',
                       min: 0,
-                      max: 40000),
+                      max: 40000,
+                      step: 500),
                 ],
               ])),
         ]);
-  }
-
-  Widget _sliderEditor(
-      {required String label,
-      required int refId,
-      required double min,
-      required double max,
-      required double step,
-      required String unit}) {
-    final double value = (_values[refId] ?? min).clamp(min, max).toDouble();
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 7),
-      child: Row(children: <Widget>[
-        SizedBox(
-            width: 115,
-            child: Text(label,
-                style: const TextStyle(
-                    color: _heading,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5))),
-        Expanded(
-            child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: _accent,
-                    inactiveTrackColor: _border,
-                    thumbColor: _white,
-                    trackHeight: 3,
-                    overlayColor: _accent.withOpacity(0.12)),
-                child: Slider(
-                  value: value,
-                  min: min,
-                  max: max,
-                  divisions: ((max - min) / step).round(),
-                  onChanged: (double next) => setState(() => _values[refId] =
-                      ((next / step).round() * step)
-                          .clamp(min, max)
-                          .toDouble()),
-                  onChangeEnd: (double next) => _sendValue(
-                      refId,
-                      ((next / step).round() * step)
-                          .clamp(min, max)
-                          .toDouble()),
-                ))),
-        SizedBox(
-            width: 80,
-            child: Text('${(_values[refId] ?? min).round()} $unit',
-                textAlign: TextAlign.end,
-                style: const TextStyle(
-                    color: _white, fontSize: 11, fontWeight: FontWeight.w700))),
-      ]),
-    );
   }
 
   Widget _buildWindLayerOverview() {
@@ -1666,106 +1588,54 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                     label: 'WIND LAYER ${_windLayer + 1} ENABLED',
                     value: (_values[activeRef] ?? 0) != 0,
                     onChanged: (bool on) => _setLayerToggle(
-                        refId: activeRef,
-                        enabled: on,
-                        commandId: 56,
-                        label: 'Toggle selected wind layer')),
-                const SizedBox(height: 12),
+                        refId: activeRef, enabled: on, commandId: 56)),
+                const SizedBox(height: 16),
                 Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
-                  _numberField(
+                  _compactInput(
                       refId: base + 1,
                       label: 'Altitude',
-                      unit: 'ft MSL',
+                      unit: 'ft',
                       min: 0,
-                      max: 60000),
-                  _numberField(
+                      max: 60000,
+                      step: 1000,
+                      minusCommand: 57,
+                      plusCommand: 58),
+                  _compactInput(
                       refId: base + 2,
                       label: 'Direction TRUE',
-                      unit: 'deg',
+                      unit: '°',
                       min: 0,
-                      max: 359),
-                  _numberField(
+                      max: 359,
+                      step: 5,
+                      minusCommand: 59,
+                      plusCommand: 60),
+                  _compactInput(
                       refId: base + 3,
                       label: 'Wind Speed',
                       unit: 'kt',
                       min: 0,
-                      max: 250),
-                  _numberField(
+                      max: 250,
+                      step: 5,
+                      minusCommand: 61,
+                      plusCommand: 62),
+                  _compactInput(
                       refId: base + 4,
                       label: 'Gust Speed TOTAL',
                       unit: 'kt',
                       min: (_values[base + 3] ?? 0.0),
-                      max: 300),
-                  _numberField(
+                      max: 300,
+                      step: 5,
+                      minusCommand: 63,
+                      plusCommand: 64),
+                  _compactInput(
                       refId: base + 5,
                       label: 'Shear',
                       unit: '',
                       min: 0,
-                      max: 180),
-                ]),
-              ])),
-          const SizedBox(height: 12),
-          _panel(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                _sectionTitle('Wind Parameter Steps'),
-                Wrap(spacing: 10, runSpacing: 10, children: <Widget>[
-                  SizedBox(
-                      width: 205,
-                      child: _stepper(
-                          refId: base + 1,
-                          label: 'Altitude',
-                          step: 1000,
-                          min: 0,
-                          max: 60000,
-                          minusCommand: 57,
-                          plusCommand: 58,
-                          unit: 'ft')),
-                  SizedBox(
-                      width: 205,
-                      child: _stepper(
-                          refId: base + 2,
-                          label: 'Direction',
-                          step: 5,
-                          min: 0,
-                          max: 359,
-                          minusCommand: 59,
-                          plusCommand: 60,
-                          unit: '°')),
-                  SizedBox(
-                      width: 205,
-                      child: _stepper(
-                          refId: base + 3,
-                          label: 'Speed',
-                          step: 5,
-                          min: 0,
-                          max: 250,
-                          minusCommand: 61,
-                          plusCommand: 62,
-                          unit: 'kt')),
-                  SizedBox(
-                      width: 205,
-                      child: _stepper(
-                          refId: base + 4,
-                          label: 'Gust',
-                          step: 5,
-                          min: (_values[base + 3] ?? 0.0),
-                          max: 300,
-                          minusCommand: 63,
-                          plusCommand: 64,
-                          unit: 'kt')),
-                  SizedBox(
-                      width: 205,
-                      child: _stepper(
-                          refId: base + 5,
-                          label: 'Shear',
-                          step: 5,
-                          min: 0,
-                          max: 180,
-                          minusCommand: 65,
-                          plusCommand: 66,
-                          unit: '')),
+                      max: 180,
+                      step: 5,
+                      minusCommand: 65,
+                      plusCommand: 66),
                 ]),
               ])),
           const SizedBox(height: 12),
@@ -1802,62 +1672,34 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                   children: <Widget>[
                 _sectionTitle('Surface / Sea-Level Conditions'),
                 Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
-                  _numberField(
+                  _compactInput(
                       refId: 49,
                       label: 'Temperature',
                       unit: '°C',
                       min: -80,
-                      max: 60),
-                  _numberField(
+                      max: 60,
+                      step: 1,
+                      minusCommand: 72,
+                      plusCommand: 73),
+                  _compactInput(
                       refId: 50,
                       label: 'Dew Point',
                       unit: '°C',
                       min: -100,
-                      max: (_values[49] ?? 20.0)),
-                  _numberField(
+                      max: (_values[49] ?? 20.0),
+                      step: 1,
+                      minusCommand: 74,
+                      plusCommand: 75),
+                  _compactInput(
                       refId: 51,
                       label: 'QNH',
                       unit: 'hPa',
                       min: 870,
                       max: 1085,
-                      decimals: 2),
-                ]),
-                const SizedBox(height: 16),
-                Wrap(spacing: 10, runSpacing: 10, children: <Widget>[
-                  SizedBox(
-                      width: 220,
-                      child: _stepper(
-                          refId: 49,
-                          label: 'Temperature',
-                          step: 1,
-                          min: -80,
-                          max: 60,
-                          minusCommand: 72,
-                          plusCommand: 73,
-                          unit: '°C')),
-                  SizedBox(
-                      width: 220,
-                      child: _stepper(
-                          refId: 50,
-                          label: 'Dew Point',
-                          step: 1,
-                          min: -100,
-                          max: (_values[49] ?? 20.0),
-                          minusCommand: 74,
-                          plusCommand: 75,
-                          unit: '°C')),
-                  SizedBox(
-                      width: 220,
-                      child: _stepper(
-                          refId: 51,
-                          label: 'QNH',
-                          step: 1,
-                          min: 870,
-                          max: 1085,
-                          minusCommand: 76,
-                          plusCommand: 77,
-                          unit: 'hPa',
-                          decimals: 2)),
+                      step: 1,
+                      decimals: 2,
+                      minusCommand: 76,
+                      plusCommand: 77),
                 ]),
               ])),
           const SizedBox(height: 12),
@@ -1879,23 +1721,10 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                     await _sendDataRef(49, 15.0);
                     await _sendDataRef(50, 10.0);
                     await _sendDataRef(51, 1013.25);
-                    _syncControllers(<int>[49, 50, 51]);
                   }),
                 ]),
               ])),
         ]);
-  }
-
-  void _syncControllers(List<int> refs) {
-    for (final int id in refs) {
-      final TextEditingController? c = _controllers[id];
-      if (c != null) {
-        final String text = _formatValue(_values[id] ?? 0, _fieldDecimals(id));
-        c.value = TextEditingValue(
-            text: text,
-            selection: TextSelection.collapsed(offset: text.length));
-      }
-    }
   }
 
   Widget _buildVisibilityPage() {
@@ -1906,57 +1735,15 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                _sectionTitle('Visibility and Precipitation',
-                    subtitle:
-                        'Adjust horizontal visibility and precipitation base altitude.'),
-                Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
-                  _numberField(
-                      refId: 52,
-                      label: 'Visibility',
-                      unit: 'km',
-                      min: 0.1,
-                      max: 80,
-                      decimals: 1),
-                  _numberField(
-                      refId: 53,
-                      label: 'Precipitation Base',
-                      unit: 'ft MSL',
-                      min: 0,
-                      max: 40000),
-                  _numberField(
-                      refId: 14,
-                      label: 'RVR Target',
-                      unit: 'm',
-                      min: 0,
-                      max: 6000),
-                ]),
-                const SizedBox(height: 14),
-                Wrap(spacing: 10, runSpacing: 10, children: <Widget>[
-                  SizedBox(
-                      width: 220,
-                      child: _stepper(
-                          refId: 52,
-                          label: 'Visibility',
-                          step: 1,
-                          min: 0.1,
-                          max: 80,
-                          minusCommand: 79,
-                          plusCommand: 80,
-                          unit: 'km',
-                          decimals: 1)),
-                  SizedBox(
-                      width: 220,
-                      child: _stepper(
-                          refId: 53,
-                          label: 'Precipitation Base',
-                          step: 500,
-                          min: 0,
-                          max: 40000,
-                          minusCommand: 81,
-                          plusCommand: 82,
-                          unit: 'ft')),
-                ]),
-                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                        child: _sectionTitle('Visibility and Precipitation',
+                            subtitle:
+                                'Adjust horizontal visibility and precipitation base altitude.')),
+                  ],
+                ),
                 _toggle(
                     label: 'RVR TRAINING MODE',
                     value: _rvrModeDraft,
@@ -1968,6 +1755,41 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                       await _sendCommand(88);
                       await _sendDataRef(13, enabled ? 1.0 : 0.0);
                     }),
+                const SizedBox(height: 16),
+                Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
+                  _compactInput(
+                      refId: 52,
+                      label: 'Visibility',
+                      unit: 'km',
+                      min: 0.1,
+                      max: 80,
+                      step: 1,
+                      decimals: 1,
+                      minusCommand: 79,
+                      plusCommand: 80,
+                      disabled:
+                          _rvrModeDraft), // Disables completely when RVR is ON
+                  _compactInput(
+                      refId: 14,
+                      label: 'RVR Target',
+                      unit: 'm',
+                      min: 0,
+                      max: 6000,
+                      step: 50,
+                      decimals: 0,
+                      disabled:
+                          !_rvrModeDraft), // Disables completely when RVR is OFF
+                  _compactInput(
+                      refId: 53,
+                      label: 'Precipitation Base',
+                      unit: 'ft MSL',
+                      min: 0,
+                      max: 40000,
+                      step: 500,
+                      decimals: 0,
+                      minusCommand: 81,
+                      plusCommand: 82),
+                ]),
               ])),
         ]);
   }
@@ -2042,13 +1864,15 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
                 Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
                   _button('ENABLE REAL-WORLD WEATHER',
                       icon: Icons.public,
-                      selected: _isRealWeather,
+                      selected: _isRealWeather, // Exclusive ON
                       minWidth: 230, onPressed: () {
                     setState(() => _isRealWeather = true);
                     _sendCommand(97);
                   }),
                   _button('RETURN TO USER WEATHER',
-                      icon: Icons.tune, minWidth: 230, onPressed: () {
+                      icon: Icons.tune,
+                      selected: !_isRealWeather, // Exclusive OFF (Default ON)
+                      minWidth: 230, onPressed: () {
                     setState(() => _isRealWeather = false);
                     _sendCommand(98);
                   }),
@@ -2275,7 +2099,6 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
     _precipType = (_values[56] ?? 0.0).round();
     _precipRate = (_values[57] ?? 0.0).round();
     _selectedWindTurbulence = _selectedTurbulence;
-    _syncControllers(_controllers.keys.toList());
   }
 
   void _resetDraftAfterClear() {
@@ -2309,53 +2132,62 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
     _precipType = 0;
     _precipRate = 0;
     _selectedWindTurbulence = 0;
-    _syncControllers(_controllers.keys.toList());
   }
 
+  // =========================================================================
+  // RESPONSIVE MOBILE ACTION FOOTER[span_1](start_span)[span_1](end_span)
+  // =========================================================================
   Widget _buildActionFooter() {
-    // Seamless background matching _bg and neat arrangement
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      color: _bg,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Row(
-            children: [
-              _button('LOAD',
-                  compact: true,
-                  icon: Icons.folder_open,
-                  onPressed: () => _sendCommand(5)),
-              const SizedBox(width: 12),
-              _button('SAVE',
-                  compact: true,
-                  icon: Icons.save_outlined,
-                  onPressed: () => _sendCommand(6)),
-            ],
-          ),
-          Row(
-            children: [
-              _button('CLEAR ALL',
-                  compact: true,
-                  destructive: true,
-                  icon: Icons.delete_sweep_outlined, onPressed: () async {
-                await _sendCommand(7);
-                setState(() {
-                  _resetDraftAfterClear();
-                  _rvrModeDraft = false;
-                });
-              }),
-              const SizedBox(width: 12),
-              _button('APPLY WEATHER',
-                  compact: true,
-                  selected: true,
-                  icon: Icons.cloud_upload_outlined,
-                  onPressed: () => _sendCommand(8)),
-            ],
-          ),
-        ],
-      ),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      bool isMobile = constraints.maxWidth < 600;
+      return Container(
+          padding: EdgeInsets.fromLTRB(16, 12, 16, isMobile ? 32 : 24),
+          color: _bg,
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Expanded(
+                child: Row(children: [
+              Expanded(
+                  child: _button(isMobile ? 'LOAD' : 'LOAD',
+                      compact: true,
+                      icon: Icons.folder_open,
+                      onPressed: () => _sendCommand(5))),
+              SizedBox(width: isMobile ? 6 : 12),
+              Expanded(
+                  child: _button(isMobile ? 'SAVE' : 'SAVE',
+                      compact: true,
+                      icon: Icons.save_outlined,
+                      onPressed: () => _sendCommand(6))),
+            ])),
+            SizedBox(width: isMobile ? 12 : 32),
+            Expanded(
+                flex: isMobile
+                    ? 2
+                    : 1, // Give more room to CLEAR and APPLY on mobile
+                child: Row(children: [
+                  Expanded(
+                      child: _button(isMobile ? 'CLEAR' : 'CLEAR ALL',
+                          compact: true,
+                          destructive: true,
+                          icon: Icons.delete_sweep_outlined,
+                          onPressed: () async {
+                    await _sendCommand(7);
+                    setState(() {
+                      _resetDraftAfterClear();
+                      _rvrModeDraft = false;
+                    });
+                  })),
+                  SizedBox(width: isMobile ? 6 : 12),
+                  Expanded(
+                      flex: isMobile ? 1 : 0,
+                      child: _button(isMobile ? 'APPLY' : 'APPLY WEATHER',
+                          compact: true,
+                          selected: true,
+                          icon: Icons.cloud_upload_outlined,
+                          onPressed: () => _sendCommand(8))),
+                ]))
+          ]));
+    });
   }
 
   Widget _buildPageBody() {
@@ -2373,7 +2205,6 @@ class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Crucial for AutomaticKeepAliveClientMixin
     return SizedBox(
       width: widget.width ?? double.infinity,
       height: widget.height ?? 900,
