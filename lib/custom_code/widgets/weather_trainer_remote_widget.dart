@@ -15,12 +15,6 @@ import 'dart:typed_data';
 import 'dart:ui' show FontFeature;
 
 /// Weather Trainer send-only remote panel.
-///
-/// IMPORTANT: - The widget sends commands and writable DataRefs to X-Plane
-/// via UDP. - It does not receive simulator state. Values displayed here are
-/// local draft values and cannot reflect Load/Apply effects made inside
-/// X-Plane unless the user changes them here or a receive protocol is added
-/// later. - X-Plane must be configured to accept UDP input on port 49000.
 class WeatherTrainerRemoteWidget extends StatefulWidget {
   const WeatherTrainerRemoteWidget({
     super.key,
@@ -38,8 +32,11 @@ class WeatherTrainerRemoteWidget extends StatefulWidget {
       _WeatherTrainerRemoteWidgetState();
 }
 
-class _WeatherTrainerRemoteWidgetState
-    extends State<WeatherTrainerRemoteWidget> {
+class _WeatherTrainerRemoteWidgetState extends State<WeatherTrainerRemoteWidget>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true; // Keeps the state alive when switching pages!
+
   static const String _pathPrefix = 'qX7_9vK/4mZ_2p8/';
   static const int _xPlanePort = 49000;
 
@@ -62,10 +59,10 @@ class _WeatherTrainerRemoteWidgetState
   static const Color _aircraft = Color(0xFFB7CCE9);
   static const Color _headingControlBg = Color(0xFF243244);
 
-  int _page = 0; // k001..k004 / v001
-  int _subTab = 0; // k009..k012 / v002
-  int _cloudLayer = 0; // k013..k015 / v003
-  int _windLayer = 0; // k053..k055 / v004
+  int _page = 0;
+  int _subTab = 0;
+  int _cloudLayer = 0;
+  int _windLayer = 0;
   int _month = 1;
   int _day = 1;
   int _hour = 12;
@@ -74,9 +71,10 @@ class _WeatherTrainerRemoteWidgetState
   int _timeSeconds = 43200;
   bool _trackSystemTimeDraft = false;
   bool _rvrModeDraft = false;
-  bool _nativeWindowDraft = false;
-  String _lastTx = 'Ready';
-  int _sentPackets = 0;
+
+  bool _isRealWeather =
+      false; // Tracks if real world weather is currently selected
+
   int _selectedTurbulence = 0;
   int _selectedIcing = 0;
   int _precipType = 0;
@@ -180,6 +178,7 @@ class _WeatherTrainerRemoteWidgetState
     _values[8] = 0.0;
     _values[13] = 0.0;
     _values[14] = 1000.0;
+    // Cloud layers default to inactive (0.0)
     for (int i = 0; i < 3; i++) {
       final int base = 16 + i * 5;
       _values[base] = 0.0;
@@ -254,6 +253,17 @@ class _WeatherTrainerRemoteWidgetState
     super.dispose();
   }
 
+  void _userDidManualChange(int cmdOrRef) {
+    // If the user interacts with any manual setting, turn off Real Weather indicator
+    if (cmdOrRef != 97 && cmdOrRef != 98 && cmdOrRef < 200) {
+      if (_isRealWeather && mounted) {
+        setState(() {
+          _isRealWeather = false;
+        });
+      }
+    }
+  }
+
   String _formatValue(double value, int decimals) =>
       value.toStringAsFixed(decimals);
 
@@ -278,15 +288,12 @@ class _WeatherTrainerRemoteWidgetState
   }
 
   Future<void> _sendCommand(int commandId, {String? label}) async {
-    if (commandId < 1 || commandId > 205) {
-      if (mounted) setState(() => _lastTx = 'Invalid command ID');
-      return;
-    }
+    if (commandId < 1 || commandId > 205) return;
+    _userDidManualChange(commandId);
+
     final InternetAddress? address = _targetAddress();
-    if (address == null) {
-      if (mounted) setState(() => _lastTx = 'Invalid IP address');
-      return;
-    }
+    if (address == null) return;
+
     RawDatagramSocket? socket;
     try {
       socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
@@ -295,17 +302,9 @@ class _WeatherTrainerRemoteWidgetState
         ..addAll('CMND\x00'.codeUnits)
         ..addAll(path.codeUnits)
         ..add(0);
-      final int sent = socket.send(packet, address, _xPlanePort);
-      if (mounted) {
-        setState(() {
-          _sentPackets++;
-          _lastTx = sent == packet.length
-              ? 'Sent command k${commandId.toString().padLeft(3, '0')}${label == null ? '' : ' • $label'}'
-              : 'Command send incomplete';
-        });
-      }
+      socket.send(packet, address, _xPlanePort);
     } catch (e) {
-      if (mounted) setState(() => _lastTx = 'UDP command error: $e');
+      // Handled silently
     } finally {
       socket?.close();
     }
@@ -315,20 +314,15 @@ class _WeatherTrainerRemoteWidgetState
       {String? label}) async {
     if (dataRefId < 1 ||
         dataRefId > 61 ||
-        const <int>{9, 10, 12, 15}.contains(dataRefId)) {
-      if (mounted) setState(() => _lastTx = 'Invalid or read-only DataRef ID');
-      return;
-    }
+        const <int>{9, 10, 12, 15}.contains(dataRefId)) return;
+    _userDidManualChange(dataRefId);
+
     final InternetAddress? address = _targetAddress();
-    if (address == null) {
-      if (mounted) setState(() => _lastTx = 'Invalid IP address');
-      return;
-    }
+    if (address == null) return;
+
     final String path = _dataRefPath(dataRefId);
-    if (path.codeUnits.length > 500) {
-      if (mounted) setState(() => _lastTx = 'DataRef path exceeds 500 bytes');
-      return;
-    }
+    if (path.codeUnits.length > 500) return;
+
     RawDatagramSocket? socket;
     try {
       socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
@@ -342,17 +336,9 @@ class _WeatherTrainerRemoteWidgetState
         ..add(number.buffer.asUint8List())
         ..add(pathBuffer);
       final Uint8List packet = builder.toBytes();
-      final int sent = socket.send(packet, address, _xPlanePort);
-      if (mounted) {
-        setState(() {
-          _sentPackets++;
-          _lastTx = sent == packet.length
-              ? 'Sent DataRef v${dataRefId.toString().padLeft(3, '0')} = ${value.toStringAsFixed(2)}${label == null ? '' : ' • $label'}'
-              : 'DataRef send incomplete';
-        });
-      }
+      socket.send(packet, address, _xPlanePort);
     } catch (e) {
-      if (mounted) setState(() => _lastTx = 'UDP DataRef error: $e');
+      // Handled silently
     } finally {
       socket?.close();
     }
@@ -371,26 +357,26 @@ class _WeatherTrainerRemoteWidgetState
   Future<void> _selectPage(int page) async {
     if (page < 0 || page > 3) return;
     setState(() => _page = page);
-    await _sendDataRef(1, page.toDouble(), label: 'Page');
-    await _sendCommand(page + 1, label: _mainPageTitles[page]);
+    await _sendDataRef(1, page.toDouble());
+    await _sendCommand(page + 1);
   }
 
   Future<void> _selectSubTab(int tab) async {
     setState(() => _subTab = tab);
-    await _sendDataRef(2, tab.toDouble(), label: 'Weather subtab');
-    await _sendCommand(9 + tab, label: _subTabTitles[tab]);
+    await _sendDataRef(2, tab.toDouble());
+    await _sendCommand(9 + tab);
   }
 
   Future<void> _selectCloudLayer(int layer) async {
     setState(() => _cloudLayer = layer);
-    await _sendDataRef(3, layer.toDouble(), label: 'Cloud layer ${layer + 1}');
-    await _sendCommand(13 + layer, label: 'Cloud layer ${layer + 1}');
+    await _sendDataRef(3, layer.toDouble());
+    await _sendCommand(13 + layer);
   }
 
   Future<void> _selectWindLayer(int layer) async {
     setState(() => _windLayer = layer);
-    await _sendDataRef(4, layer.toDouble(), label: 'Wind layer ${layer + 1}');
-    await _sendCommand(53 + layer, label: 'Wind layer ${layer + 1}');
+    await _sendDataRef(4, layer.toDouble());
+    await _sendCommand(53 + layer);
   }
 
   static const List<int> _monthLengths = <int>[
@@ -408,14 +394,6 @@ class _WeatherTrainerRemoteWidgetState
     31
   ];
 
-  int _dayOfYearFor(int month, int day) {
-    int total = 0;
-    for (int i = 0; i < month - 1; i++) {
-      total += _monthLengths[i];
-    }
-    return total + day - 1;
-  }
-
   Future<void> _chooseMonth(int month) async {
     final int adjustedDay = _day.clamp(1, _monthLengths[month - 1]).toInt();
     setState(() {
@@ -423,8 +401,7 @@ class _WeatherTrainerRemoteWidgetState
       _day = adjustedDay;
       _trackSystemTimeDraft = false;
     });
-    await _sendValueAndCommand(58, month.toDouble(), 107 + month,
-        label: _months[month - 1]);
+    await _sendValueAndCommand(58, month.toDouble(), 107 + month);
   }
 
   Future<void> _chooseDay(int day) async {
@@ -433,8 +410,7 @@ class _WeatherTrainerRemoteWidgetState
       _day = adjustedDay;
       _trackSystemTimeDraft = false;
     });
-    await _sendValueAndCommand(59, adjustedDay.toDouble(), 119 + adjustedDay,
-        label: 'Day $adjustedDay');
+    await _sendValueAndCommand(59, adjustedDay.toDouble(), 119 + adjustedDay);
   }
 
   Future<void> _chooseHour(int hour) async {
@@ -445,9 +421,9 @@ class _WeatherTrainerRemoteWidgetState
       _values[6] = hour.toDouble();
       _trackSystemTimeDraft = false;
     });
-    await _sendDataRef(6, hour.toDouble(), label: 'Hour $hour');
-    await _sendCommand(151 + hour, label: 'Hour $hour');
-    await _sendCommand(205, label: 'Manual time: system tracking off');
+    await _sendDataRef(6, hour.toDouble());
+    await _sendCommand(151 + hour);
+    await _sendCommand(205);
   }
 
   Future<void> _chooseMinute(int minute) async {
@@ -458,9 +434,9 @@ class _WeatherTrainerRemoteWidgetState
       _values[7] = minute.toDouble();
       _trackSystemTimeDraft = false;
     });
-    await _sendDataRef(7, minute.toDouble(), label: 'Minute $minute');
-    await _sendCommand(175 + (minute ~/ 5), label: 'Minute $minute');
-    await _sendCommand(205, label: 'Manual time: system tracking off');
+    await _sendDataRef(7, minute.toDouble());
+    await _sendCommand(175 + (minute ~/ 5));
+    await _sendCommand(205);
   }
 
   Future<void> _chooseGmtOffset(int minutes) async {
@@ -468,8 +444,7 @@ class _WeatherTrainerRemoteWidgetState
       _gmtOffsetMinutes = minutes;
       _trackSystemTimeDraft = false;
     });
-    await _sendCommand(195 + (minutes ~/ 15),
-        label: 'GMT offset ${_formatOffset(minutes)}');
+    await _sendCommand(195 + (minutes ~/ 15));
   }
 
   String _formatOffset(int minutes) {
@@ -480,8 +455,7 @@ class _WeatherTrainerRemoteWidgetState
 
   Future<void> _setTrackSystemTime(bool enabled) async {
     setState(() => _trackSystemTimeDraft = enabled);
-    await _sendValueAndCommand(60, enabled ? 1.0 : 0.0, enabled ? 204 : 205,
-        label: enabled ? 'Track system time ON' : 'Track system time OFF');
+    await _sendValueAndCommand(60, enabled ? 1.0 : 0.0, enabled ? 204 : 205);
   }
 
   Future<void> _setTimeSlider(double rawValue) async {
@@ -496,9 +470,8 @@ class _WeatherTrainerRemoteWidgetState
       _values[7] = _minute.toDouble();
       _trackSystemTimeDraft = false;
     });
-    await _sendCommand(205, label: 'Manual time: system tracking off');
-    await _sendDataRef(5, seconds.toDouble(),
-        label: 'Time slider ${_timeText}');
+    await _sendCommand(205);
+    await _sendDataRef(5, seconds.toDouble());
   }
 
   String get _timeText =>
@@ -513,12 +486,8 @@ class _WeatherTrainerRemoteWidgetState
     String? label,
   }) async {
     final double? parsed = double.tryParse(raw.trim());
-    if (parsed == null || !parsed.isFinite) {
-      if (mounted)
-        setState(
-            () => _lastTx = 'Enter a valid number for ${label ?? 'field'}');
-      return;
-    }
+    if (parsed == null || !parsed.isFinite) return;
+
     final double value = parsed.clamp(min, max).toDouble();
     setState(() {
       _values[refId] = value;
@@ -530,9 +499,8 @@ class _WeatherTrainerRemoteWidgetState
               offset: _formatValue(value, decimals).length),
         );
       }
-      _lastTx = 'Preparing ${label ?? 'value'}';
     });
-    await _sendDataRef(refId, value, label: label);
+    await _sendDataRef(refId, value);
   }
 
   Future<void> _sendValue(int refId, double value, {String? label}) async {
@@ -545,7 +513,7 @@ class _WeatherTrainerRemoteWidgetState
         selection: TextSelection.collapsed(offset: text.length),
       );
     }
-    await _sendDataRef(refId, value, label: label);
+    await _sendDataRef(refId, value);
   }
 
   Future<void> _stepValue({
@@ -567,7 +535,7 @@ class _WeatherTrainerRemoteWidgetState
         selection: TextSelection.collapsed(offset: nextText.length),
       );
     }
-    await _sendCommand(commandId, label: label);
+    await _sendCommand(commandId);
   }
 
   Future<void> _setLayerToggle({
@@ -577,8 +545,8 @@ class _WeatherTrainerRemoteWidgetState
     required String label,
   }) async {
     setState(() => _values[refId] = enabled ? 1.0 : 0.0);
-    await _sendCommand(commandId, label: label);
-    await _sendDataRef(refId, enabled ? 1.0 : 0.0, label: label);
+    await _sendCommand(commandId);
+    await _sendDataRef(refId, enabled ? 1.0 : 0.0);
   }
 
   Widget _panel(
@@ -784,7 +752,7 @@ class _WeatherTrainerRemoteWidgetState
                   cursorColor: _accent,
                   onSubmitted: (String value) => _commitNumberField(
                       refId, value,
-                      min: min, max: max, decimals: decimals, label: label),
+                      min: min, max: max, decimals: decimals),
                   decoration: InputDecoration(
                     isDense: true,
                     filled: true,
@@ -809,7 +777,7 @@ class _WeatherTrainerRemoteWidgetState
                   selected: true,
                   icon: Icons.north_east,
                   onPressed: () => _commitNumberField(refId, controller.text,
-                      min: min, max: max, decimals: decimals, label: label)),
+                      min: min, max: max, decimals: decimals)),
             ]),
           ]),
     );
@@ -864,7 +832,8 @@ class _WeatherTrainerRemoteWidgetState
               const SizedBox(width: 8),
               _button('+',
                   compact: true,
-                  selected: true,
+                  selected:
+                      true, // Keeping generic inputs selected as standard for +
                   onPressed: () => _stepValue(
                       refId: refId,
                       delta: step,
@@ -966,33 +935,6 @@ class _WeatherTrainerRemoteWidgetState
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1.5)),
             ])),
-        const SizedBox(width: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-          decoration: BoxDecoration(
-              color: _fieldBg,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: _border, width: 1)),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                const Text('X-PLANE TARGET',
-                    style: TextStyle(
-                        color: _muted,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8)),
-                const SizedBox(height: 3),
-                Text(
-                    widget.ipAddress.trim().isEmpty
-                        ? 'IP NOT SET'
-                        : widget.ipAddress.trim(),
-                    style: const TextStyle(
-                        color: _accent,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800)),
-              ]),
-        ),
       ]),
     );
   }
@@ -1007,16 +949,32 @@ class _WeatherTrainerRemoteWidgetState
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                _sectionTitle('Time and Season',
-                    subtitle:
-                        'Choose month, day, hour, minute and GMT correction. Values shown are local selections; simulator state is not received.'),
-                Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _sectionTitle('Time and Season',
+                          subtitle:
+                              'Local time and season configurations for the training scenario.'),
+                    ),
+                    _button(
+                      'REAL TIME',
+                      compact: true,
+                      selected: _trackSystemTimeDraft,
+                      icon: Icons.schedule,
+                      onPressed: () =>
+                          _setTrackSystemTime(!_trackSystemTimeDraft),
+                    ),
+                  ],
+                ),
+                Wrap(spacing: 8, runSpacing: 12, children: <Widget>[
                   _selector<int>(
                       label: 'Month',
                       value: _month,
                       values: List<int>.generate(12, (int i) => i + 1),
                       display: (int m) => _months[m - 1],
-                      width: 145,
+                      width: 95,
                       onChanged: (int? m) {
                         if (m != null) _chooseMonth(m);
                       }),
@@ -1025,7 +983,7 @@ class _WeatherTrainerRemoteWidgetState
                       value: _day,
                       values: List<int>.generate(31, (int i) => i + 1),
                       display: (int d) => d.toString().padLeft(2, '0'),
-                      width: 100,
+                      width: 75,
                       onChanged: (int? d) {
                         if (d != null) _chooseDay(d);
                       }),
@@ -1034,7 +992,7 @@ class _WeatherTrainerRemoteWidgetState
                       value: _hour,
                       values: List<int>.generate(24, (int i) => i),
                       display: (int h) => h.toString().padLeft(2, '0'),
-                      width: 105,
+                      width: 75,
                       onTap: () => _sendCommand(95, label: 'Focus hour entry'),
                       onChanged: (int? h) {
                         if (h != null) _chooseHour(h);
@@ -1044,7 +1002,7 @@ class _WeatherTrainerRemoteWidgetState
                       value: _minute,
                       values: List<int>.generate(12, (int i) => i * 5),
                       display: (int m) => m.toString().padLeft(2, '0'),
-                      width: 105,
+                      width: 75,
                       onTap: () =>
                           _sendCommand(96, label: 'Focus minute entry'),
                       onChanged: (int? m) {
@@ -1055,7 +1013,7 @@ class _WeatherTrainerRemoteWidgetState
                       value: offset,
                       values: offsets,
                       display: _formatOffset,
-                      width: 145,
+                      width: 110,
                       onChanged: (int? m) {
                         if (m != null) _chooseGmtOffset(m);
                       }),
@@ -1067,13 +1025,10 @@ class _WeatherTrainerRemoteWidgetState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                 Row(children: <Widget>[
-                  Expanded(
-                      child: _sectionTitle('Time Slider',
-                          subtitle:
-                              '00:00–23:55 • 5-minute steps • value sent as seconds from midnight.')),
+                  Expanded(child: _sectionTitle('Time Slider')),
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                         color: _fieldBg,
                         borderRadius: BorderRadius.circular(6),
@@ -1081,7 +1036,7 @@ class _WeatherTrainerRemoteWidgetState
                     child: Text(_timeText,
                         style: const TextStyle(
                             color: _white,
-                            fontSize: 21,
+                            fontSize: 16,
                             fontWeight: FontWeight.w900,
                             fontFeatures: <FontFeature>[
                               FontFeature.tabularFigures()
@@ -1117,20 +1072,6 @@ class _WeatherTrainerRemoteWidgetState
                     onChangeEnd: _setTimeSlider,
                   ),
                 ),
-                const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text('00:00',
-                          style: TextStyle(color: _smallValue, fontSize: 10)),
-                      Text('06:00',
-                          style: TextStyle(color: _smallValue, fontSize: 10)),
-                      Text('12:00',
-                          style: TextStyle(color: _smallValue, fontSize: 10)),
-                      Text('18:00',
-                          style: TextStyle(color: _smallValue, fontSize: 10)),
-                      Text('23:55',
-                          style: TextStyle(color: _smallValue, fontSize: 10)),
-                    ]),
                 const SizedBox(height: 14),
                 _choiceWrap(<Widget>[
                   _button('DAY −',
@@ -1139,38 +1080,17 @@ class _WeatherTrainerRemoteWidgetState
                       onPressed: () => _stepDate(-1)),
                   _button('DAY +',
                       compact: true,
-                      selected: true,
                       icon: Icons.add,
                       onPressed: () => _stepDate(1)),
                   _button('HOUR −',
                       compact: true, onPressed: () => _stepTime(hours: -1)),
                   _button('HOUR +',
-                      compact: true,
-                      selected: true,
-                      onPressed: () => _stepTime(hours: 1)),
+                      compact: true, onPressed: () => _stepTime(hours: 1)),
                   _button('−10 MIN',
                       compact: true, onPressed: () => _stepTime(minutes: -10)),
                   _button('+10 MIN',
-                      compact: true,
-                      selected: true,
-                      onPressed: () => _stepTime(minutes: 10)),
+                      compact: true, onPressed: () => _stepTime(minutes: 10)),
                 ]),
-              ])),
-          const SizedBox(height: 12),
-          _panel(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                _sectionTitle('System Time',
-                    subtitle:
-                        'This sends the plugin command and writable DataRef. The widget does not read back or confirm the simulator state.'),
-                _toggle(
-                  label: 'TRACK SYSTEM TIME',
-                  value: _trackSystemTimeDraft,
-                  subtitle:
-                      'Local toggle only • simulator state is not read back',
-                  onChanged: _setTrackSystemTime,
-                ),
               ])),
         ]);
   }
@@ -1191,7 +1111,7 @@ class _WeatherTrainerRemoteWidgetState
             : minutes < 0
                 ? 93
                 : 94;
-    await _sendCommand(commandId, label: 'Time step');
+    await _sendCommand(commandId);
   }
 
   Future<void> _stepDate(int delta) async {
@@ -1223,8 +1143,29 @@ class _WeatherTrainerRemoteWidgetState
       _day = nextDay;
       _trackSystemTimeDraft = false;
     });
-    await _sendCommand(delta < 0 ? 89 : 90,
-        label: delta < 0 ? 'Day minus' : 'Day plus');
+    await _sendCommand(delta < 0 ? 89 : 90);
+  }
+
+  int get _activeCloudLayerCount {
+    int count = 0;
+    for (int i = 0; i < 3; i++) {
+      if ((_values[16 + i * 5] ?? 0) != 0) count++;
+    }
+    return count;
+  }
+
+  int _firstInactiveCloudLayer() {
+    for (int i = 0; i < 3; i++) {
+      if ((_values[16 + i * 5] ?? 0) == 0) return i;
+    }
+    return -1;
+  }
+
+  int? _firstActiveCloudLayer() {
+    for (int i = 0; i < 3; i++) {
+      if ((_values[16 + i * 5] ?? 0) != 0) return i;
+    }
+    return null;
   }
 
   Widget _cloudProfileBar({
@@ -1234,6 +1175,9 @@ class _WeatherTrainerRemoteWidgetState
     required double Function(double) yFor,
   }) {
     final int baseRef = 16 + index * 5;
+    if ((_values[baseRef] ?? 0) == 0)
+      return const SizedBox.shrink(); // Hide if inactive
+
     final double base =
         _values[baseRef + 3] ?? (1000 + index * 4000).toDouble();
     final double top = _values[baseRef + 4] ?? (5000 + index * 4000).toDouble();
@@ -1241,8 +1185,8 @@ class _WeatherTrainerRemoteWidgetState
     final double barBottom = yFor(base);
     final double barHeight =
         (barBottom - barTop).abs().clamp(6.0, chartHeight).toDouble();
-    final bool active = (_values[baseRef] ?? 0) != 0;
     final bool selected = _cloudLayer == index;
+
     return Positioned(
       left: columnWidth * index + 4,
       width: columnWidth - 8,
@@ -1251,8 +1195,7 @@ class _WeatherTrainerRemoteWidgetState
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color:
-              active ? _accent.withOpacity(selected ? 0.52 : 0.26) : _fieldBg,
+          color: _accent.withOpacity(selected ? 0.52 : 0.26),
           borderRadius: BorderRadius.circular(5),
           border: Border.all(color: selected ? _accent : _border, width: 1),
           boxShadow: selected
@@ -1263,10 +1206,8 @@ class _WeatherTrainerRemoteWidgetState
         ),
         child: Text(
           'L${index + 1}',
-          style: TextStyle(
-              color: active ? _white : _muted,
-              fontSize: 10,
-              fontWeight: FontWeight.w900),
+          style: const TextStyle(
+              color: _white, fontSize: 10, fontWeight: FontWeight.w900),
         ),
       ),
     );
@@ -1285,9 +1226,7 @@ class _WeatherTrainerRemoteWidgetState
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            _sectionTitle('Cloud Profile',
-                subtitle:
-                    'Altitude profile • local draft only, not simulator readback.'),
+            _sectionTitle('Cloud Profile'),
             SizedBox(
               height: chartHeight,
               child: Row(children: <Widget>[
@@ -1342,12 +1281,36 @@ class _WeatherTrainerRemoteWidgetState
     );
   }
 
+  Widget _verticalChoiceColumn(String title, List<Widget> buttons) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(title.toUpperCase(),
+              style: const TextStyle(
+                  color: _heading,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.7)),
+          const SizedBox(height: 8),
+          ...buttons.map((b) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: b,
+              )),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCloudsPage() {
+    final int count = _activeCloudLayerCount;
     final int activeRef = 16 + _cloudLayer * 5;
     final int typeRef = activeRef + 1;
     final int coverageRef = activeRef + 2;
     final int baseRef = activeRef + 3;
     final int topRef = activeRef + 4;
+
     return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
@@ -1357,253 +1320,213 @@ class _WeatherTrainerRemoteWidgetState
                   children: <Widget>[
                 _sectionTitle('Cloud Layers',
                     subtitle:
-                        'Three editable layers • altitude in feet MSL • local draft values are not read from X-Plane.'),
-                _buildCloudProfileGraphic(),
-                const SizedBox(height: 10),
+                        'Configure altitude, type, and severity for multiple layers.'),
+                if (count > 0) _buildCloudProfileGraphic(),
+                if (count > 0) const SizedBox(height: 10),
                 Row(children: <Widget>[
                   Expanded(
-                    child: _choiceWrap(List<Widget>.generate(
-                        3,
-                        (int i) => _button('LAYER ${i + 1}',
-                            compact: true,
-                            selected: _cloudLayer == i,
-                            onPressed: () => _selectCloudLayer(i)))),
+                    child: count > 0
+                        ? _choiceWrap(List<Widget>.generate(
+                            3,
+                            (int i) => (_values[16 + i * 5] ?? 0) != 0
+                                ? _button('LAYER ${i + 1}',
+                                    compact: true,
+                                    selected: _cloudLayer == i,
+                                    onPressed: () => _selectCloudLayer(i))
+                                : const SizedBox.shrink()))
+                        : const SizedBox.shrink(),
                   ),
                   const SizedBox(width: 8),
-                  _button('ADD LAYER',
-                      compact: true,
-                      icon: Icons.add,
-                      selected: true, onPressed: () async {
-                    await _sendCommand(16, label: 'Add cloud layer');
-                    final int target = _firstInactiveCloudLayer();
-                    if (target >= 0) setState(() => _cloudLayer = target);
-                  }),
-                  const SizedBox(width: 8),
-                  _button('DELETE',
-                      compact: true,
-                      destructive: true,
-                      icon: Icons.delete_outline, onPressed: () async {
-                    await _sendCommand(17,
-                        label: 'Delete selected cloud layer');
-                    setState(() {
-                      _values[activeRef] = 0.0;
-                      _values[coverageRef] = 0.0;
-                    });
-                  }),
-                ]),
-                const SizedBox(height: 14),
-                _toggle(
-                    label: 'CLOUD LAYER ${_cloudLayer + 1} ENABLED',
-                    value: (_values[activeRef] ?? 0.0) != 0,
-                    subtitle:
-                        'Local control selection only • no simulator readback',
-                    onChanged: (bool on) async {
-                      await _sendValue(activeRef, on ? 1.0 : 0.0,
-                          label: 'Cloud layer active');
+                  if (count < 3)
+                    _button('ADD LAYER',
+                        compact: true,
+                        icon: Icons.add,
+                        selected: true, onPressed: () async {
+                      final int target = _firstInactiveCloudLayer();
+                      if (target >= 0) {
+                        setState(() {
+                          _cloudLayer = target;
+                          _values[16 + target * 5] = 1.0;
+                          if ((_values[16 + target * 5 + 2] ?? 0) == 0) {
+                            _values[16 + target * 5 + 2] =
+                                4.0; // Give it default coverage
+                          }
+                        });
+                        await _sendCommand(16);
+                        await _sendDataRef(16 + target * 5, 1.0);
+                      }
                     }),
-                const SizedBox(height: 12),
-                Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
-                  _numberField(
-                      refId: topRef,
-                      label: 'Top',
-                      unit: 'ft',
-                      min: 0,
-                      max: 40000,
-                      decimals: 0),
-                  _numberField(
-                      refId: baseRef,
-                      label: 'Base',
-                      unit: 'ft',
-                      min: 0,
-                      max: 40000,
-                      decimals: 0),
+                  if (count > 0) const SizedBox(width: 8),
+                  if (count > 0)
+                    _button('DELETE',
+                        compact: true,
+                        destructive: true,
+                        icon: Icons.delete_outline, onPressed: () async {
+                      setState(() {
+                        _values[activeRef] = 0.0;
+                        _values[coverageRef] = 0.0;
+                        _cloudLayer = _firstActiveCloudLayer() ?? 0;
+                      });
+                      await _sendCommand(17);
+                    }),
                 ]),
-                const SizedBox(height: 12),
-                _sliderEditor(
-                    label: 'TOP ALTITUDE',
-                    refId: topRef,
-                    min: 0,
-                    max: 40000,
-                    step: 500,
-                    unit: 'ft'),
-                _sliderEditor(
-                    label: 'BASE ALTITUDE',
-                    refId: baseRef,
-                    min: 0,
-                    max: 40000,
-                    step: 500,
-                    unit: 'ft'),
-                const SizedBox(height: 8),
-                _choiceSection(
-                    'CLOUD TYPE',
-                    _cloudTypes
-                        .asMap()
-                        .entries
-                        .map((MapEntry<int, String> e) => _button(e.value,
-                                compact: true,
-                                selected: (_values[typeRef] ?? 2).round() ==
-                                    e.key, onPressed: () async {
-                              setState(() {
-                                _values[typeRef] = e.key.toDouble();
-                                _values[activeRef] = 1.0;
-                                if ((_values[coverageRef] ?? 0) == 0)
-                                  _values[coverageRef] = 4.0;
-                              });
-                              await _sendValueAndCommand(
-                                  typeRef, e.key.toDouble(), 22 + e.key,
-                                  label: 'Cloud type ${e.value}');
-                              await _sendDataRef(activeRef, 1.0,
-                                  label: 'Cloud layer enabled');
-                              await _sendDataRef(
-                                  coverageRef, _values[coverageRef] ?? 4.0,
-                                  label: 'Cloud coverage');
-                            }))
-                        .toList()),
-                _choiceSection(
-                    'COVERAGE',
-                    List<Widget>.generate(
-                        8,
-                        (int i) => _button(_coverageNames[i],
-                                compact: true,
-                                selected: (_values[coverageRef] ?? 0).round() ==
-                                    i + 1, onPressed: () async {
-                              setState(() {
-                                _values[coverageRef] = (i + 1).toDouble();
-                                _values[activeRef] = 1.0;
-                              });
-                              await _sendValueAndCommand(
-                                  coverageRef, (i + 1).toDouble(), 26 + i,
-                                  label: 'Coverage ${i + 1}/8');
-                              await _sendDataRef(activeRef, 1.0,
-                                  label: 'Cloud layer enabled');
-                            }))),
-                _choiceSection(
-                    'TURBULENCE PROFILE',
-                    List<Widget>.generate(
-                        5,
-                        (int i) => _button(_severityNames[i],
-                                compact: true,
-                                selected: _selectedTurbulence == i,
-                                onPressed: () async {
-                              setState(() {
-                                _selectedTurbulence = i;
-                                _values[54] = i.toDouble();
-                              });
-                              await _sendValueAndCommand(
-                                  54, i.toDouble(), 34 + i,
-                                  label: 'Turbulence ${_severityNames[i]}');
-                            }))),
-                _choiceSection(
-                    'ICING PROFILE',
-                    List<Widget>.generate(
-                        5,
-                        (int i) => _button(_icingNames[i],
-                                compact: true, selected: _selectedIcing == i,
-                                onPressed: () async {
-                              setState(() {
-                                _selectedIcing = i;
-                                _values[55] = i.toDouble();
-                              });
-                              await _sendValueAndCommand(
-                                  55, i.toDouble(), 39 + i,
-                                  label: 'Icing ${_icingNames[i]}');
-                            }))),
-                _choiceSection(
-                    'PRECIPITATION TYPE',
-                    List<Widget>.generate(
-                        4,
-                        (int i) => _button(_precipNames[i],
-                                compact: true, selected: _precipType == i,
-                                onPressed: () async {
-                              setState(() {
-                                _precipType = i;
-                                _values[56] = i.toDouble();
-                              });
-                              await _sendValueAndCommand(
-                                  56, i.toDouble(), 44 + i,
-                                  label: 'Precipitation ${_precipNames[i]}');
-                            }))),
-                _choiceSection(
-                    'PRECIPITATION RATE',
-                    List<Widget>.generate(
-                        5,
-                        (int i) => _button(_rateNames[i],
-                                compact: true, selected: _precipRate == i,
-                                onPressed: () async {
-                              setState(() {
-                                _precipRate = i;
-                                _values[57] = i.toDouble();
-                              });
-                              await _sendValueAndCommand(
-                                  57, i.toDouble(), 48 + i,
-                                  label: 'Precipitation rate ${_rateNames[i]}');
-                            }))),
-                const SizedBox(height: 12),
-                Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
+                if (count > 0) ...[
+                  const SizedBox(height: 14),
+                  Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
+                    _numberField(
+                        refId: topRef,
+                        label: 'Top',
+                        unit: 'ft',
+                        min: 0,
+                        max: 40000,
+                        decimals: 0),
+                    _numberField(
+                        refId: baseRef,
+                        label: 'Base',
+                        unit: 'ft',
+                        min: 0,
+                        max: 40000,
+                        decimals: 0),
+                  ]),
+                  const SizedBox(height: 12),
+                  _sliderEditor(
+                      label: 'TOP ALTITUDE',
+                      refId: topRef,
+                      min: 0,
+                      max: 40000,
+                      step: 500,
+                      unit: 'ft'),
+                  _sliderEditor(
+                      label: 'BASE ALTITUDE',
+                      refId: baseRef,
+                      min: 0,
+                      max: 40000,
+                      step: 500,
+                      unit: 'ft'),
+                  const SizedBox(height: 16),
+
+                  // Vertical Columns Layout matching the image[span_2](start_span)[span_2](end_span)
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _verticalChoiceColumn(
+                            'TYPE',
+                            _cloudTypes
+                                .asMap()
+                                .entries
+                                .map((e) => _button(e.value,
+                                        minWidth: 120,
+                                        compact: true,
+                                        selected:
+                                            (_values[typeRef] ?? 2).round() ==
+                                                e.key, onPressed: () async {
+                                      setState(() {
+                                        _values[typeRef] = e.key.toDouble();
+                                        if ((_values[coverageRef] ?? 0) == 0)
+                                          _values[coverageRef] = 4.0;
+                                      });
+                                      await _sendValueAndCommand(typeRef,
+                                          e.key.toDouble(), 22 + e.key);
+                                      await _sendDataRef(coverageRef,
+                                          _values[coverageRef] ?? 4.0);
+                                    }))
+                                .toList()),
+                        _verticalChoiceColumn(
+                            'COVERAGE',
+                            List<Widget>.generate(
+                                8,
+                                (i) => _button(_coverageNames[i],
+                                        minWidth: 100,
+                                        compact: true,
+                                        selected: (_values[coverageRef] ?? 0)
+                                                .round() ==
+                                            i + 1, onPressed: () async {
+                                      setState(() {
+                                        _values[coverageRef] =
+                                            (i + 1).toDouble();
+                                      });
+                                      await _sendValueAndCommand(coverageRef,
+                                          (i + 1).toDouble(), 26 + i);
+                                    }))),
+                        _verticalChoiceColumn(
+                            'TURBULENCE',
+                            List<Widget>.generate(
+                                5,
+                                (i) => _button(_severityNames[i],
+                                        minWidth: 110,
+                                        compact: true,
+                                        selected: _selectedTurbulence == i,
+                                        onPressed: () async {
+                                      setState(() {
+                                        _selectedTurbulence = i;
+                                        _values[54] = i.toDouble();
+                                      });
+                                      await _sendValueAndCommand(
+                                          54, i.toDouble(), 34 + i);
+                                    }))),
+                        _verticalChoiceColumn(
+                            'ICING',
+                            List<Widget>.generate(
+                                5,
+                                (i) => _button(_icingNames[i],
+                                        minWidth: 110,
+                                        compact: true,
+                                        selected: _selectedIcing == i,
+                                        onPressed: () async {
+                                      setState(() {
+                                        _selectedIcing = i;
+                                        _values[55] = i.toDouble();
+                                      });
+                                      await _sendValueAndCommand(
+                                          55, i.toDouble(), 39 + i);
+                                    }))),
+                        _verticalChoiceColumn(
+                            'PRECIP TYPE',
+                            List<Widget>.generate(
+                                4,
+                                (i) => _button(_precipNames[i],
+                                        minWidth: 110,
+                                        compact: true,
+                                        selected: _precipType == i,
+                                        onPressed: () async {
+                                      setState(() {
+                                        _precipType = i;
+                                        _values[56] = i.toDouble();
+                                      });
+                                      await _sendValueAndCommand(
+                                          56, i.toDouble(), 44 + i);
+                                    }))),
+                        _verticalChoiceColumn(
+                            'PRECIP RATE',
+                            List<Widget>.generate(
+                                5,
+                                (i) => _button(_rateNames[i],
+                                        minWidth: 110,
+                                        compact: true,
+                                        selected: _precipRate == i,
+                                        onPressed: () async {
+                                      setState(() {
+                                        _precipRate = i;
+                                        _values[57] = i.toDouble();
+                                      });
+                                      await _sendValueAndCommand(
+                                          57, i.toDouble(), 48 + i);
+                                    }))),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   _numberField(
                       refId: 53,
                       label: 'Precipitation Base',
                       unit: 'ft MSL',
                       min: 0,
                       max: 40000),
-                  SizedBox(
-                      width: 230,
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            const Text('PRECEDING FIELD STEPS',
-                                style: TextStyle(
-                                    color: _heading,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.7)),
-                            const SizedBox(height: 6),
-                            _choiceWrap(<Widget>[
-                              _button('TOP −500',
-                                  compact: true,
-                                  onPressed: () =>
-                                      _stepCloud(topRef, -500.0, 18)),
-                              _button('TOP +500',
-                                  compact: true,
-                                  selected: true,
-                                  onPressed: () =>
-                                      _stepCloud(topRef, 500.0, 19)),
-                              _button('BASE −500',
-                                  compact: true,
-                                  onPressed: () =>
-                                      _stepCloud(baseRef, -500.0, 20)),
-                              _button('BASE +500',
-                                  compact: true,
-                                  selected: true,
-                                  onPressed: () =>
-                                      _stepCloud(baseRef, 500.0, 21)),
-                            ]),
-                          ])),
-                ]),
-                const SizedBox(height: 8),
-                const Text(
-                    'Icing and precipitation presets may also adjust related model values inside X-Plane. This widget intentionally does not receive those changes.',
-                    style:
-                        TextStyle(color: _muted, fontSize: 10, height: 1.35)),
+                ],
               ])),
         ]);
-  }
-
-  int _firstInactiveCloudLayer() {
-    for (int i = 0; i < 3; i++) {
-      if ((_values[16 + i * 5] ?? 0) == 0) return i;
-    }
-    return -1;
-  }
-
-  Future<void> _stepCloud(int refId, double delta, int cmd) async {
-    await _stepValue(
-        refId: refId,
-        delta: delta,
-        commandId: cmd,
-        min: 0,
-        max: 40000,
-        label: refId == 20 + _cloudLayer * 5 ? 'Cloud top' : 'Cloud base');
   }
 
   Widget _sliderEditor(
@@ -1642,9 +1565,11 @@ class _WeatherTrainerRemoteWidgetState
                       ((next / step).round() * step)
                           .clamp(min, max)
                           .toDouble()),
-                  onChangeEnd: (double next) => _sendValue(refId,
-                      ((next / step).round() * step).clamp(min, max).toDouble(),
-                      label: label),
+                  onChangeEnd: (double next) => _sendValue(
+                      refId,
+                      ((next / step).round() * step)
+                          .clamp(min, max)
+                          .toDouble()),
                 ))),
         SizedBox(
             width: 80,
@@ -1653,24 +1578,6 @@ class _WeatherTrainerRemoteWidgetState
                 style: const TextStyle(
                     color: _white, fontSize: 11, fontWeight: FontWeight.w700))),
       ]),
-    );
-  }
-
-  Widget _choiceSection(String title, List<Widget> choices) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 13),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(title,
-                style: const TextStyle(
-                    color: _heading,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.7)),
-            const SizedBox(height: 7),
-            _choiceWrap(choices),
-          ]),
     );
   }
 
@@ -1685,9 +1592,7 @@ class _WeatherTrainerRemoteWidgetState
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            _sectionTitle('Wind Layer Overview',
-                subtitle:
-                    'Values below are local draft estimates, not live simulator state.'),
+            _sectionTitle('Wind Layer Overview'),
             for (int i = 0; i < 3; i++)
               Padding(
                 padding: EdgeInsets.only(bottom: i == 2 ? 0 : 7),
@@ -1714,9 +1619,7 @@ class _WeatherTrainerRemoteWidgetState
                               fontSize: 11,
                               fontWeight: FontWeight.w700))),
                   Text(
-                    (_values[31 + i * 6] ?? 0) != 0
-                        ? 'ON • DRAFT'
-                        : 'OFF • DRAFT',
+                    (_values[31 + i * 6] ?? 0) != 0 ? 'ON' : 'OFF',
                     style: TextStyle(
                         color: (_values[31 + i * 6] ?? 0) != 0 ? _good : _muted,
                         fontSize: 9,
@@ -1746,7 +1649,7 @@ class _WeatherTrainerRemoteWidgetState
                   children: <Widget>[
                 _sectionTitle('Wind Layers',
                     subtitle:
-                        'Three selectable wind layers • direction is TRUE degrees • speed and gust in knots.'),
+                        'Configure altitude, direction, and intensity for up to three wind layers.'),
                 _choiceWrap(
                     List<Widget>.generate(
                         3,
@@ -1762,8 +1665,6 @@ class _WeatherTrainerRemoteWidgetState
                 _toggle(
                     label: 'WIND LAYER ${_windLayer + 1} ENABLED',
                     value: (_values[activeRef] ?? 0) != 0,
-                    subtitle:
-                        'Local control selection only • no simulator readback',
                     onChanged: (bool on) => _setLayerToggle(
                         refId: activeRef,
                         enabled: on,
@@ -1797,7 +1698,7 @@ class _WeatherTrainerRemoteWidgetState
                       max: 300),
                   _numberField(
                       refId: base + 5,
-                      label: 'Shear (Simulator Units)',
+                      label: 'Shear',
                       unit: '',
                       min: 0,
                       max: 180),
@@ -1808,9 +1709,7 @@ class _WeatherTrainerRemoteWidgetState
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                _sectionTitle('Wind Parameter Steps',
-                    subtitle:
-                        'These controls send the original increment/decrement commands. Displayed values are local estimates because this panel does not receive simulator data.'),
+                _sectionTitle('Wind Parameter Steps'),
                 Wrap(spacing: 10, runSpacing: 10, children: <Widget>[
                   SizedBox(
                       width: 205,
@@ -1887,8 +1786,7 @@ class _WeatherTrainerRemoteWidgetState
                             _selectedWindTurbulence = i;
                             _values[54] = i.toDouble();
                           });
-                          await _sendValueAndCommand(54, i.toDouble(), 67 + i,
-                              label: 'Wind turbulence ${_severityNames[i]}');
+                          await _sendValueAndCommand(54, i.toDouble(), 67 + i);
                         }))),
               ])),
         ]);
@@ -1902,9 +1800,7 @@ class _WeatherTrainerRemoteWidgetState
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                _sectionTitle('Surface / Sea-Level Conditions',
-                    subtitle:
-                        'Values are editable locally and transmitted to the matching DataRefs.'),
+                _sectionTitle('Surface / Sea-Level Conditions'),
                 Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
                   _numberField(
                       refId: 49,
@@ -1969,9 +1865,7 @@ class _WeatherTrainerRemoteWidgetState
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                _sectionTitle('Standard Atmosphere',
-                    subtitle:
-                        'Loads ISA surface values into the Weather Trainer model; it does not apply weather until Apply is pressed.'),
+                _sectionTitle('Standard Atmosphere'),
                 _choiceWrap(<Widget>[
                   _button('STANDARD ATMOSPHERE',
                       selected: true,
@@ -1981,17 +1875,13 @@ class _WeatherTrainerRemoteWidgetState
                       _values[50] = 10.0;
                       _values[51] = 1013.25;
                     });
-                    await _sendCommand(78, label: 'Standard atmosphere');
-                    await _sendDataRef(49, 15.0, label: 'Temperature');
-                    await _sendDataRef(50, 10.0, label: 'Dew point');
-                    await _sendDataRef(51, 1013.25, label: 'QNH');
+                    await _sendCommand(78);
+                    await _sendDataRef(49, 15.0);
+                    await _sendDataRef(50, 10.0);
+                    await _sendDataRef(51, 1013.25);
                     _syncControllers(<int>[49, 50, 51]);
                   }),
                 ]),
-                const SizedBox(height: 10),
-                const Text(
-                    'Standard pressure: 1013.25 hPa (29.92 inHg) • ISA sea-level temperature: 15 °C • Dew point is limited to the current local temperature draft.',
-                    style: TextStyle(color: _muted, fontSize: 11, height: 1.4)),
               ])),
         ]);
   }
@@ -2018,7 +1908,7 @@ class _WeatherTrainerRemoteWidgetState
                   children: <Widget>[
                 _sectionTitle('Visibility and Precipitation',
                     subtitle:
-                        'Visibility uses kilometers. Precipitation base is feet MSL.'),
+                        'Adjust horizontal visibility and precipitation base altitude.'),
                 Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
                   _numberField(
                       refId: 52,
@@ -2070,48 +1960,14 @@ class _WeatherTrainerRemoteWidgetState
                 _toggle(
                     label: 'RVR TRAINING MODE',
                     value: _rvrModeDraft,
-                    subtitle: _rvrModeDraft
-                        ? 'Local request: RVR proxy • not runway sensor data'
-                        : 'Local request: standard visibility • simulator state is not read back',
                     onChanged: (bool enabled) async {
                       setState(() {
                         _rvrModeDraft = enabled;
                         _values[13] = enabled ? 1.0 : 0.0;
                       });
-                      await _sendCommand(88,
-                          label:
-                              enabled ? 'RVR mode ON' : 'Visibility mode ON');
-                      await _sendDataRef(13, enabled ? 1.0 : 0.0,
-                          label: 'RVR mode');
+                      await _sendCommand(88);
+                      await _sendDataRef(13, enabled ? 1.0 : 0.0);
                     }),
-                const SizedBox(height: 10),
-                _choiceSection(
-                    'PRECIPITATION RATE',
-                    List<Widget>.generate(
-                        5,
-                        (int i) => _button(_rateNames[i],
-                                compact: true, selected: _precipRate == i,
-                                onPressed: () async {
-                              setState(() {
-                                _precipRate = i;
-                                _values[57] = i.toDouble();
-                              });
-                              await _sendValueAndCommand(
-                                  57, i.toDouble(), 83 + i,
-                                  label:
-                                      'Visibility precipitation rate ${_rateNames[i]}');
-                            }))),
-              ])),
-          const SizedBox(height: 12),
-          _panel(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                _sectionTitle('RVR Training Note'),
-                const Text(
-                    'RVR is runway-specific in real operations. This control sends a training target that Weather Trainer uses as an atmospheric horizontal-visibility proxy (minimum effective proxy 100 m). It does not create runway transmissometers, runway lights, or real RVR sensor reports.',
-                    style:
-                        TextStyle(color: _muted, fontSize: 12, height: 1.45)),
               ])),
         ]);
   }
@@ -2151,9 +2007,7 @@ class _WeatherTrainerRemoteWidgetState
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                _sectionTitle('Real-World Weather',
-                    subtitle:
-                        'Send-only controls. No state or text is received from the simulator.'),
+                _sectionTitle('Real-World Weather'),
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -2169,14 +2023,14 @@ class _WeatherTrainerRemoteWidgetState
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                              Text('SIMULATOR WEATHER MODE',
+                              Text('WEATHER MODE SELECTION',
                                   style: TextStyle(
                                       color: _white,
                                       fontSize: 13,
                                       fontWeight: FontWeight.w800)),
                               SizedBox(height: 5),
                               Text(
-                                  'Enable Real-World Weather asks the plugin to switch X-Plane to real weather. Return to User Weather requests the manual weather mode. This widget cannot confirm which mode the simulator accepted.',
+                                  'Switch between live real-world weather injection and manual user-defined conditions.',
                                   style: TextStyle(
                                       color: _muted,
                                       fontSize: 12,
@@ -2188,26 +2042,17 @@ class _WeatherTrainerRemoteWidgetState
                 Wrap(spacing: 12, runSpacing: 12, children: <Widget>[
                   _button('ENABLE REAL-WORLD WEATHER',
                       icon: Icons.public,
-                      minWidth: 230,
-                      onPressed: () =>
-                          _sendCommand(97, label: 'Enable real-world weather')),
+                      selected: _isRealWeather,
+                      minWidth: 230, onPressed: () {
+                    setState(() => _isRealWeather = true);
+                    _sendCommand(97);
+                  }),
                   _button('RETURN TO USER WEATHER',
-                      icon: Icons.tune,
-                      minWidth: 230,
-                      onPressed: () =>
-                          _sendCommand(98, label: 'Return to user weather')),
+                      icon: Icons.tune, minWidth: 230, onPressed: () {
+                    setState(() => _isRealWeather = false);
+                    _sendCommand(98);
+                  }),
                 ]),
-              ])),
-          const SizedBox(height: 12),
-          _panel(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                _sectionTitle('Remote Mode Policy'),
-                const Text(
-                    'No response listener is implemented, by design. Button highlighting indicates the action button style only; it is not a live indication of X-Plane weather-mode state.',
-                    style:
-                        TextStyle(color: _muted, fontSize: 12, height: 1.45)),
               ])),
         ]);
   }
@@ -2233,7 +2078,7 @@ class _WeatherTrainerRemoteWidgetState
                   children: <Widget>[
                 _sectionTitle('Training Presets',
                     subtitle:
-                        'Each preset sends its matching plugin command. The displayed weather values are local draft estimates because the simulator is not sending state back to this widget.'),
+                        'Training scenarios for specific flight conditions.'),
                 LayoutBuilder(builder:
                     (BuildContext context, BoxConstraints constraints) {
                   final int columns = constraints.maxWidth >= 900
@@ -2258,16 +2103,12 @@ class _WeatherTrainerRemoteWidgetState
                                     onPressed: () => _choosePreset(i)),
                               )));
                 }),
-                const SizedBox(height: 12),
-                const Text(
-                    'These are representative training scenarios. They are not a promise of exact observed weather for a specific airport or date.',
-                    style: TextStyle(color: _muted, fontSize: 11, height: 1.4)),
               ])),
         ]);
   }
 
   Future<void> _choosePreset(int preset) async {
-    await _sendCommand(99 + preset, label: _presetNames[preset]);
+    await _sendCommand(99 + preset);
     setState(() {
       _page = 1;
       _subTab = 0;
@@ -2275,8 +2116,8 @@ class _WeatherTrainerRemoteWidgetState
       _windLayer = 0;
       _applyPresetDraft(preset);
     });
-    await _sendDataRef(1, 1.0, label: 'User-defined page');
-    await _sendDataRef(2, 0.0, label: 'Clouds subtab');
+    await _sendDataRef(1, 1.0);
+    await _sendDataRef(2, 0.0);
   }
 
   void _applyPresetDraft(int preset) {
@@ -2472,85 +2313,48 @@ class _WeatherTrainerRemoteWidgetState
   }
 
   Widget _buildActionFooter() {
+    // Seamless background matching _bg and neat arrangement
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-      decoration: const BoxDecoration(
-          color: _card,
-          border: Border(top: BorderSide(color: _border, width: 1))),
-      child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-        Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            alignment: WrapAlignment.spaceBetween,
-            children: <Widget>[
-              _button('LOAD SAVED WEATHER',
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      color: _bg,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Row(
+            children: [
+              _button('LOAD',
                   compact: true,
                   icon: Icons.folder_open,
-                  onPressed: () =>
-                      _sendCommand(5, label: 'Load saved weather')),
-              _button('SAVE WEATHER',
+                  onPressed: () => _sendCommand(5)),
+              const SizedBox(width: 12),
+              _button('SAVE',
                   compact: true,
                   icon: Icons.save_outlined,
-                  onPressed: () => _sendCommand(6, label: 'Save weather')),
-              _button('CLEAR ALL WEATHER',
+                  onPressed: () => _sendCommand(6)),
+            ],
+          ),
+          Row(
+            children: [
+              _button('CLEAR ALL',
                   compact: true,
                   destructive: true,
                   icon: Icons.delete_sweep_outlined, onPressed: () async {
-                await _sendCommand(7, label: 'Clear all weather');
+                await _sendCommand(7);
                 setState(() {
                   _resetDraftAfterClear();
                   _rvrModeDraft = false;
                 });
               }),
-              _button('APPLY SELECTED WEATHER',
+              const SizedBox(width: 12),
+              _button('APPLY WEATHER',
                   compact: true,
                   selected: true,
                   icon: Icons.cloud_upload_outlined,
-                  onPressed: () =>
-                      _sendCommand(8, label: 'Apply selected weather')),
-            ]),
-        const SizedBox(height: 8),
-        Row(children: <Widget>[
-          Icon(
-              _lastTx.startsWith('UDP') || _lastTx.startsWith('Invalid')
-                  ? Icons.error_outline
-                  : Icons.send,
-              size: 13,
-              color: _lastTx.startsWith('UDP') || _lastTx.startsWith('Invalid')
-                  ? _danger
-                  : _accent),
-          const SizedBox(width: 6),
-          Expanded(
-              child: Text(_lastTx,
-                  style: const TextStyle(color: _smallValue, fontSize: 10),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis)),
-          const SizedBox(width: 8),
-          const Text('PC PANEL',
-              style: TextStyle(
-                  color: _muted, fontSize: 9, fontWeight: FontWeight.w800)),
-          Transform.scale(
-              scale: 0.72,
-              child: Switch.adaptive(
-                value: _nativeWindowDraft,
-                onChanged: (bool visible) async {
-                  setState(() => _nativeWindowDraft = visible);
-                  await _sendDataRef(11, visible ? 1.0 : 0.0,
-                      label: visible
-                          ? 'Show native plugin panel'
-                          : 'Hide native plugin panel');
-                },
-                activeColor: _good,
-                activeTrackColor: _good.withOpacity(0.25),
-                inactiveThumbColor: _muted,
-                inactiveTrackColor: _border,
-              )),
-          const SizedBox(width: 4),
-          Text('TX $_sentPackets',
-              style: const TextStyle(
-                  color: _muted, fontSize: 10, fontWeight: FontWeight.w700)),
-        ]),
-      ]),
+                  onPressed: () => _sendCommand(8)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -2569,6 +2373,7 @@ class _WeatherTrainerRemoteWidgetState
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Crucial for AutomaticKeepAliveClientMixin
     return SizedBox(
       width: widget.width ?? double.infinity,
       height: widget.height ?? 900,
