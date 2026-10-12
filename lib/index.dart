@@ -57,3 +57,5 @@ export '/pages/home_page_x_p_l_a_n_einstructor/home_page_x_p_l_a_n_einstructor_w
 export '/pages/home_page_m_s_f_sinstructor/home_page_m_s_f_sinstructor_widget.dart'
     show HomePageMSFSinstructorWidget;
 export '/t_c_a_sxplane/t_c_a_sxplane_widget.dart' show TCASxplaneWidget;
+export '/pages/home_page_x_p_l_a_n_etestt/home_page_x_p_l_a_n_etestt_widget.dart'
+    show HomePageXPLANEtesttWidget;

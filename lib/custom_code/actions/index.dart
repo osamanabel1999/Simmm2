@@ -198,3 +198,5 @@ export '/custom_code/actions/connect_instructor_telemetrymsfs.dart'
     show connectInstructorTelemetrymsfs;
 export '/custom_code/actions/connect_pilot_position_msfs.dart'
     show connectPilotPositionMsfs;
+export '/custom_code/actions/start_simulator_data_fetch.dart'
+    show startSimulatorDataFetch;

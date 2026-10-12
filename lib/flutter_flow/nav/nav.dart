@@ -348,6 +348,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: TCASxplaneWidget.routeName,
           path: TCASxplaneWidget.routePath,
           builder: (context, params) => TCASxplaneWidget(),
+        ),
+        FFRoute(
+          name: HomePageXPLANEtesttWidget.routeName,
+          path: HomePageXPLANEtesttWidget.routePath,
+          builder: (context, params) => HomePageXPLANEtesttWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
