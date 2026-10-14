@@ -888,6 +888,12 @@ class FFAppState extends ChangeNotifier {
   set syncModeMsfs(int value) {
     _syncModeMsfs = value;
   }
+
+  double _targetSPDworldTourmsfs = 0.0;
+  double get targetSPDworldTourmsfs => _targetSPDworldTourmsfs;
+  set targetSPDworldTourmsfs(double value) {
+    _targetSPDworldTourmsfs = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

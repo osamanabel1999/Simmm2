@@ -31,11 +31,6 @@ class HomePageMSFSinstructorModel
 
   // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageMSFSinstructor widget.
   ApiCallResponse? simbreifResponse;
-  // State field(s) for TextFieldSpeedEntryLANDMARK widget.
-  FocusNode? textFieldSpeedEntryLANDMARKFocusNode;
-  TextEditingController? textFieldSpeedEntryLANDMARKTextController;
-  String? Function(BuildContext, String?)?
-      textFieldSpeedEntryLANDMARKTextControllerValidator;
   // Stores action output result for [Custom Action - calculateA320SpeedsFull] action in ToPerformanceWidget widget.
   dynamic speedsResult1;
   // Stores action output result for [Custom Action - calculateA320Landing] action in LdaPerformanceWidget widget.
@@ -61,8 +56,5 @@ class HomePageMSFSinstructorModel
   void initState(BuildContext context) {}
 
   @override
-  void dispose() {
-    textFieldSpeedEntryLANDMARKFocusNode?.dispose();
-    textFieldSpeedEntryLANDMARKTextController?.dispose();
-  }
+  void dispose() {}
 }

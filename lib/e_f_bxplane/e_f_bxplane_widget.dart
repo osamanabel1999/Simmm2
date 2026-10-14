@@ -97,7 +97,7 @@ class _EFBxplaneWidgetState extends State<EFBxplaneWidget> {
               safeSetState(() {});
 
               context.pushNamed(
-                HomePageXPLANExxxWidget.routeName,
+                HomePageXPLANEWidget.routeName,
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,

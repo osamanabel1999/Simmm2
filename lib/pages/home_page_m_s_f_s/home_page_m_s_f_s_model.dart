@@ -23,11 +23,6 @@ class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
   InstantTimer? instantTimer;
   // Stores action output result for [Custom Action - getFlightData] action in HomePageMSFS widget.
   dynamic flightDataMFSF;
-  // State field(s) for TextFieldSpeedEntryLANDMARK widget.
-  FocusNode? textFieldSpeedEntryLANDMARKFocusNode;
-  TextEditingController? textFieldSpeedEntryLANDMARKTextController;
-  String? Function(BuildContext, String?)?
-      textFieldSpeedEntryLANDMARKTextControllerValidator;
   // Stores action output result for [Custom Action - calculateA320SpeedsFull] action in ToPerformanceWidget widget.
   dynamic speedsResult1;
   // Stores action output result for [Custom Action - calculateA320Landing] action in LdaPerformanceWidget widget.
@@ -65,7 +60,5 @@ class HomePageMSFSModel extends FlutterFlowModel<HomePageMSFSWidget> {
   @override
   void dispose() {
     instantTimer?.cancel();
-    textFieldSpeedEntryLANDMARKFocusNode?.dispose();
-    textFieldSpeedEntryLANDMARKTextController?.dispose();
   }
 }

@@ -2264,6 +2264,200 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                       ],
                                     ),
                                   ),
+                                if (FFAppState().TabNumber == 55035)
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          (FFCrossAxisAlignment.stretch)
+                                              .flutterValue,
+                                      textBaseline: TextBaseline.alphabetic,
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                            child: custom_widgets
+                                                .WorldDestinationsWidget(
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              onSpeedChanged: (speed) async {
+                                                await actions.setXPlaneDataRef(
+                                                  'xq92/b7n4/v6k3d',
+                                                  speed,
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark1Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_01',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark2Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_02',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark3Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_03',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark4Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_04',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark5Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_05',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark6Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_06',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark7Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_07',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark8Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_08',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark9Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_09',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark10Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_10',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark11Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_11',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark12Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_12',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark13Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_13',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark14Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_14',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark15Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_15',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark16Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_16',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark17Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_17',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark18Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_18',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark19Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_19',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark20Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_20',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark21Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_21',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark22Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_22',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark23Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_23',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark24Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_24',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark25Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_25',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark26Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_26',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                              onLandmark27Tap: () async {
+                                                await actions.sendXPlaneCommand(
+                                                  'xq92/b7n4/go_27',
+                                                  FFAppState().ipPC,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 if (FFAppState().TabNumber == 130)
                                   Expanded(
                                     child: Column(
@@ -17289,7 +17483,10 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                 FFAppState().TabNumber = 5;
                                                 safeSetState(() {});
                                               },
-                                              onWorldTourTap: () async {},
+                                              onWorldTourTap: () async {
+                                                FFAppState().TabNumber = 55035;
+                                                safeSetState(() {});
+                                              },
                                               onNavaidActionTap: () async {},
                                               onTcasActionTap: () async {
                                                 context.pushNamed(
@@ -18847,7 +19044,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                       ],
                                     ),
                                   ),
-                                if (FFAppState().TabNumber == 10)
+                                if (FFAppState().TabNumber == 1001)
                                   Expanded(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,
@@ -18894,7 +19091,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                       ],
                                     ),
                                   ),
-                                if (FFAppState().TabNumber == 10)
+                                if (FFAppState().TabNumber == 1002)
                                   Expanded(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,
@@ -18941,7 +19138,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                       ],
                                     ),
                                   ),
-                                if (FFAppState().TabNumber == 10)
+                                if (FFAppState().TabNumber == 1003)
                                   Expanded(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,
@@ -20012,9 +20209,18 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                   FFAppState().TabNumber = 130;
                                   safeSetState(() {});
                                 },
-                                systemAction: () async {},
-                                analysisAction: () async {},
-                                tcasAction: () async {},
+                                systemAction: () async {
+                                  FFAppState().TabNumber = 1001;
+                                  safeSetState(() {});
+                                },
+                                analysisAction: () async {
+                                  FFAppState().TabNumber = 1002;
+                                  safeSetState(() {});
+                                },
+                                tcasAction: () async {
+                                  FFAppState().TabNumber = 1003;
+                                  safeSetState(() {});
+                                },
                               ),
                             ),
                           ),

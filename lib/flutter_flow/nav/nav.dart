@@ -61,11 +61,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               : HomeMenuWidget(),
         ),
         FFRoute(
-          name: HomePageXPLANExxxWidget.routeName,
-          path: HomePageXPLANExxxWidget.routePath,
-          builder: (context, params) => HomePageXPLANExxxWidget(),
-        ),
-        FFRoute(
           name: TOCalculationWidget.routeName,
           path: TOCalculationWidget.routePath,
           builder: (context, params) => TOCalculationWidget(

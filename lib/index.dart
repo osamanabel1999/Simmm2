@@ -1,6 +1,4 @@
 // Export pages
-export '/pages/home_page_x_p_l_a_n_exxx/home_page_x_p_l_a_n_exxx_widget.dart'
-    show HomePageXPLANExxxWidget;
 export '/t_o_calculation/t_o_calculation_widget.dart' show TOCalculationWidget;
 export '/pages/l_d_g_calculation/l_d_g_calculation_widget.dart'
     show LDGCalculationWidget;
