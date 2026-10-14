@@ -241,7 +241,7 @@ class _WeatherTrainerRemoteWidgetState
   }
 
   Future<void> _sendCommand(int commandId) async {
-    if (commandId < 1 || commandId > 205) return;
+    if (commandId < 1 || commandId > 210) return;
     _userDidManualChange(commandId);
 
     final InternetAddress? address = _targetAddress();
@@ -1928,7 +1928,69 @@ class _WeatherTrainerRemoteWidgetState
                               )));
                 }),
               ])),
+          const SizedBox(height: 12),
+          _buildAdvancedScenarioPanel(),
         ]);
+  }
+
+  // Added scenario controls. Existing preset controls above remain unchanged.
+  Widget _buildAdvancedScenarioPanel() {
+    const List<String> scenarioLabels = <String>[
+      'MICROBURST (K206)',
+      'WIND SHEAR (K207)',
+      'GUSTY CROSSWIND APPROACH (K208)',
+      'SEVERE TURBULENCE / THUNDERSTORM (K209)',
+      'RESET / RESTORE SCENARIO (K210)',
+    ];
+    const List<IconData> scenarioIcons = <IconData>[
+      Icons.air,
+      Icons.swap_vert,
+      Icons.flight_land,
+      Icons.flash_on,
+      Icons.restore,
+    ];
+
+    return _panel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _sectionTitle(
+            'Advanced Flight Scenarios',
+            subtitle:
+                'Trigger a training scenario in X-Plane. Use one scenario button at a time.',
+          ),
+          LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final int columns = constraints.maxWidth >= 900
+                  ? 3
+                  : constraints.maxWidth >= 560
+                      ? 2
+                      : 1;
+              const double gap = 10;
+              final double itemWidth =
+                  (constraints.maxWidth - gap * (columns - 1)) / columns;
+              return Wrap(
+                spacing: gap,
+                runSpacing: gap,
+                children: List<Widget>.generate(
+                  scenarioLabels.length,
+                  (int i) => SizedBox(
+                    width: itemWidth,
+                    child: _button(
+                      scenarioLabels[i],
+                      minWidth: itemWidth,
+                      icon: scenarioIcons[i],
+                      selected: false,
+                      onPressed: () => _sendCommand(206 + i),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _choosePreset(int preset) async {

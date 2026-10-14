@@ -37,6 +37,8 @@ class HeadTrackerWidgetMSFS extends StatefulWidget {
 
 class _HeadTrackerWidgetMSFSState extends State<HeadTrackerWidgetMSFS> {
   CameraController? _cameraController;
+  CameraDescription?
+      _frontCamera; // أضفنا هذا المتغير لقراءة زاوية الكاميرا في الأندرويد
   final FaceDetector _faceDetector = FaceDetector(
     options: FaceDetectorOptions(
       enableContours: false,
@@ -174,8 +176,9 @@ class _HeadTrackerWidgetMSFSState extends State<HeadTrackerWidgetMSFS> {
         _profilesData = decoded.map(
             (key, value) => MapEntry(key, Map<String, dynamic>.from(value)));
         _profileNames = _profilesData.keys.toList();
-        if (!_profileNames.contains("Default"))
+        if (!_profileNames.contains("Default")) {
           _profileNames.insert(0, "Default");
+        }
       });
     }
   }
@@ -401,18 +404,115 @@ class _HeadTrackerWidgetMSFSState extends State<HeadTrackerWidgetMSFS> {
     );
   }
 
+  // --- دوال تحويل الصور الخاصة بالأندرويد فقط (YUV_420_888 إلى NV21) ---
+  InputImageRotation _getAndroidRotation() {
+    final int sensorOrientation = _frontCamera?.sensorOrientation ?? 270;
+    switch (sensorOrientation) {
+      case 0:
+        return InputImageRotation.rotation0deg;
+      case 90:
+        return InputImageRotation.rotation90deg;
+      case 180:
+        return InputImageRotation.rotation180deg;
+      case 270:
+      default:
+        return InputImageRotation.rotation270deg;
+    }
+  }
+
+  Uint8List _yuv420ToNv21(CameraImage image) {
+    final int width = image.width;
+    final int height = image.height;
+    final int ySize = width * height;
+    final int uvSize = width * height ~/ 2;
+    final Uint8List nv21 = Uint8List(ySize + uvSize);
+
+    final Plane yPlane = image.planes[0];
+    final Plane uPlane = image.planes[1];
+    final Plane vPlane = image.planes[2];
+
+    final Uint8List yBytes = yPlane.bytes;
+    final Uint8List uBytes = uPlane.bytes;
+    final Uint8List vBytes = vPlane.bytes;
+
+    final int yRowStride = yPlane.bytesPerRow;
+    final int yPixelStride = yPlane.bytesPerPixel ?? 1;
+
+    int idY = 0;
+    if (yPixelStride == 1 && yRowStride == width && yBytes.length >= ySize) {
+      nv21.setRange(0, ySize, yBytes);
+      idY = ySize;
+    } else {
+      for (int row = 0; row < height; row++) {
+        final int rowOffset = row * yRowStride;
+        for (int col = 0; col < width; col++) {
+          final int yIndex = rowOffset + col * yPixelStride;
+          nv21[idY++] = yIndex < yBytes.length ? yBytes[yIndex] : 0;
+        }
+      }
+    }
+
+    final int uvRowStride = uPlane.bytesPerRow;
+    final int uvPixelStride = uPlane.bytesPerPixel ?? 1;
+    final int uvWidth = width ~/ 2;
+    final int uvHeight = height ~/ 2;
+
+    int idUV = ySize;
+    for (int row = 0; row < uvHeight; row++) {
+      final int rowOffset = row * uvRowStride;
+      for (int col = 0; col < uvWidth; col++) {
+        final int uvIndex = rowOffset + col * uvPixelStride;
+        // صيغة NV21 في الأندرويد تتطلب V أولاً ثم U
+        nv21[idUV++] = uvIndex < vBytes.length ? vBytes[uvIndex] : 128;
+        nv21[idUV++] = uvIndex < uBytes.length ? uBytes[uvIndex] : 128;
+      }
+    }
+
+    return nv21;
+  }
+
+  InputImage _buildAndroidInputImage(CameraImage image) {
+    final Uint8List nv21Bytes =
+        image.planes.length == 1 ? image.planes[0].bytes : _yuv420ToNv21(image);
+
+    return InputImage.fromBytes(
+      bytes: nv21Bytes,
+      metadata: InputImageMetadata(
+        size: Size(image.width.toDouble(), image.height.toDouble()),
+        rotation: _getAndroidRotation(),
+        format: InputImageFormat.nv21,
+        bytesPerRow: image.planes.length == 1
+            ? image.planes[0].bytesPerRow
+            : image.width,
+      ),
+    );
+  }
+
   Future<void> _startTracking() async {
     try {
       final cameras = await availableCameras();
       final frontCamera = cameras.firstWhere(
           (camera) => camera.lensDirection == CameraLensDirection.front);
 
-      _cameraController = CameraController(
-        frontCamera,
-        ResolutionPreset.low,
-        enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.bgra8888,
-      );
+      _frontCamera = frontCamera; // حفظ بيانات الكاميرا للأندرويد
+
+      if (Platform.isIOS) {
+        // تشغيل كود الـ iOS الأصلي
+        _cameraController = CameraController(
+          frontCamera,
+          ResolutionPreset.low,
+          enableAudio: false,
+          imageFormatGroup: ImageFormatGroup.bgra8888,
+        );
+      } else {
+        // تشغيل كود الأندرويد المدعوم
+        _cameraController = CameraController(
+          frontCamera,
+          ResolutionPreset.low,
+          enableAudio: false,
+          imageFormatGroup: ImageFormatGroup.yuv420,
+        );
+      }
 
       await _cameraController!.initialize();
 
@@ -480,7 +580,6 @@ class _HeadTrackerWidgetMSFSState extends State<HeadTrackerWidgetMSFS> {
       _isRecenteringEffect = true; // تشغيل إيفيكت السنترة
     });
 
-    // إيقاف الإيفيكت بعد فترة قصيرة عشان يدي شكل الفلاش
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         setState(() {
@@ -492,15 +591,23 @@ class _HeadTrackerWidgetMSFSState extends State<HeadTrackerWidgetMSFS> {
 
   Future<void> _processImage(CameraImage image) async {
     _isProcessing = true;
-    final inputImage = InputImage.fromBytes(
-      bytes: image.planes[0].bytes,
-      metadata: InputImageMetadata(
-        size: Size(image.width.toDouble(), image.height.toDouble()),
-        rotation: InputImageRotation.rotation270deg,
-        format: InputImageFormat.bgra8888,
-        bytesPerRow: image.planes[0].bytesPerRow,
-      ),
-    );
+
+    final InputImage inputImage;
+    if (Platform.isIOS) {
+      // كود الـ iOS الأصلي تماماً
+      inputImage = InputImage.fromBytes(
+        bytes: image.planes[0].bytes,
+        metadata: InputImageMetadata(
+          size: Size(image.width.toDouble(), image.height.toDouble()),
+          rotation: InputImageRotation.rotation270deg,
+          format: InputImageFormat.bgra8888,
+          bytesPerRow: image.planes[0].bytesPerRow,
+        ),
+      );
+    } else {
+      // كود الأندرويد وتحويل الصيغ
+      inputImage = _buildAndroidInputImage(image);
+    }
 
     try {
       final faces = await _faceDetector.processImage(inputImage);
@@ -570,7 +677,7 @@ class _HeadTrackerWidgetMSFSState extends State<HeadTrackerWidgetMSFS> {
               children: [
                 const Expanded(
                   child: Text(
-                    "AERO VISION ENGINE",
+                    "COCKPIT HEAD TRACKER",
                     style: TextStyle(
                         color: Color(0xFF639DF0),
                         fontSize: 16,
@@ -968,13 +1075,6 @@ class _HeadTrackerWidgetMSFSState extends State<HeadTrackerWidgetMSFS> {
               ],
             ),
           ),
-
-          // إضافة مؤشر الرجوع (Home Indicator) أسفل الشاشة التفاعلية
-          _buildHomeIndicator(
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-          ),
         ],
       ),
     );
@@ -1081,27 +1181,6 @@ class _HeadTrackerWidgetMSFSState extends State<HeadTrackerWidgetMSFS> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // --- ودجيت الـ Home Indicator ---
-  Widget _buildHomeIndicator({required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
-        alignment: Alignment.center,
-        child: Container(
-          width: 130,
-          height: 5,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
       ),
     );
   }

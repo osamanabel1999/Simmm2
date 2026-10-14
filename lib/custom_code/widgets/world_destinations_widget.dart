@@ -10,22 +10,76 @@ import 'package:flutter/material.dart' hide RepeatMode;
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-// Set your widget name, define your parameter, and then add the
-// boilerplate code using the `</>` button on the right!
-
 import 'dart:async';
 import 'dart:ui' show FontFeature;
+import 'package:cached_network_image/cached_network_image.dart';
 
 /// Responsive world-landmark selector for Flutter / FlutterFlow.
-///
-/// The 27 asset pairs and destination details below are mapped from the
-/// original World Tour widget. Each card invokes its matching callback.
+/// Uses CachedNetworkImage (v3.3.1) with automatic pre-caching so all 27
+/// landmark images and 27 flags download once on first open and stay cached on device.
 class WorldDestinationsWidget extends StatefulWidget {
   const WorldDestinationsWidget({
     super.key,
     this.width,
     this.height,
     this.onSpeedChanged,
+    // 27 Separate Landmark Image URL Parameters
+    this.landmark1Image,
+    this.landmark2Image,
+    this.landmark3Image,
+    this.landmark4Image,
+    this.landmark5Image,
+    this.landmark6Image,
+    this.landmark7Image,
+    this.landmark8Image,
+    this.landmark9Image,
+    this.landmark10Image,
+    this.landmark11Image,
+    this.landmark12Image,
+    this.landmark13Image,
+    this.landmark14Image,
+    this.landmark15Image,
+    this.landmark16Image,
+    this.landmark17Image,
+    this.landmark18Image,
+    this.landmark19Image,
+    this.landmark20Image,
+    this.landmark21Image,
+    this.landmark22Image,
+    this.landmark23Image,
+    this.landmark24Image,
+    this.landmark25Image,
+    this.landmark26Image,
+    this.landmark27Image,
+    // 27 Separate Flag Image URL Parameters
+    this.landmark1Flag,
+    this.landmark2Flag,
+    this.landmark3Flag,
+    this.landmark4Flag,
+    this.landmark5Flag,
+    this.landmark6Flag,
+    this.landmark7Flag,
+    this.landmark8Flag,
+    this.landmark9Flag,
+    this.landmark10Flag,
+    this.landmark11Flag,
+    this.landmark12Flag,
+    this.landmark13Flag,
+    this.landmark14Flag,
+    this.landmark15Flag,
+    this.landmark16Flag,
+    this.landmark17Flag,
+    this.landmark18Flag,
+    this.landmark19Flag,
+    this.landmark20Flag,
+    this.landmark21Flag,
+    this.landmark22Flag,
+    this.landmark23Flag,
+    this.landmark24Flag,
+    this.landmark25Flag,
+    this.landmark26Flag,
+    this.landmark27Flag,
+    // 27 Separate Action Callbacks
     this.onLandmark1Tap,
     this.onLandmark2Tap,
     this.onLandmark3Tap,
@@ -62,6 +116,65 @@ class WorldDestinationsWidget extends StatefulWidget {
   /// destination action runs.
   final Future Function(double speed)? onSpeedChanged;
 
+  // 27 Landmark Image URLs
+  final String? landmark1Image;
+  final String? landmark2Image;
+  final String? landmark3Image;
+  final String? landmark4Image;
+  final String? landmark5Image;
+  final String? landmark6Image;
+  final String? landmark7Image;
+  final String? landmark8Image;
+  final String? landmark9Image;
+  final String? landmark10Image;
+  final String? landmark11Image;
+  final String? landmark12Image;
+  final String? landmark13Image;
+  final String? landmark14Image;
+  final String? landmark15Image;
+  final String? landmark16Image;
+  final String? landmark17Image;
+  final String? landmark18Image;
+  final String? landmark19Image;
+  final String? landmark20Image;
+  final String? landmark21Image;
+  final String? landmark22Image;
+  final String? landmark23Image;
+  final String? landmark24Image;
+  final String? landmark25Image;
+  final String? landmark26Image;
+  final String? landmark27Image;
+
+  // 27 Flag Image URLs
+  final String? landmark1Flag;
+  final String? landmark2Flag;
+  final String? landmark3Flag;
+  final String? landmark4Flag;
+  final String? landmark5Flag;
+  final String? landmark6Flag;
+  final String? landmark7Flag;
+  final String? landmark8Flag;
+  final String? landmark9Flag;
+  final String? landmark10Flag;
+  final String? landmark11Flag;
+  final String? landmark12Flag;
+  final String? landmark13Flag;
+  final String? landmark14Flag;
+  final String? landmark15Flag;
+  final String? landmark16Flag;
+  final String? landmark17Flag;
+  final String? landmark18Flag;
+  final String? landmark19Flag;
+  final String? landmark20Flag;
+  final String? landmark21Flag;
+  final String? landmark22Flag;
+  final String? landmark23Flag;
+  final String? landmark24Flag;
+  final String? landmark25Flag;
+  final String? landmark26Flag;
+  final String? landmark27Flag;
+
+  // 27 Tap Callbacks
   final Future Function()? onLandmark1Tap;
   final Future Function()? onLandmark2Tap;
   final Future Function()? onLandmark3Tap;
@@ -95,7 +208,8 @@ class WorldDestinationsWidget extends StatefulWidget {
       _WorldDestinationsWidgetState();
 }
 
-class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
+class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget>
+    with AutomaticKeepAliveClientMixin<WorldDestinationsWidget> {
   static const Color _background = Color(0xFF07111C);
   static const Color _panel = Color(0xFF0D1B2A);
   static const Color _panelRaised = Color(0xFF122235);
@@ -106,16 +220,16 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
   late final TextEditingController _speedController;
   double _currentSpeed = 150.0;
   int? _pressedIndex;
+  final Set<String> _precachedUrls = <String>{};
 
-  final List<_WorldDestination> _destinations = const [
+  @override
+  bool get wantKeepAlive => true;
+
+  static const List<_WorldDestination> _destinations = [
     _WorldDestination(
       name: 'The Great Pyramids',
       country: 'Egypt',
       description: 'Ancient wonder of the world.',
-      imagePath:
-          'assets/images/image_7E58189C-CB1B-4174-9AC1-0341F70AEF60_1787640842.png',
-      flagPath:
-          'assets/images/image_9706F552-46DE-447D-906B-A9A5B75BEF05_1787638862.png',
       latitude: 29.9688,
       longitude: 31.1342,
       altitude: 1200.0,
@@ -124,10 +238,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Eiffel Tower',
       country: 'France',
       description: 'Iconic symbol of Paris.',
-      imagePath:
-          'assets/images/image_F8133037-936B-4727-85C2-26AA1EC6A2A2_1787641565.jpeg',
-      flagPath:
-          'assets/images/image_E3795009-7440-47A1-85CB-B469BE9FCF14_1787641435.png',
       latitude: 48.8480,
       longitude: 2.2945,
       altitude: 1400.0,
@@ -136,10 +246,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Statue of Liberty',
       country: 'USA',
       description: 'A symbol of freedom and hope.',
-      imagePath:
-          'assets/images/image_600F4E68-C631-491B-805D-BBA1841B312D_1787641914.png',
-      flagPath:
-          'assets/images/image_9DF31649-DAB2-4CDE-B490-30F6F6684E8E_1787641860.png',
       latitude: 40.6788,
       longitude: -74.0445,
       altitude: 1000.0,
@@ -148,10 +254,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Burj Khalifa',
       country: 'UAE',
       description: 'The tallest building in the world.',
-      imagePath:
-          'assets/images/image_7CD5962B-2AD3-48EE-BF4F-AC70CE7BDD19_1787642147.png',
-      flagPath:
-          'assets/images/image_2C23A605-1ECC-4FBE-98F8-94E2C9FC27AC_1787642299.png',
       latitude: 25.1868,
       longitude: 55.2744,
       altitude: 3200.0,
@@ -160,10 +262,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Big Ben',
       country: 'United Kingdom',
       description: 'Historic clock tower in London.',
-      imagePath:
-          'assets/images/image_88C17B6D-06BF-4662-919A-00894F5C799C_1787642445.png',
-      flagPath:
-          'assets/images/image_53FF85CE-653E-4D82-AD52-B37E843631C1_1787642416.jpeg',
       latitude: 51.4903,
       longitude: -0.1246,
       altitude: 1000.0,
@@ -172,10 +270,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Sydney Opera House',
       country: 'Australia',
       description: 'Famous architectural masterpiece.',
-      imagePath:
-          'assets/images/image_1F12844F-D568-4EDB-8A01-215D9FC07043_1787642584.png',
-      flagPath:
-          'assets/images/image_F177DBE7-109D-4454-82EE-DC1F7C742C18_1787642552.png',
       latitude: -33.8672,
       longitude: 151.2153,
       altitude: 1000.0,
@@ -184,10 +278,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Christ the Redeemer',
       country: 'Brazil',
       description: 'Iconic statue overlooking Rio de Janeiro.',
-      imagePath:
-          'assets/images/image_22EF13A2-CEC7-4C17-961A-E88E25F48A23_1787643112.png',
-      flagPath:
-          'assets/images/image_47A3416A-551C-46AE-B64B-EEE379953DE5_1787643141.png',
       latitude: -22.9623,
       longitude: -43.2105,
       altitude: 3500.0,
@@ -196,10 +286,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'The Taj Mahal',
       country: 'India',
       description: 'A timeless symbol of love.',
-      imagePath:
-          'assets/images/image_18F5E2B1-F026-4BC6-855F-DCDDE59D6ED7_1787643514.png',
-      flagPath:
-          'assets/images/image_B1E573F2-9144-4749-9163-CA15DB3D80D8_1787643522.webp',
       latitude: 27.1647,
       longitude: 78.0421,
       altitude: 1500.0,
@@ -208,10 +294,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Niagara Falls',
       country: 'Canada',
       description: 'A breathtaking natural wonder.',
-      imagePath:
-          'assets/images/image_F458974B-5796-49F6-830E-CB6A04552083_1787643740.png',
-      flagPath:
-          'assets/images/image_4EA424E2-3357-42D2-8945-C0FCBEDBF677_1787643597.png',
       latitude: 43.0695,
       longitude: -79.0773,
       altitude: 1500.0,
@@ -220,10 +302,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Grand Canyon',
       country: 'USA',
       description: 'Breathtaking natural wonder.',
-      imagePath:
-          'assets/images/image_A449B87A-A002-4DE0-8711-51E7059FAB94_1787643945.png',
-      flagPath:
-          'assets/images/image_9DF31649-DAB2-4CDE-B490-30F6F6684E8E_1787641860.png',
       latitude: 36.0468,
       longitude: -112.1401,
       altitude: 7800.0,
@@ -232,10 +310,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Mount Everest',
       country: 'Nepal',
       description: 'The highest mountain on Earth.',
-      imagePath:
-          'assets/images/image_0314134B-6A1E-4E17-BBEE-8707C611057E_1787644112.png',
-      flagPath:
-          'assets/images/image_ECF18ED3-2634-4757-934A-625580CD0922_1787644094.png',
       latitude: 27.9776,
       longitude: 86.9250,
       altitude: 30000.0,
@@ -244,10 +318,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Machu Picchu',
       country: 'Peru',
       description: 'Ancient Incan citadel in the clouds.',
-      imagePath:
-          'assets/images/image_CD28B3A3-EB3F-4CA3-867A-3BFA8838FF81_1787644281.png',
-      flagPath:
-          'assets/images/image_8A0EA8AE-B48B-4725-A67D-4D14EE34DB41_1787644255.png',
       latitude: -13.1741,
       longitude: -72.5450,
       altitude: 8900.0,
@@ -256,10 +326,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Santorini',
       country: 'Greece',
       description: 'Stunning island with white buildings',
-      imagePath:
-          'assets/images/image_F87B2D99-E4F2-49F8-A2E4-32E1AB5DCF85_1787644513.png',
-      flagPath:
-          'assets/images/image_5D4F6841-7729-4FDB-99AD-A706F77F8EF2_1787644468.png',
       latitude: 36.4523,
       longitude: 25.3753,
       altitude: 1200.0,
@@ -268,10 +334,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Colosseum',
       country: 'Italy',
       description: 'Ancient Roman amphitheater.',
-      imagePath:
-          'assets/images/image_596C7DB7-8042-4C9E-AA14-C8F26DAD2E2C_1787644865.png',
-      flagPath:
-          'assets/images/image_2F110B04-2814-492D-8C19-65D2751BB5DD_1787644756.png',
       latitude: 41.8799,
       longitude: 12.4922,
       altitude: 1100.0,
@@ -280,10 +342,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Golden Gate Bridge',
       country: 'USA',
       description: 'Iconic bridge in San Francisco.',
-      imagePath:
-          'assets/images/image_5CD3FA13-C439-4409-8D54-D552EEB1ED73_1787644941.png',
-      flagPath:
-          'assets/images/image_8A0EA8AE-B48B-4725-A67D-4D14EE34DB41_1787644255.png',
       latitude: 37.8092,
       longitude: -122.4783,
       altitude: 1000.0,
@@ -292,10 +350,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Lusail Marina',
       country: 'Qatar',
       description: 'Iconic waterfront destination in Doha.',
-      imagePath:
-          'assets/images/image_5B5AE5A1-9F1E-425B-B6E9-0F5524D1E55E_1787645129.png',
-      flagPath:
-          'assets/images/image_8143C6BA-1D60-4D9F-937A-C4FF128590D6_1787645123.png',
       latitude: 25.4093,
       longitude: 51.5280,
       altitude: 1000.0,
@@ -304,10 +358,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Great Wall of China',
       country: 'China',
       description: 'Historic wonder of the world.',
-      imagePath:
-          'assets/images/image_B264C480-6885-45EB-BEB2-88321DE3C825_1787645438.png',
-      flagPath:
-          'assets/images/image_E5503140-B3EF-4EF8-9C31-1B00212DDFAA_1787645305.png',
       latitude: 40.4208,
       longitude: 116.5620,
       altitude: 2800.0,
@@ -316,10 +366,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Tokyo Tower',
       country: 'Japan',
       description: 'Iconic landmark of Tokyo.',
-      imagePath:
-          'assets/images/image_89C0331B-5DCB-4608-84BB-F8626A77D504_1787645597.png',
-      flagPath:
-          'assets/images/image_84AAFE07-BCA3-4BCE-85FE-8A588C8F1164_1787645626.png',
       latitude: 35.6482,
       longitude: 139.7454,
       altitude: 1800.0,
@@ -328,10 +374,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Dubai Palm Jumeirah',
       country: 'UAE',
       description: 'The world’s largest artificial island.',
-      imagePath:
-          'assets/images/image_4EAD0B0E-3088-4AC6-A39A-D3164399E480_1787646182.png',
-      flagPath:
-          'assets/images/image_2C23A605-1ECC-4FBE-98F8-94E2C9FC27AC_1787642299.png',
       latitude: 25.1018,
       longitude: 55.1381,
       altitude: 1200.0,
@@ -340,10 +382,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Alhambra',
       country: 'Spain',
       description: 'Stunning palace and fortress complex.',
-      imagePath:
-          'assets/images/image_EE4DCE73-E366-4815-8E99-9E594A778ADA_1787646373.png',
-      flagPath:
-          'assets/images/image_DB27D00D-85D6-4528-9E87-D24054E138C7_1787646277.png',
       latitude: 37.1666,
       longitude: -3.5899,
       altitude: 2700.0,
@@ -352,10 +390,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Angkor Wat',
       country: 'Cambodia',
       description: 'Magnificent ancient temple complex.',
-      imagePath:
-          'assets/images/image_135A6F44-56F6-451A-BC52-70BCE0A06A6C_1787646353.png',
-      flagPath:
-          'assets/images/image_76433193-4194-4A25-A1DA-9214F7005699_1787646300.webp',
       latitude: 13.4018,
       longitude: 103.8670,
       altitude: 1200.0,
@@ -364,10 +398,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Iguazu Falls',
       country: 'Argentina / Brazil',
       description: 'Breathtaking system of waterfalls.',
-      imagePath:
-          'assets/images/image_8C531546-1F68-4326-A2BF-372B9492F2C1_1787647236.png',
-      flagPath:
-          'assets/images/image_32883F14-2E08-48AE-AD3B-8D2B57C0146A_1787646893.png',
       latitude: -25.7058,
       longitude: -54.4367,
       altitude: 1700.0,
@@ -376,10 +406,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Blue Lagoon',
       country: 'Iceland',
       description: 'Famous geothermal spa.',
-      imagePath:
-          'assets/images/image_F612E763-4BF3-4508-9DCE-4F0F94DB7960_1787647214.png',
-      flagPath:
-          'assets/images/image_EA1DF57A-65AC-4F07-AEAC-A9B3D371D28C_1787646996.png',
       latitude: 63.8690,
       longitude: -22.4481,
       altitude: 1100.0,
@@ -388,10 +414,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Louvre Museum',
       country: 'France',
       description: 'World-famous art museum.',
-      imagePath:
-          'assets/images/image_E45BBFF4-6996-4925-A500-943431F991B0_1787647169.png',
-      flagPath:
-          'assets/images/image_FBE03A04-3999-4393-85ED-108BE5033498_1787641796.png',
       latitude: 48.8509,
       longitude: 2.3376,
       altitude: 1100.0,
@@ -400,10 +422,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Banff National Park',
       country: 'Canada',
       description: 'Stunning landscapes and turquoise lakes',
-      imagePath:
-          'assets/images/image_D880BCF7-78CB-4E2D-A4C2-58B08659364E_1787647865.png',
-      flagPath:
-          'assets/images/image_4EA424E2-3357-42D2-8945-C0FCBEDBF677_1787643597.png',
       latitude: 51.1678,
       longitude: -115.5708,
       altitude: 5500.0,
@@ -412,10 +430,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Bahrain World Trade Center',
       country: 'Bahrain',
       description: 'Iconic towers and sunset reflections',
-      imagePath:
-          'assets/images/image_5D9C5D75-490B-40EE-8B56-BFD8B7ACF3DA_1787647914.png',
-      flagPath:
-          'assets/images/image_2ABDE972-2781-4DF6-832E-06AB829DA6B1_1787647722.png',
       latitude: 26.2300,
       longitude: 50.5817,
       altitude: 1800.0,
@@ -424,10 +438,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       name: 'Masjid al-Haram',
       country: 'Saudi Arabia',
       description: 'Home of the sacred Kaaba',
-      imagePath:
-          'assets/images/image_F5C1FAC5-6CDA-41F7-A60F-A80260B382E3_1787647947.png',
-      flagPath:
-          'assets/images/image_1CFE6A2B-565F-4D08-A0C4-46171F6C89A7_1787648102.png',
       latitude: 21.4121,
       longitude: 39.8262,
       altitude: 2500.0,
@@ -438,12 +448,193 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
   void initState() {
     super.initState();
     _speedController = TextEditingController(text: '150');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _precacheAllImages();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant WorldDestinationsWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _precacheAllImages();
+    });
   }
 
   @override
   void dispose() {
     _speedController.dispose();
     super.dispose();
+  }
+
+  /// Normalizes GitHub links so both 'raw.githubusercontent.com' and standard
+  /// 'github.com/.../blob/...' links download the binary image directly.
+  String _resolveGitHubUrl(String? rawUrl) {
+    if (rawUrl == null) return '';
+    String url = rawUrl.trim();
+    if (url.isEmpty) return '';
+
+    if (url.contains('github.com/') && url.contains('/blob/')) {
+      url = url
+          .replaceFirst(
+              'https://github.com/', 'https://raw.githubusercontent.com/')
+          .replaceFirst(
+              'http://github.com/', 'https://raw.githubusercontent.com/')
+          .replaceFirst('/blob/', '/');
+    }
+    return url;
+  }
+
+  String _imageUrlForLandmark(int index) {
+    switch (index) {
+      case 0:
+        return _resolveGitHubUrl(widget.landmark1Image);
+      case 1:
+        return _resolveGitHubUrl(widget.landmark2Image);
+      case 2:
+        return _resolveGitHubUrl(widget.landmark3Image);
+      case 3:
+        return _resolveGitHubUrl(widget.landmark4Image);
+      case 4:
+        return _resolveGitHubUrl(widget.landmark5Image);
+      case 5:
+        return _resolveGitHubUrl(widget.landmark6Image);
+      case 6:
+        return _resolveGitHubUrl(widget.landmark7Image);
+      case 7:
+        return _resolveGitHubUrl(widget.landmark8Image);
+      case 8:
+        return _resolveGitHubUrl(widget.landmark9Image);
+      case 9:
+        return _resolveGitHubUrl(widget.landmark10Image);
+      case 10:
+        return _resolveGitHubUrl(widget.landmark11Image);
+      case 11:
+        return _resolveGitHubUrl(widget.landmark12Image);
+      case 12:
+        return _resolveGitHubUrl(widget.landmark13Image);
+      case 13:
+        return _resolveGitHubUrl(widget.landmark14Image);
+      case 14:
+        return _resolveGitHubUrl(widget.landmark15Image);
+      case 15:
+        return _resolveGitHubUrl(widget.landmark16Image);
+      case 16:
+        return _resolveGitHubUrl(widget.landmark17Image);
+      case 17:
+        return _resolveGitHubUrl(widget.landmark18Image);
+      case 18:
+        return _resolveGitHubUrl(widget.landmark19Image);
+      case 19:
+        return _resolveGitHubUrl(widget.landmark20Image);
+      case 20:
+        return _resolveGitHubUrl(widget.landmark21Image);
+      case 21:
+        return _resolveGitHubUrl(widget.landmark22Image);
+      case 22:
+        return _resolveGitHubUrl(widget.landmark23Image);
+      case 23:
+        return _resolveGitHubUrl(widget.landmark24Image);
+      case 24:
+        return _resolveGitHubUrl(widget.landmark25Image);
+      case 25:
+        return _resolveGitHubUrl(widget.landmark26Image);
+      case 26:
+        return _resolveGitHubUrl(widget.landmark27Image);
+      default:
+        return '';
+    }
+  }
+
+  String _flagUrlForLandmark(int index) {
+    switch (index) {
+      case 0:
+        return _resolveGitHubUrl(widget.landmark1Flag);
+      case 1:
+        return _resolveGitHubUrl(widget.landmark2Flag);
+      case 2:
+        return _resolveGitHubUrl(widget.landmark3Flag);
+      case 3:
+        return _resolveGitHubUrl(widget.landmark4Flag);
+      case 4:
+        return _resolveGitHubUrl(widget.landmark5Flag);
+      case 5:
+        return _resolveGitHubUrl(widget.landmark6Flag);
+      case 6:
+        return _resolveGitHubUrl(widget.landmark7Flag);
+      case 7:
+        return _resolveGitHubUrl(widget.landmark8Flag);
+      case 8:
+        return _resolveGitHubUrl(widget.landmark9Flag);
+      case 9:
+        return _resolveGitHubUrl(widget.landmark10Flag);
+      case 10:
+        return _resolveGitHubUrl(widget.landmark11Flag);
+      case 11:
+        return _resolveGitHubUrl(widget.landmark12Flag);
+      case 12:
+        return _resolveGitHubUrl(widget.landmark13Flag);
+      case 13:
+        return _resolveGitHubUrl(widget.landmark14Flag);
+      case 14:
+        return _resolveGitHubUrl(widget.landmark15Flag);
+      case 15:
+        return _resolveGitHubUrl(widget.landmark16Flag);
+      case 16:
+        return _resolveGitHubUrl(widget.landmark17Flag);
+      case 17:
+        return _resolveGitHubUrl(widget.landmark18Flag);
+      case 18:
+        return _resolveGitHubUrl(widget.landmark19Flag);
+      case 19:
+        return _resolveGitHubUrl(widget.landmark20Flag);
+      case 20:
+        return _resolveGitHubUrl(widget.landmark21Flag);
+      case 21:
+        return _resolveGitHubUrl(widget.landmark22Flag);
+      case 22:
+        return _resolveGitHubUrl(widget.landmark23Flag);
+      case 23:
+        return _resolveGitHubUrl(widget.landmark24Flag);
+      case 24:
+        return _resolveGitHubUrl(widget.landmark25Flag);
+      case 25:
+        return _resolveGitHubUrl(widget.landmark26Flag);
+      case 26:
+        return _resolveGitHubUrl(widget.landmark27Flag);
+      default:
+        return '';
+    }
+  }
+
+  /// Downloads and caches all 27 landmark images and 27 flags on device disk
+  /// the first time the page is opened.
+  void _precacheAllImages() {
+    if (!mounted) return;
+    for (int i = 0; i < _destinations.length; i++) {
+      final String imgUrl = _imageUrlForLandmark(i);
+      final String flagUrl = _flagUrlForLandmark(i);
+
+      if (imgUrl.isNotEmpty && !_precachedUrls.contains(imgUrl)) {
+        _precachedUrls.add(imgUrl);
+        unawaited(
+          precacheImage(
+            CachedNetworkImageProvider(imgUrl, cacheKey: imgUrl),
+            context,
+          ).catchError((_) {}),
+        );
+      }
+
+      if (flagUrl.isNotEmpty && !_precachedUrls.contains(flagUrl)) {
+        _precachedUrls.add(flagUrl);
+        unawaited(
+          precacheImage(
+            CachedNetworkImageProvider(flagUrl, cacheKey: flagUrl),
+            context,
+          ).catchError((_) {}),
+        );
+      }
+    }
   }
 
   double get _parsedSpeed {
@@ -532,7 +723,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
 
   Future<void> _handleLandmarkTap(int index) async {
     try {
-      // Always send the current speed before invoking the selected action.
       final speedCallback = widget.onSpeedChanged;
       if (speedCallback != null) {
         await _callSpeedCallback(speedCallback, _parsedSpeed);
@@ -546,7 +736,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
       debugPrint('WorldDestinationsWidget landmark action failed: $error');
       debugPrintStack(stackTrace: stackTrace);
     } finally {
-      // Keep the press glow visible briefly, then release only this card.
       await Future<void>.delayed(const Duration(milliseconds: 140));
       if (mounted && _pressedIndex == index) {
         setState(() => _pressedIndex = null);
@@ -589,6 +778,84 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildCachedLandmarkImage(String imageUrl) {
+    if (imageUrl.isEmpty) {
+      return Container(
+        color: _panelRaised,
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.landscape_rounded,
+          color: _mutedText,
+          size: 36,
+        ),
+      );
+    }
+
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      cacheKey: imageUrl,
+      fit: BoxFit.cover,
+      useOldImageOnUrlChange: true,
+      fadeInDuration: const Duration(milliseconds: 120),
+      fadeOutDuration: Duration.zero,
+      placeholder: (context, url) => Container(
+        color: _panelRaised,
+        alignment: Alignment.center,
+        child: const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.0,
+            color: _cyan,
+          ),
+        ),
+      ),
+      errorWidget: (context, url, error) => Container(
+        color: _panelRaised,
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.landscape_rounded,
+          color: _mutedText,
+          size: 36,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCachedFlagImage(String flagUrl) {
+    if (flagUrl.isEmpty) {
+      return const Icon(
+        Icons.flag_rounded,
+        color: _mutedText,
+        size: 15,
+      );
+    }
+
+    return CachedNetworkImage(
+      imageUrl: flagUrl,
+      cacheKey: flagUrl,
+      fit: BoxFit.cover,
+      useOldImageOnUrlChange: true,
+      fadeInDuration: const Duration(milliseconds: 100),
+      fadeOutDuration: Duration.zero,
+      placeholder: (context, url) => const Center(
+        child: SizedBox(
+          width: 10,
+          height: 10,
+          child: CircularProgressIndicator(
+            strokeWidth: 1.5,
+            color: _cyan,
+          ),
+        ),
+      ),
+      errorWidget: (context, url, error) => const Icon(
+        Icons.flag_rounded,
+        color: _mutedText,
+        size: 15,
       ),
     );
   }
@@ -697,7 +964,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
                 _currentSpeed =
                     parsed != null && parsed.isFinite ? parsed : 150.0;
               });
-              // Notify on every edit, including while the user is typing.
               _notifySpeedChanged();
             },
           ),
@@ -712,6 +978,8 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
     _WorldDestination destination,
   ) {
     final isPressed = _pressedIndex == index;
+    final String imageUrl = _imageUrlForLandmark(index);
+    final String flagUrl = _flagUrlForLandmark(index);
 
     return AnimatedScale(
       scale: isPressed ? 0.96 : 1.0,
@@ -762,21 +1030,7 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.asset(
-                  destination.imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: _panelRaised,
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.landscape_rounded,
-                        color: _mutedText,
-                        size: 36,
-                      ),
-                    );
-                  },
-                ),
+                _buildCachedLandmarkImage(imageUrl),
                 DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -871,17 +1125,7 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
                               width: 30,
                               height: 20,
                               color: const Color(0xFF1B2A3A),
-                              child: Image.asset(
-                                destination.flagPath,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(
-                                    Icons.flag_rounded,
-                                    color: _mutedText,
-                                    size: 15,
-                                  );
-                                },
-                              ),
+                              child: _buildCachedFlagImage(flagUrl),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -968,6 +1212,7 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SizedBox(
       width: widget.width,
       height: widget.height,
@@ -1074,8 +1319,6 @@ class _WorldDestinationsWidgetState extends State<WorldDestinationsWidget> {
                     const SizedBox(height: 13),
                     LayoutBuilder(
                       builder: (context, constraints) {
-                        // Exactly two columns below 600 logical pixels;
-                        // exactly three columns at 600 and above.
                         final crossAxisCount =
                             constraints.maxWidth < 600 ? 2 : 3;
 
@@ -1118,8 +1361,6 @@ class _WorldDestination {
     required this.name,
     required this.country,
     required this.description,
-    required this.imagePath,
-    required this.flagPath,
     required this.latitude,
     required this.longitude,
     required this.altitude,
@@ -1128,10 +1369,6 @@ class _WorldDestination {
   final String name;
   final String country;
   final String description;
-  final String imagePath;
-  final String flagPath;
-
-  // Preserved from the source data for each matching destination action.
   final double latitude;
   final double longitude;
   final double altitude;

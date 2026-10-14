@@ -15201,35 +15201,17 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                         Expanded(
                                           child: Container(
                                             width: double.infinity,
-                                            height: 350.0,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Expanded(
-                                                  child: Container(
-                                                    width: double.infinity,
-                                                    height: MediaQuery.sizeOf(
-                                                                context)
-                                                            .height *
-                                                        1.0,
-                                                    child: custom_widgets
-                                                        .CustomFMCWebView(
-                                                      width: double.infinity,
-                                                      height: MediaQuery.sizeOf(
-                                                                  context)
-                                                              .height *
-                                                          1.0,
-                                                      initialUrl:
-                                                          'http://${FFAppState().ipPC}:9090',
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                            height: MediaQuery.sizeOf(context)
+                                                    .height *
+                                                1.0,
+                                            child:
+                                                custom_widgets.CustomFMCWebView(
+                                              width: double.infinity,
+                                              height: MediaQuery.sizeOf(context)
+                                                      .height *
+                                                  1.0,
+                                              initialUrl:
+                                                  'http://${FFAppState().ipPC}:9090',
                                             ),
                                           ),
                                         ),
@@ -19056,35 +19038,17 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                         Expanded(
                                           child: Container(
                                             width: double.infinity,
-                                            height: 350.0,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Expanded(
-                                                  child: Container(
-                                                    width: double.infinity,
-                                                    height: MediaQuery.sizeOf(
-                                                                context)
-                                                            .height *
-                                                        1.0,
-                                                    child: custom_widgets
-                                                        .CustomFMCWebView(
-                                                      width: double.infinity,
-                                                      height: MediaQuery.sizeOf(
-                                                                  context)
-                                                              .height *
-                                                          1.0,
-                                                      initialUrl:
-                                                          'http://${FFAppState().ipPC}:8173',
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                            height: MediaQuery.sizeOf(context)
+                                                    .height *
+                                                1.0,
+                                            child:
+                                                custom_widgets.CustomFMCWebView(
+                                              width: double.infinity,
+                                              height: MediaQuery.sizeOf(context)
+                                                      .height *
+                                                  1.0,
+                                              initialUrl:
+                                                  'http://${FFAppState().ipPC}:8173',
                                             ),
                                           ),
                                         ),
@@ -19103,35 +19067,17 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                         Expanded(
                                           child: Container(
                                             width: double.infinity,
-                                            height: 350.0,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Expanded(
-                                                  child: Container(
-                                                    width: double.infinity,
-                                                    height: MediaQuery.sizeOf(
-                                                                context)
-                                                            .height *
-                                                        1.0,
-                                                    child: custom_widgets
-                                                        .CustomFMCWebView(
-                                                      width: double.infinity,
-                                                      height: MediaQuery.sizeOf(
-                                                                  context)
-                                                              .height *
-                                                          1.0,
-                                                      initialUrl:
-                                                          'http://${FFAppState().ipPC}:8172',
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                            height: MediaQuery.sizeOf(context)
+                                                    .height *
+                                                1.0,
+                                            child:
+                                                custom_widgets.CustomFMCWebView(
+                                              width: double.infinity,
+                                              height: MediaQuery.sizeOf(context)
+                                                      .height *
+                                                  1.0,
+                                              initialUrl:
+                                                  'http://${FFAppState().ipPC}:8172',
                                             ),
                                           ),
                                         ),
