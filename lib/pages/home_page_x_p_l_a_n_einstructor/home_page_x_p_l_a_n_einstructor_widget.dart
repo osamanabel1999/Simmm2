@@ -16362,6 +16362,9 @@ class _HomePageXPLANEinstructorWidgetState
                                   FFAppState().TabNumber = 130;
                                   safeSetState(() {});
                                 },
+                                systemAction: () async {},
+                                analysisAction: () async {},
+                                tcasAction: () async {},
                               ),
                             ),
                           ),

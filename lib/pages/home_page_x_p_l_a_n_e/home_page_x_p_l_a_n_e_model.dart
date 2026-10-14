@@ -21,22 +21,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   // Stores action output result for [Backend Call - API (GetSimBriefFlight)] action in HomePageXPLANE widget.
   ApiCallResponse? simbreifResponse;
   InstantTimer? instantTimer;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
-  double? headingoutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
-  double? xoutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
-  double? zoutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
-  double? youtput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
-  double? lAToutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
-  double? lONoutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
-  double? sPDoutput;
-  // Stores action output result for [Custom Action - listenToXPlane] action in HomePageXPLANE widget.
-  double? aLToutput;
   InstantTimer? instantTimer2;
   // Stores action output result for [Custom Action - calculateXPlanePosition] action in HomePageXPLANE widget.
   dynamic autoResult;
@@ -80,16 +64,6 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   dynamic right45;
   // Stores action output result for [Custom Action - calculateVelocityVectorsXPlane] action in EFBRadarMap widget.
   dynamic vectorsResultTeleportonMAP;
-  // State field(s) for airportICAO widget.
-  FocusNode? airportICAOFocusNode;
-  TextEditingController? airportICAOTextController;
-  String? Function(BuildContext, String?)? airportICAOTextControllerValidator;
-  // Stores action output result for [Backend Call - API (GetAirportInfo)] action in Button widget.
-  ApiCallResponse? airportResultApi;
-  // State field(s) for Slidertime widget.
-  double? slidertimeValue;
-  // State field(s) for Sliderspeed widget.
-  double? sliderspeedValue;
   // State field(s) for MouseRegion widget.
   bool mouseRegionHovered1 = false;
   // State field(s) for MouseRegion widget.
@@ -144,7 +118,5 @@ class HomePageXPLANEModel extends FlutterFlowModel<HomePageXPLANEWidget> {
   void dispose() {
     instantTimer?.cancel();
     instantTimer2?.cancel();
-    airportICAOFocusNode?.dispose();
-    airportICAOTextController?.dispose();
   }
 }

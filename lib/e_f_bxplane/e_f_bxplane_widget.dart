@@ -97,7 +97,7 @@ class _EFBxplaneWidgetState extends State<EFBxplaneWidget> {
               safeSetState(() {});
 
               context.pushNamed(
-                HomePageXPLANEWidget.routeName,
+                HomePageXPLANExxxWidget.routeName,
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,
@@ -259,7 +259,7 @@ class _EFBxplaneWidgetState extends State<EFBxplaneWidget> {
             },
             onSimControlAction: () async {
               context.pushNamed(
-                HomePageXPLANEtesttWidget.routeName,
+                HomePageXPLANEWidget.routeName,
                 extra: <String, dynamic>{
                   '__transition_info__': TransitionInfo(
                     hasTransition: true,

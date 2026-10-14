@@ -19,35 +19,32 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
-import 'home_page_x_p_l_a_n_etestt_model.dart';
-export 'home_page_x_p_l_a_n_etestt_model.dart';
+import 'home_page_x_p_l_a_n_exxx_model.dart';
+export 'home_page_x_p_l_a_n_exxx_model.dart';
 
-class HomePageXPLANEtesttWidget extends StatefulWidget {
-  const HomePageXPLANEtesttWidget({super.key});
+class HomePageXPLANExxxWidget extends StatefulWidget {
+  const HomePageXPLANExxxWidget({super.key});
 
-  static String routeName = 'HomePageXPLANEtestt';
-  static String routePath = '/homePageXPLANEtestt';
+  static String routeName = 'HomePageXPLANExxx';
+  static String routePath = '/homePageXPLANExxx';
 
   @override
-  State<HomePageXPLANEtesttWidget> createState() =>
-      _HomePageXPLANEtesttWidgetState();
+  State<HomePageXPLANExxxWidget> createState() =>
+      _HomePageXPLANExxxWidgetState();
 }
 
-class _HomePageXPLANEtesttWidgetState extends State<HomePageXPLANEtesttWidget> {
-  late HomePageXPLANEtesttModel _model;
+class _HomePageXPLANExxxWidgetState extends State<HomePageXPLANExxxWidget> {
+  late HomePageXPLANExxxModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => HomePageXPLANEtesttModel());
+    _model = createModel(context, () => HomePageXPLANExxxModel());
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await actions.startSimulatorDataFetch(
-        FFAppState().ipPC,
-      );
       await actions.startPilotTelemetryStreamxplane(
         FFAppState().SessionID,
       );
@@ -1079,12 +1076,52 @@ class _HomePageXPLANEtesttWidgetState extends State<HomePageXPLANEtesttWidget> {
       _model.instantTimer = InstantTimer.periodic(
         duration: Duration(milliseconds: 1000),
         callback: (timer) async {
+          _model.headingoutput = await actions.listenToXPlane(
+            17,
+            3,
+          );
+          _model.xoutput = await actions.listenToXPlane(
+            21,
+            1,
+          );
+          _model.zoutput = await actions.listenToXPlane(
+            21,
+            3,
+          );
+          _model.youtput = await actions.listenToXPlane(
+            21,
+            2,
+          );
+          _model.lAToutput = await actions.listenToXPlane(
+            20,
+            1,
+          );
+          _model.lONoutput = await actions.listenToXPlane(
+            20,
+            2,
+          );
+          _model.sPDoutput = await actions.listenToXPlane(
+            3,
+            3,
+          );
+          _model.aLToutput = await actions.listenToXPlane(
+            20,
+            3,
+          );
+          FFAppState().currentHeading = _model.headingoutput!;
           FFAppState().SIMspeed = FFAppState().efbGroundSpeed.toString();
           FFAppState().SIMtime = (double var1) {
             return '${(var1 / 3600).floor().toString().padLeft(2, '0')}:${((var1 % 3600) / 60).floor().toString().padLeft(2, '0')}';
           }(FFAppState().efbSimulatorTimeSeconds);
+          FFAppState().currentX = _model.xoutput!;
+          FFAppState().currentZ = _model.zoutput!;
+          FFAppState().CurrentY = _model.youtput!;
           safeSetState(() {});
+          FFAppState().currentLAT = _model.lAToutput!;
+          FFAppState().currentLON = _model.lONoutput!;
           FFAppState().resultXZ = FFAppState().resultXZ;
+          FFAppState().currentALT = _model.aLToutput!.toString();
+          FFAppState().currentSPD = _model.sPDoutput!.toString();
           safeSetState(() {});
           _model.instantTimer2 = InstantTimer.periodic(
             duration: Duration(milliseconds: 1000),
@@ -20323,7 +20360,8 @@ class _HomePageXPLANEtesttWidgetState extends State<HomePageXPLANEtesttWidget> {
                                               onNavaidActionTap: () async {},
                                               onTcasActionTap: () async {
                                                 context.pushNamed(
-                                                  TCASxplaneWidget.routeName,
+                                                  AircraftFlightSelectorXplaneWidget
+                                                      .routeName,
                                                   extra: <String, dynamic>{
                                                     '__transition_info__':
                                                         TransitionInfo(
@@ -22807,6 +22845,9 @@ class _HomePageXPLANEtesttWidgetState extends State<HomePageXPLANEtesttWidget> {
                                   FFAppState().TabNumber = 130;
                                   safeSetState(() {});
                                 },
+                                systemAction: () async {},
+                                analysisAction: () async {},
+                                tcasAction: () async {},
                               ),
                             ),
                           ),

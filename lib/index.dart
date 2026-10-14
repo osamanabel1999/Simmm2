@@ -1,6 +1,6 @@
 // Export pages
-export '/pages/home_page_x_p_l_a_n_e/home_page_x_p_l_a_n_e_widget.dart'
-    show HomePageXPLANEWidget;
+export '/pages/home_page_x_p_l_a_n_exxx/home_page_x_p_l_a_n_exxx_widget.dart'
+    show HomePageXPLANExxxWidget;
 export '/t_o_calculation/t_o_calculation_widget.dart' show TOCalculationWidget;
 export '/pages/l_d_g_calculation/l_d_g_calculation_widget.dart'
     show LDGCalculationWidget;
@@ -56,6 +56,7 @@ export '/pages/home_page_x_p_l_a_n_einstructor/home_page_x_p_l_a_n_einstructor_w
     show HomePageXPLANEinstructorWidget;
 export '/pages/home_page_m_s_f_sinstructor/home_page_m_s_f_sinstructor_widget.dart'
     show HomePageMSFSinstructorWidget;
-export '/t_c_a_sxplane/t_c_a_sxplane_widget.dart' show TCASxplaneWidget;
-export '/pages/home_page_x_p_l_a_n_etestt/home_page_x_p_l_a_n_etestt_widget.dart'
-    show HomePageXPLANEtesttWidget;
+export '/aircraft_flight_selector_xplane/aircraft_flight_selector_xplane_widget.dart'
+    show AircraftFlightSelectorXplaneWidget;
+export '/pages/home_page_x_p_l_a_n_e/home_page_x_p_l_a_n_e_widget.dart'
+    show HomePageXPLANEWidget;

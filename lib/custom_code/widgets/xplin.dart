@@ -3470,11 +3470,15 @@ class Xplin extends StatefulWidget {
   _XplinState createState() => _XplinState();
 }
 
-class _XplinState extends State<Xplin> {
+class _XplinState extends State<Xplin>
+    with AutomaticKeepAliveClientMixin<Xplin> {
   final TextEditingController _icaoController = TextEditingController();
   final TextEditingController _speedController =
       TextEditingController(text: "150");
   int _selectedMode = 0;
+
+  @override
+  bool get wantKeepAlive => true;
   bool _isLoadingRunways = false;
   List<Map<String, dynamic>> _runways = [];
   Map<String, dynamic>? _selectedRunway;
@@ -4536,11 +4540,11 @@ class _XplinState extends State<Xplin> {
 
   List<Widget> _buildMobileModeButtons() {
     final modes = [
+      ['AIRCRAFT SETUP', 6],
       ['RUNWAY', 0],
       ['GATE', 1],
       ['AIRPORT CHART', 2],
       ['NAVAIDS', 5],
-      ['TCAS', 6],
       ['MAP TELEPORT', 3],
       ['WORLD TOUR', 4]
     ];
@@ -4595,9 +4599,12 @@ class _XplinState extends State<Xplin> {
   }
 
   @override
-  Widget build(BuildContext context) => _isMobile(context)
-      ? _buildMobileView(context)
-      : _buildDesktopView(context);
+  Widget build(BuildContext context) {
+    super.build(context);
+    return _isMobile(context)
+        ? _buildMobileView(context)
+        : _buildDesktopView(context);
+  }
 
   Widget _buildDesktopView(BuildContext context) {
     return Container(
@@ -4928,6 +4935,34 @@ class _XplinState extends State<Xplin> {
         children: [
           GestureDetector(
               onTap: () {
+                setState(() => _selectedMode = 6);
+                if (widget.onTcasActionTap != null) widget.onTcasActionTap!();
+              },
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2.5),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(
+                        _selectedMode == 6
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_off,
+                        size: 14,
+                        color: _selectedMode == 6
+                            ? const Color(0xFF7AA5D2)
+                            : const Color(0xFF324866)),
+                    const SizedBox(width: 8),
+                    Text('AIRCRAFT SETUP',
+                        style: TextStyle(
+                            color: _selectedMode == 6
+                                ? const Color(0xFFA6C2DF)
+                                : const Color(0xFF537396),
+                            fontSize: 10,
+                            letterSpacing: 0.5,
+                            fontWeight: _selectedMode == 6
+                                ? FontWeight.bold
+                                : FontWeight.normal))
+                  ]))),
+          GestureDetector(
+              onTap: () {
                 setState(() => _selectedMode = 0);
                 if (widget.onRunwayActionTap != null)
                   widget.onRunwayActionTap!();
@@ -5037,34 +5072,6 @@ class _XplinState extends State<Xplin> {
                             fontSize: 10,
                             letterSpacing: 0.5,
                             fontWeight: _selectedMode == 5
-                                ? FontWeight.bold
-                                : FontWeight.normal))
-                  ]))),
-          GestureDetector(
-              onTap: () {
-                setState(() => _selectedMode = 6);
-                if (widget.onTcasActionTap != null) widget.onTcasActionTap!();
-              },
-              child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.5),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(
-                        _selectedMode == 6
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_off,
-                        size: 14,
-                        color: _selectedMode == 6
-                            ? const Color(0xFF7AA5D2)
-                            : const Color(0xFF324866)),
-                    const SizedBox(width: 8),
-                    Text('TCAS',
-                        style: TextStyle(
-                            color: _selectedMode == 6
-                                ? const Color(0xFFA6C2DF)
-                                : const Color(0xFF537396),
-                            fontSize: 10,
-                            letterSpacing: 0.5,
-                            fontWeight: _selectedMode == 6
                                 ? FontWeight.bold
                                 : FontWeight.normal))
                   ]))),
@@ -5297,7 +5304,7 @@ class _XplinState extends State<Xplin> {
                 xPct: 0.45,
                 yPct: 0.30,
                 text1: 'Left base',
-                text2: '7000ft',
+                text2: '700ft',
                 angle: math.pi,
                 txtDy: -40,
                 onTap: widget.onPlaneHoldLeftTap),
@@ -5315,7 +5322,7 @@ class _XplinState extends State<Xplin> {
                 xPct: 0.45,
                 yPct: 0.70,
                 text1: 'Right base',
-                text2: '7000ft',
+                text2: '700ft',
                 angle: 0,
                 txtDy: 40,
                 onTap: widget.onPlaneHoldRightTap),

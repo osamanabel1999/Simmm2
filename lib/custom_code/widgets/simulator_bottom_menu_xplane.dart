@@ -27,6 +27,10 @@ class SimulatorBottomMenuXplane extends StatefulWidget {
     this.failuresAction,
     this.efbAction,
     this.settingsAction,
+    // الاكشنز الجديدة المضافة
+    this.systemAction,
+    this.analysisAction,
+    this.tcasAction,
   });
 
   final double? width;
@@ -46,6 +50,11 @@ class SimulatorBottomMenuXplane extends StatefulWidget {
   final Future Function()? failuresAction;
   final Future Function()? efbAction;
   final Future Function()? settingsAction;
+
+  // تعريف الاكشنز الجديدة
+  final Future Function()? systemAction;
+  final Future Function()? analysisAction;
+  final Future Function()? tcasAction;
 
   @override
   State<SimulatorBottomMenuXplane> createState() =>
@@ -71,17 +80,20 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
     'POSITION',
     'PAUSE',
     'FREEZE',
-    'HEAD TRACKER',
+    'SYSTEM',
+    'ANALYSIS',
     // Row 2
     'PUSHBACK',
     'MAP',
     'LOAD',
     'WEATHER',
+    'HEAD TRACKER',
     // Row 3
     'FMC',
     'FAILURES',
-    'EFB',
     'ACARS',
+    'TCAS',
+    'EFB',
   ];
 
   bool _isMomentaryButton(int index) {
@@ -131,21 +143,21 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
               children: [
                 Expanded(
                   child: _buildRow(
-                    0, // Starts at index 0
+                    0, // Starts at index 0 (Row 1)
                     fontSize,
                   ),
                 ),
                 const SizedBox(height: 7.0),
                 Expanded(
                   child: _buildRow(
-                    4, // Starts at index 4
+                    5, // Starts at index 5 (Row 2) - Changed from 4 to 5
                     fontSize,
                   ),
                 ),
                 const SizedBox(height: 7.0),
                 Expanded(
                   child: _buildRow(
-                    8, // Starts at index 8
+                    10, // Starts at index 10 (Row 3) - Changed from 8 to 10
                     fontSize,
                   ),
                 ),
@@ -163,7 +175,7 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
   ) {
     return Row(
       children: List.generate(
-        4, // 4 items per row instead of 5
+        5, // Changed from 4 to 5 items per row
         (column) {
           final index = startIndex + column;
 
@@ -171,7 +183,9 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
             child: Padding(
               padding: EdgeInsets.only(
                 left: column == 0 ? 0 : 3,
-                right: column == 3 ? 0 : 3, // Changed from 4 to 3
+                right: column == 4
+                    ? 0
+                    : 3, // Changed from 3 to 4 for the last column
               ),
               child: _buildButton(
                 index,
@@ -357,39 +371,52 @@ class _SimulatorBottomMenuXplaneState extends State<SimulatorBottomMenuXplane> {
         break;
 
       case 3:
-        await widget.headTrackerAction?.call();
+        await widget.systemAction?.call(); // جديد
         break;
 
       case 4:
-        await widget.pushbackAction?.call();
+        await widget.analysisAction?.call(); // جديد
         break;
 
       case 5:
-        await widget.mapAction?.call();
+        await widget.pushbackAction?.call();
         break;
 
       case 6:
-        await widget.loadAction?.call();
+        await widget.mapAction?.call();
         break;
 
       case 7:
-        await widget.weatherAction?.call();
+        await widget.loadAction?.call();
         break;
 
       case 8:
-        await widget.fmcAction?.call();
+        await widget.weatherAction?.call();
         break;
 
       case 9:
-        await widget.failuresAction?.call();
+        await widget.headTrackerAction?.call();
         break;
 
       case 10:
-        await widget.efbAction?.call();
+        await widget.fmcAction?.call();
         break;
 
       case 11:
-        await widget.settingsAction?.call();
+        await widget.failuresAction?.call();
+        break;
+
+      case 12:
+        await widget.settingsAction
+            ?.call(); // احتفظت بالاكشن القديم عشان زرار ACARS
+        break;
+
+      case 13:
+        await widget.tcasAction?.call(); // جديد
+        break;
+
+      case 14:
+        await widget.efbAction?.call();
         break;
     }
   }

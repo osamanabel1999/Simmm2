@@ -61,9 +61,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               : HomeMenuWidget(),
         ),
         FFRoute(
-          name: HomePageXPLANEWidget.routeName,
-          path: HomePageXPLANEWidget.routePath,
-          builder: (context, params) => HomePageXPLANEWidget(),
+          name: HomePageXPLANExxxWidget.routeName,
+          path: HomePageXPLANExxxWidget.routePath,
+          builder: (context, params) => HomePageXPLANExxxWidget(),
         ),
         FFRoute(
           name: TOCalculationWidget.routeName,
@@ -345,14 +345,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => HomePageMSFSinstructorWidget(),
         ),
         FFRoute(
-          name: TCASxplaneWidget.routeName,
-          path: TCASxplaneWidget.routePath,
-          builder: (context, params) => TCASxplaneWidget(),
+          name: AircraftFlightSelectorXplaneWidget.routeName,
+          path: AircraftFlightSelectorXplaneWidget.routePath,
+          builder: (context, params) => AircraftFlightSelectorXplaneWidget(),
         ),
         FFRoute(
-          name: HomePageXPLANEtesttWidget.routeName,
-          path: HomePageXPLANEtesttWidget.routePath,
-          builder: (context, params) => HomePageXPLANEtesttWidget(),
+          name: HomePageXPLANEWidget.routeName,
+          path: HomePageXPLANEWidget.routePath,
+          builder: (context, params) => HomePageXPLANEWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
