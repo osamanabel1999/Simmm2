@@ -1486,6 +1486,58 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   final TextEditingController _spdCtrl =
       TextEditingController(text: "250"); // خانة السرعة الجديدة
 
+  @override
+  void initState() {
+    super.initState();
+
+    // Restore all teleport inputs from FlutterFlow App State.
+    _searchCtrl.text = FFAppState().efbNavaidSearchText;
+    _radialCtrl.text = FFAppState().efbTeleportRadial.isNotEmpty
+        ? FFAppState().efbTeleportRadial
+        : '060';
+    _hdgCtrl.text = FFAppState().efbTeleportHdg.isNotEmpty
+        ? FFAppState().efbTeleportHdg
+        : '060';
+    _distCtrl.text = FFAppState().efbTeleportDist.isNotEmpty
+        ? FFAppState().efbTeleportDist
+        : '25.0';
+    _altCtrl.text = FFAppState().efbTeleportAlt.isNotEmpty
+        ? FFAppState().efbTeleportAlt
+        : '10000';
+    _spdCtrl.text = FFAppState().efbTeleportSpd.isNotEmpty
+        ? FFAppState().efbTeleportSpd
+        : '250';
+
+    // Store defaults too, so a fresh state starts with the same values next time.
+    _saveTeleportState();
+
+    // Each controller saves changes immediately to FFAppState.
+    _searchCtrl.addListener(_saveTeleportState);
+    _radialCtrl.addListener(_saveTeleportState);
+    _hdgCtrl.addListener(_saveTeleportState);
+    _distCtrl.addListener(_saveTeleportState);
+    _altCtrl.addListener(_saveTeleportState);
+    _spdCtrl.addListener(_saveTeleportState);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_searchCtrl.text.isNotEmpty) {
+        _onSearchChanged(_searchCtrl.text);
+      }
+    });
+  }
+
+  void _saveTeleportState() {
+    FFAppState().update(() {
+      FFAppState().efbNavaidSearchText = _searchCtrl.text;
+      FFAppState().efbTeleportRadial = _radialCtrl.text;
+      FFAppState().efbTeleportHdg = _hdgCtrl.text;
+      FFAppState().efbTeleportDist = _distCtrl.text;
+      FFAppState().efbTeleportAlt = _altCtrl.text;
+      FFAppState().efbTeleportSpd = _spdCtrl.text;
+    });
+  }
+
   List<NavaidResult> _searchResults = [];
   NavaidResult? _selectedNavaid;
   double _dialAngle = 60.0;
@@ -3066,7 +3118,8 @@ class EliteAviationEFB extends StatefulWidget {
   _EliteAviationEFBState createState() => _EliteAviationEFBState();
 }
 
-class _EliteAviationEFBState extends State<EliteAviationEFB> {
+class _EliteAviationEFBState extends State<EliteAviationEFB>
+    with AutomaticKeepAliveClientMixin<EliteAviationEFB> {
   final TextEditingController _icaoController = TextEditingController();
   final TextEditingController _speedController =
       TextEditingController(text: "150");
@@ -3081,8 +3134,44 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
   double? _airportCenterLat, _airportCenterLon;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
+
+    _selectedMode = FFAppState().efbSelectedMode;
+    _icaoController.text = FFAppState().efbIcaoText;
+    _speedController.text =
+        FFAppState().efbSetSpeed.isNotEmpty ? FFAppState().efbSetSpeed : '150';
+    FFAppState().update(() {
+      FFAppState().efbSetSpeed = _speedController.text;
+    });
+
+    _icaoController.addListener(() {
+      FFAppState().update(() {
+        FFAppState().efbIcaoText = _icaoController.text;
+      });
+    });
+    _speedController.addListener(() {
+      FFAppState().update(() {
+        FFAppState().efbSetSpeed = _speedController.text;
+      });
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_icaoController.text.trim().isNotEmpty) {
+        _handleSearch();
+      }
+    });
+  }
+
+  void _setSelectedMode(int mode) {
+    setState(() => _selectedMode = mode);
+    FFAppState().update(() {
+      FFAppState().efbSelectedMode = mode;
+    });
   }
 
   @override
@@ -3094,7 +3183,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
       _handleSearch();
     }
     if (widget.syncMode != null && widget.syncMode != oldWidget.syncMode) {
-      setState(() => _selectedMode = widget.syncMode!);
+      _setSelectedMode(widget.syncMode!);
     }
     if (widget.syncSetSpeed != null &&
         widget.syncSetSpeed != oldWidget.syncSetSpeed &&
@@ -3210,8 +3299,15 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
             _airportCenterLon = sumLon / parsedRunways.length;
           }
         });
-        if (parsedRunways.isNotEmpty)
-          _selectRunway(parsedRunways[0], triggerCallback: _selectedMode == 0);
+        if (parsedRunways.isNotEmpty) {
+          final String savedRunwayName = FFAppState().radarRwyName;
+          final int savedRunwayIndex = parsedRunways
+              .indexWhere((runway) => runway['name'] == savedRunwayName);
+          final Map<String, dynamic> runwayToRestore = savedRunwayIndex >= 0
+              ? parsedRunways[savedRunwayIndex]
+              : parsedRunways[0];
+          _selectRunway(runwayToRestore, triggerCallback: _selectedMode == 0);
+        }
       } else {
         _showError("❌ ICAO Code '$icao' not found.");
         setState(() => _isLoadingRunways = false);
@@ -3375,8 +3471,14 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
       if (mounted)
         setState(() {
           _gatesList = tempGatesList;
-          if (_gatesList.isEmpty)
+          if (_gatesList.isEmpty) {
             _gateErrorMessage = 'NO GATES FOUND IN DATABASE';
+            _selectedGateIndex = -1;
+          } else {
+            final String savedGateName = FFAppState().gateName;
+            _selectedGateIndex =
+                _gatesList.indexWhere((gate) => gate['name'] == savedGateName);
+          }
           _isLoadingGates = false;
         });
     } catch (e) {
@@ -3669,7 +3771,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
       final int mode = m[1] as int;
       return GestureDetector(
           onTap: () {
-            setState(() => _selectedMode = mode);
+            _setSelectedMode(mode);
             if (mode == 0 && widget.onRunwayActionTap != null)
               widget.onRunwayActionTap!();
             if (mode == 1 && widget.onGateActionTap != null)
@@ -3711,9 +3813,12 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
   }
 
   @override
-  Widget build(BuildContext context) => _isMobile(context)
-      ? _buildMobileView(context)
-      : _buildDesktopView(context);
+  Widget build(BuildContext context) {
+    super.build(context);
+    return _isMobile(context)
+        ? _buildMobileView(context)
+        : _buildDesktopView(context);
+  }
 
   Widget _buildDesktopView(BuildContext context) {
     return Container(
@@ -4038,7 +4143,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
         children: [
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 0);
+                _setSelectedMode(0);
                 if (widget.onRunwayActionTap != null)
                   widget.onRunwayActionTap!();
               },
@@ -4067,7 +4172,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 1);
+                _setSelectedMode(1);
                 if (widget.onGateActionTap != null) widget.onGateActionTap!();
               },
               child: Padding(
@@ -4095,7 +4200,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 2);
+                _setSelectedMode(2);
                 if (widget.onChartActionTap != null) widget.onChartActionTap!();
               },
               child: Padding(
@@ -4123,7 +4228,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 5);
+                _setSelectedMode(5);
                 if (widget.onNavaidActionTap != null)
                   widget.onNavaidActionTap!();
               },
@@ -4152,7 +4257,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 3);
+                _setSelectedMode(3);
                 if (widget.onMapTeleportTap != null) widget.onMapTeleportTap!();
               },
               child: Padding(
@@ -4180,7 +4285,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 4);
+                _setSelectedMode(4);
                 if (widget.onWorldTourTap != null) widget.onWorldTourTap!();
               },
               child: Padding(

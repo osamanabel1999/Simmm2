@@ -1479,7 +1479,104 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   double _targetLon = 0.0;
 
   @override
+  void initState() {
+    super.initState();
+
+    // Hydrate input fields from FFAppState before attaching persistence listeners.
+    _searchCtrl.text = FFAppState().efbNavaidSearchText;
+    _radialCtrl.text = FFAppState().efbNavaidRadialText.isNotEmpty
+        ? FFAppState().efbNavaidRadialText
+        : '060';
+    _hdgCtrl.text = FFAppState().efbNavaidHeadingText.isNotEmpty
+        ? FFAppState().efbNavaidHeadingText
+        : '060';
+    _distCtrl.text = FFAppState().efbNavaidDistanceText.isNotEmpty
+        ? FFAppState().efbNavaidDistanceText
+        : '25.0';
+    _altCtrl.text = FFAppState().efbNavaidAltitudeText.isNotEmpty
+        ? FFAppState().efbNavaidAltitudeText
+        : '10000';
+    _spdCtrl.text = FFAppState().efbNavaidSpeedText.isNotEmpty
+        ? FFAppState().efbNavaidSpeedText
+        : '250';
+
+    _dialAngle = double.tryParse(_radialCtrl.text) ?? 60.0;
+    _targetLat = FFAppState().efbNavaidTeleportLat;
+    _targetLon = FFAppState().efbNavaidTeleportLon;
+
+    _searchCtrl.addListener(_persistSearchText);
+    _radialCtrl.addListener(_persistRadialText);
+    _hdgCtrl.addListener(_persistHeadingText);
+    _distCtrl.addListener(_persistDistanceText);
+    _altCtrl.addListener(_persistAltitudeText);
+    _spdCtrl.addListener(_persistSpeedText);
+
+    // Rebuild search results and restore the selected navaid after first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final savedQuery = _searchCtrl.text;
+      if (savedQuery.trim().isNotEmpty) {
+        _onSearchChanged(savedQuery, syncPilot: false);
+      }
+      final savedIdent =
+          FFAppState().efbNavaidSelectedIdent.trim().toUpperCase();
+      if (savedIdent.isNotEmpty) {
+        NavaidResult? restored;
+        for (final result in _searchResults) {
+          if (result.ident.toUpperCase() == savedIdent) {
+            restored = result;
+            break;
+          }
+        }
+        if (restored != null) {
+          setState(() {
+            _selectedNavaid = restored;
+            _searchResults = [];
+          });
+          _recalcTarget();
+        }
+      }
+    });
+  }
+
+  void _persistSearchText() {
+    FFAppState().efbNavaidSearchText = _searchCtrl.text;
+    // Typing a new query clears the previous selected ident; selecting a result
+    // writes the new ident explicitly in _selectNavaid.
+    if (_searchCtrl.text.trim().toUpperCase() !=
+        FFAppState().efbNavaidSelectedIdent.trim().toUpperCase()) {
+      FFAppState().efbNavaidSelectedIdent = '';
+    }
+  }
+
+  void _persistRadialText() {
+    FFAppState().efbNavaidRadialText = _radialCtrl.text;
+  }
+
+  void _persistHeadingText() {
+    FFAppState().efbNavaidHeadingText = _hdgCtrl.text;
+  }
+
+  void _persistDistanceText() {
+    FFAppState().efbNavaidDistanceText = _distCtrl.text;
+  }
+
+  void _persistAltitudeText() {
+    FFAppState().efbNavaidAltitudeText = _altCtrl.text;
+  }
+
+  void _persistSpeedText() {
+    FFAppState().efbNavaidSpeedText = _spdCtrl.text;
+  }
+
+  @override
   void dispose() {
+    _searchCtrl.removeListener(_persistSearchText);
+    _radialCtrl.removeListener(_persistRadialText);
+    _hdgCtrl.removeListener(_persistHeadingText);
+    _distCtrl.removeListener(_persistDistanceText);
+    _altCtrl.removeListener(_persistAltitudeText);
+    _spdCtrl.removeListener(_persistSpeedText);
     _searchCtrl.dispose();
     _radialCtrl.dispose();
     _hdgCtrl.dispose();
@@ -1489,8 +1586,8 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
     super.dispose();
   }
 
-  void _onSearchChanged(String val) {
-    if (widget.onSearchSync != null) widget.onSearchSync!(val);
+  void _onSearchChanged(String val, {bool syncPilot = true}) {
+    if (syncPilot && widget.onSearchSync != null) widget.onSearchSync!(val);
     if (val.length < 2) {
       setState(() => _searchResults = []);
       return;
@@ -1530,6 +1627,7 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
       _searchResults = [];
       _recalcTarget();
     });
+    FFAppState().efbNavaidSelectedIdent = nr.ident;
   }
 
   void _updateDialFromPan(Offset localPos, Size size) {
@@ -2958,7 +3056,10 @@ class PositionInstructorMsfs extends StatefulWidget {
   _PositionInstructorMsfsState createState() => _PositionInstructorMsfsState();
 }
 
-class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
+class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
+    with AutomaticKeepAliveClientMixin<PositionInstructorMsfs> {
+  @override
+  bool get wantKeepAlive => true;
   final TextEditingController _icaoController = TextEditingController();
   final TextEditingController _speedController =
       TextEditingController(text: "150");
@@ -2989,6 +3090,50 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
   @override
   void initState() {
     super.initState();
+
+    _selectedMode = FFAppState().efbSelectedMode;
+    _icaoController.text = FFAppState().efbIcaoText;
+    _speedController.text =
+        FFAppState().efbSetSpeed.isNotEmpty ? FFAppState().efbSetSpeed : '150';
+    if (FFAppState().efbSetSpeed.isEmpty) {
+      FFAppState().efbSetSpeed = _speedController.text;
+    }
+
+    _icaoController.addListener(_persistIcaoText);
+    _speedController.addListener(_persistSetSpeed);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _icaoController.text.trim().isNotEmpty) {
+        _handleSearch();
+      }
+    });
+  }
+
+  void _persistIcaoText() {
+    FFAppState().efbIcaoText = _icaoController.text;
+  }
+
+  void _persistSetSpeed() {
+    FFAppState().efbSetSpeed = _speedController.text;
+  }
+
+  void _setSelectedMode(int mode) {
+    if (mounted) {
+      setState(() => _selectedMode = mode);
+    } else {
+      _selectedMode = mode;
+    }
+    FFAppState().efbSelectedMode = mode;
+    _sendCommandToPilot("MODE:$mode");
+  }
+
+  @override
+  void dispose() {
+    _icaoController.removeListener(_persistIcaoText);
+    _speedController.removeListener(_persistSetSpeed);
+    _icaoController.dispose();
+    _speedController.dispose();
+    super.dispose();
   }
 
   Future<void> _sendCommandToPilot(String commandText) async {
@@ -3046,8 +3191,14 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
             _airportCenterLon = sumLon / parsedRunways.length;
           }
         });
-        if (parsedRunways.isNotEmpty)
-          _selectRunway(parsedRunways[0], triggerCallback: _selectedMode == 0);
+        if (parsedRunways.isNotEmpty) {
+          final String savedRunwayName = FFAppState().radarRwyName.toString();
+          final Map<String, dynamic> runwayToRestore = parsedRunways.firstWhere(
+            (runway) => runway['name'].toString() == savedRunwayName,
+            orElse: () => parsedRunways[0],
+          );
+          _selectRunway(runwayToRestore, triggerCallback: _selectedMode == 0);
+        }
       } else {
         _showError("❌ ICAO Code '$icao' not found.");
         setState(() => _isLoadingRunways = false);
@@ -3211,6 +3362,10 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
       if (mounted)
         setState(() {
           _gatesList = tempGatesList;
+          final String savedGateName = FFAppState().gateName.toString();
+          _selectedGateIndex = _gatesList.indexWhere(
+            (gate) => gate['name'].toString() == savedGateName,
+          );
           if (_gatesList.isEmpty)
             _gateErrorMessage = 'NO GATES FOUND IN DATABASE';
           _isLoadingGates = false;
@@ -3503,8 +3658,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
       final int mode = m[1] as int;
       return GestureDetector(
           onTap: () {
-            setState(() => _selectedMode = mode);
-            _sendCommandToPilot("MODE:$_selectedMode");
+            _setSelectedMode(mode);
           },
           child: Container(
               margin: const EdgeInsets.only(right: 5),
@@ -3534,9 +3688,12 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
   }
 
   @override
-  Widget build(BuildContext context) => _isMobile(context)
-      ? _buildMobileView(context)
-      : _buildDesktopView(context);
+  Widget build(BuildContext context) {
+    super.build(context);
+    return _isMobile(context)
+        ? _buildMobileView(context)
+        : _buildDesktopView(context);
+  }
 
   Widget _buildDesktopView(BuildContext context) {
     return Container(
@@ -3861,8 +4018,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
         children: [
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 0);
-                _sendCommandToPilot("MODE:$_selectedMode");
+                _setSelectedMode(0);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -3889,8 +4045,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 1);
-                _sendCommandToPilot("MODE:$_selectedMode");
+                _setSelectedMode(1);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -3917,8 +4072,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 2);
-                _sendCommandToPilot("MODE:$_selectedMode");
+                _setSelectedMode(2);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -3945,8 +4099,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 5);
-                _sendCommandToPilot("MODE:$_selectedMode");
+                _setSelectedMode(5);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -3973,8 +4126,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 3);
-                _sendCommandToPilot("MODE:$_selectedMode");
+                _setSelectedMode(3);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4001,8 +4153,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs> {
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 4);
-                _sendCommandToPilot("MODE:$_selectedMode");
+                _setSelectedMode(4);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),

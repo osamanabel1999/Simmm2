@@ -1500,6 +1500,79 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   double _targetLon = 0.0;
 
   @override
+  void initState() {
+    super.initState();
+
+    // Restore the Navaid search and teleport fields before attaching listeners.
+    final dynamic savedNavaidSearch = FFAppState().efbNavaidSearchText;
+    final dynamic savedRadial = FFAppState().efbTeleportRadial;
+    final dynamic savedHeading = FFAppState().efbTeleportHdg;
+    final dynamic savedDistance = FFAppState().efbTeleportDist;
+    final dynamic savedAltitude = FFAppState().efbTeleportAlt;
+    final dynamic savedSpeed = FFAppState().efbTeleportSpd;
+
+    _searchCtrl.text = savedNavaidSearch is String ? savedNavaidSearch : '';
+    _radialCtrl.text = savedRadial is String && savedRadial.trim().isNotEmpty
+        ? savedRadial
+        : '060';
+    _hdgCtrl.text = savedHeading is String && savedHeading.trim().isNotEmpty
+        ? savedHeading
+        : '060';
+    _distCtrl.text = savedDistance is String && savedDistance.trim().isNotEmpty
+        ? savedDistance
+        : '25.0';
+    _altCtrl.text = savedAltitude is String && savedAltitude.trim().isNotEmpty
+        ? savedAltitude
+        : '10000';
+    _spdCtrl.text = savedSpeed is String && savedSpeed.trim().isNotEmpty
+        ? savedSpeed
+        : '250';
+
+    _searchCtrl.addListener(_persistTeleportInputState);
+    _radialCtrl.addListener(_persistTeleportInputState);
+    _hdgCtrl.addListener(_persistTeleportInputState);
+    _distCtrl.addListener(_persistTeleportInputState);
+    _altCtrl.addListener(_persistTeleportInputState);
+    _spdCtrl.addListener(_persistTeleportInputState);
+
+    // Rebuild the search results after the first frame, once the widget is mounted.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final String restoredSearch = _searchCtrl.text.trim();
+      if (restoredSearch.isNotEmpty) {
+        _onSearchChanged(restoredSearch);
+      }
+    });
+  }
+
+  void _persistTeleportInputState() {
+    final String search = _searchCtrl.text;
+    final String radial = _radialCtrl.text;
+    final String heading = _hdgCtrl.text;
+    final String distance = _distCtrl.text;
+    final String altitude = _altCtrl.text;
+    final String speed = _spdCtrl.text;
+
+    if (FFAppState().efbNavaidSearchText == search &&
+        FFAppState().efbTeleportRadial == radial &&
+        FFAppState().efbTeleportHdg == heading &&
+        FFAppState().efbTeleportDist == distance &&
+        FFAppState().efbTeleportAlt == altitude &&
+        FFAppState().efbTeleportSpd == speed) {
+      return;
+    }
+
+    FFAppState().update(() {
+      FFAppState().efbNavaidSearchText = search;
+      FFAppState().efbTeleportRadial = radial;
+      FFAppState().efbTeleportHdg = heading;
+      FFAppState().efbTeleportDist = distance;
+      FFAppState().efbTeleportAlt = altitude;
+      FFAppState().efbTeleportSpd = speed;
+    });
+  }
+
+  @override
   void didUpdateWidget(covariant NavaidTeleportWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.syncNavaidSearch != null &&
@@ -3495,6 +3568,21 @@ class _XplinState extends State<Xplin>
   @override
   void initState() {
     super.initState();
+
+    final dynamic savedMode = FFAppState().efbSelectedMode;
+    final dynamic savedIcao = FFAppState().efbIcaoText;
+    final dynamic savedSetSpeed = FFAppState().efbSetSpeed;
+
+    _selectedMode = savedMode is int ? savedMode : 0;
+    _icaoController.text = savedIcao is String ? savedIcao : '';
+    _speedController.text =
+        savedSetSpeed is String && savedSetSpeed.trim().isNotEmpty
+            ? savedSetSpeed
+            : '150';
+
+    _icaoController.addListener(_persistIcaoText);
+    _speedController.addListener(_persistSetSpeedText);
+
     _simulatorTimeSeconds = _readSimulatorTimeFromAppState();
     _groundSpeed = _readGroundSpeedFromAppState();
 
@@ -3510,6 +3598,41 @@ class _XplinState extends State<Xplin>
       }
     };
     FFAppState().addListener(_appStateListener!);
+
+    // Restore ICAO-dependent data after the widget is mounted.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_icaoController.text.trim().isNotEmpty) {
+        _handleSearch();
+      }
+    });
+  }
+
+  void _persistIcaoText() {
+    final String value = _icaoController.text;
+    if (FFAppState().efbIcaoText == value) return;
+    FFAppState().update(() {
+      FFAppState().efbIcaoText = value;
+    });
+  }
+
+  void _persistSetSpeedText() {
+    final String value = _speedController.text;
+    if (FFAppState().efbSetSpeed == value) return;
+    FFAppState().update(() {
+      FFAppState().efbSetSpeed = value;
+    });
+  }
+
+  void _setSelectedMode(int mode) {
+    if (_selectedMode != mode) {
+      setState(() => _selectedMode = mode);
+    }
+    if (FFAppState().efbSelectedMode != mode) {
+      FFAppState().update(() {
+        FFAppState().efbSelectedMode = mode;
+      });
+    }
   }
 
   @override
@@ -3522,7 +3645,7 @@ class _XplinState extends State<Xplin>
     }
 
     if (widget.syncMode != null && widget.syncMode != oldWidget.syncMode) {
-      setState(() => _selectedMode = widget.syncMode!);
+      _setSelectedMode(widget.syncMode!);
     }
 
     if (widget.syncSimTime != null &&
@@ -3888,8 +4011,15 @@ class _XplinState extends State<Xplin>
             _airportCenterLon = sumLon / parsedRunways.length;
           }
         });
-        if (parsedRunways.isNotEmpty)
-          _selectRunway(parsedRunways[0], triggerCallback: _selectedMode == 0);
+        if (parsedRunways.isNotEmpty) {
+          final String savedRunwayName = FFAppState().radarRwyName.toString();
+          final int savedRunwayIndex = parsedRunways.indexWhere(
+              (runway) => runway['name'].toString() == savedRunwayName);
+          final Map<String, dynamic> runwayToSelect = savedRunwayIndex >= 0
+              ? parsedRunways[savedRunwayIndex]
+              : parsedRunways[0];
+          _selectRunway(runwayToSelect, triggerCallback: _selectedMode == 0);
+        }
       } else {
         _showError("❌ ICAO Code '$icao' not found.");
         setState(() => _isLoadingRunways = false);
@@ -4053,8 +4183,14 @@ class _XplinState extends State<Xplin>
       if (mounted)
         setState(() {
           _gatesList = tempGatesList;
-          if (_gatesList.isEmpty)
+          if (_gatesList.isEmpty) {
             _gateErrorMessage = 'NO GATES FOUND IN DATABASE';
+            _selectedGateIndex = -1;
+          } else {
+            final String savedGateName = FFAppState().gateName.toString();
+            _selectedGateIndex = _gatesList
+                .indexWhere((gate) => gate['name'].toString() == savedGateName);
+          }
           _isLoadingGates = false;
         });
     } catch (e) {
@@ -4552,7 +4688,7 @@ class _XplinState extends State<Xplin>
       final int mode = m[1] as int;
       return GestureDetector(
         onTap: () {
-          setState(() => _selectedMode = mode);
+          _setSelectedMode(mode);
           if (mode == 0 && widget.onRunwayActionTap != null)
             widget.onRunwayActionTap!();
           if (mode == 1 && widget.onGateActionTap != null)
@@ -4935,7 +5071,7 @@ class _XplinState extends State<Xplin>
         children: [
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 6);
+                _setSelectedMode(6);
                 if (widget.onTcasActionTap != null) widget.onTcasActionTap!();
               },
               child: Padding(
@@ -4963,7 +5099,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 0);
+                _setSelectedMode(0);
                 if (widget.onRunwayActionTap != null)
                   widget.onRunwayActionTap!();
               },
@@ -4992,7 +5128,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 1);
+                _setSelectedMode(1);
                 if (widget.onGateActionTap != null) widget.onGateActionTap!();
               },
               child: Padding(
@@ -5020,7 +5156,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 2);
+                _setSelectedMode(2);
                 if (widget.onChartActionTap != null) widget.onChartActionTap!();
               },
               child: Padding(
@@ -5048,7 +5184,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 5);
+                _setSelectedMode(5);
                 if (widget.onNavaidActionTap != null)
                   widget.onNavaidActionTap!();
               },
@@ -5077,7 +5213,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 3);
+                _setSelectedMode(3);
                 if (widget.onMapTeleportTap != null) widget.onMapTeleportTap!();
               },
               child: Padding(
@@ -5105,7 +5241,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 4);
+                _setSelectedMode(4);
                 if (widget.onWorldTourTap != null) widget.onWorldTourTap!();
               },
               child: Padding(

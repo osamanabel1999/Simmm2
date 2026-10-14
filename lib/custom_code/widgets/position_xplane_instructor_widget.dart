@@ -1519,6 +1519,120 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   double _targetLon = 0.0;
 
   @override
+  void initState() {
+    super.initState();
+
+    // Hydrate every Navaid control before attaching listeners so hydration itself
+    // does not overwrite the values already saved in FFAppState.
+    final appState = FFAppState();
+    _searchCtrl.text = appState.efbNavaidSearchText;
+    _radialCtrl.text = appState.efbNavaidRadialText.trim().isEmpty
+        ? "060"
+        : appState.efbNavaidRadialText;
+    _hdgCtrl.text = appState.efbNavaidHeadingText.trim().isEmpty
+        ? "060"
+        : appState.efbNavaidHeadingText;
+    _distCtrl.text = appState.efbNavaidDistanceText.trim().isEmpty
+        ? "25.0"
+        : appState.efbNavaidDistanceText;
+    _altCtrl.text = appState.efbNavaidAltitudeText.trim().isEmpty
+        ? "10000"
+        : appState.efbNavaidAltitudeText;
+    _spdCtrl.text = appState.efbNavaidSpeedText.trim().isEmpty
+        ? "250"
+        : appState.efbNavaidSpeedText;
+    _dialAngle = (double.tryParse(_radialCtrl.text) ?? 60.0) % 360.0;
+
+    _searchCtrl.addListener(() {
+      FFAppState().update(() {
+        FFAppState().efbNavaidSearchText = _searchCtrl.text;
+      });
+    });
+    _radialCtrl.addListener(() {
+      FFAppState().update(() {
+        FFAppState().efbNavaidRadialText = _radialCtrl.text;
+      });
+    });
+    _hdgCtrl.addListener(() {
+      FFAppState().update(() {
+        FFAppState().efbNavaidHeadingText = _hdgCtrl.text;
+      });
+    });
+    _distCtrl.addListener(() {
+      FFAppState().update(() {
+        FFAppState().efbNavaidDistanceText = _distCtrl.text;
+      });
+    });
+    _altCtrl.addListener(() {
+      FFAppState().update(() {
+        FFAppState().efbNavaidAltitudeText = _altCtrl.text;
+      });
+    });
+    _spdCtrl.addListener(() {
+      FFAppState().update(() {
+        FFAppState().efbNavaidSpeedText = _spdCtrl.text;
+      });
+    });
+
+    // Seed defaults as well, so every controller has a persisted value.
+    FFAppState().update(() {
+      FFAppState().efbNavaidSearchText = _searchCtrl.text;
+      FFAppState().efbNavaidRadialText = _radialCtrl.text;
+      FFAppState().efbNavaidHeadingText = _hdgCtrl.text;
+      FFAppState().efbNavaidDistanceText = _distCtrl.text;
+      FFAppState().efbNavaidAltitudeText = _altCtrl.text;
+      FFAppState().efbNavaidSpeedText = _spdCtrl.text;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _restorePersistedNavaidSelection();
+    });
+  }
+
+  void _restorePersistedNavaidSelection() {
+    final String savedIdent =
+        FFAppState().efbNavaidSelectedIdent.trim().toUpperCase();
+
+    if (savedIdent.isNotEmpty) {
+      for (final String key in NavaidData.keys) {
+        if (key.toUpperCase() != savedIdent) continue;
+        final List<NavaidModel>? models = NavaidData.getNavaidData(key);
+        if (models == null || models.isEmpty) break;
+
+        final double savedLat = FFAppState().efbNavaidSelectedLat;
+        final double savedLon = FFAppState().efbNavaidSelectedLon;
+        NavaidModel restoredModel = models.first;
+        if (savedLat.isFinite &&
+            savedLon.isFinite &&
+            !(savedLat == 0.0 && savedLon == 0.0)) {
+          restoredModel = models.firstWhere(
+            (model) =>
+                (model.lat - savedLat).abs() < 0.000001 &&
+                (model.lon - savedLon).abs() < 0.000001,
+            orElse: () => models.first,
+          );
+        }
+
+        setState(() {
+          _selectedNavaid = NavaidResult(key, restoredModel);
+          _searchResults = [];
+        });
+        _searchCtrl.text = key;
+        _dialAngle = (double.tryParse(_radialCtrl.text) ?? 60.0) % 360.0;
+        _recalcTarget();
+        return;
+      }
+    }
+
+    // Search results are rebuilt from the same offline navaid data source.
+    // This restores the visible results without serializing model instances.
+    if (_searchCtrl.text.trim().length >= 2) {
+      _onSearchChanged(_searchCtrl.text);
+    }
+  }
+
+  @override
   void dispose() {
     _searchCtrl.dispose();
     _radialCtrl.dispose();
@@ -1645,6 +1759,11 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
       _altCtrl.text = (nr.model.elev + 10000).toInt().toString();
       _searchResults = [];
       _recalcTarget();
+    });
+    FFAppState().update(() {
+      FFAppState().efbNavaidSelectedIdent = nr.ident;
+      FFAppState().efbNavaidSelectedLat = nr.model.lat;
+      FFAppState().efbNavaidSelectedLon = nr.model.lon;
     });
   }
 
@@ -3385,7 +3504,13 @@ class PositionXplaneInstructorWidget extends StatefulWidget {
 }
 
 class _PositionXplaneInstructorWidgetState
-    extends State<PositionXplaneInstructorWidget> {
+    extends State<PositionXplaneInstructorWidget>
+    with AutomaticKeepAliveClientMixin<PositionXplaneInstructorWidget> {
+  @override
+  bool get wantKeepAlive => true;
+
+  final GlobalKey<_NavaidTeleportWidgetState> _navaidTeleportKey =
+      GlobalKey<_NavaidTeleportWidgetState>();
   Future<void> _sendCommandToPilot(String commandText) async {
     if (main_sender.globalLiveKitRoom_xplane == null ||
         main_sender.globalLiveKitRoom_xplane!.localParticipant == null) {
@@ -3438,6 +3563,28 @@ class _PositionXplaneInstructorWidgetState
   @override
   void initState() {
     super.initState();
+
+    // Restore the instructor selections and input text before the first frame.
+    _selectedMode = FFAppState().efbSelectedMode;
+    _icaoController.text = FFAppState().efbIcaoText;
+    final String savedSpeed = FFAppState().efbSetSpeed;
+    _speedController.text = savedSpeed.trim().isEmpty ? '150' : savedSpeed;
+
+    _icaoController.addListener(() {
+      FFAppState().update(() {
+        FFAppState().efbIcaoText = _icaoController.text;
+      });
+    });
+    _speedController.addListener(() {
+      FFAppState().update(() {
+        FFAppState().efbSetSpeed = _speedController.text;
+      });
+    });
+    FFAppState().update(() {
+      FFAppState().efbIcaoText = _icaoController.text;
+      FFAppState().efbSetSpeed = _speedController.text;
+    });
+
     _simulatorTimeSeconds = _readSimulatorTimeFromAppState();
     _groundSpeed = _readGroundSpeedFromAppState();
 
@@ -3453,6 +3600,13 @@ class _PositionXplaneInstructorWidgetState
       }
     };
     FFAppState().addListener(_appStateListener!);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_icaoController.text.trim().isNotEmpty) {
+        _handleSearch();
+      }
+    });
   }
 
   @override
@@ -3495,6 +3649,14 @@ class _PositionXplaneInstructorWidgetState
       FFAppState().efbGroundSpeed = speed;
     });
     _sendCommandToPilot("GROUND_SPEED:$speed");
+  }
+
+  void _setSelectedMode(int mode) {
+    setState(() => _selectedMode = mode);
+    FFAppState().update(() {
+      FFAppState().efbSelectedMode = mode;
+    });
+    _sendCommandToPilot("MODE:$mode");
   }
 
   Widget _buildSimulatorControls() {
@@ -3723,8 +3885,18 @@ class _PositionXplaneInstructorWidgetState
             _airportCenterLon = sumLon / parsedRunways.length;
           }
         });
-        if (parsedRunways.isNotEmpty)
-          _selectRunway(parsedRunways[0], triggerCallback: _selectedMode == 0);
+        if (parsedRunways.isNotEmpty) {
+          final String savedRunwayName =
+              FFAppState().radarRwyName.toString().trim().toUpperCase();
+          final int savedRunwayIndex = parsedRunways.indexWhere(
+            (runway) =>
+                runway['name'].toString().trim().toUpperCase() ==
+                savedRunwayName,
+          );
+          final Map<String, dynamic> runwayToSelect =
+              parsedRunways[savedRunwayIndex >= 0 ? savedRunwayIndex : 0];
+          _selectRunway(runwayToSelect, triggerCallback: _selectedMode == 0);
+        }
       } else {
         _showError("❌ ICAO Code '$icao' not found.");
         setState(() => _isLoadingRunways = false);
@@ -3888,6 +4060,15 @@ class _PositionXplaneInstructorWidgetState
       if (mounted)
         setState(() {
           _gatesList = tempGatesList;
+          final String savedGateName =
+              FFAppState().gateName.toString().trim().toUpperCase();
+          _selectedGateIndex = savedGateName.isEmpty
+              ? -1
+              : _gatesList.indexWhere(
+                  (gate) =>
+                      gate['name'].toString().trim().toUpperCase() ==
+                      savedGateName,
+                );
           if (_gatesList.isEmpty)
             _gateErrorMessage = 'NO GATES FOUND IN DATABASE';
           _isLoadingGates = false;
@@ -4347,6 +4528,7 @@ class _PositionXplaneInstructorWidgetState
                     Offstage(
                       offstage: _selectedMode != 5,
                       child: NavaidTeleportWidget(
+                          key: _navaidTeleportKey,
                           aircraftLatitude: widget.aircraftLatitude,
                           aircraftLongitude: widget.aircraftLongitude),
                     ),
@@ -4378,8 +4560,7 @@ class _PositionXplaneInstructorWidgetState
       final int mode = m[1] as int;
       return GestureDetector(
         onTap: () {
-          setState(() => _selectedMode = mode);
-          _sendCommandToPilot("MODE:$mode");
+          _setSelectedMode(mode);
         },
         child: Container(
           margin: const EdgeInsets.only(right: 5),
@@ -4412,9 +4593,12 @@ class _PositionXplaneInstructorWidgetState
   }
 
   @override
-  Widget build(BuildContext context) => _isMobile(context)
-      ? _buildMobileView(context)
-      : _buildDesktopView(context);
+  Widget build(BuildContext context) {
+    super.build(context);
+    return _isMobile(context)
+        ? _buildMobileView(context)
+        : _buildDesktopView(context);
+  }
 
   Widget _buildDesktopView(BuildContext context) {
     return Container(
@@ -4495,6 +4679,7 @@ class _PositionXplaneInstructorWidgetState
                       Offstage(
                           offstage: _selectedMode != 5,
                           child: NavaidTeleportWidget(
+                              key: _navaidTeleportKey,
                               aircraftLatitude: widget.aircraftLatitude,
                               aircraftLongitude: widget.aircraftLongitude)),
                       if (_selectedMode == 3 || _selectedMode == 4)
@@ -4737,8 +4922,7 @@ class _PositionXplaneInstructorWidgetState
         children: [
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 0);
-                _sendCommandToPilot("MODE:0");
+                _setSelectedMode(0);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4765,8 +4949,7 @@ class _PositionXplaneInstructorWidgetState
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 1);
-                _sendCommandToPilot("MODE:1");
+                _setSelectedMode(1);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4793,8 +4976,7 @@ class _PositionXplaneInstructorWidgetState
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 2);
-                _sendCommandToPilot("MODE:2");
+                _setSelectedMode(2);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4821,8 +5003,7 @@ class _PositionXplaneInstructorWidgetState
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 5);
-                _sendCommandToPilot("MODE:5");
+                _setSelectedMode(5);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4849,8 +5030,7 @@ class _PositionXplaneInstructorWidgetState
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 3);
-                _sendCommandToPilot("MODE:3");
+                _setSelectedMode(3);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4877,8 +5057,7 @@ class _PositionXplaneInstructorWidgetState
                   ]))),
           GestureDetector(
               onTap: () {
-                setState(() => _selectedMode = 4);
-                _sendCommandToPilot("MODE:4");
+                _setSelectedMode(4);
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
