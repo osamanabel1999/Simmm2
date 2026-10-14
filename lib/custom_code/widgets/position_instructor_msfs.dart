@@ -16,6 +16,7 @@ import 'dart:math' as math;
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '/custom_code/actions/send_livekit_cmdmsfs.dart' as main_sender;
 
 import '/custom_code/actions/get_offline_navaid_data.dart';
@@ -1463,7 +1464,145 @@ class NavaidTeleportWidget extends StatefulWidget {
   _NavaidTeleportWidgetState createState() => _NavaidTeleportWidgetState();
 }
 
-class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
+class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget>
+    with
+        AutomaticKeepAliveClientMixin<NavaidTeleportWidget>,
+        WidgetsBindingObserver {
+  static const String _persistenceKey = 'navaid_teleport_widget_state_v1';
+  Timer? _persistenceDebounce;
+  bool _isRestoringState = true;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _searchCtrl.addListener(_scheduleSaveState);
+    _radialCtrl.addListener(_scheduleSaveState);
+    _hdgCtrl.addListener(_scheduleSaveState);
+    _distCtrl.addListener(_scheduleSaveState);
+    _altCtrl.addListener(_scheduleSaveState);
+    _spdCtrl.addListener(_scheduleSaveState);
+    _restoreState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) {
+      _persistenceDebounce?.cancel();
+      _saveState();
+    }
+  }
+
+  void _scheduleSaveState() {
+    if (!mounted || _isRestoringState) return;
+    _persistenceDebounce?.cancel();
+    _persistenceDebounce = Timer(const Duration(milliseconds: 300), _saveState);
+  }
+
+  Map<String, dynamic> _serializeNavaidResult(NavaidResult result) => {
+        'ident': result.ident,
+        'name': result.model.name,
+        'type': result.model.type,
+        'lat': result.model.lat,
+        'lon': result.model.lon,
+        'freq': result.model.freq,
+        'airport': result.model.airport,
+        'country': result.model.country,
+        'elev': result.model.elev,
+      };
+
+  NavaidResult? _deserializeNavaidResult(dynamic raw) {
+    if (raw is! Map) return null;
+    final String ident = raw['ident']?.toString() ?? '';
+    if (ident.isEmpty) return null;
+    final models = NavaidData.getNavaidData(ident);
+    if (models == null || models.isEmpty) return null;
+    final String savedName = raw['name']?.toString() ?? '';
+    final double? savedLat = (raw['lat'] as num?)?.toDouble();
+    final double? savedLon = (raw['lon'] as num?)?.toDouble();
+    final model = models.cast<dynamic>().firstWhere(
+          (m) =>
+              m.name == savedName &&
+              (savedLat == null || (m.lat - savedLat).abs() < 0.000001) &&
+              (savedLon == null || (m.lon - savedLon).abs() < 0.000001),
+          orElse: () => models.first,
+        );
+    return NavaidResult(ident, model);
+  }
+
+  Future<void> _restoreState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      final encoded = prefs.getString(_persistenceKey);
+      if (encoded == null || encoded.isEmpty) return;
+      final dynamic decoded = jsonDecode(encoded);
+      if (decoded is! Map<String, dynamic>) return;
+      _searchCtrl.text = decoded['search']?.toString() ?? '';
+      _radialCtrl.text = decoded['radial']?.toString() ?? _radialCtrl.text;
+      _hdgCtrl.text = decoded['heading']?.toString() ?? _hdgCtrl.text;
+      _distCtrl.text = decoded['distance']?.toString() ?? _distCtrl.text;
+      _altCtrl.text = decoded['altitude']?.toString() ?? _altCtrl.text;
+      _spdCtrl.text = decoded['speed']?.toString() ?? _spdCtrl.text;
+      _dialAngle = (decoded['dialAngle'] as num?)?.toDouble() ?? _dialAngle;
+      _targetLat = (decoded['targetLat'] as num?)?.toDouble() ?? _targetLat;
+      _targetLon = (decoded['targetLon'] as num?)?.toDouble() ?? _targetLon;
+      _selectedNavaid = _deserializeNavaidResult(decoded['selectedNavaid']);
+      final results = decoded['searchResults'];
+      if (results is List) {
+        _searchResults = results
+            .map(_deserializeNavaidResult)
+            .whereType<NavaidResult>()
+            .toList(growable: true);
+      }
+      if (mounted) setState(() {});
+      if (_selectedNavaid != null) {
+        FFAppState().update(() {
+          FFAppState().efbNavaidTeleportLat = _targetLat;
+          FFAppState().efbNavaidTeleportLon = _targetLon;
+          FFAppState().efbNavaidTeleportHeading =
+              double.tryParse(_hdgCtrl.text) ?? 0.0;
+          FFAppState().efbNavaidTeleportAltitude =
+              double.tryParse(_altCtrl.text) ?? 10000.0;
+          FFAppState().efbNavaidTeleportSpeed =
+              double.tryParse(_spdCtrl.text) ?? 250.0;
+        });
+      }
+    } catch (e) {
+      debugPrint('Navaid state restore failed: $e');
+    } finally {
+      _isRestoringState = false;
+    }
+  }
+
+  Future<void> _saveState() async {
+    if (_isRestoringState) return;
+    final snapshot = <String, dynamic>{
+      'search': _searchCtrl.text,
+      'radial': _radialCtrl.text,
+      'heading': _hdgCtrl.text,
+      'distance': _distCtrl.text,
+      'altitude': _altCtrl.text,
+      'speed': _spdCtrl.text,
+      'dialAngle': _dialAngle,
+      'targetLat': _targetLat,
+      'targetLon': _targetLon,
+      'selectedNavaid': _selectedNavaid == null
+          ? null
+          : _serializeNavaidResult(_selectedNavaid!),
+      'searchResults': _searchResults.map(_serializeNavaidResult).toList(),
+    };
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_persistenceKey, jsonEncode(snapshot));
+    } catch (e) {
+      debugPrint('Navaid state save failed: $e');
+    }
+  }
+
   final TextEditingController _searchCtrl = TextEditingController();
   final TextEditingController _radialCtrl = TextEditingController(text: "060");
   final TextEditingController _hdgCtrl = TextEditingController(text: "060");
@@ -1479,115 +1618,27 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   double _targetLon = 0.0;
 
   @override
-  void initState() {
-    super.initState();
-
-    // Hydrate input fields from FFAppState before attaching persistence listeners.
-    _searchCtrl.text = FFAppState().efbNavaidSearchText;
-    _radialCtrl.text = FFAppState().efbNavaidRadialText.isNotEmpty
-        ? FFAppState().efbNavaidRadialText
-        : '060';
-    _hdgCtrl.text = FFAppState().efbNavaidHeadingText.isNotEmpty
-        ? FFAppState().efbNavaidHeadingText
-        : '060';
-    _distCtrl.text = FFAppState().efbNavaidDistanceText.isNotEmpty
-        ? FFAppState().efbNavaidDistanceText
-        : '25.0';
-    _altCtrl.text = FFAppState().efbNavaidAltitudeText.isNotEmpty
-        ? FFAppState().efbNavaidAltitudeText
-        : '10000';
-    _spdCtrl.text = FFAppState().efbNavaidSpeedText.isNotEmpty
-        ? FFAppState().efbNavaidSpeedText
-        : '250';
-
-    _dialAngle = double.tryParse(_radialCtrl.text) ?? 60.0;
-    _targetLat = FFAppState().efbNavaidTeleportLat;
-    _targetLon = FFAppState().efbNavaidTeleportLon;
-
-    _searchCtrl.addListener(_persistSearchText);
-    _radialCtrl.addListener(_persistRadialText);
-    _hdgCtrl.addListener(_persistHeadingText);
-    _distCtrl.addListener(_persistDistanceText);
-    _altCtrl.addListener(_persistAltitudeText);
-    _spdCtrl.addListener(_persistSpeedText);
-
-    // Rebuild search results and restore the selected navaid after first frame.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final savedQuery = _searchCtrl.text;
-      if (savedQuery.trim().isNotEmpty) {
-        _onSearchChanged(savedQuery, syncPilot: false);
-      }
-      final savedIdent =
-          FFAppState().efbNavaidSelectedIdent.trim().toUpperCase();
-      if (savedIdent.isNotEmpty) {
-        NavaidResult? restored;
-        for (final result in _searchResults) {
-          if (result.ident.toUpperCase() == savedIdent) {
-            restored = result;
-            break;
-          }
-        }
-        if (restored != null) {
-          setState(() {
-            _selectedNavaid = restored;
-            _searchResults = [];
-          });
-          _recalcTarget();
-        }
-      }
-    });
-  }
-
-  void _persistSearchText() {
-    FFAppState().efbNavaidSearchText = _searchCtrl.text;
-    // Typing a new query clears the previous selected ident; selecting a result
-    // writes the new ident explicitly in _selectNavaid.
-    if (_searchCtrl.text.trim().toUpperCase() !=
-        FFAppState().efbNavaidSelectedIdent.trim().toUpperCase()) {
-      FFAppState().efbNavaidSelectedIdent = '';
-    }
-  }
-
-  void _persistRadialText() {
-    FFAppState().efbNavaidRadialText = _radialCtrl.text;
-  }
-
-  void _persistHeadingText() {
-    FFAppState().efbNavaidHeadingText = _hdgCtrl.text;
-  }
-
-  void _persistDistanceText() {
-    FFAppState().efbNavaidDistanceText = _distCtrl.text;
-  }
-
-  void _persistAltitudeText() {
-    FFAppState().efbNavaidAltitudeText = _altCtrl.text;
-  }
-
-  void _persistSpeedText() {
-    FFAppState().efbNavaidSpeedText = _spdCtrl.text;
-  }
-
-  @override
   void dispose() {
-    _searchCtrl.removeListener(_persistSearchText);
-    _radialCtrl.removeListener(_persistRadialText);
-    _hdgCtrl.removeListener(_persistHeadingText);
-    _distCtrl.removeListener(_persistDistanceText);
-    _altCtrl.removeListener(_persistAltitudeText);
-    _spdCtrl.removeListener(_persistSpeedText);
+    WidgetsBinding.instance.removeObserver(this);
+    _persistenceDebounce?.cancel();
+    _saveState();
+    _searchCtrl.removeListener(_scheduleSaveState);
+    _radialCtrl.removeListener(_scheduleSaveState);
+    _hdgCtrl.removeListener(_scheduleSaveState);
+    _distCtrl.removeListener(_scheduleSaveState);
+    _altCtrl.removeListener(_scheduleSaveState);
+    _spdCtrl.removeListener(_scheduleSaveState);
     _searchCtrl.dispose();
     _radialCtrl.dispose();
     _hdgCtrl.dispose();
     _distCtrl.dispose();
     _altCtrl.dispose();
-    _spdCtrl.dispose(); // إغلاق متغير السرعة
+    _spdCtrl.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged(String val, {bool syncPilot = true}) {
-    if (syncPilot && widget.onSearchSync != null) widget.onSearchSync!(val);
+  void _onSearchChanged(String val) {
+    if (widget.onSearchSync != null) widget.onSearchSync!(val);
     if (val.length < 2) {
       setState(() => _searchResults = []);
       return;
@@ -1627,7 +1678,6 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
       _searchResults = [];
       _recalcTarget();
     });
-    FFAppState().efbNavaidSelectedIdent = nr.ident;
   }
 
   void _updateDialFromPan(Offset localPos, Size size) {
@@ -2126,9 +2176,12 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
       ]);
 
   @override
-  Widget build(BuildContext context) => _isMobileNavaid(context)
-      ? _buildMobileView(context)
-      : _buildDesktopView(context);
+  Widget build(BuildContext context) {
+    super.build(context);
+    return _isMobileNavaid(context)
+        ? _buildMobileView(context)
+        : _buildDesktopView(context);
+  }
 
   Widget _buildDesktopView(BuildContext context) {
     final Size screenSize = MediaQuery.sizeOf(context);
@@ -3057,7 +3110,13 @@ class PositionInstructorMsfs extends StatefulWidget {
 }
 
 class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
-    with AutomaticKeepAliveClientMixin<PositionInstructorMsfs> {
+    with
+        AutomaticKeepAliveClientMixin<PositionInstructorMsfs>,
+        WidgetsBindingObserver {
+  static const String _persistenceKey = 'position_instructor_msfs_state_v1';
+  Timer? _persistenceDebounce;
+  bool _isRestoringState = true;
+
   @override
   bool get wantKeepAlive => true;
   final TextEditingController _icaoController = TextEditingController();
@@ -3072,6 +3131,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
   List<Map<String, dynamic>> _gatesList = [];
   int _selectedGateIndex = -1;
   double? _airportCenterLat, _airportCenterLon;
+  Map<String, dynamic>? _selectedChartGate;
 
   final GlobalKey<_NavaidTeleportWidgetState> _navaidTeleportKey =
       GlobalKey<_NavaidTeleportWidgetState>();
@@ -3090,47 +3150,159 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _icaoController.addListener(_scheduleSaveState);
+    _speedController.addListener(_scheduleSaveState);
+    _restoreState();
+  }
 
-    _selectedMode = FFAppState().efbSelectedMode;
-    _icaoController.text = FFAppState().efbIcaoText;
-    _speedController.text =
-        FFAppState().efbSetSpeed.isNotEmpty ? FFAppState().efbSetSpeed : '150';
-    if (FFAppState().efbSetSpeed.isEmpty) {
-      FFAppState().efbSetSpeed = _speedController.text;
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) {
+      _persistenceDebounce?.cancel();
+      _saveState();
     }
-
-    _icaoController.addListener(_persistIcaoText);
-    _speedController.addListener(_persistSetSpeed);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _icaoController.text.trim().isNotEmpty) {
-        _handleSearch();
-      }
-    });
   }
 
-  void _persistIcaoText() {
-    FFAppState().efbIcaoText = _icaoController.text;
-  }
-
-  void _persistSetSpeed() {
-    FFAppState().efbSetSpeed = _speedController.text;
+  void _scheduleSaveState() {
+    if (!mounted || _isRestoringState) return;
+    _persistenceDebounce?.cancel();
+    _persistenceDebounce = Timer(const Duration(milliseconds: 300), _saveState);
   }
 
   void _setSelectedMode(int mode) {
-    if (mounted) {
-      setState(() => _selectedMode = mode);
-    } else {
-      _selectedMode = mode;
+    setState(() => _selectedMode = mode.clamp(0, 5).toInt());
+    _scheduleSaveState();
+  }
+
+  void _restoreRunwayAppState(Map<String, dynamic> runway) {
+    FFAppState().update(() {
+      FFAppState().radarRwyName = runway['name']?.toString() ?? '';
+      FFAppState().radarLat = (runway['lat'] as num?)?.toDouble() ?? 0.0;
+      FFAppState().radarLon = (runway['lon'] as num?)?.toDouble() ?? 0.0;
+      FFAppState().radarHdgRaw =
+          (runway['heading_raw'] as num?)?.toDouble() ?? 0.0;
+    });
+  }
+
+  Future<void> _restoreState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      final encoded = prefs.getString(_persistenceKey);
+      if (encoded == null || encoded.isEmpty) return;
+      final dynamic decoded = jsonDecode(encoded);
+      if (decoded is! Map<String, dynamic>) return;
+
+      _icaoController.text = decoded['icao']?.toString() ?? '';
+      _speedController.text =
+          decoded['speed']?.toString() ?? _speedController.text;
+      final int savedMode = (decoded['selectedMode'] as num?)?.toInt() ?? 0;
+      _selectedMode = savedMode >= 0 && savedMode <= 5 ? savedMode : 0;
+
+      final dynamic savedRunways = decoded['runways'];
+      _runways = savedRunways is List
+          ? savedRunways
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList(growable: true)
+          : <Map<String, dynamic>>[];
+      final dynamic savedGates = decoded['gates'];
+      _gatesList = savedGates is List
+          ? savedGates
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList(growable: true)
+          : <Map<String, dynamic>>[];
+      final dynamic savedRunway = decoded['selectedRunway'];
+      String? savedRunwayName;
+      if (savedRunway is Map && savedRunway['name'] != null) {
+        savedRunwayName = savedRunway['name'].toString();
+      }
+      _selectedRunway = savedRunwayName == null
+          ? null
+          : _runways.cast<Map<String, dynamic>?>().firstWhere(
+                (runway) => runway?['name']?.toString() == savedRunwayName,
+                orElse: () => savedRunway is Map
+                    ? Map<String, dynamic>.from(savedRunway)
+                    : null,
+              );
+      _selectedGateIndex =
+          (decoded['selectedGateIndex'] as num?)?.toInt() ?? -1;
+      if (_selectedGateIndex < 0 || _selectedGateIndex >= _gatesList.length) {
+        _selectedGateIndex = -1;
+      }
+      _airportCenterLat = (decoded['airportCenterLat'] as num?)?.toDouble();
+      _airportCenterLon = (decoded['airportCenterLon'] as num?)?.toDouble();
+      _gateErrorMessage = decoded['gateErrorMessage']?.toString() ?? '';
+      final dynamic savedChartGate = decoded['selectedChartGate'];
+      _selectedChartGate = savedChartGate is Map
+          ? Map<String, dynamic>.from(savedChartGate)
+          : null;
+      // Loading flags are transient and must not remain stuck after process death.
+      _isLoadingRunways = false;
+      _isLoadingGates = false;
+
+      if (mounted) setState(() {});
+      if (_selectedRunway != null) _restoreRunwayAppState(_selectedRunway!);
+      if (_selectedGateIndex >= 0) {
+        final gate = _gatesList[_selectedGateIndex];
+        FFAppState().update(() {
+          FFAppState().gateName = gate['name']?.toString() ?? '';
+          FFAppState().gateLat = (gate['lat'] as num?)?.toDouble() ?? 0.0;
+          FFAppState().gateLon = (gate['lon'] as num?)?.toDouble() ?? 0.0;
+          FFAppState().gateHdg = (gate['heading'] as num?)?.toDouble() ?? 0.0;
+        });
+      }
+      if (_selectedChartGate != null) {
+        final chartGate = _selectedChartGate!;
+        FFAppState().update(() {
+          FFAppState().chartGateName = chartGate['name']?.toString() ?? '';
+          FFAppState().chartGateLat =
+              (chartGate['lat'] as num?)?.toDouble() ?? 0.0;
+          FFAppState().chartGateLon =
+              (chartGate['lon'] as num?)?.toDouble() ?? 0.0;
+          FFAppState().chartGateHdg =
+              (chartGate['heading'] as num?)?.toDouble() ?? 0.0;
+        });
+      }
+    } catch (e) {
+      debugPrint('Instructor state restore failed: $e');
+    } finally {
+      _isRestoringState = false;
     }
-    FFAppState().efbSelectedMode = mode;
-    _sendCommandToPilot("MODE:$mode");
+  }
+
+  Future<void> _saveState() async {
+    if (_isRestoringState) return;
+    final snapshot = <String, dynamic>{
+      'icao': _icaoController.text,
+      'speed': _speedController.text,
+      'selectedMode': _selectedMode,
+      'runways': _runways,
+      'selectedRunway': _selectedRunway,
+      'gates': _gatesList,
+      'selectedGateIndex': _selectedGateIndex,
+      'airportCenterLat': _airportCenterLat,
+      'airportCenterLon': _airportCenterLon,
+      'gateErrorMessage': _gateErrorMessage,
+      'selectedChartGate': _selectedChartGate,
+    };
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_persistenceKey, jsonEncode(snapshot));
+    } catch (e) {
+      debugPrint('Instructor state save failed: $e');
+    }
   }
 
   @override
   void dispose() {
-    _icaoController.removeListener(_persistIcaoText);
-    _speedController.removeListener(_persistSetSpeed);
+    WidgetsBinding.instance.removeObserver(this);
+    _persistenceDebounce?.cancel();
+    _saveState();
+    _icaoController.removeListener(_scheduleSaveState);
+    _speedController.removeListener(_scheduleSaveState);
     _icaoController.dispose();
     _speedController.dispose();
     super.dispose();
@@ -3149,6 +3321,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
   void _handleSearch() {
     final icao = _icaoController.text.trim().toUpperCase();
     if (icao.isEmpty) return;
+    _scheduleSaveState();
     _sendCommandToPilot("ICAO:$icao");
     _fetchRunwayData(icao);
     _fetchGatesData(icao);
@@ -3160,6 +3333,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
       _runways = [];
       _selectedRunway = null;
     });
+    _scheduleSaveState();
     try {
       final dynamic airportData = await getOfflineAirportData(icao);
       if (airportData != null && airportData['runways'] != null) {
@@ -3191,21 +3365,18 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
             _airportCenterLon = sumLon / parsedRunways.length;
           }
         });
-        if (parsedRunways.isNotEmpty) {
-          final String savedRunwayName = FFAppState().radarRwyName.toString();
-          final Map<String, dynamic> runwayToRestore = parsedRunways.firstWhere(
-            (runway) => runway['name'].toString() == savedRunwayName,
-            orElse: () => parsedRunways[0],
-          );
-          _selectRunway(runwayToRestore, triggerCallback: _selectedMode == 0);
-        }
+        _scheduleSaveState();
+        if (parsedRunways.isNotEmpty)
+          _selectRunway(parsedRunways[0], triggerCallback: _selectedMode == 0);
       } else {
         _showError("❌ ICAO Code '$icao' not found.");
         setState(() => _isLoadingRunways = false);
+        _scheduleSaveState();
       }
     } catch (e) {
       _showError("❌ Error connecting to data.");
       setState(() => _isLoadingRunways = false);
+      _scheduleSaveState();
     }
   }
 
@@ -3216,6 +3387,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
       _gatesList = [];
       _selectedGateIndex = -1;
     });
+    _scheduleSaveState();
     try {
       final dynamic airportData = await getOfflineAirportData(icao);
       if (airportData == null ||
@@ -3226,6 +3398,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
             _gateErrorMessage = 'AIRPORT COORDS NOT FOUND';
             _isLoadingGates = false;
           });
+        _scheduleSaveState();
         return;
       }
       double sumLat = 0.0, sumLon = 0.0;
@@ -3248,6 +3421,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
             _gateErrorMessage = 'API ERROR: ${response.statusCode}';
             _isLoadingGates = false;
           });
+        _scheduleSaveState();
         return;
       }
       final jsonResponse = jsonDecode(response.body);
@@ -3362,26 +3536,25 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
       if (mounted)
         setState(() {
           _gatesList = tempGatesList;
-          final String savedGateName = FFAppState().gateName.toString();
-          _selectedGateIndex = _gatesList.indexWhere(
-            (gate) => gate['name'].toString() == savedGateName,
-          );
           if (_gatesList.isEmpty)
             _gateErrorMessage = 'NO GATES FOUND IN DATABASE';
           _isLoadingGates = false;
         });
+      _scheduleSaveState();
     } catch (e) {
       if (mounted)
         setState(() {
           _gateErrorMessage = 'DATALINK FAILED';
           _isLoadingGates = false;
         });
+      _scheduleSaveState();
     }
   }
 
   void _selectRunway(Map<String, dynamic> runway,
       {bool triggerCallback = true}) {
     setState(() => _selectedRunway = runway);
+    _scheduleSaveState();
     FFAppState().update(() {
       FFAppState().radarRwyName = runway['name'];
       FFAppState().radarLat = runway['lat'];
@@ -3659,6 +3832,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
       return GestureDetector(
           onTap: () {
             _setSelectedMode(mode);
+            _sendCommandToPilot("MODE:$_selectedMode");
           },
           child: Container(
               margin: const EdgeInsets.only(right: 5),
@@ -4019,6 +4193,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
           GestureDetector(
               onTap: () {
                 _setSelectedMode(0);
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4046,6 +4221,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
           GestureDetector(
               onTap: () {
                 _setSelectedMode(1);
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4073,6 +4249,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
           GestureDetector(
               onTap: () {
                 _setSelectedMode(2);
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4100,6 +4277,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
           GestureDetector(
               onTap: () {
                 _setSelectedMode(5);
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4127,6 +4305,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
           GestureDetector(
               onTap: () {
                 _setSelectedMode(3);
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4154,6 +4333,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
           GestureDetector(
               onTap: () {
                 _setSelectedMode(4);
+                _sendCommandToPilot("MODE:$_selectedMode");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4433,6 +4613,7 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
               return GestureDetector(
                   onTap: () {
                     setState(() => _selectedGateIndex = index);
+                    _scheduleSaveState();
                     FFAppState().update(() {
                       FFAppState().gateName = gate['name'];
                       FFAppState().gateLat = gate['lat'];
@@ -4503,6 +4684,13 @@ class _PositionInstructorMsfsState extends State<PositionInstructorMsfs>
         centerLat: _airportCenterLat!,
         centerLon: _airportCenterLon!,
         onChartGateSelected: (name, lat, lon, heading) {
+          _selectedChartGate = {
+            'name': name,
+            'lat': lat,
+            'lon': lon,
+            'heading': heading,
+          };
+          _scheduleSaveState();
           FFAppState().update(() {
             FFAppState().chartGateName = name;
             FFAppState().chartGateLat = lat;

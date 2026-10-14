@@ -17,6 +17,7 @@ import 'dart:math' as math;
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '/custom_code/actions/get_offline_navaid_data.dart';
 
@@ -1107,18 +1108,46 @@ class _AirportChartWidget extends StatefulWidget {
   _AirportChartWidgetState createState() => _AirportChartWidgetState();
 }
 
-class _AirportChartWidgetState extends State<_AirportChartWidget> {
+class _AirportChartWidgetState extends State<_AirportChartWidget>
+    with
+        AutomaticKeepAliveClientMixin<_AirportChartWidget>,
+        WidgetsBindingObserver {
+  static const Duration _chartTransformSaveDelay = Duration(milliseconds: 300);
   List<OSMWay> _runways = [], _taxiways = [], _aprons = [], _buildings = [];
   List<OSMNode> _holdShorts = [], _gates = [], _windsocks = [];
   final TransformationController _transformationController =
       TransformationController();
   final double mapScaleFactor = 150000.0, canvasSize = 6000.0;
+  Timer? _chartTransformSaveTimer;
+  bool _isRestoringChart = false;
+  bool _chartDataLoaded = false;
+  bool _hasStoredChartTransform = false;
+  int _chartRequestToken = 0;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  String _chartDataKeyFor(double lat, double lon) =>
+      'xplane_instructor_chart_data_${lat.toStringAsFixed(6)}_${lon.toStringAsFixed(6)}';
+
+  String _chartTransformKeyFor(double lat, double lon) =>
+      'xplane_instructor_chart_transform_${lat.toStringAsFixed(6)}_${lon.toStringAsFixed(6)}';
 
   @override
   void initState() {
     super.initState();
-    _fetchAllAirportData();
-    _centerCamera();
+    WidgetsBinding.instance.addObserver(this);
+    _transformationController.addListener(_scheduleChartTransformSave);
+    _restoreChartState().then((hasCachedData) {
+      if (!mounted) return;
+      if (!_hasStoredChartTransform) _centerCamera();
+      if (!hasCachedData) _fetchAllAirportData();
+    }).catchError((Object error) {
+      debugPrint('Airport chart restore failed: $error');
+      if (!mounted) return;
+      if (!_hasStoredChartTransform) _centerCamera();
+      _fetchAllAirportData();
+    });
   }
 
   @override
@@ -1126,20 +1155,225 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.centerLat != widget.centerLat ||
         oldWidget.centerLon != widget.centerLon) {
-      _fetchAllAirportData();
-      _centerCamera();
+      // Finish saving the previous airport under its own key before switching.
+      if (_chartDataLoaded) {
+        _persistChartData(
+          key: _chartDataKeyFor(oldWidget.centerLat, oldWidget.centerLon),
+          centerLatOverride: oldWidget.centerLat,
+          centerLonOverride: oldWidget.centerLon,
+        );
+      }
+      _persistChartTransform(
+        key: _chartTransformKeyFor(oldWidget.centerLat, oldWidget.centerLon),
+      );
+      _chartRequestToken++;
+      _chartDataLoaded = false;
+      _hasStoredChartTransform = false;
+      _runways.clear();
+      _taxiways.clear();
+      _aprons.clear();
+      _buildings.clear();
+      _holdShorts.clear();
+      _gates.clear();
+      _windsocks.clear();
+      _restoreChartState().then((hasCachedData) {
+        if (!mounted) return;
+        if (!_hasStoredChartTransform) _centerCamera();
+        if (!hasCachedData) _fetchAllAirportData();
+      }).catchError((Object error) {
+        debugPrint('Airport chart restore failed: $error');
+        if (!mounted) return;
+        if (!_hasStoredChartTransform) _centerCamera();
+        _fetchAllAirportData();
+      });
     }
   }
 
   void _centerCamera() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _hasStoredChartTransform) return;
       _transformationController.value = Matrix4.identity()
         ..translate(-canvasSize * 0.15 + 400, -canvasSize * 0.15 + 200)
         ..scale(0.15);
     });
   }
 
+  Future<bool> _restoreChartState() async {
+    _isRestoringChart = true;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return false;
+      final transformRaw = prefs.getString(
+        _chartTransformKeyFor(widget.centerLat, widget.centerLon),
+      );
+      if (transformRaw != null) {
+        try {
+          final dynamic decodedTransform = jsonDecode(transformRaw);
+          if (decodedTransform is List && decodedTransform.length == 16) {
+            final values = decodedTransform
+                .map<double>((value) => (value as num).toDouble())
+                .toList(growable: false);
+            _transformationController.value = Matrix4.fromList(values);
+            _hasStoredChartTransform = true;
+          }
+        } catch (e) {
+          debugPrint('Airport chart transform restore failed: $e');
+        }
+      }
+
+      final String? dataRaw = prefs.getString(
+        _chartDataKeyFor(widget.centerLat, widget.centerLon),
+      );
+      if (dataRaw == null) return false;
+      final dynamic decoded = jsonDecode(dataRaw);
+      if (decoded is! Map || decoded['version'] != 1) return false;
+      if ((decoded['centerLat'] as num?)?.toDouble() != widget.centerLat ||
+          (decoded['centerLon'] as num?)?.toDouble() != widget.centerLon) {
+        return false;
+      }
+
+      setState(() {
+        _runways = _waysFromJson(decoded['runways']);
+        _taxiways = _waysFromJson(decoded['taxiways']);
+        _aprons = _waysFromJson(decoded['aprons']);
+        _buildings = _waysFromJson(decoded['buildings']);
+        _holdShorts = _nodesFromJson(decoded['holdShorts']);
+        _gates = _nodesFromJson(decoded['gates']);
+        _windsocks = _nodesFromJson(decoded['windsocks']);
+        _chartDataLoaded = true;
+      });
+      return true;
+    } catch (e) {
+      debugPrint('Airport chart cache read failed: $e');
+      return false;
+    } finally {
+      _isRestoringChart = false;
+    }
+  }
+
+  List<Map<String, dynamic>> _waysToJson(List<OSMWay> ways) => ways
+      .map((way) => <String, dynamic>{
+            'geom': way.geom,
+            'tags': way.tags,
+          })
+      .toList(growable: false);
+
+  List<OSMWay> _waysFromJson(dynamic raw) {
+    if (raw is! List) return <OSMWay>[];
+    return raw.whereType<Map>().map((item) {
+      final dynamic rawGeom = item['geom'];
+      final List<Map<String, double>> geometry = rawGeom is List
+          ? rawGeom
+              .whereType<Map>()
+              .map((point) => <String, double>{
+                    'lat': (point['lat'] as num).toDouble(),
+                    'lon': (point['lon'] as num).toDouble(),
+                  })
+              .toList(growable: false)
+          : <Map<String, double>>[];
+      final dynamic rawTags = item['tags'];
+      return OSMWay(
+        geom: geometry,
+        tags: rawTags is Map
+            ? Map<String, dynamic>.from(rawTags)
+            : <String, dynamic>{},
+      );
+    }).toList(growable: true);
+  }
+
+  List<Map<String, dynamic>> _nodesToJson(List<OSMNode> nodes) => nodes
+      .map((node) => <String, dynamic>{
+            'lat': node.lat,
+            'lon': node.lon,
+            'tags': node.tags,
+            'name': node.name,
+            'heading': node.heading,
+          })
+      .toList(growable: false);
+
+  List<OSMNode> _nodesFromJson(dynamic raw) {
+    if (raw is! List) return <OSMNode>[];
+    return raw.whereType<Map>().map((item) {
+      final dynamic rawTags = item['tags'];
+      final node = OSMNode(
+        lat: (item['lat'] as num).toDouble(),
+        lon: (item['lon'] as num).toDouble(),
+        tags: rawTags is Map
+            ? Map<String, dynamic>.from(rawTags)
+            : <String, dynamic>{},
+      );
+      node.name = item['name']?.toString() ?? '';
+      node.heading = (item['heading'] as num?)?.toDouble() ?? 0.0;
+      return node;
+    }).toList(growable: true);
+  }
+
+  Future<void> _persistChartData({
+    String? key,
+    double? centerLatOverride,
+    double? centerLonOverride,
+  }) async {
+    if (!_chartDataLoaded) return;
+    try {
+      final String encoded = jsonEncode(<String, dynamic>{
+        'version': 1,
+        'centerLat': centerLatOverride ?? widget.centerLat,
+        'centerLon': centerLonOverride ?? widget.centerLon,
+        'runways': _waysToJson(_runways),
+        'taxiways': _waysToJson(_taxiways),
+        'aprons': _waysToJson(_aprons),
+        'buildings': _waysToJson(_buildings),
+        'holdShorts': _nodesToJson(_holdShorts),
+        'gates': _nodesToJson(_gates),
+        'windsocks': _nodesToJson(_windsocks),
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        key ?? _chartDataKeyFor(widget.centerLat, widget.centerLon),
+        encoded,
+      );
+    } catch (e) {
+      // The chart still works online if the local cache is too large/unwritable.
+      debugPrint('Airport chart cache write failed: $e');
+    }
+  }
+
+  void _scheduleChartTransformSave() {
+    if (_isRestoringChart || !mounted) return;
+    _chartTransformSaveTimer?.cancel();
+    _chartTransformSaveTimer = Timer(_chartTransformSaveDelay, () {
+      _persistChartTransform();
+    });
+  }
+
+  Future<void> _persistChartTransform({String? key}) async {
+    try {
+      final String encoded = jsonEncode(
+        _transformationController.value.storage.toList(growable: false),
+      );
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        key ?? _chartTransformKeyFor(widget.centerLat, widget.centerLon),
+        encoded,
+      );
+    } catch (e) {
+      debugPrint('Airport chart transform write failed: $e');
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _persistChartTransform();
+      if (_chartDataLoaded) _persistChartData();
+    }
+  }
+
   Future<void> _fetchAllAirportData() async {
+    final int requestToken = ++_chartRequestToken;
+    _chartDataLoaded = false;
     _runways.clear();
     _taxiways.clear();
     _aprons.clear();
@@ -1147,45 +1381,91 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
     _holdShorts.clear();
     _gates.clear();
     _windsocks.clear();
-    await _fetchLayer(
-        '[out:json];way["aeroway"="runway"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-        'runway');
-    if (mounted) setState(() {});
-    await _fetchLayer(
-        '[out:json];way["aeroway"~"taxiway|taxilane"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-        'taxiway');
-    if (mounted) setState(() {});
-    await _fetchLayer(
-        '[out:json];way["aeroway"="apron"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-        'apron');
-    if (mounted) setState(() {});
-    await _fetchLayer(
-        '[out:json];way["building"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-        'building');
-    await _fetchLayer(
-        '[out:json];node["aeroway"="holding_position"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-        'holdshort');
-    await _fetchLayer(
-        '[out:json];node["aeroway"="windsock"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-        'windsock');
-    if (mounted) setState(() {});
-    await _fetchLayer(
-        '[out:json];node["aeroway"="parking_position"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
-        'gate');
+    bool allRequestsSucceeded = true;
+
+    allRequestsSucceeded = await _fetchLayer(
+            '[out:json];way["aeroway"="runway"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+            'runway',
+            requestToken: requestToken) &&
+        allRequestsSucceeded;
+    if (!mounted || requestToken != _chartRequestToken) return;
+    setState(() {});
+
+    allRequestsSucceeded = await _fetchLayer(
+            '[out:json];way["aeroway"~"taxiway|taxilane"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+            'taxiway',
+            requestToken: requestToken) &&
+        allRequestsSucceeded;
+    if (!mounted || requestToken != _chartRequestToken) return;
+    setState(() {});
+
+    allRequestsSucceeded = await _fetchLayer(
+            '[out:json];way["aeroway"="apron"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+            'apron',
+            requestToken: requestToken) &&
+        allRequestsSucceeded;
+    if (!mounted || requestToken != _chartRequestToken) return;
+    setState(() {});
+
+    allRequestsSucceeded = await _fetchLayer(
+            '[out:json];way["building"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+            'building',
+            requestToken: requestToken) &&
+        allRequestsSucceeded;
+    if (!mounted || requestToken != _chartRequestToken) return;
+
+    allRequestsSucceeded = await _fetchLayer(
+            '[out:json];node["aeroway"="holding_position"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+            'holdshort',
+            requestToken: requestToken) &&
+        allRequestsSucceeded;
+    if (!mounted || requestToken != _chartRequestToken) return;
+
+    allRequestsSucceeded = await _fetchLayer(
+            '[out:json];node["aeroway"="windsock"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+            'windsock',
+            requestToken: requestToken) &&
+        allRequestsSucceeded;
+    if (!mounted || requestToken != _chartRequestToken) return;
+    setState(() {});
+
+    allRequestsSucceeded = await _fetchLayer(
+            '[out:json];node["aeroway"="parking_position"](around:4000,${widget.centerLat},${widget.centerLon});out geom;',
+            'gate',
+            requestToken: requestToken) &&
+        allRequestsSucceeded;
+    if (!mounted || requestToken != _chartRequestToken) return;
     _calculateGateHeadings();
-    if (mounted) setState(() {});
+    setState(() {});
+
+    if (allRequestsSucceeded) {
+      _chartDataLoaded = true;
+      await _persistChartData();
+    }
   }
 
-  Future<void> _fetchLayer(String query, String layerName) async {
+  Future<bool> _fetchLayer(String query, String layerName,
+      {required int requestToken}) async {
     try {
       final response = await http.get(
-          Uri.parse(
-              'https://overpass.openstreetmap.fr/api/interpreter?data=${Uri.encodeComponent(query)}'),
-          headers: {'User-Agent': 'SimulatorStationApp/1.0'});
-      if (response.statusCode == 200)
-        _parseOSMData(jsonDecode(response.body), layerName);
+        Uri.parse(
+            'https://overpass.openstreetmap.fr/api/interpreter?data=${Uri.encodeComponent(query)}'),
+        headers: {'User-Agent': 'SimulatorStationApp/1.0'},
+      ).timeout(const Duration(seconds: 30));
+      if (!mounted || requestToken != _chartRequestToken) return false;
+      if (response.statusCode != 200) {
+        debugPrint('Overpass $layerName returned HTTP ${response.statusCode}');
+        return false;
+      }
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic> || decoded['elements'] is! List) {
+        return false;
+      }
+      _parseOSMData(decoded, layerName);
+      return true;
     } catch (e) {
       debugPrint('Error $layerName: $e');
+      return false;
     }
   }
 
@@ -1300,6 +1580,17 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
     }
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _chartTransformSaveTimer?.cancel();
+    _transformationController.removeListener(_scheduleChartTransformSave);
+    _persistChartTransform();
+    if (_chartDataLoaded) _persistChartData();
+    _transformationController.dispose();
+    super.dispose();
+  }
+
   Offset _projectToCanvas(double lat, double lon) => Offset(
       canvasSize / 2 +
           (lon - widget.centerLon) *
@@ -1309,6 +1600,7 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Stack(children: [
       InteractiveViewer(
           transformationController: _transformationController,
@@ -1471,7 +1763,204 @@ class NavaidTeleportWidget extends StatefulWidget {
   _NavaidTeleportWidgetState createState() => _NavaidTeleportWidgetState();
 }
 
-class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
+class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget>
+    with
+        AutomaticKeepAliveClientMixin<NavaidTeleportWidget>,
+        WidgetsBindingObserver {
+  static const String _persistenceKey = 'xplane_instructor_navaid_state_v1';
+  static const Duration _persistenceDelay = Duration(milliseconds: 250);
+  Timer? _persistenceTimer;
+  bool _isRestoringState = false;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    for (final controller in <TextEditingController>[
+      _searchCtrl,
+      _radialCtrl,
+      _hdgCtrl,
+      _distCtrl,
+      _altCtrl,
+      _spdCtrl,
+    ]) {
+      controller.addListener(_schedulePersistence);
+    }
+    _restorePersistentState();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    _schedulePersistence();
+  }
+
+  void _schedulePersistence() {
+    if (_isRestoringState || !mounted) return;
+    _persistenceTimer?.cancel();
+    _persistenceTimer = Timer(_persistenceDelay, _persistState);
+  }
+
+  TextSelection _selectionFrom(Map raw, String field, int textLength) {
+    int base = (raw['${field}SelectionBase'] as num?)?.toInt() ?? textLength;
+    int extent =
+        (raw['${field}SelectionExtent'] as num?)?.toInt() ?? textLength;
+    if (base < 0 || extent < 0)
+      return TextSelection.collapsed(offset: textLength);
+    return TextSelection(
+      baseOffset: base.clamp(0, textLength).toInt(),
+      extentOffset: extent.clamp(0, textLength).toInt(),
+    );
+  }
+
+  Map<String, dynamic> _serializeNavaidResult(NavaidResult result) =>
+      <String, dynamic>{
+        'ident': result.ident,
+        'lat': result.model.lat,
+        'lon': result.model.lon,
+        'freq': result.model.freq,
+      };
+
+  NavaidResult? _findStoredNavaid(dynamic raw) {
+    if (raw is! Map) return null;
+    final String ident = raw['ident']?.toString().toUpperCase() ?? '';
+    if (ident.isEmpty) return null;
+    final double? lat = (raw['lat'] as num?)?.toDouble();
+    final double? lon = (raw['lon'] as num?)?.toDouble();
+    final double? freq = (raw['freq'] as num?)?.toDouble();
+    try {
+      for (final String key in NavaidData.keys) {
+        if (key.toUpperCase() != ident) continue;
+        final entries = NavaidData.getNavaidData(key);
+        if (entries == null) continue;
+        for (final model in entries) {
+          final bool sameLat =
+              lat == null || (model.lat - lat).abs() < 0.000001;
+          final bool sameLon =
+              lon == null || (model.lon - lon).abs() < 0.000001;
+          final bool sameFreq =
+              freq == null || (model.freq - freq).abs() < 0.01;
+          if (sameLat && sameLon && sameFreq) return NavaidResult(key, model);
+        }
+      }
+    } catch (e) {
+      debugPrint('Could not rehydrate persisted navaid $ident: $e');
+    }
+    return null;
+  }
+
+  Future<void> _restorePersistentState() async {
+    _isRestoringState = true;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      final raw = prefs.getString(_persistenceKey);
+      if (raw == null) return;
+      final dynamic decoded = jsonDecode(raw);
+      if (decoded is! Map) return;
+
+      final dynamic rawResults = decoded['searchResults'];
+      final restoredResults = rawResults is List
+          ? rawResults.map(_findStoredNavaid).whereType<NavaidResult>().toList()
+          : <NavaidResult>[];
+      final restoredSelected = _findStoredNavaid(decoded['selectedNavaid']);
+
+      final String search = decoded['search']?.toString() ?? '';
+      final String radial = decoded['radial']?.toString() ?? '060';
+      final String heading = decoded['heading']?.toString() ?? '060';
+      final String distance = decoded['distance']?.toString() ?? '25.0';
+      final String altitude = decoded['altitude']?.toString() ?? '10000';
+      final String speed = decoded['speed']?.toString() ?? '250';
+      _searchCtrl.value = TextEditingValue(
+        text: search,
+        selection: _selectionFrom(decoded, 'search', search.length),
+      );
+      _radialCtrl.value = TextEditingValue(
+        text: radial,
+        selection: _selectionFrom(decoded, 'radial', radial.length),
+      );
+      _hdgCtrl.value = TextEditingValue(
+        text: heading,
+        selection: _selectionFrom(decoded, 'heading', heading.length),
+      );
+      _distCtrl.value = TextEditingValue(
+        text: distance,
+        selection: _selectionFrom(decoded, 'distance', distance.length),
+      );
+      _altCtrl.value = TextEditingValue(
+        text: altitude,
+        selection: _selectionFrom(decoded, 'altitude', altitude.length),
+      );
+      _spdCtrl.value = TextEditingValue(
+        text: speed,
+        selection: _selectionFrom(decoded, 'speed', speed.length),
+      );
+      setState(() {
+        _searchResults = restoredResults;
+        _selectedNavaid = restoredSelected;
+        _dialAngle =
+            ((decoded['dialAngle'] as num?)?.toDouble() ?? 60.0) % 360.0;
+        _targetLat = (decoded['targetLat'] as num?)?.toDouble() ?? 0.0;
+        _targetLon = (decoded['targetLon'] as num?)?.toDouble() ?? 0.0;
+      });
+    } catch (e) {
+      debugPrint('Navaid state restore failed: $e');
+    } finally {
+      _isRestoringState = false;
+    }
+  }
+
+  Future<void> _persistState() async {
+    if (_isRestoringState) return;
+    try {
+      // Snapshot the values before the first await; dispose may run meanwhile.
+      final encoded = jsonEncode(<String, dynamic>{
+        'version': 1,
+        'search': _searchCtrl.text,
+        'radial': _radialCtrl.text,
+        'heading': _hdgCtrl.text,
+        'distance': _distCtrl.text,
+        'altitude': _altCtrl.text,
+        'speed': _spdCtrl.text,
+        'searchSelectionBase': _searchCtrl.selection.baseOffset,
+        'searchSelectionExtent': _searchCtrl.selection.extentOffset,
+        'radialSelectionBase': _radialCtrl.selection.baseOffset,
+        'radialSelectionExtent': _radialCtrl.selection.extentOffset,
+        'headingSelectionBase': _hdgCtrl.selection.baseOffset,
+        'headingSelectionExtent': _hdgCtrl.selection.extentOffset,
+        'distanceSelectionBase': _distCtrl.selection.baseOffset,
+        'distanceSelectionExtent': _distCtrl.selection.extentOffset,
+        'altitudeSelectionBase': _altCtrl.selection.baseOffset,
+        'altitudeSelectionExtent': _altCtrl.selection.extentOffset,
+        'speedSelectionBase': _spdCtrl.selection.baseOffset,
+        'speedSelectionExtent': _spdCtrl.selection.extentOffset,
+        'searchResults': _searchResults.map(_serializeNavaidResult).toList(),
+        'selectedNavaid': _selectedNavaid == null
+            ? null
+            : _serializeNavaidResult(_selectedNavaid!),
+        'dialAngle': _dialAngle,
+        'targetLat': _targetLat,
+        'targetLon': _targetLon,
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_persistenceKey, encoded);
+    } catch (e) {
+      debugPrint('Navaid state save failed: $e');
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _persistState();
+    }
+  }
+
   Future<void> _sendCommandToPilot(String commandText) async {
     if (main_sender.globalLiveKitRoom_xplane == null ||
         main_sender.globalLiveKitRoom_xplane!.localParticipant == null) {
@@ -1519,127 +2008,21 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   double _targetLon = 0.0;
 
   @override
-  void initState() {
-    super.initState();
-
-    // Hydrate every Navaid control before attaching listeners so hydration itself
-    // does not overwrite the values already saved in FFAppState.
-    final appState = FFAppState();
-    _searchCtrl.text = appState.efbNavaidSearchText;
-    _radialCtrl.text = appState.efbNavaidRadialText.trim().isEmpty
-        ? "060"
-        : appState.efbNavaidRadialText;
-    _hdgCtrl.text = appState.efbNavaidHeadingText.trim().isEmpty
-        ? "060"
-        : appState.efbNavaidHeadingText;
-    _distCtrl.text = appState.efbNavaidDistanceText.trim().isEmpty
-        ? "25.0"
-        : appState.efbNavaidDistanceText;
-    _altCtrl.text = appState.efbNavaidAltitudeText.trim().isEmpty
-        ? "10000"
-        : appState.efbNavaidAltitudeText;
-    _spdCtrl.text = appState.efbNavaidSpeedText.trim().isEmpty
-        ? "250"
-        : appState.efbNavaidSpeedText;
-    _dialAngle = (double.tryParse(_radialCtrl.text) ?? 60.0) % 360.0;
-
-    _searchCtrl.addListener(() {
-      FFAppState().update(() {
-        FFAppState().efbNavaidSearchText = _searchCtrl.text;
-      });
-    });
-    _radialCtrl.addListener(() {
-      FFAppState().update(() {
-        FFAppState().efbNavaidRadialText = _radialCtrl.text;
-      });
-    });
-    _hdgCtrl.addListener(() {
-      FFAppState().update(() {
-        FFAppState().efbNavaidHeadingText = _hdgCtrl.text;
-      });
-    });
-    _distCtrl.addListener(() {
-      FFAppState().update(() {
-        FFAppState().efbNavaidDistanceText = _distCtrl.text;
-      });
-    });
-    _altCtrl.addListener(() {
-      FFAppState().update(() {
-        FFAppState().efbNavaidAltitudeText = _altCtrl.text;
-      });
-    });
-    _spdCtrl.addListener(() {
-      FFAppState().update(() {
-        FFAppState().efbNavaidSpeedText = _spdCtrl.text;
-      });
-    });
-
-    // Seed defaults as well, so every controller has a persisted value.
-    FFAppState().update(() {
-      FFAppState().efbNavaidSearchText = _searchCtrl.text;
-      FFAppState().efbNavaidRadialText = _radialCtrl.text;
-      FFAppState().efbNavaidHeadingText = _hdgCtrl.text;
-      FFAppState().efbNavaidDistanceText = _distCtrl.text;
-      FFAppState().efbNavaidAltitudeText = _altCtrl.text;
-      FFAppState().efbNavaidSpeedText = _spdCtrl.text;
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _restorePersistedNavaidSelection();
-    });
-  }
-
-  void _restorePersistedNavaidSelection() {
-    final String savedIdent =
-        FFAppState().efbNavaidSelectedIdent.trim().toUpperCase();
-
-    if (savedIdent.isNotEmpty) {
-      for (final String key in NavaidData.keys) {
-        if (key.toUpperCase() != savedIdent) continue;
-        final List<NavaidModel>? models = NavaidData.getNavaidData(key);
-        if (models == null || models.isEmpty) break;
-
-        final double savedLat = FFAppState().efbNavaidSelectedLat;
-        final double savedLon = FFAppState().efbNavaidSelectedLon;
-        NavaidModel restoredModel = models.first;
-        if (savedLat.isFinite &&
-            savedLon.isFinite &&
-            !(savedLat == 0.0 && savedLon == 0.0)) {
-          restoredModel = models.firstWhere(
-            (model) =>
-                (model.lat - savedLat).abs() < 0.000001 &&
-                (model.lon - savedLon).abs() < 0.000001,
-            orElse: () => models.first,
-          );
-        }
-
-        setState(() {
-          _selectedNavaid = NavaidResult(key, restoredModel);
-          _searchResults = [];
-        });
-        _searchCtrl.text = key;
-        _dialAngle = (double.tryParse(_radialCtrl.text) ?? 60.0) % 360.0;
-        _recalcTarget();
-        return;
-      }
-    }
-
-    // Search results are rebuilt from the same offline navaid data source.
-    // This restores the visible results without serializing model instances.
-    if (_searchCtrl.text.trim().length >= 2) {
-      _onSearchChanged(_searchCtrl.text);
-    }
-  }
-
-  @override
   void dispose() {
-    _searchCtrl.dispose();
-    _radialCtrl.dispose();
-    _hdgCtrl.dispose();
-    _distCtrl.dispose();
-    _altCtrl.dispose();
-    _spdCtrl.dispose(); // إغلاق متغير السرعة
+    _persistenceTimer?.cancel();
+    _persistState();
+    WidgetsBinding.instance.removeObserver(this);
+    for (final controller in <TextEditingController>[
+      _searchCtrl,
+      _radialCtrl,
+      _hdgCtrl,
+      _distCtrl,
+      _altCtrl,
+      _spdCtrl,
+    ]) {
+      controller.removeListener(_schedulePersistence);
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -1759,11 +2142,6 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
       _altCtrl.text = (nr.model.elev + 10000).toInt().toString();
       _searchResults = [];
       _recalcTarget();
-    });
-    FFAppState().update(() {
-      FFAppState().efbNavaidSelectedIdent = nr.ident;
-      FFAppState().efbNavaidSelectedLat = nr.model.lat;
-      FFAppState().efbNavaidSelectedLon = nr.model.lon;
     });
   }
 
@@ -2656,6 +3034,7 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isTablet =
@@ -3505,12 +3884,19 @@ class PositionXplaneInstructorWidget extends StatefulWidget {
 
 class _PositionXplaneInstructorWidgetState
     extends State<PositionXplaneInstructorWidget>
-    with AutomaticKeepAliveClientMixin<PositionXplaneInstructorWidget> {
+    with
+        AutomaticKeepAliveClientMixin<PositionXplaneInstructorWidget>,
+        WidgetsBindingObserver {
+  static const String _persistenceKey = 'xplane_instructor_position_state_v1';
+  static const Duration _persistenceDelay = Duration(milliseconds: 250);
+  Timer? _persistenceTimer;
+  bool _isRestoringState = false;
+  int _runwayRequestToken = 0;
+  int _gatesRequestToken = 0;
+
   @override
   bool get wantKeepAlive => true;
 
-  final GlobalKey<_NavaidTeleportWidgetState> _navaidTeleportKey =
-      GlobalKey<_NavaidTeleportWidgetState>();
   Future<void> _sendCommandToPilot(String commandText) async {
     if (main_sender.globalLiveKitRoom_xplane == null ||
         main_sender.globalLiveKitRoom_xplane!.localParticipant == null) {
@@ -3563,28 +3949,6 @@ class _PositionXplaneInstructorWidgetState
   @override
   void initState() {
     super.initState();
-
-    // Restore the instructor selections and input text before the first frame.
-    _selectedMode = FFAppState().efbSelectedMode;
-    _icaoController.text = FFAppState().efbIcaoText;
-    final String savedSpeed = FFAppState().efbSetSpeed;
-    _speedController.text = savedSpeed.trim().isEmpty ? '150' : savedSpeed;
-
-    _icaoController.addListener(() {
-      FFAppState().update(() {
-        FFAppState().efbIcaoText = _icaoController.text;
-      });
-    });
-    _speedController.addListener(() {
-      FFAppState().update(() {
-        FFAppState().efbSetSpeed = _speedController.text;
-      });
-    });
-    FFAppState().update(() {
-      FFAppState().efbIcaoText = _icaoController.text;
-      FFAppState().efbSetSpeed = _speedController.text;
-    });
-
     _simulatorTimeSeconds = _readSimulatorTimeFromAppState();
     _groundSpeed = _readGroundSpeedFromAppState();
 
@@ -3600,17 +3964,196 @@ class _PositionXplaneInstructorWidgetState
       }
     };
     FFAppState().addListener(_appStateListener!);
+    WidgetsBinding.instance.addObserver(this);
+    _icaoController.addListener(_schedulePersistence);
+    _speedController.addListener(_schedulePersistence);
+    _restorePersistentState();
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    _schedulePersistence();
+  }
+
+  void _schedulePersistence() {
+    if (_isRestoringState || !mounted) return;
+    _persistenceTimer?.cancel();
+    _persistenceTimer = Timer(_persistenceDelay, _persistState);
+  }
+
+  TextSelection _selectionFrom(Map raw, String field, int textLength) {
+    int base = (raw['${field}SelectionBase'] as num?)?.toInt() ?? textLength;
+    int extent =
+        (raw['${field}SelectionExtent'] as num?)?.toInt() ?? textLength;
+    if (base < 0 || extent < 0)
+      return TextSelection.collapsed(offset: textLength);
+    return TextSelection(
+      baseOffset: base.clamp(0, textLength).toInt(),
+      extentOffset: extent.clamp(0, textLength).toInt(),
+    );
+  }
+
+  double? _asNullableDouble(dynamic value) => value is num
+      ? value.toDouble()
+      : double.tryParse(value?.toString() ?? '');
+
+  Future<void> _restorePersistentState() async {
+    _isRestoringState = true;
+    try {
+      final prefs = await SharedPreferences.getInstance();
       if (!mounted) return;
-      if (_icaoController.text.trim().isNotEmpty) {
-        _handleSearch();
+      final raw = prefs.getString(_persistenceKey);
+      if (raw == null) return;
+      final dynamic decoded = jsonDecode(raw);
+      if (decoded is! Map) return;
+
+      final String icao = decoded['icao']?.toString() ?? '';
+      final String speedInput = decoded['speedInput']?.toString() ?? '150';
+      _icaoController.value = TextEditingValue(
+        text: icao,
+        selection: _selectionFrom(decoded, 'icao', icao.length),
+      );
+      _speedController.value = TextEditingValue(
+        text: speedInput,
+        selection: _selectionFrom(decoded, 'speedInput', speedInput.length),
+      );
+
+      final dynamic rawRunways = decoded['runways'];
+      final dynamic rawGates = decoded['gatesList'];
+      final dynamic rawSelectedRunway = decoded['selectedRunway'];
+      final List<Map<String, dynamic>> restoredRunways = rawRunways is List
+          ? rawRunways
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList()
+          : <Map<String, dynamic>>[];
+      final List<Map<String, dynamic>> restoredGates = rawGates is List
+          ? rawGates
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList()
+          : <Map<String, dynamic>>[];
+      final Map<String, dynamic>? restoredSelectedRunway =
+          rawSelectedRunway is Map
+              ? Map<String, dynamic>.from(rawSelectedRunway)
+              : null;
+      final int requestedMode = (decoded['selectedMode'] as num?)?.toInt() ?? 0;
+      final double restoredTime =
+          (_asNullableDouble(decoded['simulatorTimeSeconds']) ??
+                  _readSimulatorTimeFromAppState())
+              .clamp(0.0, 86400.0)
+              .toDouble();
+      final double restoredGroundSpeed =
+          (_asNullableDouble(decoded['groundSpeed']) ??
+                  _readGroundSpeedFromAppState())
+              .clamp(1.0, 6.0)
+              .toDouble();
+
+      setState(() {
+        _selectedMode = requestedMode.clamp(0, 5).toInt();
+        _runways = restoredRunways;
+        _selectedRunway = restoredSelectedRunway;
+        _gatesList = restoredGates;
+        _selectedGateIndex =
+            (decoded['selectedGateIndex'] as num?)?.toInt() ?? -1;
+        if (_selectedGateIndex < -1 ||
+            _selectedGateIndex >= _gatesList.length) {
+          _selectedGateIndex = -1;
+        }
+        _airportCenterLat = _asNullableDouble(decoded['airportCenterLat']);
+        _airportCenterLon = _asNullableDouble(decoded['airportCenterLon']);
+        _gateErrorMessage = decoded['gateErrorMessage']?.toString() ?? '';
+        // Network requests from a prior process do not survive a restart.
+        _isLoadingRunways = false;
+        _isLoadingGates = false;
+        _simulatorTimeSeconds = restoredTime;
+        _groundSpeed = restoredGroundSpeed;
+      });
+
+      // Keep generated FFAppState values aligned without replaying simulator commands.
+      FFAppState().update(() {
+        FFAppState().efbSimulatorTimeSeconds = restoredTime;
+        FFAppState().efbGroundSpeed = restoredGroundSpeed;
+        if (_selectedRunway != null) {
+          FFAppState().radarRwyName = _selectedRunway!['name'];
+          FFAppState().radarLat = _selectedRunway!['lat'];
+          FFAppState().radarLon = _selectedRunway!['lon'];
+          FFAppState().radarHdgRaw = _selectedRunway!['heading_raw'];
+        }
+        if (_selectedGateIndex >= 0 && _selectedGateIndex < _gatesList.length) {
+          final gate = _gatesList[_selectedGateIndex];
+          FFAppState().gateName = gate['name'];
+          FFAppState().gateLat = gate['lat'];
+          FFAppState().gateLon = gate['lon'];
+          FFAppState().gateHdg = gate['heading'];
+        }
+      });
+    } catch (e) {
+      debugPrint('Instructor state restore failed: $e');
+    } finally {
+      _isRestoringState = false;
+      _schedulePersistence();
+    }
+  }
+
+  Future<void> _persistState() async {
+    if (_isRestoringState) return;
+    try {
+      final payload = <String, dynamic>{
+        'version': 1,
+        'icao': _icaoController.text,
+        'speedInput': _speedController.text,
+        'icaoSelectionBase': _icaoController.selection.baseOffset,
+        'icaoSelectionExtent': _icaoController.selection.extentOffset,
+        'speedInputSelectionBase': _speedController.selection.baseOffset,
+        'speedInputSelectionExtent': _speedController.selection.extentOffset,
+        'selectedMode': _selectedMode,
+        'runways': _runways,
+        'selectedRunway': _selectedRunway,
+        'gatesList': _gatesList,
+        'selectedGateIndex': _selectedGateIndex,
+        'gateErrorMessage': _gateErrorMessage,
+        'airportCenterLat': _airportCenterLat,
+        'airportCenterLon': _airportCenterLon,
+        'simulatorTimeSeconds': _simulatorTimeSeconds,
+        'groundSpeed': _groundSpeed,
+      };
+      final encoded = jsonEncode(payload);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_persistenceKey, encoded);
+    } catch (e) {
+      debugPrint('Instructor state save failed: $e');
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _persistState();
+    }
+    // FFAppState remains the live source while the app is running.
+    if (state == AppLifecycleState.resumed && mounted) {
+      final time = _readSimulatorTimeFromAppState();
+      final speed = _readGroundSpeedFromAppState();
+      if (time != _simulatorTimeSeconds || speed != _groundSpeed) {
+        setState(() {
+          _simulatorTimeSeconds = time;
+          _groundSpeed = speed;
+        });
       }
-    });
+    }
   }
 
   @override
   void dispose() {
+    _persistenceTimer?.cancel();
+    _persistState();
+    WidgetsBinding.instance.removeObserver(this);
+    _icaoController.removeListener(_schedulePersistence);
+    _speedController.removeListener(_schedulePersistence);
     if (_appStateListener != null) {
       FFAppState().removeListener(_appStateListener!);
     }
@@ -3649,14 +4192,6 @@ class _PositionXplaneInstructorWidgetState
       FFAppState().efbGroundSpeed = speed;
     });
     _sendCommandToPilot("GROUND_SPEED:$speed");
-  }
-
-  void _setSelectedMode(int mode) {
-    setState(() => _selectedMode = mode);
-    FFAppState().update(() {
-      FFAppState().efbSelectedMode = mode;
-    });
-    _sendCommandToPilot("MODE:$mode");
   }
 
   Widget _buildSimulatorControls() {
@@ -3849,13 +4384,14 @@ class _PositionXplaneInstructorWidgetState
   }
 
   Future<void> _fetchRunwayData(String icao) async {
+    if (!mounted) return;
+    final int requestToken = ++_runwayRequestToken;
     setState(() {
       _isLoadingRunways = true;
-      _runways = [];
-      _selectedRunway = null;
     });
     try {
       final dynamic airportData = await getOfflineAirportData(icao);
+      if (!mounted || requestToken != _runwayRequestToken) return;
       if (airportData != null && airportData['runways'] != null) {
         List<dynamic> rawRunways = airportData['runways'];
         List<Map<String, dynamic>> parsedRunways = [];
@@ -3883,39 +4419,34 @@ class _PositionXplaneInstructorWidgetState
           if (parsedRunways.isNotEmpty) {
             _airportCenterLat = sumLat / parsedRunways.length;
             _airportCenterLon = sumLon / parsedRunways.length;
+          } else {
+            _selectedRunway = null;
+            _airportCenterLat = null;
+            _airportCenterLon = null;
           }
         });
-        if (parsedRunways.isNotEmpty) {
-          final String savedRunwayName =
-              FFAppState().radarRwyName.toString().trim().toUpperCase();
-          final int savedRunwayIndex = parsedRunways.indexWhere(
-            (runway) =>
-                runway['name'].toString().trim().toUpperCase() ==
-                savedRunwayName,
-          );
-          final Map<String, dynamic> runwayToSelect =
-              parsedRunways[savedRunwayIndex >= 0 ? savedRunwayIndex : 0];
-          _selectRunway(runwayToSelect, triggerCallback: _selectedMode == 0);
-        }
+        if (parsedRunways.isNotEmpty)
+          _selectRunway(parsedRunways[0], triggerCallback: _selectedMode == 0);
       } else {
         _showError("❌ ICAO Code '$icao' not found.");
         setState(() => _isLoadingRunways = false);
       }
     } catch (e) {
+      if (!mounted || requestToken != _runwayRequestToken) return;
       _showError("❌ Error connecting to data.");
       setState(() => _isLoadingRunways = false);
     }
   }
 
   Future<void> _fetchGatesData(String icao) async {
+    if (!mounted) return;
+    final int requestToken = ++_gatesRequestToken;
     setState(() {
       _isLoadingGates = true;
-      _gateErrorMessage = '';
-      _gatesList = [];
-      _selectedGateIndex = -1;
     });
     try {
       final dynamic airportData = await getOfflineAirportData(icao);
+      if (!mounted || requestToken != _gatesRequestToken) return;
       if (airportData == null ||
           airportData['runways'] == null ||
           (airportData['runways'] as List).isEmpty) {
@@ -3939,7 +4470,10 @@ class _PositionXplaneInstructorWidgetState
       final response = await http.get(
           Uri.parse(
               'https://overpass.openstreetmap.fr/api/interpreter?data=${Uri.encodeComponent(query)}'),
-          headers: {'User-Agent': 'SimulatorStationApp/1'});
+          headers: {
+            'User-Agent': 'SimulatorStationApp/1'
+          }).timeout(const Duration(seconds: 30));
+      if (!mounted || requestToken != _gatesRequestToken) return;
       if (response.statusCode != 200) {
         if (mounted)
           setState(() {
@@ -4059,22 +4593,23 @@ class _PositionXplaneInstructorWidgetState
           .sort((a, b) => a['name'].toString().compareTo(b['name'].toString()));
       if (mounted)
         setState(() {
+          final String? previousSelection =
+              _selectedGateIndex >= 0 && _selectedGateIndex < _gatesList.length
+                  ? _gatesList[_selectedGateIndex]['name']?.toString()
+                  : null;
           _gatesList = tempGatesList;
-          final String savedGateName =
-              FFAppState().gateName.toString().trim().toUpperCase();
-          _selectedGateIndex = savedGateName.isEmpty
+          _selectedGateIndex = previousSelection == null
               ? -1
               : _gatesList.indexWhere(
-                  (gate) =>
-                      gate['name'].toString().trim().toUpperCase() ==
-                      savedGateName,
+                  (gate) => gate['name']?.toString() == previousSelection,
                 );
-          if (_gatesList.isEmpty)
-            _gateErrorMessage = 'NO GATES FOUND IN DATABASE';
+          if (_selectedGateIndex < 0) _selectedGateIndex = -1;
+          _gateErrorMessage =
+              _gatesList.isEmpty ? 'NO GATES FOUND IN DATABASE' : '';
           _isLoadingGates = false;
         });
     } catch (e) {
-      if (mounted)
+      if (mounted && requestToken == _gatesRequestToken)
         setState(() {
           _gateErrorMessage = 'DATALINK FAILED';
           _isLoadingGates = false;
@@ -4528,7 +5063,6 @@ class _PositionXplaneInstructorWidgetState
                     Offstage(
                       offstage: _selectedMode != 5,
                       child: NavaidTeleportWidget(
-                          key: _navaidTeleportKey,
                           aircraftLatitude: widget.aircraftLatitude,
                           aircraftLongitude: widget.aircraftLongitude),
                     ),
@@ -4560,7 +5094,8 @@ class _PositionXplaneInstructorWidgetState
       final int mode = m[1] as int;
       return GestureDetector(
         onTap: () {
-          _setSelectedMode(mode);
+          setState(() => _selectedMode = mode);
+          _sendCommandToPilot("MODE:$mode");
         },
         child: Container(
           margin: const EdgeInsets.only(right: 5),
@@ -4679,7 +5214,6 @@ class _PositionXplaneInstructorWidgetState
                       Offstage(
                           offstage: _selectedMode != 5,
                           child: NavaidTeleportWidget(
-                              key: _navaidTeleportKey,
                               aircraftLatitude: widget.aircraftLatitude,
                               aircraftLongitude: widget.aircraftLongitude)),
                       if (_selectedMode == 3 || _selectedMode == 4)
@@ -4922,7 +5456,8 @@ class _PositionXplaneInstructorWidgetState
         children: [
           GestureDetector(
               onTap: () {
-                _setSelectedMode(0);
+                setState(() => _selectedMode = 0);
+                _sendCommandToPilot("MODE:0");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4949,7 +5484,8 @@ class _PositionXplaneInstructorWidgetState
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(1);
+                setState(() => _selectedMode = 1);
+                _sendCommandToPilot("MODE:1");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -4976,7 +5512,8 @@ class _PositionXplaneInstructorWidgetState
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(2);
+                setState(() => _selectedMode = 2);
+                _sendCommandToPilot("MODE:2");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -5003,7 +5540,8 @@ class _PositionXplaneInstructorWidgetState
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(5);
+                setState(() => _selectedMode = 5);
+                _sendCommandToPilot("MODE:5");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -5030,7 +5568,8 @@ class _PositionXplaneInstructorWidgetState
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(3);
+                setState(() => _selectedMode = 3);
+                _sendCommandToPilot("MODE:3");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -5057,7 +5596,8 @@ class _PositionXplaneInstructorWidgetState
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(4);
+                setState(() => _selectedMode = 4);
+                _sendCommandToPilot("MODE:4");
               },
               child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.5),

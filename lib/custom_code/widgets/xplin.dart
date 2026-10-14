@@ -16,6 +16,7 @@ import 'dart:math' as math;
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '/custom_code/actions/get_offline_navaid_data.dart';
 
@@ -1106,18 +1107,31 @@ class _AirportChartWidget extends StatefulWidget {
   _AirportChartWidgetState createState() => _AirportChartWidgetState();
 }
 
-class _AirportChartWidgetState extends State<_AirportChartWidget> {
+class _AirportChartWidgetState extends State<_AirportChartWidget>
+    with WidgetsBindingObserver {
   List<OSMWay> _runways = [], _taxiways = [], _aprons = [], _buildings = [];
   List<OSMNode> _holdShorts = [], _gates = [], _windsocks = [];
   final TransformationController _transformationController =
       TransformationController();
   final double mapScaleFactor = 150000.0, canvasSize = 6000.0;
+  SharedPreferences? _cameraPrefs;
+  Timer? _cameraSaveTimer;
+  late String _cameraStorageKey;
+  bool _cameraRestored = false;
+  int _cameraRestoreGeneration = 0;
+
+  String _buildCameraStorageKey(double lat, double lon) =>
+      'xplin_airport_chart_camera_${lat.toStringAsFixed(3)}_${lon.toStringAsFixed(3)}';
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _transformationController.addListener(_scheduleCameraSave);
+    _cameraStorageKey =
+        _buildCameraStorageKey(widget.centerLat, widget.centerLon);
     _fetchAllAirportData();
-    _centerCamera();
+    unawaited(_restoreCameraState(_cameraRestoreGeneration));
   }
 
   @override
@@ -1125,13 +1139,85 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.centerLat != widget.centerLat ||
         oldWidget.centerLon != widget.centerLon) {
+      _cameraSaveTimer?.cancel();
+      _cameraRestored = false;
+      _cameraRestoreGeneration++;
+      _cameraStorageKey =
+          _buildCameraStorageKey(widget.centerLat, widget.centerLon);
       _fetchAllAirportData();
-      _centerCamera();
+      unawaited(_restoreCameraState(_cameraRestoreGeneration));
     }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      unawaited(_saveCameraState());
+    }
+  }
+
+  Future<void> _restoreCameraState(int generation) async {
+    final storageKey = _cameraStorageKey;
+    try {
+      _cameraPrefs ??= await SharedPreferences.getInstance();
+      final raw = _cameraPrefs!.getString(storageKey);
+      if (!mounted || generation != _cameraRestoreGeneration) return;
+      if (raw != null && raw.isNotEmpty) {
+        final decoded = jsonDecode(raw);
+        if (decoded is List &&
+            decoded.length == 16 &&
+            decoded
+                .every((value) => value is num && value.toDouble().isFinite)) {
+          final values =
+              decoded.map((value) => (value as num).toDouble()).toList();
+          _cameraRestored = true;
+          _transformationController.value = Matrix4.fromList(values);
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint('Xplin airport camera restore failed: $e');
+    }
+    if (!mounted || generation != _cameraRestoreGeneration) return;
+    _cameraRestored = true;
+    _centerCamera();
+  }
+
+  void _scheduleCameraSave() {
+    if (!_cameraRestored || !mounted) return;
+    _cameraSaveTimer?.cancel();
+    _cameraSaveTimer = Timer(const Duration(milliseconds: 300), () {
+      unawaited(_saveCameraState());
+    });
+  }
+
+  Future<void> _saveCameraState() async {
+    if (!_cameraRestored) return;
+    final storageKey = _cameraStorageKey;
+    final values = _transformationController.value.storage.toList();
+    try {
+      _cameraPrefs ??= await SharedPreferences.getInstance();
+      await _cameraPrefs!.setString(storageKey, jsonEncode(values));
+    } catch (e) {
+      debugPrint('Xplin airport camera save failed: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _cameraSaveTimer?.cancel();
+    unawaited(_saveCameraState());
+    WidgetsBinding.instance.removeObserver(this);
+    _transformationController.removeListener(_scheduleCameraSave);
+    _transformationController.dispose();
+    super.dispose();
   }
 
   void _centerCamera() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       _transformationController.value = Matrix4.identity()
         ..translate(-canvasSize * 0.15 + 400, -canvasSize * 0.15 + 200)
         ..scale(0.15);
@@ -1484,7 +1570,16 @@ class NavaidTeleportWidget extends StatefulWidget {
   _NavaidTeleportWidgetState createState() => _NavaidTeleportWidgetState();
 }
 
-class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
+class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget>
+    with
+        AutomaticKeepAliveClientMixin<NavaidTeleportWidget>,
+        WidgetsBindingObserver {
+  static const String _navaidPersistenceKey = 'xplin_navaid_teleport_state_v1';
+  SharedPreferences? _navaidPrefs;
+  Timer? _navaidSaveTimer;
+  bool _navaidRestoring = false;
+  bool _navaidPersistenceReady = false;
+
   final TextEditingController _searchCtrl = TextEditingController();
   final TextEditingController _radialCtrl = TextEditingController(text: "060");
   final TextEditingController _hdgCtrl = TextEditingController(text: "060");
@@ -1500,76 +1595,198 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   double _targetLon = 0.0;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _searchCtrl.addListener(_scheduleNavaidSave);
+    _radialCtrl.addListener(_scheduleNavaidSave);
+    _hdgCtrl.addListener(_scheduleNavaidSave);
+    _distCtrl.addListener(_scheduleNavaidSave);
+    _altCtrl.addListener(_scheduleNavaidSave);
+    _spdCtrl.addListener(_scheduleNavaidSave);
+    unawaited(_restoreNavaidState());
+  }
 
-    // Restore the Navaid search and teleport fields before attaching listeners.
-    final dynamic savedNavaidSearch = FFAppState().efbNavaidSearchText;
-    final dynamic savedRadial = FFAppState().efbTeleportRadial;
-    final dynamic savedHeading = FFAppState().efbTeleportHdg;
-    final dynamic savedDistance = FFAppState().efbTeleportDist;
-    final dynamic savedAltitude = FFAppState().efbTeleportAlt;
-    final dynamic savedSpeed = FFAppState().efbTeleportSpd;
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    _scheduleNavaidSave();
+  }
 
-    _searchCtrl.text = savedNavaidSearch is String ? savedNavaidSearch : '';
-    _radialCtrl.text = savedRadial is String && savedRadial.trim().isNotEmpty
-        ? savedRadial
-        : '060';
-    _hdgCtrl.text = savedHeading is String && savedHeading.trim().isNotEmpty
-        ? savedHeading
-        : '060';
-    _distCtrl.text = savedDistance is String && savedDistance.trim().isNotEmpty
-        ? savedDistance
-        : '25.0';
-    _altCtrl.text = savedAltitude is String && savedAltitude.trim().isNotEmpty
-        ? savedAltitude
-        : '10000';
-    _spdCtrl.text = savedSpeed is String && savedSpeed.trim().isNotEmpty
-        ? savedSpeed
-        : '250';
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      unawaited(_saveNavaidState());
+    }
+  }
 
-    _searchCtrl.addListener(_persistTeleportInputState);
-    _radialCtrl.addListener(_persistTeleportInputState);
-    _hdgCtrl.addListener(_persistTeleportInputState);
-    _distCtrl.addListener(_persistTeleportInputState);
-    _altCtrl.addListener(_persistTeleportInputState);
-    _spdCtrl.addListener(_persistTeleportInputState);
-
-    // Rebuild the search results after the first frame, once the widget is mounted.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final String restoredSearch = _searchCtrl.text.trim();
-      if (restoredSearch.isNotEmpty) {
-        _onSearchChanged(restoredSearch);
-      }
+  void _scheduleNavaidSave() {
+    if (!_navaidPersistenceReady || _navaidRestoring || !mounted) return;
+    _navaidSaveTimer?.cancel();
+    _navaidSaveTimer = Timer(const Duration(milliseconds: 300), () {
+      unawaited(_saveNavaidState());
     });
   }
 
-  void _persistTeleportInputState() {
-    final String search = _searchCtrl.text;
-    final String radial = _radialCtrl.text;
-    final String heading = _hdgCtrl.text;
-    final String distance = _distCtrl.text;
-    final String altitude = _altCtrl.text;
-    final String speed = _spdCtrl.text;
+  Map<String, dynamic> _navaidStateSnapshot() {
+    return <String, dynamic>{
+      'searchText': _searchCtrl.text,
+      'radial': _radialCtrl.text,
+      'heading': _hdgCtrl.text,
+      'distance': _distCtrl.text,
+      'altitude': _altCtrl.text,
+      'speed': _spdCtrl.text,
+      'dialAngle': _dialAngle,
+      'targetLat': _targetLat,
+      'targetLon': _targetLon,
+      'selectedIdent': _selectedNavaid?.ident,
+      'selectedModelIndex': _modelIndexForResult(_selectedNavaid),
+      'searchResults': _searchResults
+          .map((result) => <String, dynamic>{
+                'ident': result.ident,
+                'modelIndex': _modelIndexForResult(result),
+              })
+          .toList(),
+    };
+  }
 
-    if (FFAppState().efbNavaidSearchText == search &&
-        FFAppState().efbTeleportRadial == radial &&
-        FFAppState().efbTeleportHdg == heading &&
-        FFAppState().efbTeleportDist == distance &&
-        FFAppState().efbTeleportAlt == altitude &&
-        FFAppState().efbTeleportSpd == speed) {
-      return;
+  int _modelIndexForResult(NavaidResult? result) {
+    if (result == null) return 0;
+    final models = NavaidData.getNavaidData(result.ident);
+    if (models == null || models.isEmpty) return 0;
+    final index = models.indexOf(result.model);
+    return index < 0 ? 0 : index;
+  }
+
+  NavaidResult? _resolveNavaidResult(String ident, int index) {
+    try {
+      final models = NavaidData.getNavaidData(ident);
+      if (models == null || models.isEmpty) return null;
+      final safeIndex = index.clamp(0, models.length - 1).toInt();
+      return NavaidResult(ident, models[safeIndex]);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _restoreNavaidState() async {
+    _navaidRestoring = true;
+    Map<String, dynamic>? saved;
+    try {
+      _navaidPrefs = await SharedPreferences.getInstance();
+      final raw = _navaidPrefs!.getString(_navaidPersistenceKey);
+      if (raw != null && raw.isNotEmpty) {
+        final decoded = jsonDecode(raw);
+        if (decoded is Map) saved = Map<String, dynamic>.from(decoded);
+      }
+    } catch (e) {
+      debugPrint('Xplin Navaid restore failed: $e');
     }
 
-    FFAppState().update(() {
-      FFAppState().efbNavaidSearchText = search;
-      FFAppState().efbTeleportRadial = radial;
-      FFAppState().efbTeleportHdg = heading;
-      FFAppState().efbTeleportDist = distance;
-      FFAppState().efbTeleportAlt = altitude;
-      FFAppState().efbTeleportSpd = speed;
-    });
+    if (!mounted) return;
+
+    if (saved != null) {
+      _searchCtrl.text = saved['searchText']?.toString() ?? '';
+      _radialCtrl.text = saved['radial']?.toString() ?? '060';
+      _hdgCtrl.text = saved['heading']?.toString() ?? '060';
+      _distCtrl.text = saved['distance']?.toString() ?? '25.0';
+      _altCtrl.text = saved['altitude']?.toString() ?? '10000';
+      _spdCtrl.text = saved['speed']?.toString() ?? '250';
+
+      final angleValue = saved['dialAngle'];
+      if (angleValue is num && angleValue.toDouble().isFinite) {
+        _dialAngle = angleValue.toDouble() % 360.0;
+      }
+      final latValue = saved['targetLat'];
+      final lonValue = saved['targetLon'];
+      if (latValue is num && latValue.toDouble().isFinite) {
+        _targetLat = latValue.toDouble();
+      }
+      if (lonValue is num && lonValue.toDouble().isFinite) {
+        _targetLon = lonValue.toDouble();
+      }
+
+      final selectedIdent = saved['selectedIdent']?.toString();
+      final selectedIndex = saved['selectedModelIndex'] is num
+          ? (saved['selectedModelIndex'] as num).toInt()
+          : 0;
+      _selectedNavaid = selectedIdent == null || selectedIdent.isEmpty
+          ? null
+          : _resolveNavaidResult(selectedIdent, selectedIndex);
+
+      final rawResults = saved['searchResults'];
+      if (rawResults is List) {
+        _searchResults = rawResults
+            .whereType<Map>()
+            .map((entry) {
+              final item = Map<String, dynamic>.from(entry);
+              final ident = item['ident']?.toString() ?? '';
+              final index = item['modelIndex'] is num
+                  ? (item['modelIndex'] as num).toInt()
+                  : 0;
+              return _resolveNavaidResult(ident, index);
+            })
+            .whereType<NavaidResult>()
+            .toList();
+      } else {
+        _searchResults = _buildNavaidSearchResults(_searchCtrl.text);
+      }
+    } else {
+      if (widget.syncNavaidSearch != null) {
+        _searchCtrl.text = widget.syncNavaidSearch!;
+        _searchResults = _buildNavaidSearchResults(_searchCtrl.text);
+      }
+      if (widget.syncTeleportRadial != null) {
+        _radialCtrl.text = widget.syncTeleportRadial.toString();
+      }
+      if (widget.syncTeleportHdg != null) {
+        _hdgCtrl.text = widget.syncTeleportHdg.toString();
+      }
+      if (widget.syncTeleportDist != null) {
+        _distCtrl.text = widget.syncTeleportDist.toString();
+      }
+      if (widget.syncTeleportAlt != null) {
+        _altCtrl.text = widget.syncTeleportAlt.toString();
+      }
+      if (widget.syncTeleportSpd != null) {
+        _spdCtrl.text = widget.syncTeleportSpd.toString();
+      }
+    }
+
+    _navaidRestoring = false;
+    _navaidPersistenceReady = true;
+    if (_selectedNavaid != null) {
+      FFAppState().update(() {
+        FFAppState().efbNavaidTeleportLat = _targetLat;
+        FFAppState().efbNavaidTeleportLon = _targetLon;
+        FFAppState().efbNavaidTeleportHeading =
+            double.tryParse(_hdgCtrl.text) ?? 0.0;
+        FFAppState().efbNavaidTeleportAltitude =
+            double.tryParse(_altCtrl.text) ?? 10000.0;
+        FFAppState().efbNavaidTeleportSpeed =
+            double.tryParse(_spdCtrl.text) ?? 250.0;
+      });
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _saveNavaidState() async {
+    if (_navaidRestoring || !_navaidPersistenceReady) return;
+    final snapshot = _navaidStateSnapshot();
+    try {
+      _navaidPrefs ??= await SharedPreferences.getInstance();
+      await _navaidPrefs!.setString(
+        _navaidPersistenceKey,
+        jsonEncode(snapshot),
+      );
+    } catch (e) {
+      debugPrint('Xplin Navaid save failed: $e');
+    }
   }
 
   @override
@@ -1600,12 +1817,21 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
 
   @override
   void dispose() {
+    _navaidSaveTimer?.cancel();
+    unawaited(_saveNavaidState());
+    WidgetsBinding.instance.removeObserver(this);
+    _searchCtrl.removeListener(_scheduleNavaidSave);
+    _radialCtrl.removeListener(_scheduleNavaidSave);
+    _hdgCtrl.removeListener(_scheduleNavaidSave);
+    _distCtrl.removeListener(_scheduleNavaidSave);
+    _altCtrl.removeListener(_scheduleNavaidSave);
+    _spdCtrl.removeListener(_scheduleNavaidSave);
     _searchCtrl.dispose();
     _radialCtrl.dispose();
     _hdgCtrl.dispose();
     _distCtrl.dispose();
     _altCtrl.dispose();
-    _spdCtrl.dispose(); // إغلاق متغير السرعة
+    _spdCtrl.dispose();
     super.dispose();
   }
 
@@ -1685,36 +1911,35 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
     );
   }
 
-  void _onSearchChanged(String val) {
-    if (val.length < 2) {
-      setState(() => _searchResults = []);
-      return;
-    }
-    String q = val.toUpperCase();
+  List<NavaidResult> _buildNavaidSearchResults(String val) {
+    if (val.length < 2) return <NavaidResult>[];
+    final q = val.toUpperCase();
     try {
-      List<NavaidResult> exactMatches = [];
-      List<NavaidResult> nameMatches = [];
-      for (String k in NavaidData.keys) {
-        var list = NavaidData.getNavaidData(k);
+      final List<NavaidResult> exactMatches = <NavaidResult>[];
+      final List<NavaidResult> nameMatches = <NavaidResult>[];
+      for (final String key in NavaidData.keys) {
+        final list = NavaidData.getNavaidData(key);
         if (list == null) continue;
-        if (k.startsWith(q)) {
-          exactMatches.addAll(list.map((m) => NavaidResult(k, m)));
+        if (key.startsWith(q)) {
+          exactMatches.addAll(list.map((model) => NavaidResult(key, model)));
         } else {
-          for (var nv in list) {
-            if (nv.name.toUpperCase().startsWith(q) ||
-                nv.country.toUpperCase().startsWith(q) ||
-                nv.airport.toUpperCase().startsWith(q)) {
-              nameMatches.add(NavaidResult(k, nv));
+          for (final model in list) {
+            if (model.name.toUpperCase().startsWith(q) ||
+                model.country.toUpperCase().startsWith(q) ||
+                model.airport.toUpperCase().startsWith(q)) {
+              nameMatches.add(NavaidResult(key, model));
             }
           }
         }
       }
-      setState(() {
-        _searchResults = [...exactMatches, ...nameMatches];
-      });
+      return <NavaidResult>[...exactMatches, ...nameMatches];
     } catch (_) {
-      setState(() => _searchResults = []);
+      return <NavaidResult>[];
     }
+  }
+
+  void _onSearchChanged(String val) {
+    setState(() => _searchResults = _buildNavaidSearchResults(val));
   }
 
   void _selectNavaid(NavaidResult nr) {
@@ -2615,16 +2840,20 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final bool isTablet =
-            math.min(constraints.maxWidth, constraints.maxHeight) >= 600;
-        final bool isLandscape = constraints.maxWidth > constraints.maxHeight;
-        if (isTablet && isLandscape) {
-          return _buildLandscapeLayout();
-        }
-        return _buildResponsiveLayout(constraints);
-      },
+    super.build(context);
+    return AbsorbPointer(
+      absorbing: !_navaidPersistenceReady,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isTablet =
+              math.min(constraints.maxWidth, constraints.maxHeight) >= 600;
+          final bool isLandscape = constraints.maxWidth > constraints.maxHeight;
+          if (isTablet && isLandscape) {
+            return _buildLandscapeLayout();
+          }
+          return _buildResponsiveLayout(constraints);
+        },
+      ),
     );
   }
 
@@ -3544,7 +3773,13 @@ class Xplin extends StatefulWidget {
 }
 
 class _XplinState extends State<Xplin>
-    with AutomaticKeepAliveClientMixin<Xplin> {
+    with AutomaticKeepAliveClientMixin<Xplin>, WidgetsBindingObserver {
+  static const String _xplinPersistenceKey = 'xplin_main_state_v1';
+  SharedPreferences? _xplinPrefs;
+  Timer? _xplinSaveTimer;
+  bool _isRestoringPersistentState = false;
+  bool _persistentStateReady = false;
+
   final TextEditingController _icaoController = TextEditingController();
   final TextEditingController _speedController =
       TextEditingController(text: "150");
@@ -3568,21 +3803,9 @@ class _XplinState extends State<Xplin>
   @override
   void initState() {
     super.initState();
-
-    final dynamic savedMode = FFAppState().efbSelectedMode;
-    final dynamic savedIcao = FFAppState().efbIcaoText;
-    final dynamic savedSetSpeed = FFAppState().efbSetSpeed;
-
-    _selectedMode = savedMode is int ? savedMode : 0;
-    _icaoController.text = savedIcao is String ? savedIcao : '';
-    _speedController.text =
-        savedSetSpeed is String && savedSetSpeed.trim().isNotEmpty
-            ? savedSetSpeed
-            : '150';
-
-    _icaoController.addListener(_persistIcaoText);
-    _speedController.addListener(_persistSetSpeedText);
-
+    WidgetsBinding.instance.addObserver(this);
+    _icaoController.addListener(_schedulePersistentSave);
+    _speedController.addListener(_schedulePersistentSave);
     _simulatorTimeSeconds = _readSimulatorTimeFromAppState();
     _groundSpeed = _readGroundSpeedFromAppState();
 
@@ -3595,43 +3818,227 @@ class _XplinState extends State<Xplin>
           _simulatorTimeSeconds = newTime;
           _groundSpeed = newSpeed;
         });
+      } else {
+        // Also persist FFAppState-only changes (for example, chart-gate selection).
+        _schedulePersistentSave();
       }
     };
     FFAppState().addListener(_appStateListener!);
+    unawaited(_restorePersistentState());
+  }
 
-    // Restore ICAO-dependent data after the widget is mounted.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      if (_icaoController.text.trim().isNotEmpty) {
-        _handleSearch();
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    _schedulePersistentSave();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      unawaited(_savePersistentState());
+    }
+  }
+
+  void _schedulePersistentSave() {
+    if (!_persistentStateReady || _isRestoringPersistentState || !mounted) {
+      return;
+    }
+    _xplinSaveTimer?.cancel();
+    _xplinSaveTimer = Timer(const Duration(milliseconds: 300), () {
+      unawaited(_savePersistentState());
+    });
+  }
+
+  List<Map<String, dynamic>> _decodeMapList(dynamic value) {
+    if (value is! List) return <Map<String, dynamic>>[];
+    return value
+        .whereType<Map>()
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList();
+  }
+
+  double? _decodeNullableDouble(dynamic value) {
+    if (value is num && value.toDouble().isFinite) return value.toDouble();
+    return null;
+  }
+
+  Map<String, dynamic> _persistentStateSnapshot() {
+    return <String, dynamic>{
+      'version': 1,
+      'icao': _icaoController.text,
+      'speedText': _speedController.text,
+      'selectedMode': _selectedMode,
+      'runways': _runways,
+      'selectedRunwayName': _selectedRunway?['name']?.toString(),
+      'isLoadingRunways': false,
+      'isLoadingGates': false,
+      'gateErrorMessage': _gateErrorMessage,
+      'gates': _gatesList,
+      'selectedGateIndex': _selectedGateIndex,
+      'selectedGateName':
+          _selectedGateIndex >= 0 && _selectedGateIndex < _gatesList.length
+              ? _gatesList[_selectedGateIndex]['name']?.toString()
+              : null,
+      'airportCenterLat': _airportCenterLat,
+      'airportCenterLon': _airportCenterLon,
+      'simulatorTimeSeconds': _simulatorTimeSeconds,
+      'groundSpeed': _groundSpeed,
+      'chartGateName': FFAppState().chartGateName,
+      'chartGateLat': FFAppState().chartGateLat,
+      'chartGateLon': FFAppState().chartGateLon,
+      'chartGateHdg': FFAppState().chartGateHdg,
+    };
+  }
+
+  Future<void> _restorePersistentState() async {
+    _isRestoringPersistentState = true;
+    Map<String, dynamic>? saved;
+    try {
+      _xplinPrefs = await SharedPreferences.getInstance();
+      final raw = _xplinPrefs!.getString(_xplinPersistenceKey);
+      if (raw != null && raw.isNotEmpty) {
+        final decoded = jsonDecode(raw);
+        if (decoded is Map) saved = Map<String, dynamic>.from(decoded);
+      }
+    } catch (e) {
+      debugPrint('Xplin restore failed: $e');
+    }
+
+    if (!mounted) return;
+
+    if (saved != null) {
+      _icaoController.text = saved.containsKey('icao')
+          ? saved['icao']?.toString() ?? ''
+          : (widget.syncIcao ?? '');
+      _speedController.text = saved.containsKey('speedText')
+          ? saved['speedText']?.toString() ?? '150'
+          : (widget.syncSetSpeed?.toString() ?? '150');
+
+      final modeValue = saved['selectedMode'];
+      final restoredMode =
+          modeValue is num ? modeValue.toInt() : (widget.syncMode ?? 0);
+      _selectedMode = restoredMode >= 0 && restoredMode <= 6 ? restoredMode : 0;
+
+      _runways = _decodeMapList(saved['runways']);
+      _gatesList = _decodeMapList(saved['gates']);
+      _gateErrorMessage = saved['gateErrorMessage']?.toString() ?? '';
+      _isLoadingRunways = false;
+      _isLoadingGates = false;
+      _airportCenterLat = _decodeNullableDouble(saved['airportCenterLat']);
+      _airportCenterLon = _decodeNullableDouble(saved['airportCenterLon']);
+
+      final savedRunwayName = saved['selectedRunwayName']?.toString();
+      _selectedRunway = savedRunwayName == null
+          ? null
+          : _runways.cast<Map<String, dynamic>?>().firstWhere(
+                (runway) => runway?['name']?.toString() == savedRunwayName,
+                orElse: () => null,
+              );
+
+      final savedGateName = saved['selectedGateName']?.toString();
+      final savedGateIndex = saved['selectedGateIndex'] is num
+          ? (saved['selectedGateIndex'] as num).toInt()
+          : -1;
+      final nameIndex = savedGateName == null
+          ? -1
+          : _gatesList
+              .indexWhere((gate) => gate['name']?.toString() == savedGateName);
+      final candidateGateIndex = nameIndex >= 0 ? nameIndex : savedGateIndex;
+      _selectedGateIndex =
+          candidateGateIndex >= 0 && candidateGateIndex < _gatesList.length
+              ? candidateGateIndex
+              : -1;
+
+      final time = _decodeNullableDouble(saved['simulatorTimeSeconds']);
+      final speed = _decodeNullableDouble(saved['groundSpeed']);
+      _simulatorTimeSeconds =
+          (time ?? widget.syncSimTime ?? _readSimulatorTimeFromAppState())
+              .clamp(0.0, 86400.0)
+              .toDouble();
+      _groundSpeed =
+          (speed ?? widget.syncGroundSpeed ?? _readGroundSpeedFromAppState())
+              .clamp(1.0, 6.0)
+              .toDouble();
+    } else {
+      if (widget.syncIcao != null) _icaoController.text = widget.syncIcao!;
+      if (widget.syncSetSpeed != null && widget.syncSetSpeed! > 0) {
+        _speedController.text = widget.syncSetSpeed.toString();
+      }
+      if (widget.syncMode != null &&
+          widget.syncMode! >= 0 &&
+          widget.syncMode! <= 6) {
+        _selectedMode = widget.syncMode!;
+      }
+      if (widget.syncSimTime != null) {
+        _simulatorTimeSeconds =
+            widget.syncSimTime!.clamp(0.0, 86400.0).toDouble();
+      }
+      if (widget.syncGroundSpeed != null) {
+        _groundSpeed = widget.syncGroundSpeed!.clamp(1.0, 6.0).toDouble();
+      }
+    }
+
+    _isRestoringPersistentState = false;
+    _persistentStateReady = true;
+
+    // Rehydrate the already-existing FlutterFlow app-state fields as well.
+    final persistedState = saved;
+    FFAppState().update(() {
+      FFAppState().efbSimulatorTimeSeconds = _simulatorTimeSeconds;
+      FFAppState().efbGroundSpeed = _groundSpeed;
+      if (_selectedRunway != null) {
+        FFAppState().radarRwyName = _selectedRunway!['name'];
+        FFAppState().radarLat = _selectedRunway!['lat'];
+        FFAppState().radarLon = _selectedRunway!['lon'];
+        FFAppState().radarHdgRaw = _selectedRunway!['heading_raw'];
+      }
+      if (_selectedGateIndex >= 0 && _selectedGateIndex < _gatesList.length) {
+        final gate = _gatesList[_selectedGateIndex];
+        FFAppState().gateName = gate['name'];
+        FFAppState().gateLat = gate['lat'];
+        FFAppState().gateLon = gate['lon'];
+        FFAppState().gateHdg = gate['heading'];
+      }
+      if (persistedState != null) {
+        FFAppState().chartGateName =
+            persistedState['chartGateName']?.toString() ??
+                FFAppState().chartGateName;
+        FFAppState().chartGateLat =
+            _decodeNullableDouble(persistedState['chartGateLat']) ??
+                FFAppState().chartGateLat;
+        FFAppState().chartGateLon =
+            _decodeNullableDouble(persistedState['chartGateLon']) ??
+                FFAppState().chartGateLon;
+        FFAppState().chartGateHdg =
+            _decodeNullableDouble(persistedState['chartGateHdg']) ??
+                FFAppState().chartGateHdg;
       }
     });
-  }
 
-  void _persistIcaoText() {
-    final String value = _icaoController.text;
-    if (FFAppState().efbIcaoText == value) return;
-    FFAppState().update(() {
-      FFAppState().efbIcaoText = value;
-    });
-  }
+    if (mounted) setState(() {});
 
-  void _persistSetSpeedText() {
-    final String value = _speedController.text;
-    if (FFAppState().efbSetSpeed == value) return;
-    FFAppState().update(() {
-      FFAppState().efbSetSpeed = value;
-    });
-  }
-
-  void _setSelectedMode(int mode) {
-    if (_selectedMode != mode) {
-      setState(() => _selectedMode = mode);
+    // If the saved session had no fetched airport data, repopulate it.
+    if (_icaoController.text.trim().isNotEmpty &&
+        _runways.isEmpty &&
+        _gatesList.isEmpty) {
+      _handleSearch();
     }
-    if (FFAppState().efbSelectedMode != mode) {
-      FFAppState().update(() {
-        FFAppState().efbSelectedMode = mode;
-      });
+  }
+
+  Future<void> _savePersistentState() async {
+    if (_isRestoringPersistentState || !_persistentStateReady) return;
+    final snapshot = _persistentStateSnapshot();
+    try {
+      _xplinPrefs ??= await SharedPreferences.getInstance();
+      await _xplinPrefs!.setString(
+        _xplinPersistenceKey,
+        jsonEncode(snapshot),
+      );
+    } catch (e) {
+      debugPrint('Xplin save failed: $e');
     }
   }
 
@@ -3645,7 +4052,7 @@ class _XplinState extends State<Xplin>
     }
 
     if (widget.syncMode != null && widget.syncMode != oldWidget.syncMode) {
-      _setSelectedMode(widget.syncMode!);
+      setState(() => _selectedMode = widget.syncMode!);
     }
 
     if (widget.syncSimTime != null &&
@@ -3742,6 +4149,11 @@ class _XplinState extends State<Xplin>
 
   @override
   void dispose() {
+    _xplinSaveTimer?.cancel();
+    unawaited(_savePersistentState());
+    WidgetsBinding.instance.removeObserver(this);
+    _icaoController.removeListener(_schedulePersistentSave);
+    _speedController.removeListener(_schedulePersistentSave);
     if (_appStateListener != null) {
       FFAppState().removeListener(_appStateListener!);
     }
@@ -4011,15 +4423,8 @@ class _XplinState extends State<Xplin>
             _airportCenterLon = sumLon / parsedRunways.length;
           }
         });
-        if (parsedRunways.isNotEmpty) {
-          final String savedRunwayName = FFAppState().radarRwyName.toString();
-          final int savedRunwayIndex = parsedRunways.indexWhere(
-              (runway) => runway['name'].toString() == savedRunwayName);
-          final Map<String, dynamic> runwayToSelect = savedRunwayIndex >= 0
-              ? parsedRunways[savedRunwayIndex]
-              : parsedRunways[0];
-          _selectRunway(runwayToSelect, triggerCallback: _selectedMode == 0);
-        }
+        if (parsedRunways.isNotEmpty)
+          _selectRunway(parsedRunways[0], triggerCallback: _selectedMode == 0);
       } else {
         _showError("❌ ICAO Code '$icao' not found.");
         setState(() => _isLoadingRunways = false);
@@ -4183,14 +4588,8 @@ class _XplinState extends State<Xplin>
       if (mounted)
         setState(() {
           _gatesList = tempGatesList;
-          if (_gatesList.isEmpty) {
+          if (_gatesList.isEmpty)
             _gateErrorMessage = 'NO GATES FOUND IN DATABASE';
-            _selectedGateIndex = -1;
-          } else {
-            final String savedGateName = FFAppState().gateName.toString();
-            _selectedGateIndex = _gatesList
-                .indexWhere((gate) => gate['name'].toString() == savedGateName);
-          }
           _isLoadingGates = false;
         });
     } catch (e) {
@@ -4688,7 +5087,7 @@ class _XplinState extends State<Xplin>
       final int mode = m[1] as int;
       return GestureDetector(
         onTap: () {
-          _setSelectedMode(mode);
+          setState(() => _selectedMode = mode);
           if (mode == 0 && widget.onRunwayActionTap != null)
             widget.onRunwayActionTap!();
           if (mode == 1 && widget.onGateActionTap != null)
@@ -4737,9 +5136,12 @@ class _XplinState extends State<Xplin>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return _isMobile(context)
-        ? _buildMobileView(context)
-        : _buildDesktopView(context);
+    return AbsorbPointer(
+      absorbing: !_persistentStateReady,
+      child: _isMobile(context)
+          ? _buildMobileView(context)
+          : _buildDesktopView(context),
+    );
   }
 
   Widget _buildDesktopView(BuildContext context) {
@@ -5071,7 +5473,7 @@ class _XplinState extends State<Xplin>
         children: [
           GestureDetector(
               onTap: () {
-                _setSelectedMode(6);
+                setState(() => _selectedMode = 6);
                 if (widget.onTcasActionTap != null) widget.onTcasActionTap!();
               },
               child: Padding(
@@ -5099,7 +5501,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(0);
+                setState(() => _selectedMode = 0);
                 if (widget.onRunwayActionTap != null)
                   widget.onRunwayActionTap!();
               },
@@ -5128,7 +5530,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(1);
+                setState(() => _selectedMode = 1);
                 if (widget.onGateActionTap != null) widget.onGateActionTap!();
               },
               child: Padding(
@@ -5156,7 +5558,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(2);
+                setState(() => _selectedMode = 2);
                 if (widget.onChartActionTap != null) widget.onChartActionTap!();
               },
               child: Padding(
@@ -5184,7 +5586,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(5);
+                setState(() => _selectedMode = 5);
                 if (widget.onNavaidActionTap != null)
                   widget.onNavaidActionTap!();
               },
@@ -5213,7 +5615,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(3);
+                setState(() => _selectedMode = 3);
                 if (widget.onMapTeleportTap != null) widget.onMapTeleportTap!();
               },
               child: Padding(
@@ -5241,7 +5643,7 @@ class _XplinState extends State<Xplin>
                   ]))),
           GestureDetector(
               onTap: () {
-                _setSelectedMode(4);
+                setState(() => _selectedMode = 4);
                 if (widget.onWorldTourTap != null) widget.onWorldTourTap!();
               },
               child: Padding(
