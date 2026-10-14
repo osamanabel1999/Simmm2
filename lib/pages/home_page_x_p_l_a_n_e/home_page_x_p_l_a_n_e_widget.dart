@@ -4,6 +4,7 @@ import '/flutter_flow/ff_builtin_enums.dart';
 import '/flutter_flow/flutter_flow_ad_banner.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_web_view.dart';
 import '/flutter_flow/instant_timer.dart';
 import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
@@ -2283,6 +2285,114 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                 .WorldDestinationsWidget(
                                               width: double.infinity,
                                               height: double.infinity,
+                                              landmark1Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/863C28CC-9A70-47C1-AB7D-28ADB3B730B0_optimized.jpg?raw=true',
+                                              landmark2Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/39D6D634-E599-4C97-A2DE-75B4F1EBA2F7_optimized.jpg?raw=true',
+                                              landmark3Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/09FA7364-457E-4F14-AE87-12DC45439F67_optimized.jpg?raw=true',
+                                              landmark4Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/6E552D01-F1C4-4087-A1D7-6EE141C06683_optimized.jpg?raw=true',
+                                              landmark5Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/F55DD2F7-A1D6-4F72-86E2-4A4E1DB14842_optimized.jpg?raw=true',
+                                              landmark6Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/85CC64FF-6494-4967-9D3D-6EDEA1A5D8D0_optimized.jpg?raw=true',
+                                              landmark7Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/A8C87E36-F420-4649-B8ED-D93BA50AF13C_optimized.jpg?raw=true',
+                                              landmark8Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/940C4571-2A09-4EAE-B122-334DD792CA23_optimized.jpg?raw=true',
+                                              landmark9Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/104C2ECD-8A96-4FFA-AFF6-8E763BF04D8E_optimized.jpg?raw=true',
+                                              landmark10Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/19917174-A587-4F84-A11A-B9FE800089C2_optimized.jpg?raw=true',
+                                              landmark11Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/4652A2B8-8592-4BDC-BCFB-79F2FA087B84_optimized.jpg?raw=true',
+                                              landmark12Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/51478D4B-11F4-4171-9F63-2BC6A87545B3_optimized.jpg?raw=true',
+                                              landmark13Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/85A84378-525E-4714-9769-F5CDD3E84662_optimized.jpg?raw=true',
+                                              landmark14Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/8100867E-8F26-4E61-9524-24E1F7D50C51_optimized.jpg?raw=true',
+                                              landmark15Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/7DE354F7-D8DF-49B2-9285-A67B38029EED_optimized.jpg?raw=true',
+                                              landmark16Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/64CF8D64-314E-4B57-8D38-FEE3BC6A846C_optimized.jpg?raw=true',
+                                              landmark17Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/96943E09-3382-4226-A727-E567A089A71B_optimized.jpg?raw=true',
+                                              landmark18Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/IMG_3550_optimized.jpg?raw=true',
+                                              landmark19Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/D3043AC1-C0EF-4D55-8BEE-0D8B3A5053CA_optimized.jpg?raw=true',
+                                              landmark20Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/2D5D0133-AF1B-4EAE-98FE-B412B321C64F_optimized.jpg?raw=true',
+                                              landmark21Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/62820DFC-7095-49D1-9932-22CB0672DE55_optimized.jpg?raw=true',
+                                              landmark22Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/104C2ECD-8A96-4FFA-AFF6-8E763BF04D8E_optimized.jpg?raw=true',
+                                              landmark23Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/F9963AC7-267B-4357-B378-503235A70E1B_optimized.jpg?raw=true',
+                                              landmark24Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/E55C00BE-F78E-4360-BC3C-76F845DF4512_optimized.jpg?raw=true',
+                                              landmark25Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/5D0B214E-107A-443B-A0F6-D58BE6AE718C_optimized.jpg?raw=true',
+                                              landmark26Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/CB129703-B5F6-4121-AAFB-169C9FDB4767_optimized.jpg?raw=true',
+                                              landmark27Image:
+                                                  'https://github.com/osamanabel1999/World-tour-image-sim-station/blob/main/B4AE3F81-72AB-4C0D-AE39-EEB4BCA5CBFA_optimized.jpg?raw=true',
+                                              landmark1Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3546.png?raw=true',
+                                              landmark2Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3551.png?raw=true',
+                                              landmark3Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3555.png?raw=true',
+                                              landmark4Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3557.png?raw=true',
+                                              landmark5Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3558.jpeg?raw=true',
+                                              landmark6Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3560.png?raw=true',
+                                              landmark7Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3563.png?raw=true',
+                                              landmark8Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3565.jpeg?raw=true',
+                                              landmark9Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3567.png?raw=true',
+                                              landmark10Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3555.png?raw=true',
+                                              landmark11Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3571.png?raw=true',
+                                              landmark12Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3574.png?raw=true',
+                                              landmark13Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3576.png?raw=true',
+                                              landmark14Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3577.png?raw=true',
+                                              landmark15Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3574.png?raw=true',
+                                              landmark16Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3581.png?raw=true',
+                                              landmark17Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3582.png?raw=true',
+                                              landmark18Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3586.png?raw=true',
+                                              landmark19Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3557.png?raw=true',
+                                              landmark20Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3590.png?raw=true',
+                                              landmark21Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3591.webp?raw=true',
+                                              landmark22Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3592.png?raw=true',
+                                              landmark23Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3593.png?raw=true',
+                                              landmark24Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3551.png?raw=true',
+                                              landmark25Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3567.png?raw=true',
+                                              landmark26Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3600.png?raw=true',
+                                              landmark27Flag:
+                                                  'https://github.com/osamanabel1999/flags-Sim-station/blob/main/IMG_3601.png?raw=true',
                                               onSpeedChanged: (speed) async {
                                                 await actions.setXPlaneDataRef(
                                                   'xq92/b7n4/v6k3d',
@@ -19036,20 +19146,18 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                           CrossAxisAlignment.stretch,
                                       children: [
                                         Expanded(
-                                          child: Container(
-                                            width: double.infinity,
+                                          child: FlutterFlowWebView(
+                                            content:
+                                                'http://${FFAppState().ipPC}:8173',
+                                            bypass: false,
+                                            width: MediaQuery.sizeOf(context)
+                                                    .width *
+                                                1.0,
                                             height: MediaQuery.sizeOf(context)
                                                     .height *
                                                 1.0,
-                                            child:
-                                                custom_widgets.CustomFMCWebView(
-                                              width: double.infinity,
-                                              height: MediaQuery.sizeOf(context)
-                                                      .height *
-                                                  1.0,
-                                              initialUrl:
-                                                  'http://${FFAppState().ipPC}:8173',
-                                            ),
+                                            verticalScroll: false,
+                                            horizontalScroll: false,
                                           ),
                                         ),
                                       ],
@@ -19065,20 +19173,18 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                           CrossAxisAlignment.stretch,
                                       children: [
                                         Expanded(
-                                          child: Container(
-                                            width: double.infinity,
+                                          child: FlutterFlowWebView(
+                                            content:
+                                                'http://${FFAppState().ipPC}:8172',
+                                            bypass: false,
+                                            width: MediaQuery.sizeOf(context)
+                                                    .width *
+                                                1.0,
                                             height: MediaQuery.sizeOf(context)
                                                     .height *
                                                 1.0,
-                                            child:
-                                                custom_widgets.CustomFMCWebView(
-                                              width: double.infinity,
-                                              height: MediaQuery.sizeOf(context)
-                                                      .height *
-                                                  1.0,
-                                              initialUrl:
-                                                  'http://${FFAppState().ipPC}:8172',
-                                            ),
+                                            verticalScroll: false,
+                                            horizontalScroll: false,
                                           ),
                                         ),
                                       ],
@@ -20175,91 +20281,35 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 110.0, 0.0, 0.0),
-                  child: Stack(
-                    children: [
-                      if (FFAppState().TabNumber == 12)
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              2.0, 5.0, 0.0, 0.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  FFAppState().FailureSubTab = 1;
-                                  safeSetState(() {});
-                                },
-                                child: Container(
-                                  width: 100.0,
-                                  height: 40.0,
-                                  decoration: BoxDecoration(
-                                    color: FFAppState().FailureSubTab == 1
-                                        ? Color(0xFF639DF0)
-                                        : Color(0xFF101923),
-                                    border: Border.all(
-                                      color: Color(0xFF26364D),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'ENGINE',
-                                        textAlign: TextAlign.center,
-                                        style: FlutterFlowTheme.of(context)
-                                            .titleLarge
-                                            .override(
-                                              font: GoogleFonts.interTight(
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                              color: Color(0xFFE5E7EB),
-                                              letterSpacing: 0.0,
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleLarge
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleLarge
-                                                      .fontStyle,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 3.0, 0.0, 0.0),
-                                child: InkWell(
+                PointerInterceptor(
+                  intercepting: isWeb,
+                  child: Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 110.0, 0.0, 0.0),
+                    child: Stack(
+                      children: [
+                        if (FFAppState().TabNumber == 12)
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                2.0, 5.0, 0.0, 0.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                InkWell(
                                   splashColor: Colors.transparent,
                                   focusColor: Colors.transparent,
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    FFAppState().FailureSubTab = 2;
+                                    FFAppState().FailureSubTab = 1;
                                     safeSetState(() {});
                                   },
                                   child: Container(
                                     width: 100.0,
                                     height: 40.0,
                                     decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 2
+                                      color: FFAppState().FailureSubTab == 1
                                           ? Color(0xFF639DF0)
                                           : Color(0xFF101923),
                                       border: Border.all(
@@ -20272,7 +20322,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          'APU',
+                                          'ENGINE',
                                           textAlign: TextAlign.center,
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
@@ -20305,24 +20355,215 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 3.0, 0.0, 0.0),
-                                child: InkWell(
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 3.0, 0.0, 0.0),
+                                  child: InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      FFAppState().FailureSubTab = 2;
+                                      safeSetState(() {});
+                                    },
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                        color: FFAppState().FailureSubTab == 2
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
+                                        border: Border.all(
+                                          color: Color(0xFF26364D),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'APU',
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: Color(0xFFE5E7EB),
+                                                  letterSpacing: 0.0,
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontStyle,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 3.0, 0.0, 0.0),
+                                  child: InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      FFAppState().FailureSubTab = 3;
+                                      safeSetState(() {});
+                                    },
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                        color: FFAppState().FailureSubTab == 3
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
+                                        border: Border.all(
+                                          color: Color(0xFF26364D),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'BLEED',
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: Color(0xFFE5E7EB),
+                                                  letterSpacing: 0.0,
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontStyle,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 3.0, 0.0, 0.0),
+                                  child: InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      FFAppState().FailureSubTab = 4;
+                                      safeSetState(() {});
+                                    },
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                        color: FFAppState().FailureSubTab == 4
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
+                                        border: Border.all(
+                                          color: Color(0xFF26364D),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'ELEC',
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: Color(0xFFE5E7EB),
+                                                  letterSpacing: 0.0,
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontStyle,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                InkWell(
                                   splashColor: Colors.transparent,
                                   focusColor: Colors.transparent,
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    FFAppState().FailureSubTab = 3;
+                                    FFAppState().FailureSubTab = 5;
                                     safeSetState(() {});
                                   },
                                   child: Container(
                                     width: 100.0,
                                     height: 40.0,
                                     decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 3
+                                      color: FFAppState().FailureSubTab == 5
                                           ? Color(0xFF639DF0)
                                           : Color(0xFF101923),
                                       border: Border.all(
@@ -20335,7 +20576,7 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          'BLEED',
+                                          'FUEL',
                                           textAlign: TextAlign.center,
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
@@ -20368,42 +20609,55 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                     ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 3.0, 0.0, 0.0),
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    FFAppState().FailureSubTab = 4;
-                                    safeSetState(() {});
-                                  },
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 40.0,
-                                    decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 4
-                                          ? Color(0xFF639DF0)
-                                          : Color(0xFF101923),
-                                      border: Border.all(
-                                        color: Color(0xFF26364D),
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 3.0, 0.0, 0.0),
+                                  child: InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      FFAppState().FailureSubTab = 6;
+                                      safeSetState(() {});
+                                    },
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                        color: FFAppState().FailureSubTab == 6
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
+                                        border: Border.all(
+                                          color: Color(0xFF26364D),
+                                        ),
                                       ),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'ELEC',
-                                          textAlign: TextAlign.center,
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleLarge
-                                              .override(
-                                                font: GoogleFonts.interTight(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'HYDRAULIC',
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: Color(0xFFE5E7EB),
+                                                  fontSize: 16.0,
+                                                  letterSpacing: 0.0,
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -20415,114 +20669,61 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFFE5E7EB),
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 3.0, 0.0, 0.0),
+                                  child: InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      FFAppState().FailureSubTab = 8;
+                                      safeSetState(() {});
+                                    },
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                        color: FFAppState().FailureSubTab == 8
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
+                                        border: Border.all(
+                                          color: Color(0xFF26364D),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  FFAppState().FailureSubTab = 5;
-                                  safeSetState(() {});
-                                },
-                                child: Container(
-                                  width: 100.0,
-                                  height: 40.0,
-                                  decoration: BoxDecoration(
-                                    color: FFAppState().FailureSubTab == 5
-                                        ? Color(0xFF639DF0)
-                                        : Color(0xFF101923),
-                                    border: Border.all(
-                                      color: Color(0xFF26364D),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'FUEL',
-                                        textAlign: TextAlign.center,
-                                        style: FlutterFlowTheme.of(context)
-                                            .titleLarge
-                                            .override(
-                                              font: GoogleFonts.interTight(
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                              color: Color(0xFFE5E7EB),
-                                              letterSpacing: 0.0,
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleLarge
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleLarge
-                                                      .fontStyle,
-                                            ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 3.0, 0.0, 0.0),
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    FFAppState().FailureSubTab = 6;
-                                    safeSetState(() {});
-                                  },
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 40.0,
-                                    decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 6
-                                          ? Color(0xFF639DF0)
-                                          : Color(0xFF101923),
-                                      border: Border.all(
-                                        color: Color(0xFF26364D),
-                                      ),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'HYDRAULIC',
-                                          textAlign: TextAlign.center,
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleLarge
-                                              .override(
-                                                font: GoogleFonts.interTight(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'AUTO FLT',
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: Color(0xFFE5E7EB),
+                                                  fontSize: 17.0,
+                                                  letterSpacing: 0.0,
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -20534,59 +20735,61 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFFE5E7EB),
-                                                fontSize: 16.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 3.0, 0.0, 0.0),
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    FFAppState().FailureSubTab = 8;
-                                    safeSetState(() {});
-                                  },
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 40.0,
-                                    decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 8
-                                          ? Color(0xFF639DF0)
-                                          : Color(0xFF101923),
-                                      border: Border.all(
-                                        color: Color(0xFF26364D),
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 3.0, 0.0, 0.0),
+                                  child: InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      FFAppState().FailureSubTab = 10;
+                                      safeSetState(() {});
+                                    },
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                        color: FFAppState().FailureSubTab == 10
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
+                                        border: Border.all(
+                                          color: Color(0xFF26364D),
+                                        ),
                                       ),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'AUTO FLT',
-                                          textAlign: TextAlign.center,
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleLarge
-                                              .override(
-                                                font: GoogleFonts.interTight(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'FLT CTRL',
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: Color(0xFFE5E7EB),
+                                                  fontSize: 17.0,
+                                                  letterSpacing: 0.0,
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -20598,59 +20801,61 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFFE5E7EB),
-                                                fontSize: 17.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 3.0, 0.0, 0.0),
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    FFAppState().FailureSubTab = 10;
-                                    safeSetState(() {});
-                                  },
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 40.0,
-                                    decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 10
-                                          ? Color(0xFF639DF0)
-                                          : Color(0xFF101923),
-                                      border: Border.all(
-                                        color: Color(0xFF26364D),
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 3.0, 0.0, 0.0),
+                                  child: InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      FFAppState().FailureSubTab = 11;
+                                      safeSetState(() {});
+                                    },
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                        color: FFAppState().FailureSubTab == 11
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
+                                        border: Border.all(
+                                          color: Color(0xFF26364D),
+                                        ),
                                       ),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'FLT CTRL',
-                                          textAlign: TextAlign.center,
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleLarge
-                                              .override(
-                                                font: GoogleFonts.interTight(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'LDG GEAR ',
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: Color(0xFFE5E7EB),
+                                                  fontSize: 18.0,
+                                                  letterSpacing: 0.0,
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -20662,59 +20867,61 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFFE5E7EB),
-                                                fontSize: 17.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 3.0, 0.0, 0.0),
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    FFAppState().FailureSubTab = 11;
-                                    safeSetState(() {});
-                                  },
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 40.0,
-                                    decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 11
-                                          ? Color(0xFF639DF0)
-                                          : Color(0xFF101923),
-                                      border: Border.all(
-                                        color: Color(0xFF26364D),
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 3.0, 0.0, 0.0),
+                                  child: InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      FFAppState().FailureSubTab = 13;
+                                      safeSetState(() {});
+                                    },
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                        color: FFAppState().FailureSubTab == 13
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
+                                        border: Border.all(
+                                          color: Color(0xFF26364D),
+                                        ),
                                       ),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'LDG GEAR ',
-                                          textAlign: TextAlign.center,
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleLarge
-                                              .override(
-                                                font: GoogleFonts.interTight(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'NAVIGATION',
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: Color(0xFFE5E7EB),
+                                                  fontSize: 14.8,
+                                                  letterSpacing: 0.0,
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -20726,59 +20933,60 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFFE5E7EB),
-                                                fontSize: 18.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 3.0, 0.0, 0.0),
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    FFAppState().FailureSubTab = 13;
-                                    safeSetState(() {});
-                                  },
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 40.0,
-                                    decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 13
-                                          ? Color(0xFF639DF0)
-                                          : Color(0xFF101923),
-                                      border: Border.all(
-                                        color: Color(0xFF26364D),
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 3.0, 0.0, 0.0),
+                                  child: InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      FFAppState().FailureSubTab = 14;
+                                      safeSetState(() {});
+                                    },
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                        color: FFAppState().FailureSubTab == 14
+                                            ? Color(0xFF639DF0)
+                                            : Color(0xFF101923),
+                                        border: Border.all(
+                                          color: Color(0xFF26364D),
+                                        ),
                                       ),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'NAVIGATION',
-                                          textAlign: TextAlign.center,
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleLarge
-                                              .override(
-                                                font: GoogleFonts.interTight(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'WORLD',
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: Color(0xFFE5E7EB),
+                                                  letterSpacing: 0.0,
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -20790,59 +20998,64 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFFE5E7EB),
-                                                fontSize: 14.8,
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 3.0, 0.0, 0.0),
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    FFAppState().FailureSubTab = 14;
-                                    safeSetState(() {});
-                                  },
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 40.0,
-                                    decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 14
-                                          ? Color(0xFF639DF0)
-                                          : Color(0xFF101923),
-                                      border: Border.all(
-                                        color: Color(0xFF26364D),
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 3.0, 0.0, 0.0),
+                                  child: InkWell(
+                                    splashColor: Colors.transparent,
+                                    focusColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () async {
+                                      _model.currentStep = 114;
+                                      safeSetState(() {});
+                                      await actions.sendXPlaneCommand(
+                                        'sim/operation/fix_all_systems',
+                                        FFAppState().ipPC,
+                                      );
+                                      FFAppState().ActiveFailures = [];
+                                      safeSetState(() {});
+                                    },
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFF101923),
+                                        border: Border.all(
+                                          color: Color(0xFF26364D),
+                                        ),
                                       ),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'WORLD',
-                                          textAlign: TextAlign.center,
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleLarge
-                                              .override(
-                                                font: GoogleFonts.interTight(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'FIX ALL',
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: Color(0xFF639DF0),
+                                                  letterSpacing: 0.0,
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -20854,94 +21067,17 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFFE5E7EB),
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 3.0, 0.0, 0.0),
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    _model.currentStep = 114;
-                                    safeSetState(() {});
-                                    await actions.sendXPlaneCommand(
-                                      'sim/operation/fix_all_systems',
-                                      FFAppState().ipPC,
-                                    );
-                                    FFAppState().ActiveFailures = [];
-                                    safeSetState(() {});
-                                  },
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 40.0,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF101923),
-                                      border: Border.all(
-                                        color: Color(0xFF26364D),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'FIX ALL',
-                                          textAlign: TextAlign.center,
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleLarge
-                                              .override(
-                                                font: GoogleFonts.interTight(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleLarge
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleLarge
-                                                          .fontStyle,
-                                                ),
-                                                color: Color(0xFF639DF0),
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
