@@ -73,3 +73,5 @@ export '/custom_code/widgets/weather_trainer_remote_widget.dart'
     show WeatherTrainerRemoteWidget;
 export '/custom_code/widgets/world_destinations_widget.dart'
     show WorldDestinationsWidget;
+export '/custom_code/widgets/analysis_web_view.dart' show AnalysisWebView;
+export '/custom_code/widgets/system_web_view.dart' show SystemWebView;

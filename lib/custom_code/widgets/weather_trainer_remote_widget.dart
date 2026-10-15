@@ -1936,11 +1936,11 @@ class _WeatherTrainerRemoteWidgetState
   // Added scenario controls. Existing preset controls above remain unchanged.
   Widget _buildAdvancedScenarioPanel() {
     const List<String> scenarioLabels = <String>[
-      'MICROBURST (K206)',
-      'WIND SHEAR (K207)',
-      'GUSTY CROSSWIND APPROACH (K208)',
-      'SEVERE TURBULENCE / THUNDERSTORM (K209)',
-      'RESET / RESTORE SCENARIO (K210)',
+      'MICROBURST ',
+      'WIND SHEAR ',
+      'GUSTY CROSSWIND APPROACH ',
+      'SEVERE TURBULENCE / THUNDERSTORM ',
+      'RESET / RESTORE SCENARIO ',
     ];
     const List<IconData> scenarioIcons = <IconData>[
       Icons.air,
