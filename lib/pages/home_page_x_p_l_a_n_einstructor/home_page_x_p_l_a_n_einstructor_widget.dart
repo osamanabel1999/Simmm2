@@ -16372,10 +16372,10 @@ class _HomePageXPLANEinstructorWidgetState
                       ),
                       Container(
                         width: double.infinity,
-                        height: 10.0,
+                        height: 30.0,
                         child: custom_widgets.LiveKitViewer(
                           width: double.infinity,
-                          height: 10.0,
+                          height: 30.0,
                         ),
                       ),
                     ],

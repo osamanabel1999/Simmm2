@@ -87,7 +87,9 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
   bool _isConnected = false;
   bool _isConnecting = false;
   bool _isMicOn = true;
-  bool _showLogs = true;
+
+  // 🔥 تم إيقاف ظهور اللوج افتراضياً للمستخدمين
+  bool _showLogs = false;
 
   final TextEditingController _roomController = TextEditingController();
   final List<String> _logs = [];
@@ -136,7 +138,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
   Future<void> _joinRoom() async {
     final roomName = _roomController.text.trim();
     if (roomName.isEmpty) {
-      _addLog("⚠️ PLEASE ENTER SESSION ID");
+      _addLog("SESSION ID REQUIRED");
       return;
     }
     setState(() => _isConnecting = true);
@@ -150,7 +152,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
       _listener = _room!.createListener();
       _listener!.on<TrackSubscribedEvent>((event) {
         if (event.track is VideoTrack) {
-          _addLog("🎥 VIDEO DATALINK ESTABLISHED");
+          _addLog("VIDEO DATALINK ACTIVE");
           setState(() {
             _remoteVideoTrack = event.track as VideoTrack;
           });
@@ -158,21 +160,21 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
       });
       _listener!.on<TrackUnsubscribedEvent>((event) {
         if (event.track is VideoTrack) {
-          _addLog("❌ VIDEO DATALINK LOST");
+          _addLog("VIDEO DATALINK DISCONNECTED");
           setState(() {
             _remoteVideoTrack = null;
           });
         }
       });
 
-      _addLog("CONNECTING TO PILOT DEVICE...");
+      _addLog("INITIALIZING DATALINK...");
       await _room!.connect(_livekitUrl, token);
 
       await _room!.localParticipant?.setMicrophoneEnabled(true);
       await _room!.localParticipant?.setCameraEnabled(false);
       _isMicOn = true;
 
-      _addLog("✅ SECURE DATALINK ESTABLISHED");
+      _addLog("CONNECTION SECURED");
 
       setState(() {
         _isConnected = true;
@@ -180,7 +182,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
         _showLogs = false;
       });
     } catch (e) {
-      _addLog("❌ CONNECTION FAILED: $e");
+      _addLog("CONNECTION ERROR: $e");
       setState(() => _isConnecting = false);
     }
   }
@@ -196,9 +198,9 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
       _isConnected = false;
       _isConnecting = false;
       _remoteVideoTrack = null;
-      _showLogs = true;
+      _showLogs = false; // 🔥 التأكد من عدم ظهوره عند قطع الاتصال
     });
-    _addLog("🛑 DATALINK SEVERED");
+    _addLog("SESSION TERMINATED");
   }
 
   Future<void> _toggleMic() async {
@@ -207,9 +209,9 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
       final newState = !_isMicOn;
       await _room!.localParticipant!.setMicrophoneEnabled(newState);
       setState(() => _isMicOn = newState);
-      _addLog(newState ? "🎤 MIC HOT" : "🔇 MIC MUTED");
+      _addLog(newState ? "MICROPHONE ACTIVE" : "MICROPHONE MUTED");
     } catch (e) {
-      _addLog("❌ MIC ERROR: $e");
+      _addLog("AUDIO INPUT ERROR: $e");
     }
   }
 
@@ -310,6 +312,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                             padding: const EdgeInsets.symmetric(horizontal: 6),
                           ),
 
+                        /* 🔥 تم إخفاء زرار اللوج بالكومنت عشان مايظهرش للمستخدم
                         IconButton(
                           icon: Icon(Icons.terminal,
                               color: _showLogs
@@ -322,6 +325,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                           constraints: const BoxConstraints(),
                           padding: const EdgeInsets.symmetric(horizontal: 6),
                         ),
+                        */
 
                         IconButton(
                           icon: Icon(
@@ -455,6 +459,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                           ),
                         ),
 
+                      /* 🔥 تم إخفاء شاشة اللوج بالكومنت عشان ماتظهرش للمستخدم نهائياً
                       // Logs Overlay
                       if (_showLogs)
                         Positioned(
@@ -474,11 +479,14 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                               itemBuilder: (context, index) {
                                 final msg = _logs[index];
                                 Color textColor = const Color(0xFFA6C2DF);
-                                if (msg.contains("✅") || msg.contains("🚀"))
+                                if (msg.contains("ACTIVE") || msg.contains("SECURED")) {
                                   textColor = const Color(0xFFF09819);
-                                else if (msg.contains("❌") ||
-                                    msg.contains("⚠️"))
+                                } else if (msg.contains("ERROR") ||
+                                    msg.contains("DISCONNECTED") ||
+                                    msg.contains("TERMINATED") ||
+                                    msg.contains("REQUIRED")) {
                                   textColor = Colors.redAccent;
+                                }
 
                                 return Padding(
                                   padding:
@@ -494,6 +502,7 @@ class _FloatingLiveKitUIState extends State<FloatingLiveKitUI> {
                             ),
                           ),
                         ),
+                      */
 
                       // Resize Drag Handle (Bottom Right)
                       if (!_isMaximized)

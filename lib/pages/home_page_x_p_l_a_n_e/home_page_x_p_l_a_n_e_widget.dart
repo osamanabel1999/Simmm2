@@ -19180,19 +19180,6 @@ class _HomePageXPLANEWidgetState extends State<HomePageXPLANEWidget> {
                                             ),
                                           ),
                                         ),
-                                        Expanded(
-                                          child: Container(
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                            child:
-                                                custom_widgets.AnalysisWebView(
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                              initialUrl:
-                                                  'http://${FFAppState().ipPC}:8172',
-                                            ),
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),

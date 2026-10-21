@@ -19791,6 +19791,135 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                           ],
                                         ),
                                       ),
+                                    if (FFAppState().TabNumber == 131)
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              (FFCrossAxisAlignment.stretch)
+                                                  .flutterValue,
+                                          textBaseline: TextBaseline.alphabetic,
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                child: custom_widgets
+                                                    .SystemWebView(
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  initialUrl:
+                                                      'http://${FFAppState().ipPC}:9000',
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    if (FFAppState().TabNumber == 132)
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              (FFCrossAxisAlignment.stretch)
+                                                  .flutterValue,
+                                          textBaseline: TextBaseline.alphabetic,
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                child: custom_widgets
+                                                    .SystemWebView(
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  initialUrl:
+                                                      'http://${FFAppState().ipPC}:9001',
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    if (FFAppState().TabNumber == 133)
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          crossAxisAlignment:
+                                              (FFCrossAxisAlignment.stretch)
+                                                  .flutterValue,
+                                          textBaseline: TextBaseline.alphabetic,
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                child: custom_widgets
+                                                    .CustomFMCWebView(
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  initialUrl:
+                                                      'http://${FFAppState().ipPC}:9004',
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    if (FFAppState().TabNumber == 134)
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          crossAxisAlignment:
+                                              (FFCrossAxisAlignment.stretch)
+                                                  .flutterValue,
+                                          textBaseline: TextBaseline.alphabetic,
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                child: custom_widgets
+                                                    .WeatherWebView(
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  initialUrl:
+                                                      'http://${FFAppState().ipPC}:9006',
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    if (FFAppState().TabNumber == 12)
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          crossAxisAlignment:
+                                              (FFCrossAxisAlignment.stretch)
+                                                  .flutterValue,
+                                          textBaseline: TextBaseline.alphabetic,
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                child: custom_widgets
+                                                    .FailuresWidgetMSFS(
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  serverAddress:
+                                                      'http://${FFAppState().ipPC}:9010',
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -20734,9 +20863,13 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                         'freeze',
                                       );
                                     },
-                                    headTrackerAction: () async {
-                                      context.pushNamed(
-                                          HeadTrackMSFSWidget.routeName);
+                                    systemAction: () async {
+                                      FFAppState().TabNumber = 131;
+                                      safeSetState(() {});
+                                    },
+                                    analysisAction: () async {
+                                      FFAppState().TabNumber = 132;
+                                      safeSetState(() {});
                                     },
                                     pushbackAction: () async {
                                       FFAppState().TabNumber = 5000;
@@ -20754,37 +20887,29 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                       FFAppState().TabNumber = 3;
                                       safeSetState(() {});
                                     },
+                                    weatherAction: () async {
+                                      FFAppState().TabNumber = 134;
+                                      safeSetState(() {});
+                                    },
+                                    headTrackerAction: () async {
+                                      context.pushNamed(
+                                          HeadTrackMSFSWidget.routeName);
+                                    },
                                     failuresAction: () async {
                                       FFAppState().TabNumber = 12;
                                       safeSetState(() {});
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Failures Page is temporarily unavailable for MSFS due to simulator platform restrictions. Active support is currently available for X-Plane.',
-                                            style: TextStyle(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryBackground,
-                                            ),
-                                          ),
-                                          duration:
-                                              Duration(milliseconds: 4000),
-                                          backgroundColor: Color(0xFFE67E22),
-                                        ),
-                                      );
-                                    },
-                                    efbAction: () async {
-                                      context
-                                          .pushNamed(EFBmsfsWidget.routeName);
                                     },
                                     acarsAction: () async {
                                       FFAppState().TabNumber = 130;
                                       safeSetState(() {});
                                     },
-                                    settingsAction: () async {
-                                      FFAppState().TabNumber = 13;
+                                    tcasAction: () async {
+                                      FFAppState().TabNumber = 133;
                                       safeSetState(() {});
+                                    },
+                                    efbAction: () async {
+                                      context
+                                          .pushNamed(EFBmsfsWidget.routeName);
                                     },
                                   ),
                                 ),
@@ -20799,7 +20924,14 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                           EdgeInsetsDirectional.fromSTEB(0.0, 110.0, 0.0, 0.0),
                       child: Stack(
                         children: [
-                          if (FFAppState().TabNumber == 12)
+                          if ((FFAppState().TabNumber == 12) &&
+                              responsiveVisibility(
+                                context: context,
+                                phone: false,
+                                tablet: false,
+                                tabletLandscape: false,
+                                desktop: false,
+                              ))
                             Padding(
                               padding: EdgeInsetsDirectional.fromSTEB(
                                   2.0, 5.0, 0.0, 0.0),
@@ -21618,128 +21750,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                         ],
                       ),
                     ),
-                    if ((FFAppState().TabNumber == 3) &&
-                        responsiveVisibility(
-                          context: context,
-                          phone: false,
-                          tablet: false,
-                          tabletLandscape: false,
-                          desktop: false,
-                        ))
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            7.0, 115.0, 7.0, 0.0),
-                        child: Container(
-                          width: double.infinity,
-                          height: 40.0,
-                          decoration: BoxDecoration(
-                            color: Color(0xFF1769A6),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    FFAppState().FailureSubTab = 30;
-                                    safeSetState(() {});
-                                  },
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 100.0,
-                                    decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 30
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
-                                      border: Border.all(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    child: Align(
-                                      alignment: AlignmentDirectional(0.0, 0.0),
-                                      child: Text(
-                                        'Surface Weather',
-                                        textAlign: TextAlign.center,
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              font: GoogleFonts.inter(
-                                                fontWeight: FontWeight.bold,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.bold,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    FFAppState().FailureSubTab = 31;
-                                    safeSetState(() {});
-                                  },
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 100.0,
-                                    decoration: BoxDecoration(
-                                      color: FFAppState().FailureSubTab == 31
-                                          ? Color(0xA00EE300)
-                                          : FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
-                                      border: Border.all(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    child: Align(
-                                      alignment: AlignmentDirectional(0.0, 0.0),
-                                      child: Text(
-                                        'Clouds Layer',
-                                        textAlign: TextAlign.center,
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              font: GoogleFonts.inter(
-                                                fontWeight: FontWeight.bold,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.bold,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ],

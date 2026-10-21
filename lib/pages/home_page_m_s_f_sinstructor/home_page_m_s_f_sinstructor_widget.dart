@@ -17483,24 +17483,8 @@ class _HomePageMSFSinstructorWidgetState
                                         'MENU_FREEZE',
                                       );
                                     },
-                                    headTrackerAction: () async {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Head Tracker is not supported in Instructor Station.',
-                                            style: TextStyle(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                            ),
-                                          ),
-                                          duration:
-                                              Duration(milliseconds: 4000),
-                                          backgroundColor: Color(0xFFE67E22),
-                                        ),
-                                      );
-                                    },
+                                    systemAction: () async {},
+                                    analysisAction: () async {},
                                     pushbackAction: () async {
                                       await actions.sendLivekitCmdmsfs(
                                         'MENU_PUSHBACK',
@@ -17529,21 +17513,17 @@ class _HomePageMSFSinstructorWidgetState
                                       FFAppState().TabNumber = 3;
                                       safeSetState(() {});
                                     },
-                                    failuresAction: () async {
-                                      await actions.sendLivekitCmdmsfs(
-                                        'MENU_FAILURES',
-                                      );
-                                      FFAppState().TabNumber = 12;
-                                      safeSetState(() {});
+                                    weatherAction: () async {},
+                                    headTrackerAction: () async {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                            'Failures Page is temporarily unavailable for MSFS due to simulator platform restrictions. Active support is currently available for X-Plane.',
+                                            'Head Tracker is not supported in Instructor Station.',
                                             style: TextStyle(
                                               color:
                                                   FlutterFlowTheme.of(context)
-                                                      .primaryBackground,
+                                                      .primaryText,
                                             ),
                                           ),
                                           duration:
@@ -17552,17 +17532,21 @@ class _HomePageMSFSinstructorWidgetState
                                         ),
                                       );
                                     },
-                                    efbAction: () async {
-                                      context
-                                          .pushNamed(EFBmsfsWidget.routeName);
+                                    failuresAction: () async {
+                                      await actions.sendLivekitCmdmsfs(
+                                        'MENU_FAILURES',
+                                      );
+                                      FFAppState().TabNumber = 12;
+                                      safeSetState(() {});
                                     },
                                     acarsAction: () async {
                                       FFAppState().TabNumber = 130;
                                       safeSetState(() {});
                                     },
-                                    settingsAction: () async {
-                                      FFAppState().TabNumber = 13;
-                                      safeSetState(() {});
+                                    tcasAction: () async {},
+                                    efbAction: () async {
+                                      context
+                                          .pushNamed(EFBmsfsWidget.routeName);
                                     },
                                   ),
                                 ),

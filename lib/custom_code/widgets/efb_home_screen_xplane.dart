@@ -1098,20 +1098,21 @@ class _EfbHomeScreenXplaneState extends State<EfbHomeScreenXplane>
   // Apple Style Ticket Widgets (Top)
   // =========================================================================
   Widget _buildPremiumTopWidgets(bool isTablet, BoxConstraints constraints) {
-    final String origin = _simBriefText('origin', 'icao_code', 'HECA');
-    final String dest = _simBriefText('destination', 'icao_code', 'EGLL');
+    // 🔥 تم تعديل كل القيم الوهمية لشرطة (-)
+    final String origin = _simBriefText('origin', 'icao_code', '-');
+    final String dest = _simBriefText('destination', 'icao_code', '-');
     final String schedOut =
         _formatSimBriefTime(_simBriefSection('times', 'sched_out'));
     final String schedIn =
         _formatSimBriefTime(_simBriefSection('times', 'sched_in'));
     final String distance = _formatSimBriefRouteDistance();
     final String zfw = _formatSimBriefWeight('weights', 'est_zfw');
-    final String callsign = _simBriefText('general', 'atc_callsign', 'MSR701');
+    final String callsign = _simBriefText('general', 'atc_callsign', '-');
 
-    final String metarOrigin = _simBriefText('origin', 'icao_code', 'HECA');
-    final String temp = _simBriefTemperature ?? '28° / 16°';
-    final String wind = _simBriefWind ?? '320° 12 KT';
-    final String qnh = _simBriefQnh ?? '1014 hPa';
+    final String metarOrigin = _simBriefText('origin', 'icao_code', '-');
+    final String temp = _simBriefTemperature ?? '-';
+    final String wind = _simBriefWind ?? '-';
+    final String qnh = _simBriefQnh ?? '-';
 
     final Widget flightWidget = AspectRatio(
       aspectRatio: isTablet ? 2.0 : 1.07,

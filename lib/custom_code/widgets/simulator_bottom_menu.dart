@@ -18,34 +18,43 @@ class SimulatorBottomMenu extends StatefulWidget {
     this.positionAction,
     this.pauseAction,
     this.freezeAction,
-    this.headTrackerAction,
+    this.systemAction, // 🔥 زرار جديد
+    this.analysisAction, // 🔥 زرار جديد
     this.pushbackAction,
     this.mapAction,
     this.loadAction,
     this.doorsAction,
+    this.weatherAction, // 🔥 زرار جديد
+    this.headTrackerAction,
     this.failuresAction,
+    this.acarsAction,
+    this.tcasAction, // 🔥 زرار جديد
     this.efbAction,
-    this.acarsAction, // 🔥 أكشن الـ ACARS الجديد
-    this.settingsAction, // 🔥 أكشن الـ SETTINGS اتنقل للآخر
   });
 
   final double? width;
   final double? height;
 
+  // Row 1
   final Future Function()? positionAction;
   final Future Function()? pauseAction;
   final Future Function()? freezeAction;
-  final Future Function()? headTrackerAction;
+  final Future Function()? systemAction;
+  final Future Function()? analysisAction;
 
+  // Row 2
   final Future Function()? pushbackAction;
   final Future Function()? mapAction;
   final Future Function()? loadAction;
   final Future Function()? doorsAction;
+  final Future Function()? weatherAction;
 
+  // Row 3
+  final Future Function()? headTrackerAction;
   final Future Function()? failuresAction;
-  final Future Function()? efbAction;
   final Future Function()? acarsAction;
-  final Future Function()? settingsAction;
+  final Future Function()? tcasAction;
+  final Future Function()? efbAction;
 
   @override
   State<SimulatorBottomMenu> createState() => _SimulatorBottomMenuState();
@@ -56,35 +65,34 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
   int? _pressedIndex;
 
   static const Color _backgroundColor = Color(0xFF0B111A);
-
   static const Color _buttonColor = Color(0xFF101923);
-
   static const Color _buttonBorder = Color(0xFF26364D);
-
   static const Color _selectedColor = Color(0xFF123E72);
-
   static const Color _selectedBorder = Color(0xFF2C83EA);
 
   static const List<String> _labels = [
-    // Row 1
+    // Row 1 (Index 0 to 4)
     'POSITION',
     'PAUSE',
     'FREEZE',
-    'HEAD TRACKER',
-    // Row 2
+    'SYSTEM',
+    'ANALYSIS',
+    // Row 2 (Index 5 to 9)
     'PUSHBACK',
     'MAP',
     'LOAD',
     'DOORS',
-    // Row 3
+    'WEATHER',
+    // Row 3 (Index 10 to 14)
+    'HEAD TRACKER',
     'FAILURES',
+    'ACARS',
+    'TCAS',
     'EFB',
-    'ACARS', // 🔥 مكان الـ ACARS
-    'SETTINGS', // 🔥 مكان الـ SETTINGS الجديد
   ];
 
   bool _isMomentaryButton(int index) {
-    // 🔥 اتلغى الزرار رقم 11 من هنا عشان ينور ويفضل ثابت زيه زي الباقي
+    // Pause (1) and Freeze (2) are momentary buttons
     return index == 1 || index == 2;
   }
 
@@ -137,14 +145,14 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
                 const SizedBox(height: 7.0),
                 Expanded(
                   child: _buildRow(
-                    4, // Starts at index 4
+                    5, // Starts at index 5
                     fontSize,
                   ),
                 ),
                 const SizedBox(height: 7.0),
                 Expanded(
                   child: _buildRow(
-                    8, // Starts at index 8
+                    10, // Starts at index 10
                     fontSize,
                   ),
                 ),
@@ -162,7 +170,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
   ) {
     return Row(
       children: List.generate(
-        4, // 4 items per row
+        5, // 🔥 بقى 5 زراير في كل صف بدل 4
         (column) {
           final index = startIndex + column;
 
@@ -170,7 +178,9 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
             child: Padding(
               padding: EdgeInsets.only(
                 left: column == 0 ? 0 : 3,
-                right: column == 3 ? 0 : 3,
+                right: column == 4
+                    ? 0
+                    : 3, // 🔥 تم تعديل الـ padding للزرار الخامس
               ),
               child: _buildButton(
                 index,
@@ -214,7 +224,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
           _pressedIndex = index;
         });
 
-        // PAUSE / FREEZE
+        // Momentary Buttons (Pause / Freeze)
         if (momentary) {
           await _executeAction(index);
 
@@ -253,14 +263,14 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
           color: selected
               ? _selectedColor
               : pressed
-                  ? const Color(0xFF182A40) // 🔥 الألوان الطبيعية للزرار
+                  ? const Color(0xFF182A40)
                   : _buttonColor,
           borderRadius: BorderRadius.circular(7.0),
           border: Border.all(
             color: selected
                 ? _selectedBorder
                 : pressed
-                    ? const Color(0xFF38587C) // 🔥 إطار طبيعي
+                    ? const Color(0xFF38587C)
                     : _buttonBorder,
             width: selected ? 1.2 : 1.0,
           ),
@@ -280,7 +290,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
               : pressed
                   ? const [
                       BoxShadow(
-                        color: Color(0x33176FD8), // 🔥 ظل طبيعي
+                        color: Color(0x33176FD8),
                         blurRadius: 7.0,
                       ),
                     ]
@@ -302,7 +312,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
                     color: selected
                         ? const Color(0xFFEAF4FF)
                         : pressed
-                            ? const Color(0xFFD5E5F8) // 🔥 لون خط طبيعي
+                            ? const Color(0xFFD5E5F8)
                             : const Color(0xFF9DACC2),
                   ),
                   child: Text(
@@ -323,10 +333,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
                   gradient: const LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0x221E90FF),
-                      Color(0x001E90FF)
-                    ], // 🔥 إضاءة زرقاء طبيعية
+                    colors: [Color(0x221E90FF), Color(0x001E90FF)],
                   ),
                 ),
               ),
@@ -339,52 +346,55 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
 
   Future<void> _executeAction(int index) async {
     switch (index) {
+      // --- Row 1 ---
       case 0:
         await widget.positionAction?.call();
         break;
-
       case 1:
         await widget.pauseAction?.call();
         break;
-
       case 2:
         await widget.freezeAction?.call();
         break;
-
       case 3:
-        await widget.headTrackerAction?.call();
+        await widget.systemAction?.call(); // 🔥 الأكشن الجديد
+        break;
+      case 4:
+        await widget.analysisAction?.call(); // 🔥 الأكشن الجديد
         break;
 
-      case 4:
+      // --- Row 2 ---
+      case 5:
         await widget.pushbackAction?.call();
         break;
-
-      case 5:
+      case 6:
         await widget.mapAction?.call();
         break;
-
-      case 6:
+      case 7:
         await widget.loadAction?.call();
         break;
-
-      case 7:
+      case 8:
         await widget.doorsAction?.call();
         break;
+      case 9:
+        await widget.weatherAction?.call(); // 🔥 الأكشن الجديد
+        break;
 
-      case 8:
+      // --- Row 3 ---
+      case 10:
+        await widget.headTrackerAction?.call();
+        break;
+      case 11:
         await widget.failuresAction?.call();
         break;
-
-      case 9:
+      case 12:
+        await widget.acarsAction?.call();
+        break;
+      case 13:
+        await widget.tcasAction?.call(); // 🔥 الأكشن الجديد
+        break;
+      case 14:
         await widget.efbAction?.call();
-        break;
-
-      case 10:
-        await widget.acarsAction?.call(); // 🔥 الأكشن اتربط بـ ACARS
-        break;
-
-      case 11:
-        await widget.settingsAction?.call(); // 🔥 الأكشن اتربط بـ SETTINGS
         break;
     }
   }

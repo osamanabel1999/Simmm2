@@ -88,7 +88,9 @@ class _FloatingLiveKitUImsfsState extends State<FloatingLiveKitUImsfs> {
   bool _isConnected = false;
   bool _isConnecting = false;
   bool _isMicOn = true;
-  bool _showLogs = true;
+
+  // 🔥 تم تعديلها لـ false عشان اللوج يكون مقفول افتراضياً
+  bool _showLogs = false;
 
   final TextEditingController _roomController = TextEditingController();
   final List<String> _logs = [];
@@ -200,7 +202,7 @@ class _FloatingLiveKitUImsfsState extends State<FloatingLiveKitUImsfs> {
       _isConnected = false;
       _isConnecting = false;
       _remoteVideoTrack = null;
-      _showLogs = true;
+      _showLogs = false; // 🔥 تم التعديل لمنع ظهوره عند الخروج
     });
     _addLog("🛑 DATALINK SEVERED");
   }
@@ -315,6 +317,7 @@ class _FloatingLiveKitUImsfsState extends State<FloatingLiveKitUImsfs> {
                             padding: const EdgeInsets.symmetric(horizontal: 6),
                           ),
 
+                        /* 🔥 تم إخفاء زرار اللوج بالكومنت عشان مايظهرش للناس
                         IconButton(
                           icon: Icon(Icons.terminal,
                               color: _showLogs
@@ -327,6 +330,7 @@ class _FloatingLiveKitUImsfsState extends State<FloatingLiveKitUImsfs> {
                           constraints: const BoxConstraints(),
                           padding: const EdgeInsets.symmetric(horizontal: 6),
                         ),
+                        */
 
                         IconButton(
                           icon: Icon(
@@ -460,6 +464,7 @@ class _FloatingLiveKitUImsfsState extends State<FloatingLiveKitUImsfs> {
                           ),
                         ),
 
+                      /* 🔥 تم إخفاء شاشة اللوج بالكومنت عشان ماتظهرش أبداً
                       // Logs Overlay
                       if (_showLogs)
                         Positioned(
@@ -499,6 +504,7 @@ class _FloatingLiveKitUImsfsState extends State<FloatingLiveKitUImsfs> {
                             ),
                           ),
                         ),
+                      */
 
                       // Resize Drag Handle (Bottom Right)
                       if (!_isMaximized)

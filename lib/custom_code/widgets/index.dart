@@ -75,3 +75,6 @@ export '/custom_code/widgets/world_destinations_widget.dart'
     show WorldDestinationsWidget;
 export '/custom_code/widgets/analysis_web_view.dart' show AnalysisWebView;
 export '/custom_code/widgets/system_web_view.dart' show SystemWebView;
+export '/custom_code/widgets/weather_web_view.dart' show WeatherWebView;
+export '/custom_code/widgets/failures_widget_m_s_f_s.dart'
+    show FailuresWidgetMSFS;
