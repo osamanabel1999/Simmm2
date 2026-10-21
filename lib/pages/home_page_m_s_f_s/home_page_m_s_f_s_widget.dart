@@ -19396,6 +19396,26 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
                                                     );
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          '!!',
+                                                          style: TextStyle(
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primaryText,
+                                                          ),
+                                                        ),
+                                                        duration: Duration(
+                                                            milliseconds: 4000),
+                                                        backgroundColor:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondary,
+                                                      ),
+                                                    );
                                                   },
                                                   onPlane4nmTap: () async {
                                                     await actions
