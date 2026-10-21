@@ -18,7 +18,6 @@ import 'dart:math' as math;
 import 'package:http/http.dart' as http;
 
 /// Native-Flutter counterpart of GSX Ground EFB v0.4.7 (no WebView).
-///
 /// The authoritative service state and all commands remain on GSX/Windows.
 /// Provide the Windows PC's local IPv4 address in ipAddress (port 9050).
 class GSXGroundOperationsWidget extends StatefulWidget {
@@ -149,6 +148,10 @@ class _GSXGroundOperationsWidgetState extends State<GSXGroundOperationsWidget> {
   bool _dialogActive = false;
   String? _lastError;
   Timer? _reloadTimer;
+  Timer? _noticeTimer;
+  String? _noticeMessage;
+  bool _noticeIsError = false;
+  int _noticeSerial = 0;
 
   @override
   void initState() {
@@ -205,6 +208,7 @@ class _GSXGroundOperationsWidgetState extends State<GSXGroundOperationsWidget> {
     _disposed = true;
     _generation++;
     _reloadTimer?.cancel();
+    _noticeTimer?.cancel();
     _client.close();
     _aliasController.dispose();
     _aliasFocus.dispose();
@@ -468,14 +472,120 @@ class _GSXGroundOperationsWidgetState extends State<GSXGroundOperationsWidget> {
     await _menuCommand('menu.pick', {'index': index, 'expected': expected});
   }
 
+  // Present feedback entirely inside this widget, without a global banner.
+  // Service messages stay as they were; raw technical errors are not shown.
+  String _noticeText(String message, {required bool error}) {
+    final clean = message.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (clean.isEmpty) {
+      return error ? 'Unable to complete this action.' : 'Action completed.';
+    }
+    final internal = RegExp(
+      r'(https?://|/api/|\b(?:API|HTTP|JSON|WebSocket|SimConnect|'
+      r'endpoint|payload|Exception|Traceback|StackTrace)\b|'
+      r'\b[a-z][a-z0-9]*_[a-z0-9_]+\b|[{}])',
+      caseSensitive: false,
+    );
+    if (internal.hasMatch(clean)) {
+      return error
+          ? 'Unable to complete this action. Please try again.'
+          : 'Action completed.';
+    }
+    return clean;
+  }
+
   void _toast(String message, {bool error = false}) {
     if (!mounted) return;
-    ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
-      content: Text(message,
-          style: const TextStyle(color: _GsxStyle.white, fontSize: 12)),
-      backgroundColor: error ? _GsxStyle.redBg : _GsxStyle.selected,
-      duration: const Duration(seconds: 3),
-    ));
+    _noticeTimer?.cancel();
+    setState(() {
+      _noticeMessage = _noticeText(message, error: error);
+      _noticeIsError = error;
+      _noticeSerial++;
+    });
+    _noticeTimer = Timer(const Duration(milliseconds: 2400), () {
+      if (!mounted || _disposed) return;
+      setState(() => _noticeMessage = null);
+    });
+  }
+
+  Widget _inlineNotice(double viewWidth) {
+    final compact = viewWidth < 540;
+    final tone = _noticeIsError ? _GsxStyle.danger : _GsxStyle.accent;
+    return Positioned(
+      right: compact ? 12 : 20,
+      left: compact ? 12 : null,
+      bottom: compact ? 12 : 18,
+      child: IgnorePointer(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          reverseDuration: const Duration(milliseconds: 150),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.04, 0.14),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          ),
+          child: _noticeMessage == null
+              ? const SizedBox.shrink(key: ValueKey<String>('notice-hidden'))
+              : Container(
+                  key: ValueKey<int>(_noticeSerial),
+                  constraints: BoxConstraints(
+                    maxWidth: compact
+                        ? math.max<double>(1.0, viewWidth - 24.0)
+                        : math.min<double>(
+                            390.0, math.max<double>(1.0, viewWidth - 40.0)),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(12, 10, 14, 10),
+                  decoration: BoxDecoration(
+                    color: _GsxStyle.card,
+                    borderRadius: BorderRadius.circular(9),
+                    border: Border(
+                      left: BorderSide(color: tone, width: 3),
+                      top: const BorderSide(color: _GsxStyle.border),
+                      right: const BorderSide(color: _GsxStyle.border),
+                      bottom: const BorderSide(color: _GsxStyle.border),
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x66000000),
+                        blurRadius: 16,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _noticeIsError
+                            ? Icons.error_outline_rounded
+                            : Icons.check_circle_outline_rounded,
+                        size: 17,
+                        color: tone,
+                      ),
+                      const SizedBox(width: 9),
+                      Flexible(
+                        child: Text(
+                          _noticeMessage!,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: _GsxStyle.white,
+                            fontSize: 11.5,
+                            height: 1.35,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+        ),
+      ),
+    );
   }
 
   void _changeTab(int index) {
@@ -1994,62 +2104,66 @@ class _GSXGroundOperationsWidgetState extends State<GSXGroundOperationsWidget> {
         height: height,
         child: Material(
             color: _GsxStyle.bg,
-            child: LayoutBuilder(builder: (context, available) {
-              final logicalWidth = available.maxWidth;
-              final double contentWidth = math.max<double>(
-                  0.0,
-                  math.min<double>(
-                      logicalWidth - (logicalWidth < 500 ? 20 : 36), 1510.0));
-              return Column(children: [
-                _header(logicalWidth),
-                Expanded(
-                  child: _base.isEmpty
-                      ? Center(
-                          child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _text(
-                                  'Set the ipAddress parameter to the Windows PC LAN IP.',
-                                  color: _GsxStyle.muted,
-                                  align: TextAlign.center)))
-                      : SingleChildScrollView(
-                          controller: _scroll,
-                          physics: const BouncingScrollPhysics(),
-                          child: Align(
-                              alignment: Alignment.topCenter,
-                              child: Container(
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 1510),
-                                  padding: EdgeInsets.fromLTRB(
-                                      logicalWidth < 500 ? 10 : 18,
-                                      16,
-                                      logicalWidth < 500 ? 10 : 18,
-                                      22),
-                                  width: double.infinity,
-                                  child: KeyedSubtree(
-                                      key: _pageKey,
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
-                                          children: [
-                                            if (_lastError != null &&
-                                                !_connected) ...[
-                                              _card(
-                                                  child: _text(
-                                                      'Awaiting GSX Bridge on Windows…',
-                                                      color: _GsxStyle.muted)),
-                                              const SizedBox(height: 12),
-                                            ],
-                                            if (_screen == 0)
-                                              _quickScreen(contentWidth)
-                                            else if (_screen == 1)
-                                              _manualScreen(contentWidth)
-                                            else if (_screen == 2)
-                                              _settingsScreen(contentWidth)
-                                            else
-                                              _billingScreen(contentWidth),
-                                          ]))))),
-                ),
-              ]);
-            })));
+            child: Stack(children: [
+              LayoutBuilder(builder: (context, available) {
+                final logicalWidth = available.maxWidth;
+                final double contentWidth = math.max<double>(
+                    0.0,
+                    math.min<double>(
+                        logicalWidth - (logicalWidth < 500 ? 20 : 36), 1510.0));
+                return Column(children: [
+                  _header(logicalWidth),
+                  Expanded(
+                    child: _base.isEmpty
+                        ? Center(
+                            child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: _text(
+                                    'Set the ipAddress parameter to the Windows PC LAN IP.',
+                                    color: _GsxStyle.muted,
+                                    align: TextAlign.center)))
+                        : SingleChildScrollView(
+                            controller: _scroll,
+                            physics: const BouncingScrollPhysics(),
+                            child: Align(
+                                alignment: Alignment.topCenter,
+                                child: Container(
+                                    constraints:
+                                        const BoxConstraints(maxWidth: 1510),
+                                    padding: EdgeInsets.fromLTRB(
+                                        logicalWidth < 500 ? 10 : 18,
+                                        16,
+                                        logicalWidth < 500 ? 10 : 18,
+                                        22),
+                                    width: double.infinity,
+                                    child: KeyedSubtree(
+                                        key: _pageKey,
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.stretch,
+                                            children: [
+                                              if (_lastError != null &&
+                                                  !_connected) ...[
+                                                _card(
+                                                    child: _text(
+                                                        'Awaiting GSX Bridge on Windows…',
+                                                        color:
+                                                            _GsxStyle.muted)),
+                                                const SizedBox(height: 12),
+                                              ],
+                                              if (_screen == 0)
+                                                _quickScreen(contentWidth)
+                                              else if (_screen == 1)
+                                                _manualScreen(contentWidth)
+                                              else if (_screen == 2)
+                                                _settingsScreen(contentWidth)
+                                              else
+                                                _billingScreen(contentWidth),
+                                            ]))))),
+                  ),
+                ]);
+              }),
+              _inlineNotice(width),
+            ])));
   }
 }

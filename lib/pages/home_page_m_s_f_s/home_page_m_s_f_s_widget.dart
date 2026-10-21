@@ -1313,51 +1313,21 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                           mainAxisSize: MainAxisSize.max,
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              (FFCrossAxisAlignment.stretch)
+                                                  .flutterValue,
+                                          textBaseline: TextBaseline.alphabetic,
                                           children: [
                                             Expanded(
                                               child: Container(
                                                 width: double.infinity,
                                                 height: double.infinity,
                                                 child: custom_widgets
-                                                    .AircraftServicesWidget(
+                                                    .AircraftDoorsWidget(
                                                   width: double.infinity,
                                                   height: double.infinity,
-                                                  onMainDoorToggle: () async {
-                                                    await actions
-                                                        .groundServicesAndDoorsController(
-                                                      FFAppState().ipPC,
-                                                      'main_door',
-                                                    );
-                                                  },
-                                                  onCargoDoorToggle: () async {
-                                                    await actions
-                                                        .groundServicesAndDoorsController(
-                                                      FFAppState().ipPC,
-                                                      'cargo_door',
-                                                    );
-                                                  },
-                                                  onServiceDoorToggle:
-                                                      () async {
-                                                    await actions
-                                                        .groundServicesAndDoorsController(
-                                                      FFAppState().ipPC,
-                                                      'service_door',
-                                                    );
-                                                  },
-                                                  onToggleAllDoors: () async {
-                                                    await actions
-                                                        .groundServicesAndDoorsController(
-                                                      FFAppState().ipPC,
-                                                      'all_doors',
-                                                    );
-                                                  },
-                                                  onJetwayToggle: () async {
-                                                    await actions
-                                                        .groundServicesAndDoorsController(
-                                                      FFAppState().ipPC,
-                                                      'jetway',
-                                                    );
-                                                  },
+                                                  ipAddress:
+                                                      'http://${FFAppState().ipPC}:9005',
                                                 ),
                                               ),
                                             ),

@@ -80,3 +80,5 @@ export '/custom_code/widgets/failures_widget_m_s_f_s.dart'
     show FailuresWidgetMSFS;
 export '/custom_code/widgets/g_s_x_ground_operations_widget.dart'
     show GSXGroundOperationsWidget;
+export '/custom_code/widgets/aircraft_doors_widget.dart'
+    show AircraftDoorsWidget;
