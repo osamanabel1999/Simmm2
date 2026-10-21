@@ -16051,71 +16051,11 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                 width: double.infinity,
                                                 height: double.infinity,
                                                 child: custom_widgets
-                                                    .PushbackController(
+                                                    .GSXGroundOperationsWidget(
                                                   width: double.infinity,
                                                   height: double.infinity,
-                                                  onConnect: () async {
-                                                    await actions
-                                                        .sendPushbackCommand(
-                                                      FFAppState().ipPC,
-                                                      'connect',
-                                                    );
-                                                  },
-                                                  onDisconnect: () async {
-                                                    await actions
-                                                        .sendPushbackCommand(
-                                                      FFAppState().ipPC,
-                                                      'disconnect',
-                                                    );
-                                                  },
-                                                  onStop: () async {
-                                                    await actions
-                                                        .sendPushbackCommand(
-                                                      FFAppState().ipPC,
-                                                      'disconnect',
-                                                    );
-                                                  },
-                                                  onStraight: () async {},
-                                                  onTailLeft: () async {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          'Lateral pushback steering is currently unavailable for this aircraft.',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            Color(0xFFE67E22),
-                                                      ),
-                                                    );
-                                                  },
-                                                  onTailRight: () async {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          'Lateral pushback steering is currently unavailable for this aircraft.',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            Color(0xFFE67E22),
-                                                      ),
-                                                    );
-                                                  },
+                                                  ipAddress:
+                                                      'http://${FFAppState().ipPC}:9050',
                                                 ),
                                               ),
                                             ),

@@ -307,7 +307,9 @@ class _FailuresWidgetMSFSState extends State<FailuresWidgetMSFS> {
     final id = item.id.toLowerCase();
     final label = item.label.toLowerCase();
     final cat = item.category.toLowerCase();
-    if (id.contains('apu') || label.contains('apu') || cat.contains('apu')) {
+    if (id.contains('apu') ||
+        label.contains('apu') ||
+        (cat.contains('apu') && !cat.contains('engine'))) {
       return 'APU';
     }
     if (id.contains('flap') || label.contains('flap') || cat.contains('flap')) {
@@ -347,6 +349,8 @@ class _FailuresWidgetMSFSState extends State<FailuresWidgetMSFS> {
     if (cat.contains('navigation') ||
         cat == 'nav' ||
         id.startsWith('nav_') ||
+        id.startsWith('panel_nav_') ||
+        id.startsWith('panel_adf_') ||
         label.contains('navigation')) {
       return 'NAVIGATION';
     }

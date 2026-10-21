@@ -78,3 +78,5 @@ export '/custom_code/widgets/system_web_view.dart' show SystemWebView;
 export '/custom_code/widgets/weather_web_view.dart' show WeatherWebView;
 export '/custom_code/widgets/failures_widget_m_s_f_s.dart'
     show FailuresWidgetMSFS;
+export '/custom_code/widgets/g_s_x_ground_operations_widget.dart'
+    show GSXGroundOperationsWidget;
