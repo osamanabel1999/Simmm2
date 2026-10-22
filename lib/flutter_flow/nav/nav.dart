@@ -320,16 +320,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => EFBappPagesWidget(),
         ),
         FFRoute(
-          name: IOSinstructorWidget.routeName,
-          path: IOSinstructorWidget.routePath,
-          builder: (context, params) => IOSinstructorWidget(),
-        ),
-        FFRoute(
-          name: IOSpilottWidget.routeName,
-          path: IOSpilottWidget.routePath,
-          builder: (context, params) => IOSpilottWidget(),
-        ),
-        FFRoute(
           name: HomePageXPLANEinstructorWidget.routeName,
           path: HomePageXPLANEinstructorWidget.routePath,
           builder: (context, params) => HomePageXPLANEinstructorWidget(),

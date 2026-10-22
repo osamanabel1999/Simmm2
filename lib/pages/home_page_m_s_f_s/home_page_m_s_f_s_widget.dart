@@ -21695,23 +21695,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                 ),
               ],
             ),
-            if (FFAppState().TabNumber == 1200)
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(5.0, 125.0, 5.0, 0.0),
-                child: Container(
-                  width: double.infinity,
-                  height: 230.0,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xCF14181B), Color(0x0014181B)],
-                      stops: [0.0, 1.0],
-                      begin: AlignmentDirectional(0.0, 1.0),
-                      end: AlignmentDirectional(0, -1.0),
-                    ),
-                    borderRadius: BorderRadius.circular(0.0),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
