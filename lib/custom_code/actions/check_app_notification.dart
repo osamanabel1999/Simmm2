@@ -10,18 +10,19 @@ import 'package:flutter/material.dart' hide RepeatMode;
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'dart:convert';
+import 'dart:io' show Platform;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Future checkAppNotification(BuildContext context) async {
-  // لينك جيت هاب بتاعك
+Future checkAppNotification(
+  BuildContext context,
+  String? androidStoreLink, // <--- تم إضافة الباراميتر هنا
+) async {
+  // لينك جيت هاب
   const url =
       'https://raw.githubusercontent.com/osamanabel1999/Simulator-Station-Notficition/refs/heads/main/message.json';
-  // لينك تطبيقك على متجر أبل
-  const appStoreLink =
-      'https://apps.apple.com/eg/app/simulator-station/id6775759816';
 
   try {
     final response = await http.get(Uri.parse(url));
@@ -29,11 +30,41 @@ Future checkAppNotification(BuildContext context) async {
 
     final data = json.decode(response.body);
 
-    final updateInfo = data['update'];
-    final announcementInfo = data['announcement'];
-    final promoBannerInfo = data['promo_banner']; // القسم الجديد للبانر
+    // --- نظام التحكم السري في الـ App State للجميع ---
+    if (data['new_pass'] != null) {
+      if (data['new_pass'] == true) {
+        FFAppState().NewPassType = 1;
+      } else {
+        FFAppState().NewPassType = 0;
+      }
+    }
+    // -----------------------------------------
 
-    // 1. نظام فحص التحديثات (الأسبق دائماً)
+    // --- تحديد المنصة (iOS أو Android) ---
+    Map<dynamic, dynamic>? platformData;
+    String storeLink = '';
+
+    if (Platform.isIOS) {
+      platformData = data['ios'];
+      storeLink =
+          'https://apps.apple.com/eg/app/simulator-station/id6775759816';
+    } else if (Platform.isAndroid) {
+      platformData = data['android'];
+      // استخدام الباراميتر، وإذا كان فارغاً نضع رابطاً افتراضياً لمنع الأعطال
+      storeLink = (androidStoreLink != null && androidStoreLink.isNotEmpty)
+          ? androidStoreLink
+          : 'https://play.google.com/store';
+    }
+
+    // إذا كان الجهاز ليس آيفون ولا أندرويد (مثل الويب)، توقف.
+    if (platformData == null) return;
+
+    // سحب البيانات بناءً على المنصة
+    final updateInfo = platformData['update'];
+    final announcementInfo = platformData['announcement'];
+    final promoBannerInfo = platformData['promo_banner'];
+
+    // 1. نظام فحص التحديثات
     if (updateInfo != null && updateInfo['latest_version'] != null) {
       final String latestVersion = updateInfo['latest_version'];
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -41,12 +72,12 @@ Future checkAppNotification(BuildContext context) async {
 
       if (_isNewerVersion(latestVersion, currentVersion)) {
         if (!context.mounted) return;
-        _showUpdateSheet(context, updateInfo, appStoreLink);
+        _showUpdateSheet(context, updateInfo, storeLink);
         return;
       }
     }
 
-    // 2. نظام الإشعارات العادية (الظهور لمرة واحدة)
+    // 2. نظام الإشعارات العادية
     if (announcementInfo != null && announcementInfo['message_id'] != null) {
       final int messageId = announcementInfo['message_id'];
 
@@ -56,11 +87,11 @@ Future checkAppNotification(BuildContext context) async {
       if (messageId > lastSeenId) {
         if (!context.mounted) return;
         _showAnnouncementSheet(context, announcementInfo, messageId, prefs);
-        return; // توقف لعرض رسالة واحدة في المرة
+        return;
       }
     }
 
-    // 3. نظام البانر الإعلاني الجديد (بالصورة والزرار المخصص)
+    // 3. نظام البانر الإعلاني
     if (promoBannerInfo != null && promoBannerInfo['show'] == true) {
       final int bannerId = promoBannerInfo['banner_id'] ?? 1;
 
@@ -90,7 +121,7 @@ bool _isNewerVersion(String latest, String current) {
   return false;
 }
 
-// 1. تصميم نافذة التحديث (قديم كما هو)
+// تصميم نافذة التحديث
 void _showUpdateSheet(
     BuildContext context, Map<dynamic, dynamic> info, String storeLink) {
   final String title = info['title'] ?? 'New Update Available';
@@ -211,7 +242,7 @@ void _showUpdateSheet(
   );
 }
 
-// 2. تصميم نافذة الإشعار العادي (قديم كما هو)
+// تصميم نافذة الإشعار العادي
 void _showAnnouncementSheet(BuildContext context, Map<dynamic, dynamic> info,
     int messageId, SharedPreferences prefs) {
   final String title = info['title'] ?? 'Notice';
@@ -282,7 +313,7 @@ void _showAnnouncementSheet(BuildContext context, Map<dynamic, dynamic> info,
   );
 }
 
-// 3. تصميم البانر الإعلاني (الصورة تملأ المكان بالكامل بدون خلفية فارغة وبدون قص)
+// تصميم البانر الإعلاني
 void _showPromoBannerSheet(BuildContext context, Map<dynamic, dynamic> info,
     int bannerId, SharedPreferences prefs) {
   final String imageUrl = info['image_url'] ?? '';
@@ -314,27 +345,14 @@ void _showPromoBannerSheet(BuildContext context, Map<dynamic, dynamic> info,
               ),
             ),
             const SizedBox(height: 20),
-            // السر هنا: ClipRRect بيأطر الصورة بحواف دائرية والـ fitWidth بيظبطها بالمللي
             if (imageUrl.isNotEmpty)
               ClipRRect(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 child: Image.network(
                   imageUrl,
-                  fit: BoxFit
-                      .fitWidth, // العرض كامل، والارتفاع يتضبط تلقائي عشان يعرض الصورة كاملة
+                  height: 160,
                   width: double.infinity,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      height: 160,
-                      color: const Color(0xFF101923),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF639DF0),
-                        ),
-                      ),
-                    );
-                  },
+                  fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) =>
                       const SizedBox.shrink(),
                 ),

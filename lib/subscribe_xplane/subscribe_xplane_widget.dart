@@ -7,6 +7,7 @@ import '/flutter_flow/revenue_cat_util.dart' as revenue_cat;
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'subscribe_xplane_model.dart';
 export 'subscribe_xplane_model.dart';
 
@@ -40,6 +41,8 @@ class _SubscribeXplaneWidgetState extends State<SubscribeXplaneWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -90,110 +93,111 @@ class _SubscribeXplaneWidgetState extends State<SubscribeXplaneWidget> {
         body: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                child: custom_widgets.Bfmccheckout(
+            if (FFAppState().NewPassType == 0)
+              Expanded(
+                child: Container(
                   width: double.infinity,
                   height: double.infinity,
-                  monthlyPrice: revenue_cat.offerings!.current!
-                      .getPackage('xplane_monthly')!
-                      .storeProduct
-                      .priceString,
-                  yearlyPrice: revenue_cat.offerings!.current!
-                      .getPackage('xplane_yearly')!
-                      .storeProduct
-                      .priceString,
-                  lifetimePrice: revenue_cat.offerings!.current!
-                      .getPackage('xplane_lifetime')!
-                      .storeProduct
-                      .priceString,
-                  onBuyMonthly: () async {
-                    _model.xplanemonthly =
-                        await revenue_cat.purchasePackage('xplane_monthly');
-                    if (_model.xplanemonthly == true) {
-                      context.pushNamed(IPpageXplaneWidget.routeName);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Payment failed or was cancelled. Please try again.',
-                            style: TextStyle(
-                              color: FlutterFlowTheme.of(context).primaryText,
+                  child: custom_widgets.Bfmccheckout(
+                    width: double.infinity,
+                    height: double.infinity,
+                    monthlyPrice: revenue_cat.offerings!.current!
+                        .getPackage('xplane_monthly')!
+                        .storeProduct
+                        .priceString,
+                    yearlyPrice: revenue_cat.offerings!.current!
+                        .getPackage('xplane_yearly')!
+                        .storeProduct
+                        .priceString,
+                    lifetimePrice: revenue_cat.offerings!.current!
+                        .getPackage('xplane_lifetime')!
+                        .storeProduct
+                        .priceString,
+                    onBuyMonthly: () async {
+                      _model.xplanemonthly =
+                          await revenue_cat.purchasePackage('xplane_monthly');
+                      if (_model.xplanemonthly == true) {
+                        context.pushNamed(IPpageXplaneWidget.routeName);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Payment failed or was cancelled. Please try again.',
+                              style: TextStyle(
+                                color: FlutterFlowTheme.of(context).primaryText,
+                              ),
                             ),
+                            duration: Duration(milliseconds: 4000),
+                            backgroundColor:
+                                FlutterFlowTheme.of(context).primaryBackground,
                           ),
-                          duration: Duration(milliseconds: 4000),
-                          backgroundColor:
-                              FlutterFlowTheme.of(context).primaryBackground,
-                        ),
-                      );
-                    }
+                        );
+                      }
 
-                    safeSetState(() {});
-                  },
-                  onBuyYearly: () async {
-                    _model.xplaneyearly =
-                        await revenue_cat.purchasePackage('xplane_yearly');
-                    if (_model.xplaneyearly == true) {
-                      context.pushNamed(IPpageXplaneWidget.routeName);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Payment failed or was cancelled. Please try again.',
-                            style: TextStyle(
-                              color: FlutterFlowTheme.of(context).primaryText,
+                      safeSetState(() {});
+                    },
+                    onBuyYearly: () async {
+                      _model.xplaneyearly =
+                          await revenue_cat.purchasePackage('xplane_yearly');
+                      if (_model.xplaneyearly == true) {
+                        context.pushNamed(IPpageXplaneWidget.routeName);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Payment failed or was cancelled. Please try again.',
+                              style: TextStyle(
+                                color: FlutterFlowTheme.of(context).primaryText,
+                              ),
                             ),
+                            duration: Duration(milliseconds: 4000),
+                            backgroundColor:
+                                FlutterFlowTheme.of(context).primaryBackground,
                           ),
-                          duration: Duration(milliseconds: 4000),
-                          backgroundColor:
-                              FlutterFlowTheme.of(context).primaryBackground,
-                        ),
-                      );
-                    }
+                        );
+                      }
 
-                    safeSetState(() {});
-                  },
-                  onBuyLifetime: () async {
-                    _model.xplaneLifetime =
-                        await revenue_cat.purchasePackage('xplane_lifetime');
-                    if (_model.xplaneLifetime == true) {
-                      context.pushNamed(IPpageXplaneWidget.routeName);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Payment failed or was cancelled. Please try again.',
-                            style: TextStyle(
-                              color: FlutterFlowTheme.of(context).primaryText,
+                      safeSetState(() {});
+                    },
+                    onBuyLifetime: () async {
+                      _model.xplaneLifetime =
+                          await revenue_cat.purchasePackage('xplane_lifetime');
+                      if (_model.xplaneLifetime == true) {
+                        context.pushNamed(IPpageXplaneWidget.routeName);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Payment failed or was cancelled. Please try again.',
+                              style: TextStyle(
+                                color: FlutterFlowTheme.of(context).primaryText,
+                              ),
                             ),
+                            duration: Duration(milliseconds: 4000),
+                            backgroundColor:
+                                FlutterFlowTheme.of(context).primaryBackground,
                           ),
-                          duration: Duration(milliseconds: 4000),
-                          backgroundColor:
-                              FlutterFlowTheme.of(context).primaryBackground,
-                        ),
-                      );
-                    }
+                        );
+                      }
 
-                    safeSetState(() {});
-                  },
-                  onContactUs: () async {
-                    await launchURL('https://discord.gg/3jJkuQeKaz');
-                  },
-                  onBuyBothSims: () async {
-                    context
-                        .pushNamed(SubscribePackageXplaneMSFSWidget.routeName);
-                  },
-                  onTermsOfUse: () async {
-                    context.pushNamed(TermsOFuseWidget.routeName);
-                  },
-                  onPrivacyPolicy: () async {
-                    context.pushNamed(PrivacyPolicyPageWidget.routeName);
-                  },
+                      safeSetState(() {});
+                    },
+                    onContactUs: () async {
+                      await launchURL('https://discord.gg/3jJkuQeKaz');
+                    },
+                    onBuyBothSims: () async {
+                      context.pushNamed(
+                          SubscribePackageXplaneMSFSWidget.routeName);
+                    },
+                    onTermsOfUse: () async {
+                      context.pushNamed(TermsOFuseWidget.routeName);
+                    },
+                    onPrivacyPolicy: () async {
+                      context.pushNamed(PrivacyPolicyPageWidget.routeName);
+                    },
+                  ),
                 ),
               ),
-            ),
             if (responsiveVisibility(
               context: context,
               phone: false,
@@ -207,6 +211,57 @@ class _SubscribeXplaneWidgetState extends State<SubscribeXplaneWidget> {
                 showsTestAd: false,
                 iOSAdUnitID: 'ca-app-pub-7880697829268273/6177072322',
                 androidAdUnitID: 'ca-app-pub-7880697829268273/5581116466',
+              ),
+            if (FFAppState().NewPassType == 1)
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: custom_widgets.XplaneCheckoutLifetimeOnly(
+                    width: double.infinity,
+                    height: double.infinity,
+                    lifetimePrice: revenue_cat.offerings!.current!
+                        .getPackage('xplane_lifetime')!
+                        .storeProduct
+                        .priceString,
+                    onBuyLifetime: () async {
+                      _model.xplaneLifetime2 =
+                          await revenue_cat.purchasePackage('xplane_lifetime');
+                      if (_model.xplaneLifetime2 == true) {
+                        context.pushNamed(IPpageXplaneWidget.routeName);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Payment failed or was cancelled. Please try again.',
+                              style: TextStyle(
+                                color: FlutterFlowTheme.of(context).primaryText,
+                              ),
+                            ),
+                            duration: Duration(milliseconds: 4000),
+                            backgroundColor:
+                                FlutterFlowTheme.of(context).primaryBackground,
+                          ),
+                        );
+                      }
+
+                      safeSetState(() {});
+                    },
+                    onContactUs: () async {
+                      await launchURL('https://discord.gg/3jJkuQeKaz');
+                    },
+                    onBuyBothSims: () async {
+                      context.pushNamed(
+                          SubscribePackageXplaneMSFSWidget.routeName);
+                    },
+                    onTermsOfUse: () async {
+                      context.pushNamed(TermsOFuseWidget.routeName);
+                    },
+                    onPrivacyPolicy: () async {
+                      context.pushNamed(PrivacyPolicyPageWidget.routeName);
+                    },
+                  ),
+                ),
               ),
           ],
         ),

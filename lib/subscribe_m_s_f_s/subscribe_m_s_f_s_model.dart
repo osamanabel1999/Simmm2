@@ -12,6 +12,8 @@ class SubscribeMSFSModel extends FlutterFlowModel<SubscribeMSFSWidget> {
   bool? mSFSyearly;
   // Stores action output result for [RevenueCat - Purchase] action in Msfscheckout widget.
   bool? mSFSLifTime;
+  // Stores action output result for [RevenueCat - Purchase] action in MsfsCheckoutLifetimeOnly widget.
+  bool? mSFSLifTime2;
 
   @override
   void initState(BuildContext context) {}

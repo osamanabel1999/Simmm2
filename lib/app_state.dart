@@ -894,6 +894,12 @@ class FFAppState extends ChangeNotifier {
   set targetSPDworldTourmsfs(double value) {
     _targetSPDworldTourmsfs = value;
   }
+
+  int _NewPassType = 0;
+  int get NewPassType => _NewPassType;
+  set NewPassType(int value) {
+    _NewPassType = value;
+  }
 }
 
 void _safeInit(Function() initializeField) {

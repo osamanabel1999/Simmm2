@@ -33,6 +33,7 @@ class _HomeMenuWidgetState extends State<HomeMenuWidget> {
       await actions.enableImmersiveMode();
       await actions.checkAppNotification(
         context,
+        'https://play.google.com/store/apps/details?id=com.captain.simulatorfly',
       );
     });
   }

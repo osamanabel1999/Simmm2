@@ -78,7 +78,7 @@ class _SimulatorBottomMenuState extends State<SimulatorBottomMenu> {
     'SYSTEM',
     'ANALYSIS',
     // Row 2 (Index 5 to 9)
-    'PUSHBACK',
+    'GROUND OPS',
     'MAP',
     'LOAD',
     'DOORS',

@@ -14,6 +14,8 @@ class SubscribePackageXplaneMSFSModel
   bool? mSFSandXplaneyearly1;
   // Stores action output result for [RevenueCat - Purchase] action in UltimateBundleCheckout widget.
   bool? mSFSandXplaneLifetime;
+  // Stores action output result for [RevenueCat - Purchase] action in BothSimLifetime widget.
+  bool? mSFSandXplaneLifetime2;
 
   @override
   void initState(BuildContext context) {}

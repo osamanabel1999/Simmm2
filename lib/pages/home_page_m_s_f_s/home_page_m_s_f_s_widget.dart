@@ -19184,26 +19184,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       'gate',
                                                       0.0,
                                                     );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
-                                                    );
 
                                                     safeSetState(() {});
                                                   },
@@ -19255,26 +19235,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           3.28084,
                                                       'gate',
                                                       0.0,
-                                                    );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
                                                     );
 
                                                     safeSetState(() {});
@@ -19388,26 +19348,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
                                                     );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
-                                                    );
                                                   },
                                                   onPlane10nmTap: () async {
                                                     await actions
@@ -19431,26 +19371,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       'final_10nm',
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
-                                                    );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
                                                     );
                                                   },
                                                   onPlane7nmTap: () async {
@@ -19476,26 +19396,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
                                                     );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
-                                                    );
                                                   },
                                                   onPlane4nmTap: () async {
                                                     await actions
@@ -19513,26 +19413,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                           3.28084,
                                                       'takeoff',
                                                       0.0,
-                                                    );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
                                                     );
                                                   },
                                                   onPlaneHoldLeftTap: () async {
@@ -19561,26 +19441,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
                                                     );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
-                                                    );
                                                   },
                                                   onPlaneHoldRightTap:
                                                       () async {
@@ -19608,26 +19468,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       'right_base',
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
-                                                    );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
                                                     );
                                                   },
                                                   onPlaneLeftDownwindTap:
@@ -19664,26 +19504,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
                                                     );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
-                                                    );
                                                   },
                                                   onPlaneRightDownwindTap:
                                                       () async {
@@ -19719,26 +19539,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
                                                     );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
-                                                    );
                                                   },
                                                   onPlaneCruiseTap: () async {
                                                     await actions
@@ -19762,26 +19562,6 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       'cruise',
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
-                                                    );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          '!!',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondary,
-                                                      ),
                                                     );
                                                   },
                                                 ),
@@ -20044,6 +19824,30 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                   height: double.infinity,
                                                   serverAddress:
                                                       'http://${FFAppState().ipPC}:9010',
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    if (FFAppState().TabNumber == 123456)
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          crossAxisAlignment:
+                                              (FFCrossAxisAlignment.stretch)
+                                                  .flutterValue,
+                                          textBaseline: TextBaseline.alphabetic,
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                child: custom_widgets
+                                                    .HeadTrackerWidgetMSFS(
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  targetIp: FFAppState().ipPC,
                                                 ),
                                               ),
                                             ),
@@ -21022,8 +20826,8 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                       safeSetState(() {});
                                     },
                                     headTrackerAction: () async {
-                                      context.pushNamed(
-                                          HeadTrackMSFSWidget.routeName);
+                                      FFAppState().TabNumber = 123456;
+                                      safeSetState(() {});
                                     },
                                     failuresAction: () async {
                                       FFAppState().TabNumber = 12;

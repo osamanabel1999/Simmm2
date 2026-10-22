@@ -82,3 +82,8 @@ export '/custom_code/widgets/g_s_x_ground_operations_widget.dart'
     show GSXGroundOperationsWidget;
 export '/custom_code/widgets/aircraft_doors_widget.dart'
     show AircraftDoorsWidget;
+export '/custom_code/widgets/msfs_checkout_lifetime_only.dart'
+    show MsfsCheckoutLifetimeOnly;
+export '/custom_code/widgets/both_sim_lifetime.dart' show BothSimLifetime;
+export '/custom_code/widgets/xplane_checkout_lifetime_only.dart'
+    show XplaneCheckoutLifetimeOnly;
