@@ -19664,6 +19664,26 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
                                                     );
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          '!!',
+                                                          style: TextStyle(
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primaryText,
+                                                          ),
+                                                        ),
+                                                        duration: Duration(
+                                                            milliseconds: 4000),
+                                                        backgroundColor:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondary,
+                                                      ),
+                                                    );
                                                   },
                                                   onPlaneRightDownwindTap:
                                                       () async {
@@ -19699,6 +19719,26 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
                                                     );
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          '!!',
+                                                          style: TextStyle(
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primaryText,
+                                                          ),
+                                                        ),
+                                                        duration: Duration(
+                                                            milliseconds: 4000),
+                                                        backgroundColor:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondary,
+                                                      ),
+                                                    );
                                                   },
                                                   onPlaneCruiseTap: () async {
                                                     await actions
@@ -19722,6 +19762,26 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                                       'cruise',
                                                       FFAppState()
                                                           .PositionSpeedMSFS,
+                                                    );
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          '!!',
+                                                          style: TextStyle(
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primaryText,
+                                                          ),
+                                                        ),
+                                                        duration: Duration(
+                                                            milliseconds: 4000),
+                                                        backgroundColor:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondary,
+                                                      ),
                                                     );
                                                   },
                                                 ),
@@ -20921,8 +20981,18 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                       FFAppState().TabNumber = 1;
                                       safeSetState(() {});
                                     },
-                                    pauseAction: () async {},
-                                    freezeAction: () async {},
+                                    pauseAction: () async {
+                                      await actions.pauseAndFreezeController(
+                                        FFAppState().ipPC,
+                                        'pause',
+                                      );
+                                    },
+                                    freezeAction: () async {
+                                      await actions.pauseAndFreezeController(
+                                        FFAppState().ipPC,
+                                        'freeze',
+                                      );
+                                    },
                                     systemAction: () async {
                                       FFAppState().TabNumber = 131;
                                       safeSetState(() {});
@@ -20963,7 +21033,10 @@ class _HomePageMSFSWidgetState extends State<HomePageMSFSWidget> {
                                       FFAppState().TabNumber = 130;
                                       safeSetState(() {});
                                     },
-                                    tcasAction: () async {},
+                                    tcasAction: () async {
+                                      FFAppState().TabNumber = 133;
+                                      safeSetState(() {});
+                                    },
                                     efbAction: () async {
                                       context
                                           .pushNamed(EFBmsfsWidget.routeName);
