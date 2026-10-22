@@ -49,19 +49,32 @@ class _WeatherWebViewState extends State<WeatherWebView> {
 
     _controller = WebViewController.fromPlatformCreationParams(params);
 
-    _controller
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onWebResourceError: (WebResourceError error) {
-            debugPrint('WebView Error: ${error.description}');
-          },
-        ),
-      );
+    _initializeWebView();
+  }
 
-    if (widget.initialUrl != null && widget.initialUrl!.isNotEmpty) {
-      _controller.loadRequest(Uri.parse(widget.initialUrl!));
+  Future<void> _initializeWebView() async {
+    // Disable WebView zoom before loading the page.
+    await _controller.enableZoom(false);
+
+    await _controller.setJavaScriptMode(
+      JavaScriptMode.unrestricted,
+    );
+
+    await _controller.setBackgroundColor(
+      const Color(0x00000000),
+    );
+
+    await _controller.setNavigationDelegate(
+      NavigationDelegate(
+        onWebResourceError: (WebResourceError error) {
+          debugPrint('WebView Error: ${error.description}');
+        },
+      ),
+    );
+
+    final String? url = widget.initialUrl;
+    if (url != null && url.isNotEmpty) {
+      await _controller.loadRequest(Uri.parse(url));
     }
   }
 
