@@ -19,50 +19,6 @@ import 'package:flutter/services.dart';
 
 import '/custom_code/actions/get_offline_navaid_data.dart';
 
-/// In-memory state shared by this file's widgets for the lifetime of the Dart
-/// app process. It survives Navigator push/pop and widget disposal/recreation,
-/// but is naturally reset when the process is killed or cold-started.
-class _EFBSessionCache {
-  static bool efbInitialized = false;
-  static bool navaidInitialized = false;
-
-  static String icaoText = '';
-  static String speedText = '150';
-  static int selectedMode = 0;
-  static String? lastLoadedIcao;
-  static String? selectedRunwayName;
-  static String? selectedGateName;
-  static String? selectedChartGateName;
-  static double? selectedRunwayLat;
-  static double? selectedRunwayLon;
-  static double? selectedRunwayHeading;
-  static double? selectedGateLat;
-  static double? selectedGateLon;
-  static double? selectedGateHeading;
-  static double? selectedChartGateLat;
-  static double? selectedChartGateLon;
-  static double? selectedChartGateHeading;
-
-  static String navaidSearchText = '';
-  static String radialText = '060';
-  static String headingText = '060';
-  static String distanceText = '25.0';
-  static String altitudeText = '10000';
-  static String navaidSpeedText = '250';
-  static String? selectedNavaidIdent;
-  static NavaidResult? selectedNavaid;
-  static double dialAngle = 60.0;
-  static double targetLat = 0.0;
-  static double targetLon = 0.0;
-  static double teleportLat = 0.0;
-  static double teleportLon = 0.0;
-  static double teleportHeading = 60.0;
-  static double teleportAltitude = 10000.0;
-  static double teleportSpeed = 250.0;
-
-  static final Map<String, Matrix4> chartTransforms = <String, Matrix4>{};
-}
-
 class GeoMath {
   static double calculateBearing(
       double lat1, double lon1, double lat2, double lon2) {
@@ -1157,27 +1113,11 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
       TransformationController();
   final double mapScaleFactor = 150000.0, canvasSize = 6000.0;
 
-  String get _chartTransformKey =>
-      '${widget.centerLat.toStringAsFixed(6)}:${widget.centerLon.toStringAsFixed(6)}';
-
-  void _saveChartTransform() {
-    _EFBSessionCache.chartTransforms[_chartTransformKey] =
-        _transformationController.value.clone();
-  }
-
   @override
   void initState() {
     super.initState();
-    _transformationController.addListener(_saveChartTransform);
     _fetchAllAirportData();
     _centerCamera();
-  }
-
-  @override
-  void dispose() {
-    _transformationController.removeListener(_saveChartTransform);
-    _transformationController.dispose();
-    super.dispose();
   }
 
   @override
@@ -1192,16 +1132,9 @@ class _AirportChartWidgetState extends State<_AirportChartWidget> {
 
   void _centerCamera() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final cachedTransform =
-          _EFBSessionCache.chartTransforms[_chartTransformKey];
-      if (cachedTransform != null) {
-        _transformationController.value = cachedTransform.clone();
-      } else {
-        _transformationController.value = Matrix4.identity()
-          ..translate(-canvasSize * 0.15 + 400, -canvasSize * 0.15 + 200)
-          ..scale(0.15);
-      }
+      _transformationController.value = Matrix4.identity()
+        ..translate(-canvasSize * 0.15 + 400, -canvasSize * 0.15 + 200)
+        ..scale(0.15);
     });
   }
 
@@ -1559,90 +1492,6 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   double _targetLat = 0.0;
   double _targetLon = 0.0;
 
-  void _saveNavaidInputState() {
-    _EFBSessionCache.navaidSearchText = _searchCtrl.text;
-    _EFBSessionCache.radialText = _radialCtrl.text;
-    _EFBSessionCache.headingText = _hdgCtrl.text;
-    _EFBSessionCache.distanceText = _distCtrl.text;
-    _EFBSessionCache.altitudeText = _altCtrl.text;
-    _EFBSessionCache.navaidSpeedText = _spdCtrl.text;
-    _EFBSessionCache.dialAngle = _dialAngle;
-    _EFBSessionCache.targetLat = _targetLat;
-    _EFBSessionCache.targetLon = _targetLon;
-  }
-
-  void _restoreSelectedNavaid() {
-    final cachedNavaid = _EFBSessionCache.selectedNavaid;
-    if (cachedNavaid != null) {
-      _selectedNavaid = cachedNavaid;
-      return;
-    }
-    final ident = _EFBSessionCache.selectedNavaidIdent;
-    if (ident == null || ident.isEmpty) return;
-    try {
-      for (final key in NavaidData.keys) {
-        if (key.toUpperCase() != ident.toUpperCase()) continue;
-        final data = NavaidData.getNavaidData(key);
-        if (data != null && data.isNotEmpty) {
-          _selectedNavaid = NavaidResult(key, data.first);
-          _EFBSessionCache.selectedNavaid = _selectedNavaid;
-          return;
-        }
-      }
-    } catch (_) {
-      // The input fields still restore even if an offline navaid is unavailable.
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (_EFBSessionCache.navaidInitialized) {
-      _searchCtrl.text = _EFBSessionCache.navaidSearchText;
-      _radialCtrl.text = _EFBSessionCache.radialText;
-      _hdgCtrl.text = _EFBSessionCache.headingText;
-      _distCtrl.text = _EFBSessionCache.distanceText;
-      _altCtrl.text = _EFBSessionCache.altitudeText;
-      _spdCtrl.text = _EFBSessionCache.navaidSpeedText;
-      _dialAngle = _EFBSessionCache.dialAngle;
-      _targetLat = _EFBSessionCache.targetLat;
-      _targetLon = _EFBSessionCache.targetLon;
-    } else {
-      if (widget.syncNavaidSearch != null) {
-        _searchCtrl.text = widget.syncNavaidSearch!;
-      }
-      if (widget.syncTeleportRadial != null) {
-        _radialCtrl.text = widget.syncTeleportRadial.toString();
-      }
-      if (widget.syncTeleportHdg != null) {
-        _hdgCtrl.text = widget.syncTeleportHdg.toString();
-      }
-      if (widget.syncTeleportDist != null) {
-        _distCtrl.text = widget.syncTeleportDist.toString();
-      }
-      if (widget.syncTeleportAlt != null) {
-        _altCtrl.text = widget.syncTeleportAlt.toString();
-      }
-      if (widget.syncTeleportSpd != null) {
-        _spdCtrl.text = widget.syncTeleportSpd.toString();
-      }
-    }
-    _restoreSelectedNavaid();
-    _searchCtrl.addListener(_saveNavaidInputState);
-    _radialCtrl.addListener(_saveNavaidInputState);
-    _hdgCtrl.addListener(_saveNavaidInputState);
-    _distCtrl.addListener(_saveNavaidInputState);
-    _altCtrl.addListener(_saveNavaidInputState);
-    _spdCtrl.addListener(_saveNavaidInputState);
-    _EFBSessionCache.navaidInitialized = true;
-    _saveNavaidInputState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _selectedNavaid == null && _searchCtrl.text.length >= 2) {
-        _onSearchChanged(_searchCtrl.text);
-      }
-    });
-  }
-
   @override
   void didUpdateWidget(covariant NavaidTeleportWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -1672,13 +1521,6 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
 
   @override
   void dispose() {
-    _searchCtrl.removeListener(_saveNavaidInputState);
-    _radialCtrl.removeListener(_saveNavaidInputState);
-    _hdgCtrl.removeListener(_saveNavaidInputState);
-    _distCtrl.removeListener(_saveNavaidInputState);
-    _altCtrl.removeListener(_saveNavaidInputState);
-    _spdCtrl.removeListener(_saveNavaidInputState);
-    _saveNavaidInputState();
     _searchCtrl.dispose();
     _radialCtrl.dispose();
     _hdgCtrl.dispose();
@@ -1723,8 +1565,6 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
   void _selectNavaid(NavaidResult nr) {
     setState(() {
       _selectedNavaid = nr;
-      _EFBSessionCache.selectedNavaidIdent = nr.ident;
-      _EFBSessionCache.selectedNavaid = nr;
       _searchCtrl.text = nr.ident;
       _altCtrl.text = (nr.model.elev + 10000).toInt().toString();
       _searchResults = [];
@@ -1774,17 +1614,20 @@ class _NavaidTeleportWidgetState extends State<NavaidTeleportWidget> {
       _targetLat = lat2 * 180.0 / math.pi;
       _targetLon = (lon2 * 180.0 / math.pi + 540) % 360 - 180;
     });
-    _saveNavaidInputState();
   }
 
   void _teleport() {
     if (_selectedNavaid == null) return;
-    _EFBSessionCache.teleportLat = _targetLat;
-    _EFBSessionCache.teleportLon = _targetLon;
-    _EFBSessionCache.teleportHeading = double.tryParse(_hdgCtrl.text) ?? 0.0;
-    _EFBSessionCache.teleportAltitude =
-        double.tryParse(_altCtrl.text) ?? 10000.0;
-    _EFBSessionCache.teleportSpeed = double.tryParse(_spdCtrl.text) ?? 250.0;
+    FFAppState().update(() {
+      FFAppState().efbNavaidTeleportLat = _targetLat;
+      FFAppState().efbNavaidTeleportLon = _targetLon;
+      FFAppState().efbNavaidTeleportHeading =
+          double.tryParse(_hdgCtrl.text) ?? 0.0;
+      FFAppState().efbNavaidTeleportAltitude =
+          double.tryParse(_altCtrl.text) ?? 10000.0;
+      FFAppState().efbNavaidTeleportSpeed =
+          double.tryParse(_spdCtrl.text) ?? 250.0; // حفظ السرعة الجديدة
+    });
     if (widget.onTeleportTap != null) widget.onTeleportTap!();
   }
 
@@ -3237,62 +3080,9 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
   int _selectedGateIndex = -1;
   double? _airportCenterLat, _airportCenterLon;
 
-  void _saveEfbInputState() {
-    _EFBSessionCache.icaoText = _icaoController.text;
-    _EFBSessionCache.speedText = _speedController.text;
-    _EFBSessionCache.selectedMode = _selectedMode;
-  }
-
   @override
   void initState() {
     super.initState();
-    final bool firstInitialization = !_EFBSessionCache.efbInitialized;
-    _icaoController.text = _EFBSessionCache.icaoText;
-    _speedController.text = _EFBSessionCache.speedText;
-    _selectedMode = _EFBSessionCache.selectedMode;
-
-    if (firstInitialization) {
-      if (widget.syncIcao != null) _icaoController.text = widget.syncIcao!;
-      if (widget.syncMode != null) _selectedMode = widget.syncMode!;
-      if (widget.syncSetSpeed != null && widget.syncSetSpeed! > 0) {
-        _speedController.text = widget.syncSetSpeed.toString();
-      }
-      if (widget.syncRunway != null && widget.syncRunway!.isNotEmpty) {
-        _EFBSessionCache.selectedRunwayName = widget.syncRunway;
-      }
-      if (widget.syncGate != null && widget.syncGate!.isNotEmpty) {
-        _EFBSessionCache.selectedGateName = widget.syncGate;
-      }
-      if (widget.syncChartGate != null && widget.syncChartGate!.isNotEmpty) {
-        _EFBSessionCache.selectedChartGateName = widget.syncChartGate;
-      }
-      _EFBSessionCache.efbInitialized = true;
-    }
-
-    _icaoController.addListener(_saveEfbInputState);
-    _speedController.addListener(_saveEfbInputState);
-    _saveEfbInputState();
-    final String initialIcao = _icaoController.text.trim().toUpperCase();
-    final bool shouldLoadInitialAirport = firstInitialization
-        ? initialIcao.isNotEmpty &&
-            (widget.syncIcao?.trim().isNotEmpty ?? false)
-        : initialIcao.isNotEmpty &&
-            _EFBSessionCache.lastLoadedIcao == initialIcao;
-    if (shouldLoadInitialAirport) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _handleSearch();
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _saveEfbInputState();
-    _icaoController.removeListener(_saveEfbInputState);
-    _speedController.removeListener(_saveEfbInputState);
-    _icaoController.dispose();
-    _speedController.dispose();
-    super.dispose();
   }
 
   @override
@@ -3320,17 +3110,12 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
       } catch (e) {}
     }
     if (widget.syncGate != null && widget.syncGate != oldWidget.syncGate) {
-      _EFBSessionCache.selectedGateName = widget.syncGate;
       try {
         final index =
             _gatesList.indexWhere((g) => g['name'] == widget.syncGate);
         if (index != -1) {
           setState(() => _selectedGateIndex = index);
           final gate = _gatesList[index];
-          _EFBSessionCache.selectedGateLat = (gate['lat'] as num?)?.toDouble();
-          _EFBSessionCache.selectedGateLon = (gate['lon'] as num?)?.toDouble();
-          _EFBSessionCache.selectedGateHeading =
-              (gate['heading'] as num?)?.toDouble();
           if (widget.onGateSelected != null) {
             widget.onGateSelected!(gate['lat'], gate['lon'], gate['heading']);
           }
@@ -3339,16 +3124,9 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
     }
     if (widget.syncChartGate != null &&
         widget.syncChartGate != oldWidget.syncChartGate) {
-      _EFBSessionCache.selectedChartGateName = widget.syncChartGate;
       try {
         final gate =
             _gatesList.firstWhere((g) => g['name'] == widget.syncChartGate);
-        _EFBSessionCache.selectedChartGateLat =
-            (gate['lat'] as num?)?.toDouble();
-        _EFBSessionCache.selectedChartGateLon =
-            (gate['lon'] as num?)?.toDouble();
-        _EFBSessionCache.selectedChartGateHeading =
-            (gate['heading'] as num?)?.toDouble();
         if (widget.onChartGateSelected != null) {
           widget.onChartGateSelected!(
               gate['name'], gate['lat'], gate['lon'], gate['heading']);
@@ -3391,23 +3169,6 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
   void _handleSearch() {
     final icao = _icaoController.text.trim().toUpperCase();
     if (icao.isEmpty) return;
-    if (_EFBSessionCache.lastLoadedIcao != null &&
-        _EFBSessionCache.lastLoadedIcao != icao) {
-      _EFBSessionCache.selectedRunwayName = null;
-      _EFBSessionCache.selectedGateName = null;
-      _EFBSessionCache.selectedChartGateName = null;
-      _EFBSessionCache.selectedRunwayLat = null;
-      _EFBSessionCache.selectedRunwayLon = null;
-      _EFBSessionCache.selectedRunwayHeading = null;
-      _EFBSessionCache.selectedGateLat = null;
-      _EFBSessionCache.selectedGateLon = null;
-      _EFBSessionCache.selectedGateHeading = null;
-      _EFBSessionCache.selectedChartGateLat = null;
-      _EFBSessionCache.selectedChartGateLon = null;
-      _EFBSessionCache.selectedChartGateHeading = null;
-    }
-    _EFBSessionCache.lastLoadedIcao = icao;
-    _EFBSessionCache.icaoText = _icaoController.text;
     _fetchRunwayData(icao);
     _fetchGatesData(icao);
   }
@@ -3449,23 +3210,8 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
             _airportCenterLon = sumLon / parsedRunways.length;
           }
         });
-        if (parsedRunways.isNotEmpty) {
-          Map<String, dynamic>? restoredRunway;
-          final cachedName = _EFBSessionCache.selectedRunwayName;
-          if (cachedName != null) {
-            for (final runway in parsedRunways) {
-              if (runway['name'] == cachedName) {
-                restoredRunway = runway;
-                break;
-              }
-            }
-          }
-          final bool restoringSelection = restoredRunway != null;
-          _selectRunway(
-            restoredRunway ?? parsedRunways[0],
-            triggerCallback: !restoringSelection && _selectedMode == 0,
-          );
-        }
+        if (parsedRunways.isNotEmpty)
+          _selectRunway(parsedRunways[0], triggerCallback: _selectedMode == 0);
       } else {
         _showError("❌ ICAO Code '$icao' not found.");
         setState(() => _isLoadingRunways = false);
@@ -3632,20 +3378,6 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
           if (_gatesList.isEmpty)
             _gateErrorMessage = 'NO GATES FOUND IN DATABASE';
           _isLoadingGates = false;
-          final cachedGateName = _EFBSessionCache.selectedGateName;
-          if (cachedGateName != null) {
-            _selectedGateIndex =
-                _gatesList.indexWhere((gate) => gate['name'] == cachedGateName);
-            if (_selectedGateIndex >= 0) {
-              final gate = _gatesList[_selectedGateIndex];
-              _EFBSessionCache.selectedGateLat =
-                  (gate['lat'] as num?)?.toDouble();
-              _EFBSessionCache.selectedGateLon =
-                  (gate['lon'] as num?)?.toDouble();
-              _EFBSessionCache.selectedGateHeading =
-                  (gate['heading'] as num?)?.toDouble();
-            }
-          }
         });
     } catch (e) {
       if (mounted)
@@ -3659,11 +3391,12 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
   void _selectRunway(Map<String, dynamic> runway,
       {bool triggerCallback = true}) {
     setState(() => _selectedRunway = runway);
-    _EFBSessionCache.selectedRunwayName = runway['name']?.toString();
-    _EFBSessionCache.selectedRunwayLat = (runway['lat'] as num?)?.toDouble();
-    _EFBSessionCache.selectedRunwayLon = (runway['lon'] as num?)?.toDouble();
-    _EFBSessionCache.selectedRunwayHeading =
-        (runway['heading_raw'] as num?)?.toDouble();
+    FFAppState().update(() {
+      FFAppState().radarRwyName = runway['name'];
+      FFAppState().radarLat = runway['lat'];
+      FFAppState().radarLon = runway['lon'];
+      FFAppState().radarHdgRaw = runway['heading_raw'];
+    });
     if (triggerCallback && widget.onRunwaySelected != null)
       widget.onRunwaySelected!(
           runway['lat'], runway['lon'], runway['heading_raw']);
@@ -3978,12 +3711,9 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    _saveEfbInputState();
-    return _isMobile(context)
-        ? _buildMobileView(context)
-        : _buildDesktopView(context);
-  }
+  Widget build(BuildContext context) => _isMobile(context)
+      ? _buildMobileView(context)
+      : _buildDesktopView(context);
 
   Widget _buildDesktopView(BuildContext context) {
     return Container(
@@ -4551,7 +4281,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   xPct: .55,
                   yPct: .23,
                   text1: 'Left base',
-                  text2: '700ft',
+                  text2: '7000ft',
                   angle: math.pi,
                   txtDy: -28,
                   onTap: widget.onPlaneHoldLeftTap,
@@ -4571,7 +4301,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                   xPct: .55,
                   yPct: .77,
                   text1: 'Right base',
-                  text2: '700ft',
+                  text2: '7000ft',
                   angle: 0,
                   txtDy: 28,
                   onTap: widget.onPlaneHoldRightTap,
@@ -4648,7 +4378,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 xPct: 0.45,
                 yPct: 0.30,
                 text1: 'Left base',
-                text2: '700ft',
+                text2: '7000ft',
                 angle: math.pi,
                 txtDy: -40,
                 onTap: widget.onPlaneHoldLeftTap),
@@ -4666,7 +4396,7 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
                 xPct: 0.45,
                 yPct: 0.70,
                 text1: 'Right base',
-                text2: '700ft',
+                text2: '7000ft',
                 angle: 0,
                 txtDy: 40,
                 onTap: widget.onPlaneHoldRightTap),
@@ -4731,14 +4461,12 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
               return GestureDetector(
                   onTap: () {
                     setState(() => _selectedGateIndex = index);
-                    _EFBSessionCache.selectedGateName =
-                        gate['name']?.toString();
-                    _EFBSessionCache.selectedGateLat =
-                        (gate['lat'] as num?)?.toDouble();
-                    _EFBSessionCache.selectedGateLon =
-                        (gate['lon'] as num?)?.toDouble();
-                    _EFBSessionCache.selectedGateHeading =
-                        (gate['heading'] as num?)?.toDouble();
+                    FFAppState().update(() {
+                      FFAppState().gateName = gate['name'];
+                      FFAppState().gateLat = gate['lat'];
+                      FFAppState().gateLon = gate['lon'];
+                      FFAppState().gateHdg = gate['heading'];
+                    });
                     if (widget.onGateSelected != null)
                       widget.onGateSelected!(
                           gate['lat'], gate['lon'], gate['heading']);
@@ -4805,10 +4533,12 @@ class _EliteAviationEFBState extends State<EliteAviationEFB> {
         centerLat: _airportCenterLat!,
         centerLon: _airportCenterLon!,
         onChartGateSelected: (name, lat, lon, heading) {
-          _EFBSessionCache.selectedChartGateName = name;
-          _EFBSessionCache.selectedChartGateLat = lat;
-          _EFBSessionCache.selectedChartGateLon = lon;
-          _EFBSessionCache.selectedChartGateHeading = heading;
+          FFAppState().update(() {
+            FFAppState().chartGateName = name;
+            FFAppState().chartGateLat = lat;
+            FFAppState().chartGateLon = lon;
+            FFAppState().chartGateHdg = heading;
+          });
           if (widget.onChartGateSelected != null)
             widget.onChartGateSelected!(name, lat, lon, heading);
         });
