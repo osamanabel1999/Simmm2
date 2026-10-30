@@ -39,7 +39,7 @@
         tools:node="remove" />
 
     <application
-        android:label="testysimm"
+        android:label="Simulator Station"
         tools:replace="android:label"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
@@ -80,8 +80,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:scheme="testysimm"
-                    android:host="testysimm.com" />
+                    android:scheme="simulatorstation"
+                    android:host="simulatorstation.com" />
             </intent-filter>
 
         </activity>
